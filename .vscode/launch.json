@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+         {
+             "name": "Debug",
+             "type": "coreclr",
+             "request": "launch",
+             "preLaunchTask": "Development Build (for testing)",
+             "program": "${workspaceFolder}/src/bin/Debug/net6.0/GameLab.dll",
+             "args": [],
+             "cwd": "${workspaceFolder}",
+             "console": "internalConsole",
+             "stopAtEntry": false
+         }
+     ]
+ }
+ 

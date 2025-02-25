@@ -1,0 +1,31 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Development Build (for testing)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/GameLab.csproj",
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Release Build (for hand-in)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/src/GameLab.csproj",
+                "-c",
+                "Release",
+                "-r",
+                "win-x64",
+                "/p:PublishSingleFile=true",
+                "--self-contained"
+            ],
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}
