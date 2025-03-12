@@ -1,23 +1,31 @@
 ﻿using System;
+using System.Collections;
 using System.Net.NetworkInformation;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+//local imports
+using src.ObjectClasses;
 
 namespace GameLab
 {
     public class GameLabGame : Game
     {
+        private const int width = 1200, height = 1024;
+
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        private Model model; 
-        private Model model2; 
+        private Model model;
+        private Model model2;
         private Matrix world = Matrix.CreateTranslation(new Vector3(0, 0, 0));
         private Matrix world2 = Matrix.CreateTranslation(new Vector3(2.0f, -2.0f, 1.0f));
-        private Matrix world3 = Matrix.CreateRotationZ((float)(Math.PI/2));
+        private Matrix world3 = Matrix.CreateRotationZ((float)(Math.PI / 2));
         private Matrix view = Matrix.CreateLookAt(new Vector3(5.0f, 5.0f, 5.0f), new Vector3(0, 0, 0), Vector3.UnitZ);
-        private Matrix projection = Matrix.CreateOrthographic(15,15, 0.1f, 100f);
+        private Matrix projection = Matrix.CreateOrthographic(15, 15, 0.1f, 100f);
+
+        private RingOfDoom ring;
+
 
         public GameLabGame()
         {
@@ -30,8 +38,8 @@ namespace GameLab
         {
             // TODO: Add your initialization logic here
 
-            _graphics.PreferredBackBufferWidth = 1200;
-            _graphics.PreferredBackBufferHeight = 1024;
+            _graphics.PreferredBackBufferWidth = width;
+            _graphics.PreferredBackBufferHeight = height;
             //_graphics.ToggleFullScreen();
             _graphics.ApplyChanges();
 
@@ -39,6 +47,9 @@ namespace GameLab
             model2 = Content.Load<Model>("Monke");
 
             base.Initialize();
+
+            //initialize the ring of doom, im curently passing not the dimensions of the plane but the dimensions of the window
+            this.ring = new RingOfDoom(width, height);
         }
 
         protected override void LoadContent()
@@ -53,26 +64,27 @@ namespace GameLab
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
+            //close the ring of doom
+            this.ring.CloseRing(gameTime);
 
             base.Update(gameTime);
         }
 
         private void DrawModel(Model model, Matrix world, Matrix view, Matrix projection)
-{
-    foreach (ModelMesh mesh in model.Meshes)
-    {
-        foreach (BasicEffect effect in mesh.Effects)
         {
-            effect.World = world;
-            effect.View = view;
-            effect.Projection = projection;
-            effect.EnableDefaultLighting();
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                foreach (BasicEffect effect in mesh.Effects)
+                {
+                    effect.World = world;
+                    effect.View = view;
+                    effect.Projection = projection;
+                    effect.EnableDefaultLighting();
+                }
+
+                mesh.Draw();
+            }
         }
- 
-        mesh.Draw();
-    }
-}
 
         protected override void Draw(GameTime gameTime)
         {
@@ -81,9 +93,12 @@ namespace GameLab
 
             _spriteBatch.Begin();
 
+            //circle drawing
+            //this.ring.DrawRing(_graphics, _spriteBatch, Content.Load<Texture2D>("ring"));
+
             // TODO: Add your drawing code here
             this.DrawModel(this.model, this.world, this.view, this.projection);
-            this.DrawModel(this.model2, this.world3*this.world2, this.view, this.projection);
+            this.DrawModel(this.model2, this.world3 * this.world2, this.view, this.projection);
             _spriteBatch.End();
 
             base.Draw(gameTime);
