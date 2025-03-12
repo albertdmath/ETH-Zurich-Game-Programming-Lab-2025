@@ -67,6 +67,8 @@ namespace GameLab
             //close the ring of doom
             this.ring.CloseRing(gameTime);
 
+            //this.player.Position = this.ring.RingClamp(this.player.Position);
+
             base.Update(gameTime);
         }
 
@@ -93,10 +95,9 @@ namespace GameLab
 
             _spriteBatch.Begin();
 
-            //circle drawing
-            //this.ring.DrawRing(_graphics, _spriteBatch, Content.Load<Texture2D>("ring"));
-
             // TODO: Add your drawing code here
+            //circle drawing
+            //this.ring.DrawRing(_spriteBatch, Content.Load<Texture2D>("ring"));
             this.DrawModel(this.model, this.world, this.view, this.projection);
             this.DrawModel(this.model2, this.world3 * this.world2, this.view, this.projection);
             _spriteBatch.End();
