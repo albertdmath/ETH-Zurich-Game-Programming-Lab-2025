@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Net.NetworkInformation;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -25,6 +27,7 @@ namespace GameLab
         private Matrix projection = Matrix.CreateOrthographic(15, 15, 0.1f, 100f);
 
         private RingOfDoom ring;
+        private LinkedList<Projectile> projectiles = new LinkedList<Projectile>();
 
 
         public GameLabGame()
@@ -63,6 +66,15 @@ namespace GameLab
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+
+            
+            //try to create a random projectile and check if it is not null
+            if (Projectile.CreateRandomProjectile(gameTime) is Projectile proj)
+            {
+                projectiles.AddLast(proj);
+                //throw the projectile form a random point on the ring to a position of a random player
+                proj.Throw(ring.RndCircPoint(), new Vector3(0, 0, 0));
+            }
 
             //close the ring of doom
             this.ring.CloseRing(gameTime);

@@ -1,7 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Diagnostics;
 
 namespace src.ObjectClasses
 {
@@ -28,7 +27,7 @@ namespace src.ObjectClasses
 
             // Calculate a random point inside the circle
             float angle = (float)this.rng.NextDouble() * 2 * MathF.PI;
-            float distance = this.initialRadius * MathF.Sqrt((float)this.rng.NextDouble());
+            float distance = this.initialRadius * MathF.Sqrt((float) this.rng.NextDouble());
             float x = distance * MathF.Cos(angle);
             float z = distance * MathF.Sin(angle);
             this.endCenter = new Vector3(x, 0, z);
