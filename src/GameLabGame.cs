@@ -13,7 +13,7 @@ namespace GameLab
 {
     public class GameLabGame : Game
     {
-        private const int width = 1200, height = 1024;
+        private const int WIDTH = 1200, HEIGHT = 1024;
 
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -41,8 +41,8 @@ namespace GameLab
         {
             // TODO: Add your initialization logic here
 
-            _graphics.PreferredBackBufferWidth = width;
-            _graphics.PreferredBackBufferHeight = height;
+            _graphics.PreferredBackBufferWidth = WIDTH;
+            _graphics.PreferredBackBufferHeight = HEIGHT;
             //_graphics.ToggleFullScreen();
             _graphics.ApplyChanges();
 
@@ -52,7 +52,7 @@ namespace GameLab
             base.Initialize();
 
             //initialize the ring of doom, im curently passing not the dimensions of the plane but the dimensions of the window
-            this.ring = new RingOfDoom(width, height);
+            this.ring = new RingOfDoom(WIDTH, HEIGHT);
         }
 
         protected override void LoadContent()
@@ -75,6 +75,11 @@ namespace GameLab
                 //throw the projectile form a random point on the ring to a position of a random player
                 proj.Throw(ring.RndCircPoint(), new Vector3(0, 0, 0));
             }
+
+            //move all the projectiles
+            foreach (Projectile projectile in projectiles) projectile.Move(gameTime);
+
+            //check hit detection
 
             //close the ring of doom
             this.ring.CloseRing(gameTime);
