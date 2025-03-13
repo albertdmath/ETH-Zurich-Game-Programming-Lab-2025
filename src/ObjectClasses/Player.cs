@@ -13,8 +13,8 @@ namespace src.ObjectClasses
         private Projectile projectileHeld; 
         private bool isHoldingProjectile = false;
 
-        public void Move(){
-
+        public void Move() {
+            
         }
 
         public void Grab(){

@@ -20,6 +20,8 @@ namespace GameLab
 
         private Model model;
         private Model model2;
+        private Model jesterModel;
+        private Model frogModel;
         private Matrix world = Matrix.CreateTranslation(new Vector3(0, 0, 0));
         private Matrix world2 = Matrix.CreateTranslation(new Vector3(2.0f, -2.0f, 1.0f));
         private Matrix world3 = Matrix.CreateRotationZ((float)(Math.PI / 2));
@@ -49,6 +51,9 @@ namespace GameLab
 
             model = Content.Load<Model>("BIG");
             model2 = Content.Load<Model>("Monke");
+            jesterModel = Content.Load<Model>("Jester");
+            frogModel = Content.Load<Model>("Frog");
+            
 
             base.Initialize();
 
@@ -118,6 +123,7 @@ namespace GameLab
             //this.ring.DrawRing(_spriteBatch, Content.Load<Texture2D>("ring"));
             this.DrawModel(this.model, this.world, this.view, this.projection);
             this.DrawModel(this.model2, this.world3 * this.world2, this.view, this.projection);
+            this.DrawModel(this.frogModel, this.world3, this.view, this.projection);
             _spriteBatch.End();
 
             base.Draw(gameTime);
