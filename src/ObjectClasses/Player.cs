@@ -1,6 +1,7 @@
+using GameLab;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace src.ObjectClasses
@@ -9,28 +10,40 @@ namespace src.ObjectClasses
     public class Player : MoveableObject {
 
         private Vector3 position = new Vector3(0,-3f,0);
-        private float movespeed=0.2f;
+        private float playerSpeed=10.0f;
         private int life = 3; 
         private int stamina = 3; 
         //private Projectile *projectileHeld;
+        private KeyboardState oldState;
         private bool isHoldingProjectile = false;
         public Vector3 getposition(){
             return this.position;
         }
-        public void Move(){
+        public void Move(GameTime gameTime){
+            float dt = (float) gameTime.ElapsedGameTime.TotalSeconds;
+            Vector3 dir = new Vector3(0,0,0);
             KeyboardState newState = Keyboard.GetState();
                 if(newState.IsKeyDown(Keys.A)){
-                    position.X += movespeed;
-                }
-                if(newState.IsKeyDown(Keys.W)){
-                    position.Y -=movespeed;
-                }
-                if(newState.IsKeyDown(Keys.S)){
-                    position.Y +=movespeed;
+                    dir.X += 1;
+                    //position.X +=playerSpeed*dt;
                 }
                 if(newState.IsKeyDown(Keys.D)){
-                    position.X-=movespeed;
+                    dir.X -= 1;
+                    //position.X -=playerSpeed*dt;
                 }
+                if(newState.IsKeyDown(Keys.W)){
+                    dir.Y -= 1;
+                    //position.Y -=playerSpeed*dt;
+                }
+                if(newState.IsKeyDown(Keys.S)){
+                    dir.Y += 1;
+                    //position.Y +=playerSpeed*dt;
+                }
+                if(newState.IsKeyDown(Keys.R)){
+                    playerSpeed*=1.02f;
+                }
+            position = position + dt * playerSpeed * dir;
+            oldState = newState;
         }
 
         public void Grab(){
