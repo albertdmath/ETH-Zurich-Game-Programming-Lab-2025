@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.NetworkInformation;
+
+//using System.Numerics;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -20,11 +23,13 @@ namespace GameLab
 
         private Model model;
         private Model model2;
+        float movespeed = 0.2f;
         private Matrix world = Matrix.CreateTranslation(new Vector3(0, 0, 0));
-        private Matrix world2 = Matrix.CreateTranslation(new Vector3(2.0f, -2.0f, 1.0f));
-        private Matrix world3 = Matrix.CreateRotationZ((float)(Math.PI / 2));
+        private Matrix world2 = Matrix.CreateTranslation(new Vector3(2.0f,-4.0f,2.0f));
+        private Vector3 monkeposition = new Vector3(0, 0, 0);
+        private Matrix world3 = Matrix.CreateRotationZ((float)(Math.PI / 3));
         private Matrix view = Matrix.CreateLookAt(new Vector3(5.0f, 5.0f, 5.0f), new Vector3(0, 0, 0), Vector3.UnitZ);
-        private Matrix projection = Matrix.CreateOrthographic(15, 15, 0.1f, 100f);
+        private Matrix projection = Matrix.CreateOrthographic(15, 15, 0.1f, 1000f);
 
         private RingOfDoom ring;
         private LinkedList<Projectile> projectiles = new LinkedList<Projectile>();
@@ -64,8 +69,22 @@ namespace GameLab
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape)){
                 Exit();
+            }
+            KeyboardState newState = Keyboard.GetState();
+                if(newState.IsKeyDown(Keys.D)){
+                    monkeposition.X += movespeed;
+                }
+                if(newState.IsKeyDown(Keys.W)){
+                    monkeposition.Y -=movespeed;
+                }
+                if(newState.IsKeyDown(Keys.S)){
+                    monkeposition.Y +=movespeed;
+                }
+                if(newState.IsKeyDown(Keys.A)){
+                    monkeposition.X-=movespeed;
+                }
 
             
             //try to create a random projectile and check if it is not null
@@ -116,9 +135,9 @@ namespace GameLab
             //circle drawing
             //this.ring.DrawRing(_spriteBatch, Content.Load<Texture2D>("ring"));
             this.DrawModel(this.model, this.world, this.view, this.projection);
-            this.DrawModel(this.model2, this.world3 * this.world2, this.view, this.projection);
+            this.DrawModel(this.model2, this.world3 * Matrix.CreateTranslation(monkeposition), this.view, this.projection);
             _spriteBatch.End();
-
+            Console.WriteLine(monkeposition.X);
             base.Draw(gameTime);
         }
 
