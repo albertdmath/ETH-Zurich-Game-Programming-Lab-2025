@@ -41,6 +41,10 @@ namespace src.ObjectClasses
             //also connect the sprite to the projectile
         }
 
+        public void Draw(GraphicsDevice graphicsDevice, BasicEffect effect) {
+            //draw the projectile
+        }
+
         //move the projectile
         public virtual void Move(GameTime gameTime) {}
     }
@@ -67,7 +71,7 @@ namespace src.ObjectClasses
 
         public override void Move(GameTime gameTime)
         {
-            this.currPos += gameTime.ElapsedGameTime.Milliseconds * SPEED * direction;
+            this.currPos += SPEED * direction * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
     }
 }
