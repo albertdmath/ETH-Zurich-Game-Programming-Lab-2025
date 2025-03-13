@@ -20,7 +20,7 @@ namespace GameLab
         private Matrix world = Matrix.CreateTranslation(new Vector3(0, 0, 0));
         private Matrix world2 = Matrix.CreateTranslation(new Vector3(2.0f, -2.0f, 1.0f));
         private Matrix world3 = Matrix.CreateRotationZ((float)(Math.PI / 2));
-        private Matrix view = Matrix.CreateLookAt(new Vector3(5.0f, 5.0f, 5.0f), new Vector3(0, 0, 0), Vector3.UnitZ);
+        private Matrix view = Matrix.CreateLookAt(new Vector3(0.0f, 5.0f, 5.0f), new Vector3(0, 0, 0), Vector3.UnitZ);
         private Matrix projection = Matrix.CreateOrthographic(15, 15, 0.1f, 100f);
 
         private RingOfDoom ring;
