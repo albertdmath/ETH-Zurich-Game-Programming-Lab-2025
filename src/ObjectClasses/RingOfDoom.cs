@@ -11,11 +11,10 @@ namespace src.ObjectClasses
         This is the class for the menacing mob. 
         **/
         private Random rng = new Random();
-        private float radius;
+        private float initialRadius, radius;
         private Vector3 currCenter, endCenter;
         private const float START_CLOSING_TIME = 60000f; // 1 minute in milliseconds
         private const float CLOSING_TIME = 60000f; // 1 minute in milliseconds
-        private float initialRadius; // Store the initial radius
 
         public RingOfDoom(int planeWidth, int planeHeight)
         {
@@ -57,6 +56,7 @@ namespace src.ObjectClasses
         //clamp the players position to the ring
         public Vector3 RingClamp(Vector3 playerPosition)
         {
+            //this assume that the player is always at y = 0
             Vector3 offset = playerPosition - currCenter;
 
             if (offset.Length() <= this.radius) return playerPosition;
