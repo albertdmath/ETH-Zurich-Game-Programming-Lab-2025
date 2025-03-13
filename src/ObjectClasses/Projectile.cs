@@ -54,7 +54,7 @@ namespace src.ObjectClasses
     public class Frog : Projectile
     {
         private const float HOP_TIME = 1000f; // 1 second in milliseconds
-        private const int velocity = 20;
+        private const int velocity = 5;
         private float timeBeforeHop = 0f;
 
         public override void Move(GameTime gameTime)
@@ -69,7 +69,7 @@ namespace src.ObjectClasses
 
     public class Swordfish : Projectile
     {
-        private const int velocity = 50;
+        private const int velocity = 20;
 
         public override void Move(GameTime gameTime)
         {

@@ -13,7 +13,7 @@ namespace GameLab
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        private Model plane, monkey, arena;
+        private Model plane, monkey, jesterModel, frogModel, arena;
         private Matrix world = Matrix.CreateTranslation(new Vector3(0, 0, 0));
         private Matrix world2 = Matrix.CreateTranslation(new Vector3(2.0f, -2.0f, 1.0f));
         private Matrix world3 = Matrix.CreateRotationZ((float)(Math.PI / 2));
@@ -55,6 +55,8 @@ namespace GameLab
             plane = Content.Load<Model>("BIG");
             monkey = Content.Load<Model>("Monke");
             arena = Content.Load<Model>("arena");
+            jesterModel = Content.Load<Model>("Jester");
+            frogModel = Content.Load<Model>("Frog");
         }
 
         protected override void Update(GameTime gameTime)
@@ -107,10 +109,12 @@ namespace GameLab
             _spriteBatch.Begin();
 
             // TODO: Add your drawing code here
-            foreach (Projectile projectile in projectiles) this.DrawModel(this.monkey, Matrix.CreateTranslation(projectile.GetPosition()), this.view, this.projection);
             //this.ring.DrawRing(_spriteBatch, Content.Load<Texture2D>("ring"));
             this.DrawModel(this.plane, this.world, this.view, this.projection);
             this.DrawModel(this.monkey, this.world3 * this.world2, this.view, this.projection);
+            this.DrawModel(this.frogModel, this.world3, this.view, this.projection);
+            foreach (Projectile projectile in projectiles) this.DrawModel(this.frogModel, Matrix.CreateTranslation(projectile.GetPosition()), this.view, this.projection);
+
             _spriteBatch.End();
 
             base.Draw(gameTime);
