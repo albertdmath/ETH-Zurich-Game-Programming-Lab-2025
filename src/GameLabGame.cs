@@ -16,13 +16,11 @@ namespace GameLab
 {
     public class GameLabGame : Game
     {
-        private const int WIDTH = 1200, HEIGHT = 1024;
-
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        private Model model;
-        private Model model2;
+        private Model plane;
+        private Model monkey;
         float movespeed = 0.2f;
         private Matrix world = Matrix.CreateTranslation(new Vector3(0, 0, 0));
         private Matrix world2 = Matrix.CreateTranslation(new Vector3(2.0f,-4.0f,2.0f));
@@ -33,6 +31,7 @@ namespace GameLab
 
         private RingOfDoom ring;
         private LinkedList<Projectile> projectiles = new LinkedList<Projectile>();
+        private Player[] players = new Player[4];
 
 
         public GameLabGame()
@@ -44,27 +43,26 @@ namespace GameLab
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
-            _graphics.PreferredBackBufferWidth = WIDTH;
-            _graphics.PreferredBackBufferHeight = HEIGHT;
-            //_graphics.ToggleFullScreen();
+            _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            _graphics.IsFullScreen = true; // Enable full screen
             _graphics.ApplyChanges();
+            
+            //initialize the ring of doom, im curently passing random plane dimensions
+            int planeWidth = 100, planeHeight = 100;
+            this.ring = new RingOfDoom(planeWidth, planeHeight);
 
-            model = Content.Load<Model>("BIG");
-            model2 = Content.Load<Model>("Monke");
+            //initialize the players
 
-            base.Initialize();
-
-            //initialize the ring of doom, im curently passing not the dimensions of the plane but the dimensions of the window
-            this.ring = new RingOfDoom(WIDTH, HEIGHT);
+            base.Initialize(); //why?
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
+            
+            plane = Content.Load<Model>("BIG");
+            monkey = Content.Load<Model>("Monke");
         }
 
         protected override void Update(GameTime gameTime)
@@ -132,16 +130,14 @@ namespace GameLab
             _spriteBatch.Begin();
 
             // TODO: Add your drawing code here
-            //circle drawing
+            //foreach (Projectile projectile in projectiles) projectile.DrawProjectile();
             //this.ring.DrawRing(_spriteBatch, Content.Load<Texture2D>("ring"));
-            this.DrawModel(this.model, this.world, this.view, this.projection);
-            this.DrawModel(this.model2, this.world3 * Matrix.CreateTranslation(monkeposition), this.view, this.projection);
+            
+            this.DrawModel(this.plane, this.world, this.view, this.projection);
+            this.DrawModel(this.monkey, this.world3 * Matrix.CreateTranslation(monkeposition), this.view, this.projection);
             _spriteBatch.End();
             Console.WriteLine(monkeposition.X);
             base.Draw(gameTime);
         }
-
-
-
     }
 }
