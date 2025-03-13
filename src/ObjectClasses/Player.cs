@@ -22,7 +22,6 @@ namespace src.ObjectClasses
             
             //if(button pressed and projectile is in range)
             this.isHoldingProjectile = true;
-            
         }
 
         public void Throw(){

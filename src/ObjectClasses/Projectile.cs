@@ -7,8 +7,6 @@ namespace src.ObjectClasses
 {
     public class Projectile : MoveableObject
     {
-        protected Vector3 currPos, direction;
-        private static Random rng = new Random();
         private const float MAX_TIME_BETWEEN_PROJECTILES = 5000f; // 5 seconds in milliseconds
         private static float timeUntilNextProjectile = 5000f; // Random interval before next projectile
         // Factory method to create a random projectile
@@ -36,13 +34,17 @@ namespace src.ObjectClasses
 
         //instantiate the projectile
         public void Throw(Vector3 origin, Vector3 target) {
-            this.currPos = origin;
-            this.direction = Vector3.Normalize(target - origin);
+            this.position = origin;
+            this.orientation = Vector3.Normalize(target - origin);
             //also connect the sprite to the projectile
         }
 
-        public void Draw(GraphicsDevice graphicsDevice, BasicEffect effect) {
-            //draw the projectile
+        public void DrawProjectile(GraphicsDevice graphicsDevice, BasicEffect effect) {
+            
+        }
+
+        public Vector3 GetPosition() {
+            return this.position;
         }
 
         //move the projectile
@@ -52,7 +54,7 @@ namespace src.ObjectClasses
     public class Frog : Projectile
     {
         private const float HOP_TIME = 1000f; // 1 second in milliseconds
-        private const int SPEED = 20;
+        private const int velocity = 20;
         private float timeBeforeHop = 0f;
 
         public override void Move(GameTime gameTime)
@@ -60,18 +62,18 @@ namespace src.ObjectClasses
             timeBeforeHop += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
             if (timeBeforeHop < HOP_TIME) return;
             
-            this.currPos += SPEED * direction;
+            this.position += velocity * orientation;
             this.timeBeforeHop = 0f;
         }
     }
 
     public class Swordfish : Projectile
     {
-        private const int SPEED = 50;
+        private const int velocity = 50;
 
         public override void Move(GameTime gameTime)
         {
-            this.currPos += SPEED * direction * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            this.position += velocity * orientation * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
     }
 }
