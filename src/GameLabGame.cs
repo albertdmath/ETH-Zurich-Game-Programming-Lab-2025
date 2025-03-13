@@ -28,6 +28,7 @@ namespace GameLab
 
         private RingOfDoom ring;
         private LinkedList<Projectile> projectiles = new LinkedList<Projectile>();
+        private Player[] players = new Player[4];
 
 
         public GameLabGame()

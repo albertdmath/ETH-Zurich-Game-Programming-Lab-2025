@@ -7,15 +7,10 @@ namespace src.ObjectClasses
 {
     public class Projectile : MoveableObject
     {
-        protected Vector3 origin, target;
+        protected Vector3 currPos, direction;
         private static Random rng = new Random();
         private const float MAX_TIME_BETWEEN_PROJECTILES = 5000f; // 5 seconds in milliseconds
         private static float timeUntilNextProjectile = 5000f; // Random interval before next projectile
-        //can throw be simply the constructor?
-        public virtual void Throw(Vector3 origin, Vector3 target) {} //instantiate the projectile
-
-        public virtual void Move(GameTime gameTime) {} //move the projectile
-
         // Factory method to create a random projectile
         #nullable enable
         public static Projectile? CreateRandomProjectile(GameTime gameTime)
@@ -38,38 +33,41 @@ namespace src.ObjectClasses
                     return null;
             }
         }
+
+        //instantiate the projectile
+        public void Throw(Vector3 origin, Vector3 target) {
+            this.currPos = origin;
+            this.direction = Vector3.Normalize(target - origin);
+            //also connect the sprite to the projectile
+        }
+
+        //move the projectile
+        public virtual void Move(GameTime gameTime) {}
     }
 
     public class Frog : Projectile
     {
-        public override void Throw(Vector3 origin, Vector3 target)
-        {
-            this.origin = origin;
-            this.target = target;
-            //initialization
-            Console.WriteLine("Frog thrown from " + origin + " to " + target);
-        }
+        private const float HOP_TIME = 1000f; // 1 second in milliseconds
+        private const int SPEED = 20;
+        private float timeBeforeHop = 0f;
 
         public override void Move(GameTime gameTime)
         {
-            //movement
-            Console.WriteLine("Frog moving");
+            timeBeforeHop += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+            if (timeBeforeHop < HOP_TIME) return;
+            
+            this.currPos += SPEED * direction;
+            this.timeBeforeHop = 0f;
         }
-
     }
 
     public class Swordfish : Projectile
     {
-        public override void Throw(Vector3 origin, Vector3 target)
-        {
-            this.origin = origin;
-            this.target = target;
-            Console.WriteLine("Swordfish thrown from " + origin + " to " + target);
-        }
+        private const int SPEED = 50;
 
         public override void Move(GameTime gameTime)
         {
-            Console.WriteLine("Swordfish moving");
+            this.currPos += gameTime.ElapsedGameTime.Milliseconds * SPEED * direction;
         }
     }
 }
