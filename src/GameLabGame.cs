@@ -53,7 +53,9 @@ namespace GameLab
             this.ring = new RingOfDoom(planeWidth, planeHeight);
 
             //initialize the players
-
+            for(int i=0;i<4;++i){
+                players[i] = new Player();
+            }
             base.Initialize(); //why?
         }
 
@@ -70,19 +72,7 @@ namespace GameLab
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape)){
                 Exit();
             }
-            KeyboardState newState = Keyboard.GetState();
-                if(newState.IsKeyDown(Keys.D)){
-                    monkeposition.X += movespeed;
-                }
-                if(newState.IsKeyDown(Keys.W)){
-                    monkeposition.Y -=movespeed;
-                }
-                if(newState.IsKeyDown(Keys.S)){
-                    monkeposition.Y +=movespeed;
-                }
-                if(newState.IsKeyDown(Keys.A)){
-                    monkeposition.X-=movespeed;
-                }
+            
 
             
             //try to create a random projectile and check if it is not null
@@ -95,7 +85,9 @@ namespace GameLab
 
             //move all the projectiles
             foreach (Projectile projectile in projectiles) projectile.Move(gameTime);
-
+            for(int i=0;i<1;++i){
+                players[i].Move();
+            }
             //check hit detection
 
             //close the ring of doom
@@ -134,7 +126,10 @@ namespace GameLab
             //this.ring.DrawRing(_spriteBatch, Content.Load<Texture2D>("ring"));
             
             this.DrawModel(this.plane, this.world, this.view, this.projection);
-            this.DrawModel(this.monkey, this.world3 * Matrix.CreateTranslation(monkeposition), this.view, this.projection);
+            //this.DrawModel(this.monkey, this.world3 * Matrix.CreateTranslation(monkeposition), this.view, this.projection);
+            for(int i=0;i<1;++i){
+                DrawModel(this.monkey, this.world3 * Matrix.CreateTranslation(players[i].getposition()),this.view,this.projection);
+            }
             _spriteBatch.End();
             Console.WriteLine(monkeposition.X);
             base.Draw(gameTime);
