@@ -13,19 +13,14 @@ namespace GameLab
 {
     public class GameLabGame : Game
     {
-        private const int WIDTH = 1200, HEIGHT = 1024;
-
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        private Model model;
-        private Model model2;
-        private Model jesterModel;
-        private Model frogModel;
+        private Model plane, monkey, jesterModel, frogModel;
         private Matrix world = Matrix.CreateTranslation(new Vector3(0, 0, 0));
         private Matrix world2 = Matrix.CreateTranslation(new Vector3(2.0f, -2.0f, 1.0f));
         private Matrix world3 = Matrix.CreateRotationZ((float)(Math.PI / 2));
-        private Matrix view = Matrix.CreateLookAt(new Vector3(5.0f, 5.0f, 5.0f), new Vector3(0, 0, 0), Vector3.UnitZ);
+        private Matrix view = Matrix.CreateLookAt(new Vector3(0.0f, 5.0f, 5.0f), new Vector3(0, 0, 0), Vector3.UnitZ);
         private Matrix projection = Matrix.CreateOrthographic(15, 15, 0.1f, 100f);
 
         private RingOfDoom ring;
@@ -42,37 +37,34 @@ namespace GameLab
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
-            _graphics.PreferredBackBufferWidth = WIDTH;
-            _graphics.PreferredBackBufferHeight = HEIGHT;
-            //_graphics.ToggleFullScreen();
+            _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            _graphics.IsFullScreen = true; // Enable full screen
             _graphics.ApplyChanges();
-
-            model = Content.Load<Model>("BIG");
-            model2 = Content.Load<Model>("Monke");
-            jesterModel = Content.Load<Model>("Jester");
-            frogModel = Content.Load<Model>("Frog");
             
+            //initialize the ring of doom, im curently passing random plane dimensions
+            int planeWidth = 100, planeHeight = 100;
+            this.ring = new RingOfDoom(planeWidth, planeHeight);
 
-            base.Initialize();
+            //initialize the players
 
-            //initialize the ring of doom, im curently passing not the dimensions of the plane but the dimensions of the window
-            this.ring = new RingOfDoom(WIDTH, HEIGHT);
+            base.Initialize(); //why?
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
+            
+            plane = Content.Load<Model>("BIG");
+            monkey = Content.Load<Model>("Monke");
+            jesterModel = Content.Load<Model>("Jester");
+            frogModel = Content.Load<Model>("Frog");
         }
 
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-
             
             //try to create a random projectile and check if it is not null
             if (Projectile.CreateRandomProjectile(gameTime) is Projectile proj)
@@ -119,17 +111,15 @@ namespace GameLab
             _spriteBatch.Begin();
 
             // TODO: Add your drawing code here
-            //circle drawing
+            //foreach (Projectile projectile in projectiles) projectile.DrawProjectile();
             //this.ring.DrawRing(_spriteBatch, Content.Load<Texture2D>("ring"));
-            this.DrawModel(this.model, this.world, this.view, this.projection);
-            this.DrawModel(this.model2, this.world3 * this.world2, this.view, this.projection);
+            this.DrawModel(this.plane, this.world, this.view, this.projection);
+            this.DrawModel(this.monkey, this.world3 * this.world2, this.view, this.projection);
             this.DrawModel(this.frogModel, this.world3, this.view, this.projection);
+
             _spriteBatch.End();
 
             base.Draw(gameTime);
         }
-
-
-
     }
 }

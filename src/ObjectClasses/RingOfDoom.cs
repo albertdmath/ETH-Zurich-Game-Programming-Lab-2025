@@ -65,7 +65,7 @@ namespace src.ObjectClasses
 
         public void DrawRing(SpriteBatch spriteBatch, Texture2D ringTexture)
         {
-            spriteBatch.Draw(ringTexture, new Vector2(this.currCenter.X, this.currCenter.Z), Color.Black);
+            // Draw the ring
         }
     }
 }
