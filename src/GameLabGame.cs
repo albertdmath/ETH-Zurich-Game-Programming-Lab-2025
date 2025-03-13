@@ -19,9 +19,8 @@ namespace GameLab
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        private Model plane;
-        private Model monkey;
-        float movespeed = 0.2f;
+        private Model plane, monkey, jesterModel, frogModel;
+        
         private Matrix world = Matrix.CreateTranslation(new Vector3(0, 0, 0));
         private Matrix world2 = Matrix.CreateTranslation(new Vector3(2.0f,-4.0f,2.0f));
         private Vector3 monkeposition = new Vector3(0, 0, 0);
@@ -65,6 +64,8 @@ namespace GameLab
             
             plane = Content.Load<Model>("BIG");
             monkey = Content.Load<Model>("Monke");
+            jesterModel = Content.Load<Model>("Jester");
+            frogModel = Content.Load<Model>("Frog");
         }
 
         protected override void Update(GameTime gameTime)
