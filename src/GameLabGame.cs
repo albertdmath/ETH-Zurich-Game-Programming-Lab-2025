@@ -20,14 +20,25 @@ namespace GameLab
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        private Model plane, jesterModel, arena;
-        private List<Model> prjModels = new List<Model>();
+        private Model arena, playerModel;
+        private List<Model> projectileModels = new List<Model>();
         private RingOfDoom ring;
-        private LinkedList<Projectile> activePrj = new LinkedList<Projectile>();
+        private LinkedList<Projectile> activeProjectiles = new LinkedList<Projectile>();
         private Player[] players = new Player[4];
-        private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 5.0f, 5.0f), new Vector3(0, 0, 0), Vector3.UnitZ);
-        private Matrix projection = Matrix.CreateOrthographic(15, 15, 0.1f, 1000f);
-        private Matrix planeTran = Matrix.CreateTranslation(new Vector3(0, 0, 0));
+
+        // Camera settings
+        private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 5, 10), new Vector3(0, 0, 0), Vector3.UnitZ);
+        private Matrix projection = Matrix.CreatePerspectiveFieldOfView( 
+            MathHelper.ToRadians(45f), // Field of view in radians (e.g., 45 degrees)
+            16f / 9f, // Aspect ratio (change as needed)
+            0.1f, // Near clipping plane
+            1000f // Far clipping plane
+        );
+
+        // Arena transformations
+        private Matrix arenaScaling = Matrix.CreateScale(new Vector3(0.55f,0.55f,0.55f));
+        private Matrix arenaTranslation = Matrix.CreateTranslation(new Vector3(8.2f, 3.5f, -0.5f));
+        
         private static float timeUntilNextProjectile = 5000f; // Random interval before next projectile
 
 
@@ -40,14 +51,16 @@ namespace GameLab
 
         protected override void Initialize()
         {
+            
             _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             _graphics.IsFullScreen = true; // Enable full screen
             _graphics.ApplyChanges();
 
-            //initialize the ring of doom, im curently passing random plane dimensions
+      
             int planeWidth = 10, planeHeight = 10;
             this.ring = new RingOfDoom(planeWidth, planeHeight);
+            
 
             for(int i=0;i<4;++i)
                 players[i] = new Player();
@@ -59,12 +72,12 @@ namespace GameLab
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            plane = Content.Load<Model>("BIG");
-            arena = Content.Load<Model>("arena");
-            jesterModel = Content.Load<Model>("Jester");
+            // textured arena model currently named test TODO change that and remove old arena model too
+            arena = Content.Load<Model>("test");
+            playerModel = Content.Load<Model>("player");
             //Add projectile models
-            prjModels.Add(Content.Load<Model>("Frog"));
-            prjModels.Add(Content.Load<Model>("Monke"));
+            projectileModels.Add(Content.Load<Model>("frog"));
+            projectileModels.Add(Content.Load<Model>("Monke"));
         }
 
         protected override void Update(GameTime gameTime)
@@ -72,27 +85,33 @@ namespace GameLab
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-
+           
             timeUntilNextProjectile -= (float)gameTime.ElapsedGameTime.TotalMilliseconds;
             if (timeUntilNextProjectile <= 0)
             {
                 timeUntilNextProjectile = (float)rng.NextDouble() * 5000f;
-                int type = rng.Next(0, prjModels.Count);
-                activePrj.AddLast(Projectile.CreatePrj(type, ring.RndCircPoint(), players[rng.Next(0, 4)].GetPosition()));
+                int type = rng.Next(0, projectileModels.Count);
+                activeProjectiles.AddLast(Projectile.CreatePrj(type, ring.RndCircPoint(), players[rng.Next(0, 4)].GetPosition()));
             }
-
+            
+            
             //move all the projectiles
-            foreach (Projectile projectile in activePrj) projectile.Move(gameTime);
-
+            foreach (Projectile projectile in activeProjectiles) projectile.Move(gameTime);
+            
             //move players
             foreach (Player player in players) player.Move(gameTime);
-
+            
+            
             //check hit detection
 
+
+
+            // Postpone the ring closing for the low target, right now functional minimum!!
+            /*
             //close the ring of doom
             ring.CloseRing(gameTime);
-
-            //this.player.Position = this.ring.RingClamp(this.player.Position);
+            this.player.Position = this.ring.RingClamp(this.player.Position);
+            */
 
             base.Update(gameTime);
         }
@@ -115,21 +134,22 @@ namespace GameLab
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.White);
+            GraphicsDevice.Clear(Color.Black);
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
-            _spriteBatch.Begin();
+            // This resolves upscaling issues when going fullscreen
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
             // TODO: Add your drawing code here
             //this.ring.DrawRing(_spriteBatch, Content.Load<Texture2D>("ring"));
 
-            DrawModel(plane, planeTran);
+            DrawModel(arena, arenaScaling*arenaTranslation);
 
-            foreach (Projectile projectile in activePrj)
-                DrawModel(prjModels[projectile.GetTipe()], Matrix.CreateTranslation(projectile.GetPosition()));
+            foreach (Projectile projectile in activeProjectiles)
+                DrawModel(projectileModels[projectile.GetTipe()], Matrix.CreateTranslation(projectile.GetPosition()));
 
             foreach (Player player in players)
-                DrawModel(jesterModel, Matrix.CreateTranslation(player.GetPosition()));
+                DrawModel(playerModel, Matrix.CreateTranslation(player.GetPosition()) * Matrix.CreateScale(new Vector3(1.5f, 1.5f, 1.5f)));
 
             _spriteBatch.End();
             base.Draw(gameTime);

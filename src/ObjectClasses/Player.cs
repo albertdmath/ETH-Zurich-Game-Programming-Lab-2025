@@ -10,7 +10,7 @@ namespace src.ObjectClasses
     public class Player : MoveableObject
     {
 
-        private Vector3 position = new Vector3(0, -3f, 0);
+        private Vector3 position = new Vector3(0, 0, 0);
         private float playerSpeed = 10.0f;
         private int life = 3;
         private int stamina = 3;
