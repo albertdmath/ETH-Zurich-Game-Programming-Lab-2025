@@ -48,9 +48,8 @@ namespace src.ObjectClasses
             get { return this.orientation; }
             set { this.orientation = value; }
         }
-
         // Move the projectile:
-        public virtual void Move(GameTime gameTime) {
+        public virtual void Move(float dt) {
             
         }
     }
@@ -63,9 +62,9 @@ namespace src.ObjectClasses
         private const int velocity = 2;
         private float timeBeforeHop = 0f;
 
-        public override void Move(GameTime gameTime)
+        public override void Move(float dt)
         {
-            timeBeforeHop += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+            timeBeforeHop += dt;
             if (timeBeforeHop < HOP_TIME) return;
             
             this.position += velocity * orientation;
@@ -81,9 +80,9 @@ namespace src.ObjectClasses
 
         private const int velocity = 5;
 
-        public override void Move(GameTime gameTime)
+        public override void Move(float dt)
         {
-            this.position += velocity * orientation * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            this.position += velocity * orientation * dt;
         }
     }
 

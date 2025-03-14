@@ -70,6 +70,13 @@
 /processorParam:TextureFormat=Compressed
 /build:fish.fbx
 
+#begin font.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:font.spritefont
+
 #begin frog.fbx
 /importer:FbxImporter
 /processor:ModelProcessor

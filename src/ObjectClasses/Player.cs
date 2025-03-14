@@ -34,10 +34,15 @@ namespace src.ObjectClasses
             set { this.position = value; }
         }
 
-        // The player move method:
-        public void Move(GameTime gameTime)
+        public int Life
         {
-            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            get { return this.life; }
+            set { this.life = value; }
+        }
+
+        // The player move method:
+        public void Move(float dt)
+        {
             Vector3 dir = new Vector3(0, 0, 0);
             KeyboardState newState = Keyboard.GetState();
             if (newState.IsKeyDown(Keys.A))

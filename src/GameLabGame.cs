@@ -28,7 +28,7 @@ namespace GameLab
         private Player[] players = new Player[4];
 
         // Camera settings
-        private Matrix view = Matrix.CreateLookAt(new Vector3(0f, -5, 10), new Vector3(0, 0, 0), Vector3.UnitZ);
+        private Matrix view = Matrix.CreateLookAt(new Vector3(0f, -15, 10), new Vector3(0, 0, 0), Vector3.UnitZ);
         private Matrix projection = Matrix.CreatePerspectiveFieldOfView( 
             MathHelper.ToRadians(45f), // Field of view in radians (e.g., 45 degrees)
             16f / 9f, // Aspect ratio (change as needed)
@@ -75,10 +75,12 @@ namespace GameLab
             playerModel = Content.Load<Model>("player");
             projectileModels.Add(Content.Load<Model>("frog"));
             projectileModels.Add(Content.Load<Model>("fish"));
+            font = Content.Load<SpriteFont>("font");
         }
 
         protected override void Update(GameTime gameTime)
         {
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
            
@@ -93,10 +95,10 @@ namespace GameLab
             }
             
             // Move all the projectiles
-            foreach (Projectile projectile in activeProjectiles) projectile.Move(gameTime);
+            foreach (Projectile projectile in activeProjectiles) projectile.Move(dt);
             
             // Move players
-            foreach (Player player in players) player.Move(gameTime);
+            foreach (Player player in players) player.Move(dt);
             
             //check hit detection
             // Postpone the ring closing for the low target, right now functional minimum!!
@@ -144,7 +146,7 @@ namespace GameLab
                 DrawModel(playerModel, Matrix.CreateTranslation(player.Position) * Matrix.CreateScale(new Vector3(1.5f, 1.5f, 1.5f)));
             //foreach (Player player in players)  
             //   Console.WriteLine(player.Position);
-            //_spriteBatch.DrawString(font, "Lifes: " + , new Vector2(975, 75), Color.White);
+            _spriteBatch.DrawString(font, "Lifes: " + players[0].Life, new Vector2(0, 0), Color.White);
             _spriteBatch.End();
             base.Draw(gameTime);
         }
