@@ -18,6 +18,7 @@ namespace GameLab
         protected static Random rng = new Random();
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+        private SpriteFont font;
 
         // Private fields:
         private Model arena, playerModel;
@@ -141,9 +142,9 @@ namespace GameLab
 
             foreach (Player player in players)
                 DrawModel(playerModel, Matrix.CreateTranslation(player.Position) * Matrix.CreateScale(new Vector3(1.5f, 1.5f, 1.5f)));
-            // foreach (Player player in players)  
-            //     Console.WriteLine(player.Position);
-
+            //foreach (Player player in players)  
+            //   Console.WriteLine(player.Position);
+            //_spriteBatch.DrawString(font, "Lifes: " + , new Vector2(975, 75), Color.White);
             _spriteBatch.End();
             base.Draw(gameTime);
         }
