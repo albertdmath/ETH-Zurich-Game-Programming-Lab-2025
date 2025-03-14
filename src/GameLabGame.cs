@@ -146,7 +146,7 @@ namespace GameLab
                 DrawModel(playerModel, Matrix.CreateTranslation(player.Position) * Matrix.CreateScale(new Vector3(1.5f, 1.5f, 1.5f)));
             //foreach (Player player in players)  
             //   Console.WriteLine(player.Position);
-            _spriteBatch.DrawString(font, "Lifes: " + players[0].Life, new Vector2(0, 0), Color.White);
+            _spriteBatch.DrawString(font, "Lives: " + players[0].Life, new Vector2(0, 0), Color.White);
             _spriteBatch.End();
             base.Draw(gameTime);
         }
