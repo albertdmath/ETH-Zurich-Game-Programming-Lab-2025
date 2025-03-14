@@ -42,19 +42,19 @@ namespace src.ObjectClasses
             KeyboardState newState = Keyboard.GetState();
             if (newState.IsKeyDown(Keys.A))
             {
-                dir.X += 1;
+                dir.X -= 1;
             }
             if (newState.IsKeyDown(Keys.D))
             {
-                dir.X -= 1;
+                dir.X += 1;
             }
             if (newState.IsKeyDown(Keys.W))
             {
-                dir.Y -= 1;
+                dir.Y += 1;
             }
             if (newState.IsKeyDown(Keys.S))
             {
-                dir.Y += 1;
+                dir.Y -= 1;
             }
             // if (newState.IsKeyDown(Keys.R))
             // {

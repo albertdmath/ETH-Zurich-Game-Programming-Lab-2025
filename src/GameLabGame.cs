@@ -27,7 +27,7 @@ namespace GameLab
         private Player[] players = new Player[4];
 
         // Camera settings
-        private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 5, 10), new Vector3(0, 0, 0), Vector3.UnitZ);
+        private Matrix view = Matrix.CreateLookAt(new Vector3(0f, -5, 10), new Vector3(0, 0, 0), Vector3.UnitZ);
         private Matrix projection = Matrix.CreatePerspectiveFieldOfView( 
             MathHelper.ToRadians(45f), // Field of view in radians (e.g., 45 degrees)
             16f / 9f, // Aspect ratio (change as needed)
@@ -73,7 +73,7 @@ namespace GameLab
             arena = Content.Load<Model>("test");
             playerModel = Content.Load<Model>("player");
             projectileModels.Add(Content.Load<Model>("frog"));
-            projectileModels.Add(Content.Load<Model>("fish"));
+            projectileModels.Add(Content.Load<Model>("Monke"));
         }
 
         protected override void Update(GameTime gameTime)
