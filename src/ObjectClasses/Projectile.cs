@@ -6,20 +6,24 @@ namespace src.ObjectClasses
 {
     public class Projectile : MoveableObject
     {
+        // Private fields:
         protected int type;
+        protected Vector3 position;
+        protected Vector3 orientation;
 
+        // Constructor:
         public Projectile(int type, Vector3 origin, Vector3 target)
         {
+            this.type = type;
             this.position = origin;
             this.orientation = Vector3.Normalize(target - origin);
-            this.type = type;
         }
 
-        // Factory method to create a random projectile
+        // Factory method to create a random projectile:
         #nullable enable
-        public static Projectile CreatePrj(int type, Vector3 origin, Vector3 target)
+        public static Projectile createProjectile(int type, Vector3 origin, Vector3 target)
         {
-            // Randomly create a projectile
+            // Randomly create a projectile:
             switch (type)
             {
                 case 0:
@@ -31,17 +35,24 @@ namespace src.ObjectClasses
             }
         }
 
-        //instantiate the projectile
-
-        public Vector3 GetPosition() {
-            return this.position;
+        // Getters/Setters:
+        public int Type {
+            get { return this.type; }
+            set { this.type = value; }
+        }
+        public Vector3 Position {
+            get { return this.position; }
+            set { this.position = value; }
+        }
+        public Vector3 Orientation {
+            get { return this.orientation; }
+            set { this.orientation = value; }
         }
 
-        public int getType() {
-            return this.type;
+        // Move the projectile:
+        public virtual void Move(GameTime gameTime) {
+            
         }
-        //move the projectile
-        public virtual void Move(GameTime gameTime) {}
     }
 
     public class Frog : Projectile

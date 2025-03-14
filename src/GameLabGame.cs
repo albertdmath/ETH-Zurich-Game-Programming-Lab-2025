@@ -60,7 +60,7 @@ namespace GameLab
             
 
             for(int i=0; i<4; i++)
-                players[i] = new Player();
+                players[i] = new Player(new Vector3(0,0,0), 5.0f, 3, 3);
         
             base.Initialize();
         }
@@ -88,7 +88,7 @@ namespace GameLab
             {
                 timeUntilNextProjectile = (float) rng.NextDouble() * 5000f;
                 int type = rng.Next(0, projectileModels.Count);
-                activeProjectiles.AddLast(Projectile.CreatePrj(type, ring.RndCircPoint(), players[rng.Next(0, 4)].GetPosition()));
+                activeProjectiles.AddLast(Projectile.createProjectile(type, ring.RndCircPoint(), players[rng.Next(0, 4)].Position));
             }
             
             // Move all the projectiles
@@ -137,10 +137,10 @@ namespace GameLab
             DrawModel(arena, arenaScaling*arenaTranslation);
 
             foreach (Projectile projectile in activeProjectiles)
-                DrawModel(projectileModels[projectile.getType()], Matrix.CreateTranslation(projectile.GetPosition()));
+                DrawModel(projectileModels[projectile.Type], Matrix.CreateTranslation(projectile.Position));
 
             foreach (Player player in players)
-                DrawModel(playerModel, Matrix.CreateTranslation(player.GetPosition()) * Matrix.CreateScale(new Vector3(1.5f, 1.5f, 1.5f)));
+                DrawModel(playerModel, Matrix.CreateTranslation(player.Position) * Matrix.CreateScale(new Vector3(1.5f, 1.5f, 1.5f)));
 
             _spriteBatch.End();
             base.Draw(gameTime);
