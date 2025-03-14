@@ -73,7 +73,7 @@ namespace GameLab
             arena = Content.Load<Model>("test");
             playerModel = Content.Load<Model>("player");
             projectileModels.Add(Content.Load<Model>("frog"));
-            projectileModels.Add(Content.Load<Model>("Monke"));
+            projectileModels.Add(Content.Load<Model>("fish"));
         }
 
         protected override void Update(GameTime gameTime)
