@@ -9,22 +9,17 @@ namespace src.ObjectClasses
     public class Player : MoveableObject
     {
         // Private fields:
-        private Vector3 position = new Vector3(0, 0, 0);
-        private float playerSpeed = 5.0f;
+        private float playerSpeed = 3.0f;
         private int life = 3;
         private int stamina = 3;
         //private Projectile *projectileHeld;
-        private KeyboardState oldState;
         private int typeOfProjectileHeld = -1; // -1 if no projectile held
         private bool isDashing = false;
 
-        // Constructor:
-        public Player(Vector3 position, float playerSpeed, int life, int stamina)
+        // Constructor: Only allow to assign position here, lifes stamina and so on are a global property and need to be the same for
+        public Player(Vector3 position)
         {
             this.position = position;
-            this.playerSpeed = playerSpeed;
-            this.life = life;
-            this.stamina = stamina;
         }
 
         // Getters/Setters:
@@ -55,18 +50,17 @@ namespace src.ObjectClasses
             }
             if (newState.IsKeyDown(Keys.W))
             {
-                dir.Y += 1;
+                dir.Z -= 1;
             }
             if (newState.IsKeyDown(Keys.S))
             {
-                dir.Y -= 1;
+                dir.Z += 1;
             }
             // if (newState.IsKeyDown(Keys.R))
             // {
             //     playerSpeed *= 1.02f;
             // }
             position += playerSpeed * dir * dt;
-            oldState = newState;
         }
 
         // Method to grab an object:

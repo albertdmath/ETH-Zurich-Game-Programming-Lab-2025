@@ -28,7 +28,7 @@ namespace GameLab
         private Player[] players = new Player[4];
 
         // Camera settings
-        private Matrix view = Matrix.CreateLookAt(new Vector3(0f, -15, 10), new Vector3(0, 0, 0), Vector3.UnitZ);
+        private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 10, 5), new Vector3(0, 0, 0), Vector3.Up);
         private Matrix projection = Matrix.CreatePerspectiveFieldOfView( 
             MathHelper.ToRadians(45f), // Field of view in radians (e.g., 45 degrees)
             16f / 9f, // Aspect ratio (change as needed)
@@ -37,8 +37,9 @@ namespace GameLab
         );
 
         // Arena transformations
-        private Matrix arenaScaling = Matrix.CreateScale(new Vector3(0.55f,0.55f,0.55f));
-        private Matrix arenaTranslation = Matrix.CreateTranslation(new Vector3(8.2f, 3.5f, -0.5f));
+        private Matrix arenaScaling = Matrix.CreateScale(new Vector3(0.5f));
+        private Matrix arenaTranslation = Matrix.CreateTranslation(new Vector3(0));
+        
         private static float timeUntilNextProjectile = 5000f; // Random interval before next projectile
 
         public GameLabGame()
@@ -61,7 +62,7 @@ namespace GameLab
             
 
             for(int i=0; i<4; i++)
-                players[i] = new Player(new Vector3(0,0,0), 5.0f, 3, 3);
+                players[i] = new Player(new Vector3(0,0.2f,0));
         
             base.Initialize();
         }
@@ -72,6 +73,8 @@ namespace GameLab
             // Load the player/projectile models
             // Textured arena model currently named test TODO change that and remove old arena model too
             arena = Content.Load<Model>("test");
+
+            
             playerModel = Content.Load<Model>("player");
             projectileModels.Add(Content.Load<Model>("frog"));
             projectileModels.Add(Content.Load<Model>("fish"));
