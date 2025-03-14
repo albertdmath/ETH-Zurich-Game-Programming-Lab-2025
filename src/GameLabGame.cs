@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
-
-
 //using System.Numerics;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+
 //local imports
 using src.ObjectClasses;
 
@@ -20,6 +19,7 @@ namespace GameLab
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
+        // Private fields:
         private Model arena, playerModel;
         private List<Model> projectileModels = new List<Model>();
         private RingOfDoom ring;
@@ -38,9 +38,7 @@ namespace GameLab
         // Arena transformations
         private Matrix arenaScaling = Matrix.CreateScale(new Vector3(0.55f,0.55f,0.55f));
         private Matrix arenaTranslation = Matrix.CreateTranslation(new Vector3(8.2f, 3.5f, -0.5f));
-        
         private static float timeUntilNextProjectile = 5000f; // Random interval before next projectile
-
 
         public GameLabGame()
         {
@@ -51,68 +49,61 @@ namespace GameLab
 
         protected override void Initialize()
         {
-            
             _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             _graphics.IsFullScreen = true; // Enable full screen
             _graphics.ApplyChanges();
 
-      
+            // Initialize the ring of doom:
             int planeWidth = 10, planeHeight = 10;
             this.ring = new RingOfDoom(planeWidth, planeHeight);
             
 
-            for(int i=0;i<4;++i)
+            for(int i=0; i<4; i++)
                 players[i] = new Player();
         
-            base.Initialize(); //why?
+            base.Initialize();
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // textured arena model currently named test TODO change that and remove old arena model too
+            // Load the player/projectile models
+            // Textured arena model currently named test TODO change that and remove old arena model too
             arena = Content.Load<Model>("test");
             playerModel = Content.Load<Model>("player");
-            //Add projectile models
             projectileModels.Add(Content.Load<Model>("frog"));
-            projectileModels.Add(Content.Load<Model>("Monke"));
+            projectileModels.Add(Content.Load<Model>("fish"));
         }
 
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-
            
-            timeUntilNextProjectile -= (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+            timeUntilNextProjectile -= (float) gameTime.ElapsedGameTime.TotalMilliseconds;
+
+            // Spawn a new projectile:
             if (timeUntilNextProjectile <= 0)
             {
-                timeUntilNextProjectile = (float)rng.NextDouble() * 5000f;
+                timeUntilNextProjectile = (float) rng.NextDouble() * 5000f;
                 int type = rng.Next(0, projectileModels.Count);
                 activeProjectiles.AddLast(Projectile.CreatePrj(type, ring.RndCircPoint(), players[rng.Next(0, 4)].GetPosition()));
             }
             
-            
-            //move all the projectiles
+            // Move all the projectiles
             foreach (Projectile projectile in activeProjectiles) projectile.Move(gameTime);
             
-            //move players
+            // Move players
             foreach (Player player in players) player.Move(gameTime);
             
-            
             //check hit detection
-
-
-
             // Postpone the ring closing for the low target, right now functional minimum!!
             /*
             //close the ring of doom
             ring.CloseRing(gameTime);
             this.player.Position = this.ring.RingClamp(this.player.Position);
             */
-
             base.Update(gameTime);
         }
 
@@ -146,7 +137,7 @@ namespace GameLab
             DrawModel(arena, arenaScaling*arenaTranslation);
 
             foreach (Projectile projectile in activeProjectiles)
-                DrawModel(projectileModels[projectile.GetTipe()], Matrix.CreateTranslation(projectile.GetPosition()));
+                DrawModel(projectileModels[projectile.getType()], Matrix.CreateTranslation(projectile.GetPosition()));
 
             foreach (Player player in players)
                 DrawModel(playerModel, Matrix.CreateTranslation(player.GetPosition()) * Matrix.CreateScale(new Vector3(1.5f, 1.5f, 1.5f)));

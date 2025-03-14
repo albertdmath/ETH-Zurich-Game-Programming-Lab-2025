@@ -60,7 +60,7 @@ namespace src.ObjectClasses
             if (this.prjHold != -1) return;
 
             //if(button pressed and projectile is in range)
-            this.prjHold = projectile.GetTipe();
+            this.prjHold = projectile.getType();
         }
 
         public void Throw()

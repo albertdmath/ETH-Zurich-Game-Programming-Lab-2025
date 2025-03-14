@@ -37,7 +37,7 @@ namespace src.ObjectClasses
             return this.position;
         }
 
-        public int GetTipe() {
+        public int getType() {
             return this.type;
         }
         //move the projectile
@@ -45,33 +45,35 @@ namespace src.ObjectClasses
     }
 
     public class Frog : Projectile
-{
-    public Frog(int type, Vector3 origin, Vector3 target) : base(type, origin, target) { }
-
-    private const float HOP_TIME = 1000f; // 1 second in milliseconds
-    private const int velocity = 5;
-    private float timeBeforeHop = 0f;
-
-    public override void Move(GameTime gameTime)
     {
-        timeBeforeHop += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-        if (timeBeforeHop < HOP_TIME) return;
-        
-        this.position += velocity * orientation;
-        this.timeBeforeHop = 0f;
+        public Frog(int type, Vector3 origin, Vector3 target) : base(type, origin, target) { }
+
+        private const float HOP_TIME = 1000f; // 1 second in milliseconds
+        private const int velocity = 2;
+        private float timeBeforeHop = 0f;
+
+        public override void Move(GameTime gameTime)
+        {
+            timeBeforeHop += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+            if (timeBeforeHop < HOP_TIME) return;
+            
+            this.position += velocity * orientation;
+            this.timeBeforeHop = 0f;
+        }
     }
-}
 
-public class Swordfish : Projectile
-{
-    public Swordfish(int type, Vector3 origin, Vector3 target) : base(type, origin, target) { }
-
-    private const int velocity = 20;
-
-    public override void Move(GameTime gameTime)
+    public class Swordfish : Projectile
     {
-        this.position += velocity * orientation * (float)gameTime.ElapsedGameTime.TotalSeconds;
+        public Swordfish(int type, Vector3 origin, Vector3 target) : base(type, origin, target) {
+
+        }
+
+        private const int velocity = 5;
+
+        public override void Move(GameTime gameTime)
+        {
+            this.position += velocity * orientation * (float)gameTime.ElapsedGameTime.TotalSeconds;
+        }
     }
-}
 
 }
