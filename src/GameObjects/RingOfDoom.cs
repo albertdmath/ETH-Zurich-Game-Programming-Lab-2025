@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace src.ObjectClasses
+namespace src.GameObjects
 {
     public class RingOfDoom
     {

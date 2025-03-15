@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 //local imports
-using src.ObjectClasses;
+using src.GameObjects;
 
 namespace GameLab
 {

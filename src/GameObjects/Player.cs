@@ -4,10 +4,10 @@ using Microsoft.Xna.Framework.Input;
 using System.Runtime.CompilerServices;
 using System;
 
-namespace src.ObjectClasses
+namespace src.GameObjects
 {
     /** Anything regarding player characters, from movement to the actual Model files goes here. **/
-    public class Player : MoveableObject
+    public class Player : GameModel
     {
         // Private fields:
         private float playerSpeed = 2f;
