@@ -25,7 +25,10 @@ namespace GameLab
         private List<Model> projectileModels = new List<Model>();
         private RingOfDoom ring;
         private LinkedList<Projectile> activeProjectiles = new LinkedList<Projectile>();
-        private Player[] players = new Player[4];
+
+        // Player settings
+        private static int numPlayers = 1;
+        private Player[] players = new Player[numPlayers];
 
         // Camera settings
         private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 10, 5), new Vector3(0, 0, 0), Vector3.Up);
@@ -65,7 +68,7 @@ namespace GameLab
             this.ring = new RingOfDoom(planeWidth, planeHeight);
 
             float[] playerStartPositions = { -0.75f, -0.25f, 0.25f, 0.75f };
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < numPlayers; i++)
                 players[i] = new Player(new Vector3(playerStartPositions[i], 0, 0));
 
             base.Initialize();
@@ -97,7 +100,7 @@ namespace GameLab
             {
                 timeUntilNextProjectile = (float)rng.NextDouble() * 5f;
                 int type = rng.Next(0, projectileModels.Count);
-                activeProjectiles.AddLast(Projectile.createProjectile(type, ring.RndCircPoint(), players[rng.Next(0, 4)].Position));
+                activeProjectiles.AddLast(Projectile.createProjectile(type, ring.RndCircPoint(), players[rng.Next(0, numPlayers)].Position));
             }
 
             // Move all the projectiles

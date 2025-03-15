@@ -10,7 +10,7 @@ namespace src.ObjectClasses
     public class Player : MoveableObject
     {
         // Private fields:
-        private float playerSpeed = 1f;
+        private float playerSpeed = 2f;
         private int life = 3;
         private int stamina = 3;
         //private Projectile *projectileHeld;
