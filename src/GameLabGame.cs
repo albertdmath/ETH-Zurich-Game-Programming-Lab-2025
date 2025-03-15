@@ -60,7 +60,6 @@ namespace GameLab
             int planeWidth = 10, planeHeight = 10;
             this.ring = new RingOfDoom(planeWidth, planeHeight);
             
-
             for(int i=0; i<4; i++)
                 players[i] = new Player(new Vector3(0,0.2f,0));
         
@@ -73,8 +72,6 @@ namespace GameLab
             // Load the player/projectile models
             // Textured arena model currently named test TODO change that and remove old arena model too
             arena = Content.Load<Model>("test");
-
-            
             playerModel = Content.Load<Model>("player");
             projectileModels.Add(Content.Load<Model>("frog"));
             projectileModels.Add(Content.Load<Model>("fish"));
@@ -83,7 +80,6 @@ namespace GameLab
 
         protected override void Update(GameTime gameTime)
         {
-            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
            
@@ -98,12 +94,25 @@ namespace GameLab
             }
             
             // Move all the projectiles
-            foreach (Projectile projectile in activeProjectiles) projectile.Move(dt);
+            foreach (Projectile projectile in activeProjectiles) projectile.Move(gameTime);
             
             // Move players
-            foreach (Player player in players) player.Move(dt);
+            foreach (Player player in players) player.Move(gameTime);
+
+            // Super basic hit detection until we can figure out bounding spheres, just using 0.5 which is quite arbitrary for now:
+            foreach (Player player in players)
+            {
+                foreach (Projectile projectile in activeProjectiles)
+                {
+                    if (Vector3.Distance(player.Position, projectile.Position) < 0.5f)
+                    {
+                        player.Life--;
+                        activeProjectiles.Remove(projectile);
+                        break;
+                    }
+                }
+            }
             
-            //check hit detection
             // Postpone the ring closing for the low target, right now functional minimum!!
             /*
             //close the ring of doom
@@ -124,7 +133,6 @@ namespace GameLab
                     effect.Projection = this.projection;
                     effect.EnableDefaultLighting();
                 }
-
                 mesh.Draw();
             }
         }

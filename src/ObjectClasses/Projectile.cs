@@ -49,40 +49,44 @@ namespace src.ObjectClasses
             set { this.orientation = value; }
         }
         // Move the projectile:
-        public virtual void Move(float dt) {
-            
+        public virtual void Move(GameTime gameTime)
+        {    
         }
     }
 
     public class Frog : Projectile
     {
-        public Frog(int type, Vector3 origin, Vector3 target) : base(type, origin, target) { }
-
+        // Private fields:
         private const float HOP_TIME = 1000f; // 1 second in milliseconds
-        private const int velocity = 2;
+        private const int velocity = 1;
         private float timeBeforeHop = 0f;
 
-        public override void Move(float dt)
+        // Constructor:
+        public Frog(int type, Vector3 origin, Vector3 target) : base(type, origin, target) { }
+
+        public override void Move(GameTime gameTime)
         {
-            timeBeforeHop += dt;
-            if (timeBeforeHop < HOP_TIME) return;
-            
-            this.position += velocity * orientation;
+            // timeBeforeHop += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+            // if (timeBeforeHop < HOP_TIME) return;
+            // Maybe frog can sit still for one second. Too tired right now to figure out how to do this.
+            this.position += velocity * orientation * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            // Just a small trick to make the frog bounce, it's more visually appealing than teleporting frog:
+            this.position.Y = (float)Math.Abs(Math.Sin(this.position.X));
             this.timeBeforeHop = 0f;
         }
     }
 
     public class Swordfish : Projectile
     {
-        public Swordfish(int type, Vector3 origin, Vector3 target) : base(type, origin, target) {
-
-        }
-
+        // Private fields:
         private const int velocity = 5;
 
-        public override void Move(float dt)
+        // Constructor:
+        public Swordfish(int type, Vector3 origin, Vector3 target) : base(type, origin, target) { }
+
+        public override void Move(GameTime gameTime)
         {
-            this.position += velocity * orientation * dt;
+            this.position += velocity * orientation * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
     }
 

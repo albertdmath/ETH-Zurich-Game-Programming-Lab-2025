@@ -9,7 +9,7 @@ namespace src.ObjectClasses
     public class Player : MoveableObject
     {
         // Private fields:
-        private float playerSpeed = 3.0f;
+        private float playerSpeed = 1f;
         private int life = 3;
         private int stamina = 3;
         //private Projectile *projectileHeld;
@@ -36,8 +36,9 @@ namespace src.ObjectClasses
         }
 
         // The player move method:
-        public void Move(float dt)
+        public void Move(GameTime gameTime)
         {
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             Vector3 dir = new Vector3(0, 0, 0);
             KeyboardState newState = Keyboard.GetState();
             if (newState.IsKeyDown(Keys.A))
