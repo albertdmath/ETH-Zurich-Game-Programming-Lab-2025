@@ -8,8 +8,6 @@ namespace src.ObjectClasses
     {
         // Private fields:
         protected int type;
-        protected Vector3 position;
-        protected Vector3 orientation;
 
         // Constructor:
         public Projectile(int type, Vector3 origin, Vector3 target)
@@ -49,9 +47,7 @@ namespace src.ObjectClasses
             set { this.orientation = value; }
         }
         // Move the projectile:
-        public virtual void Move(GameTime gameTime)
-        {    
-        }
+        public virtual void Move(float dt) { }
     }
 
     public class Frog : Projectile
@@ -64,12 +60,12 @@ namespace src.ObjectClasses
         // Constructor:
         public Frog(int type, Vector3 origin, Vector3 target) : base(type, origin, target) { }
 
-        public override void Move(GameTime gameTime)
+        public override void Move(float dt)
         {
             // timeBeforeHop += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
             // if (timeBeforeHop < HOP_TIME) return;
             // Maybe frog can sit still for one second. Too tired right now to figure out how to do this.
-            this.position += velocity * orientation * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            this.position += velocity * orientation * dt;
             // Just a small trick to make the frog bounce, it's more visually appealing than teleporting frog:
             this.position.Y = (float)Math.Abs(Math.Sin(this.position.X));
             this.timeBeforeHop = 0f;
@@ -84,9 +80,9 @@ namespace src.ObjectClasses
         // Constructor:
         public Swordfish(int type, Vector3 origin, Vector3 target) : base(type, origin, target) { }
 
-        public override void Move(GameTime gameTime)
+        public override void Move(float dt)
         {
-            this.position += velocity * orientation * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            this.position += velocity * orientation * dt;
         }
     }
 

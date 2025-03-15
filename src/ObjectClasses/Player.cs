@@ -2,6 +2,7 @@ using GameLab;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System.Runtime.CompilerServices;
+using System;
 
 namespace src.ObjectClasses
 {
@@ -36,9 +37,8 @@ namespace src.ObjectClasses
         }
 
         // The player move method:
-        public void Move(GameTime gameTime)
+        public void Move(float dt)
         {
-            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             Vector3 dir = new Vector3(0, 0, 0);
             KeyboardState newState = Keyboard.GetState();
             if (newState.IsKeyDown(Keys.A))
@@ -61,6 +61,13 @@ namespace src.ObjectClasses
             // {
             //     playerSpeed *= 1.02f;
             // }
+
+            if (dir.Length() > 0)
+            {
+                dir = Vector3.Normalize(dir);
+                this.orientation = dir;
+            }
+
             position += playerSpeed * dir * dt;
         }
 

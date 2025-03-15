@@ -29,7 +29,7 @@ namespace GameLab
 
         // Camera settings
         private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 10, 5), new Vector3(0, 0, 0), Vector3.Up);
-        private Matrix projection = Matrix.CreatePerspectiveFieldOfView( 
+        private Matrix projection = Matrix.CreatePerspectiveFieldOfView(
             MathHelper.ToRadians(45f), // Field of view in radians (e.g., 45 degrees)
             16f / 9f, // Aspect ratio (change as needed)
             0.1f, // Near clipping plane
@@ -38,9 +38,13 @@ namespace GameLab
 
         // Arena transformations
         private Matrix arenaScaling = Matrix.CreateScale(new Vector3(0.5f));
-        private Matrix arenaTranslation = Matrix.CreateTranslation(new Vector3(0));
-        
-        private static float timeUntilNextProjectile = 5000f; // Random interval before next projectile
+        //private Matrix arenaTranslation = Matrix.CreateTranslation(new Vector3(0));
+
+        // Player transformations
+        private Matrix playerScaling = Matrix.CreateScale(new Vector3(1.5f));
+        private Matrix playerTranslation = Matrix.CreateTranslation(new Vector3(0, 0.2f, 0));
+
+        private static float timeUntilNextProjectile = 5f; // Random interval before next projectile
 
         public GameLabGame()
         {
@@ -59,10 +63,11 @@ namespace GameLab
             // Initialize the ring of doom:
             int planeWidth = 10, planeHeight = 10;
             this.ring = new RingOfDoom(planeWidth, planeHeight);
-            
-            for(int i=0; i<4; i++)
-                players[i] = new Player(new Vector3(0,0.2f,0));
-        
+
+            float[] playerStartPositions = { -0.75f, -0.25f, 0.25f, 0.75f };
+            for (int i = 0; i < 4; i++)
+                players[i] = new Player(new Vector3(playerStartPositions[i], 0, 0));
+
             base.Initialize();
         }
 
@@ -73,31 +78,33 @@ namespace GameLab
             // Textured arena model currently named test TODO change that and remove old arena model too
             arena = Content.Load<Model>("test");
             playerModel = Content.Load<Model>("player");
+            font = Content.Load<SpriteFont>("font");
+
+            // Load the projectile models
             projectileModels.Add(Content.Load<Model>("frog"));
             projectileModels.Add(Content.Load<Model>("fish"));
-            font = Content.Load<SpriteFont>("font");
         }
 
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-           
-            timeUntilNextProjectile -= (float) gameTime.ElapsedGameTime.TotalMilliseconds;
+
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             // Spawn a new projectile:
-            if (timeUntilNextProjectile <= 0)
+            if ((timeUntilNextProjectile -= dt) <= 0)
             {
-                timeUntilNextProjectile = (float) rng.NextDouble() * 5000f;
+                timeUntilNextProjectile = (float)rng.NextDouble() * 5f;
                 int type = rng.Next(0, projectileModels.Count);
                 activeProjectiles.AddLast(Projectile.createProjectile(type, ring.RndCircPoint(), players[rng.Next(0, 4)].Position));
             }
-            
+
             // Move all the projectiles
-            foreach (Projectile projectile in activeProjectiles) projectile.Move(gameTime);
-            
+            foreach (Projectile projectile in activeProjectiles) projectile.Move(dt);
+
             // Move players
-            foreach (Player player in players) player.Move(gameTime);
+            foreach (Player player in players) player.Move(dt);
 
             // Super basic hit detection until we can figure out bounding spheres, just using 0.5 which is quite arbitrary for now:
             foreach (Player player in players)
@@ -112,7 +119,7 @@ namespace GameLab
                     }
                 }
             }
-            
+
             // Postpone the ring closing for the low target, right now functional minimum!!
             /*
             //close the ring of doom
@@ -148,13 +155,13 @@ namespace GameLab
             // TODO: Add your drawing code here
             //this.ring.DrawRing(_spriteBatch, Content.Load<Texture2D>("ring"));
 
-            DrawModel(arena, arenaScaling*arenaTranslation);
+            DrawModel(arena, arenaScaling);
 
             foreach (Projectile projectile in activeProjectiles)
                 DrawModel(projectileModels[projectile.Type], Matrix.CreateTranslation(projectile.Position));
 
             foreach (Player player in players)
-                DrawModel(playerModel, Matrix.CreateTranslation(player.Position) * Matrix.CreateScale(new Vector3(1.5f, 1.5f, 1.5f)));
+                DrawModel(playerModel, Matrix.CreateTranslation(player.Position) * playerTranslation * playerScaling);
             //foreach (Player player in players)  
             //   Console.WriteLine(player.Position);
             _spriteBatch.DrawString(font, "Lives: " + players[0].Life, new Vector2(0, 0), Color.White);
