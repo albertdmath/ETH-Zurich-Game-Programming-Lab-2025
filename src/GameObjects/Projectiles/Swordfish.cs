@@ -5,7 +5,7 @@ namespace src.GameObjects;
 public class Swordfish : Projectile
   {
       // Private fields:
-      private const int velocity = 5;
+      private const float velocity = 5;
 
       // Constructor:
       public Swordfish(int type, Vector3 origin, Vector3 target) : base(type, origin, target) { }

@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System.Runtime.CompilerServices;
 using System;
+using System.Collections.Generic;
 
 namespace src.GameObjects
 {
@@ -16,6 +17,8 @@ namespace src.GameObjects
         //private Projectile *projectileHeld;
         private int typeOfProjectileHeld = -1; // -1 if no projectile held
         private bool isDashing = false;
+        private const float TIME_CATCH_THROW = 0.5f;
+        private float timeSinceCatch = 0f;
 
         // Constructor: Only allow to assign position here, lifes stamina and so on are a global property and need to be the same for
         public Player(Vector3 position)
@@ -42,25 +45,16 @@ namespace src.GameObjects
             Vector3 dir = new Vector3(0, 0, 0);
             KeyboardState newState = Keyboard.GetState();
             if (newState.IsKeyDown(Keys.A))
-            {
                 dir.X -= 1;
-            }
+
             if (newState.IsKeyDown(Keys.D))
-            {
                 dir.X += 1;
-            }
+
             if (newState.IsKeyDown(Keys.W))
-            {
                 dir.Z -= 1;
-            }
+
             if (newState.IsKeyDown(Keys.S))
-            {
                 dir.Z += 1;
-            }
-            // if (newState.IsKeyDown(Keys.R))
-            // {
-            //     playerSpeed *= 1.02f;
-            // }
 
             if (dir.Length() > 0)
             {
@@ -69,23 +63,49 @@ namespace src.GameObjects
             }
 
             position += playerSpeed * dir * dt;
+
+            timeSinceCatch += dt;
         }
 
         // Method to grab an object:
-        public void Grab(Projectile projectile)
+        public bool Grab(Projectile projectile, LinkedList<Projectile> activeProjectiles)
         {
-            if (this.typeOfProjectileHeld != -1) return;
-            //if(button pressed and projectile is in range)
-            this.typeOfProjectileHeld = projectile.Type;
+            if (Keyboard.GetState().IsKeyDown(Keys.E) && this.typeOfProjectileHeld == -1 && Vector3.Distance(this.position, projectile.Position) < 2.0f && timeSinceCatch > TIME_CATCH_THROW)
+            {
+                this.typeOfProjectileHeld = projectile.Type;
+                activeProjectiles.Remove(projectile);
+                timeSinceCatch = 0f;
+                Console.WriteLine("Grabbing " + projectile.Type);
+                return true;
+            }
+
+            return false;
         }
 
         // Method to throw an object:
-        public void Throw()
+        public void Throw(LinkedList<Projectile> activeProjectiles)
         {
-            //if(button pressed)
-            //looking direction
-            Projectile.createProjectile(typeOfProjectileHeld, this.position, new Vector3(0, 0, 0));
-            this.typeOfProjectileHeld = -1;
+            if (Keyboard.GetState().IsKeyDown(Keys.E) && this.typeOfProjectileHeld != -1 && timeSinceCatch > TIME_CATCH_THROW)
+            {
+                activeProjectiles.AddLast(Projectile.createProjectile(typeOfProjectileHeld, this.position + this.orientation, this.orientation));
+                this.typeOfProjectileHeld = -1;
+                timeSinceCatch = 0f;
+
+                Console.WriteLine("Throwing projectile with orientation: " + this.orientation);
+            }
+        }
+
+
+        public bool GetHit(Projectile projectile, LinkedList<Projectile> activeProjectiles, Player[] Players)
+        {
+            if (Vector3.Distance(this.position, projectile.Position) < 0.5)
+            {
+                this.life--;
+                activeProjectiles.Remove(projectile);
+                return true;
+            }
+
+            return false;
         }
 
         // Method to dash:
