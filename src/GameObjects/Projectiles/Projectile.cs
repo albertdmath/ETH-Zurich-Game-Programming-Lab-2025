@@ -8,6 +8,7 @@ namespace src.GameObjects
     {
         // Private fields:
         protected int type;
+        protected float velocity;
 
         // Constructor:
         public Projectile(int type, Vector3 origin, Vector3 target)
