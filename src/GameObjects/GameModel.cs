@@ -6,10 +6,10 @@ namespace src.GameObjects
 {
     /** Superclass for all moving objects **/
     public class GameModel {
-        protected Vector3 position;
-        protected Vector3 orientation; 
-        protected Model model; 
-        protected Hitbox hitbox;
+        public Vector3 Position { get; set; }
+        public Vector3 Orientation { get; set; }
+        protected Model Model; 
+        protected Hitbox Hitbox;
     
     }
 }

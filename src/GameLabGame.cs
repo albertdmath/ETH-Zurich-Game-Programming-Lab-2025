@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.NetworkInformation;
 //using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -22,7 +23,7 @@ namespace GameLab
 
         // Private fields:
         private Model arena, playerModel;
-        private List<Model> projectileModels = new List<Model>();
+        private Dictionary<ProjectileType, Model> projectileModels = new Dictionary<ProjectileType, Model>();
         private RingOfDoom ring;
         private LinkedList<Projectile> activeProjectiles = new LinkedList<Projectile>();
 
@@ -84,8 +85,8 @@ namespace GameLab
             font = Content.Load<SpriteFont>("font");
 
             // Load the projectile models
-            projectileModels.Add(Content.Load<Model>("frog"));
-            projectileModels.Add(Content.Load<Model>("fish"));
+            projectileModels.Add(ProjectileType.Frog, Content.Load<Model>("frog"));
+            projectileModels.Add(ProjectileType.Swordfish, Content.Load<Model>("fish"));
         }
 
         protected override void Update(GameTime gameTime)
@@ -99,7 +100,12 @@ namespace GameLab
             if ((timeUntilNextProjectile -= dt) <= 0)
             {
                 timeUntilNextProjectile = (float)rng.NextDouble() * 5f;
-                int type = rng.Next(0, projectileModels.Count);
+
+                ProjectileType[] values = Enum.GetValues(typeof(ProjectileType))
+                                      .Cast<ProjectileType>()
+                                      .Where(p => p != ProjectileType.None)
+                                      .ToArray();
+                ProjectileType type = (ProjectileType)values.GetValue(rng.Next(values.Length));
                 activeProjectiles.AddLast(Projectile.createProjectile(type, ring.RndCircPoint(), players[rng.Next(0, NUM_PLAYERS)].Position));
             }
 
@@ -176,7 +182,7 @@ namespace GameLab
             
             foreach (ModelMesh mesh in arena.Meshes)
                 BoundingBoxRenderer.DrawOBB(GraphicsDevice, OrientedBoundingBox.ComputeOBB(
-                    OrientedBoundingBox.GetMeshVertices(mesh)), view, projection);
+                    mesh), view, projection);
 
             
 

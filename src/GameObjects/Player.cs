@@ -12,10 +12,10 @@ namespace src.GameObjects
     {
         // Private fields:
         private float playerSpeed = 2f;
-        private int life = 3;
+        public int Life { get; set; } = 3;
         private int stamina = 3;
         //private Projectile *projectileHeld;
-        private int typeOfProjectileHeld = -1; // -1 if no projectile held
+        private ProjectileType typeOfProjectileHeld = ProjectileType.None;
         private bool isDashing = false;
         private const float TIME_CATCH_THROW = 0.5f;
         private float timeSinceCatch = 0f;
@@ -23,20 +23,7 @@ namespace src.GameObjects
         // Constructor: Only allow to assign position here, lifes stamina and so on are a global property and need to be the same for
         public Player(Vector3 position)
         {
-            this.position = position;
-        }
-
-        // Getters/Setters:
-        public Vector3 Position
-        {
-            get { return this.position; }
-            set { this.position = value; }
-        }
-
-        public int Life
-        {
-            get { return this.life; }
-            set { this.life = value; }
+            Position = position;
         }
 
         // The player move method:
@@ -59,10 +46,10 @@ namespace src.GameObjects
             if (dir.Length() > 0)
             {
                 dir = Vector3.Normalize(dir);
-                this.orientation = dir;
+                Orientation = dir;
             }
 
-            position += playerSpeed * dir * dt;
+            Position += playerSpeed * dir * dt;
 
             timeSinceCatch += dt;
         }
@@ -70,7 +57,10 @@ namespace src.GameObjects
         // Method to grab an object:
         public bool Grab(Projectile projectile, LinkedList<Projectile> activeProjectiles)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.E) && this.typeOfProjectileHeld == -1 && Vector3.Distance(this.position, projectile.Position) < 2.0f && timeSinceCatch > TIME_CATCH_THROW)
+            if (Keyboard.GetState().IsKeyDown(Keys.E) 
+                && typeOfProjectileHeld == ProjectileType.None
+                && Vector3.Distance(Position, projectile.Position) < 2.0f 
+                && timeSinceCatch > TIME_CATCH_THROW)
             {
                 this.typeOfProjectileHeld = projectile.Type;
                 activeProjectiles.Remove(projectile);
@@ -85,22 +75,24 @@ namespace src.GameObjects
         // Method to throw an object:
         public void Throw(LinkedList<Projectile> activeProjectiles)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.E) && this.typeOfProjectileHeld != -1 && timeSinceCatch > TIME_CATCH_THROW)
+            if (Keyboard.GetState().IsKeyDown(Keys.E) 
+                && typeOfProjectileHeld != ProjectileType.None 
+                && timeSinceCatch > TIME_CATCH_THROW)
             {
-                activeProjectiles.AddLast(Projectile.createProjectile(typeOfProjectileHeld, this.position + this.orientation, this.orientation));
-                this.typeOfProjectileHeld = -1;
+                activeProjectiles.AddLast(Projectile.createProjectile(typeOfProjectileHeld, Position + Orientation, Orientation));
+                typeOfProjectileHeld = ProjectileType.None;
                 timeSinceCatch = 0f;
 
-                Console.WriteLine("Throwing projectile with orientation: " + this.orientation);
+                Console.WriteLine("Throwing projectile with orientation: " + Orientation);
             }
         }
 
 
         public bool GetHit(Projectile projectile, LinkedList<Projectile> activeProjectiles, Player[] Players)
         {
-            if (Vector3.Distance(this.position, projectile.Position) < 0.5)
+            if (Vector3.Distance(Position, projectile.Position) < 0.5)
             {
-                this.life--;
+                Life--;
                 activeProjectiles.Remove(projectile);
                 return true;
             }

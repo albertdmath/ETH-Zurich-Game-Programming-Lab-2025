@@ -18,7 +18,7 @@ public class OrientedBoundingBox
     }
 
     // Returns a list of vertices of the given mesh
-    public static List<Vector3> GetMeshVertices(ModelMesh mesh)
+    private static List<Vector3> GetMeshVertices(ModelMesh mesh)
     {
         List<Vector3> vertices = new List<Vector3>();
         foreach (ModelMeshPart part in mesh.MeshParts)
@@ -32,8 +32,9 @@ public class OrientedBoundingBox
         return vertices;
     }
 
-    public static OrientedBoundingBox ComputeOBB(List<Vector3> vertices)
+    public static OrientedBoundingBox ComputeOBB(ModelMesh mesh)
     {
+        List<Vector3> vertices = GetMeshVertices(mesh);
         if (vertices == null || vertices.Count == 0)
             throw new ArgumentException("No vertices provided!");
 

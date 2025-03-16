@@ -7,11 +7,11 @@ namespace src.GameObjects
     {
         // Private fields:
         private const float HOP_TIME = 1f; // 1 second for the hop time
-        private const float velocity = 1.7f;
+        private new const float velocity = 1.7f;
         private float timeBeforeHop = 0f;
 
         // Constructor:
-        public Frog(int type, Vector3 origin, Vector3 target) : base(type, origin, target) { }
+        public Frog(ProjectileType type, Vector3 origin, Vector3 target) : base(type, origin, target) { }
 
         public override void Move(float dt)
         {
@@ -21,8 +21,8 @@ namespace src.GameObjects
             float jumpProgress = (timeBeforeHop - HOP_TIME) / HOP_TIME;
 
             // Parabolic arc for Y position
-            this.position.Y = (float)Math.Sin(jumpProgress * Math.PI); // Y = sin(t * pi), from 0 to 1 and back to 0
-            this.position += velocity * orientation * dt;
+            Position = new Vector3(Position.X, (float)Math.Sin(jumpProgress * Math.PI), Position.Z); // Y = sin(t * pi), from 0 to 1 and back to 0
+            Position += velocity * Orientation * dt;
 
             if (timeBeforeHop > 2 * HOP_TIME)
                 timeBeforeHop = 0f;
