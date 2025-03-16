@@ -27,11 +27,11 @@ namespace GameLab
         private LinkedList<Projectile> activeProjectiles = new LinkedList<Projectile>();
 
         // Player settings
-        private static int numPlayers = 1;
-        private Player[] players = new Player[numPlayers];
+        private static int NUM_PLAYERS = 1;
+        private Player[] players = new Player[NUM_PLAYERS];
 
         // Camera settings
-        private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 10, 5), new Vector3(0, 0, 0), Vector3.Up);
+        private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 10, 7), new Vector3(0, 0, 0), Vector3.Up);
         private Matrix projection = Matrix.CreatePerspectiveFieldOfView(
             MathHelper.ToRadians(45f), // Field of view in radians (e.g., 45 degrees)
             16f / 9f, // Aspect ratio (change as needed)
@@ -68,7 +68,7 @@ namespace GameLab
             this.ring = new RingOfDoom(planeWidth, planeHeight);
 
             float[] playerStartPositions = { -0.75f, -0.25f, 0.25f, 0.75f };
-            for (int i = 0; i < numPlayers; i++)
+            for (int i = 0; i < NUM_PLAYERS; i++)
                 players[i] = new Player(new Vector3(playerStartPositions[i], 0, 0));
 
             base.Initialize();
@@ -79,7 +79,7 @@ namespace GameLab
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             // Load the player/projectile models
             // Textured arena model currently named test TODO change that and remove old arena model too
-            arena = Content.Load<Model>("test");
+            arena = Content.Load<Model>("arena");
             playerModel = Content.Load<Model>("player");
             font = Content.Load<SpriteFont>("font");
 
@@ -100,7 +100,7 @@ namespace GameLab
             {
                 timeUntilNextProjectile = (float)rng.NextDouble() * 5f;
                 int type = rng.Next(0, projectileModels.Count);
-                activeProjectiles.AddLast(Projectile.createProjectile(type, ring.RndCircPoint(), players[rng.Next(0, numPlayers)].Position));
+                activeProjectiles.AddLast(Projectile.createProjectile(type, ring.RndCircPoint(), players[rng.Next(0, NUM_PLAYERS)].Position));
             }
 
             // Move all the projectiles
@@ -160,6 +160,8 @@ namespace GameLab
 
             DrawModel(arena, arenaScaling);
 
+
+
             foreach (Projectile projectile in activeProjectiles)
                 DrawModel(projectileModels[projectile.Type], Matrix.CreateTranslation(projectile.Position));
 
@@ -169,6 +171,15 @@ namespace GameLab
             //   Console.WriteLine(player.Position);
             _spriteBatch.DrawString(font, "Lives: " + players[0].Life, new Vector2(0, 0), Color.White);
             _spriteBatch.End();
+            
+            foreach (ModelMesh mesh in arena.Meshes)
+                BoundingBoxRenderer.DrawOBB(GraphicsDevice, OrientedBoundingBox.ComputeOBB(
+                    OrientedBoundingBox.GetMeshVertices(mesh)), view, projection);
+
+            
+
+
+
             base.Draw(gameTime);
         }
     }

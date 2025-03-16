@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -11,32 +12,9 @@ using Vector3 = Microsoft.Xna.Framework.Vector3;
 */
 public class Hitbox {
 
-    private List<BoundingBox> boundingBoxes;
-    public void initializeHitbox(Model model) {
+    // Axis-aligned bounding boxes
+    private List<OrientedBoundingBox> BoundingBoxes = new List<OrientedBoundingBox>();
 
-    
-        foreach (ModelMesh mesh in model.Meshes)
-        {
-            Vector3 min = new Vector3(float.MaxValue);
-            Vector3 max = new Vector3(float.MinValue);
+   
 
-            foreach (ModelMeshPart part in mesh.MeshParts)
-            {
-                // Get vertex data
-                VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[part.VertexBuffer.VertexCount];
-                part.VertexBuffer.GetData(vertices);
-
-                // Update min and max bounds
-                foreach (var vertex in vertices)
-                {
-                    min = Vector3.Min(min, vertex.Position);
-                    max = Vector3.Max(max, vertex.Position);
-                }
-            }
-
-            // Create and store the bounding box for this wall mesh
-            BoundingBox box = new BoundingBox(min, max);
-            boundingBoxes.Add(box);
-        }
-    }
 }
