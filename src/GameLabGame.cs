@@ -107,19 +107,21 @@ namespace GameLab
             foreach (Projectile projectile in activeProjectiles) projectile.Move(dt);
 
             // Move players
-            foreach (Player player in players) player.Move(dt);
+            foreach (Player player in players)
+            {
+                player.Move(dt);
+                player.Throw(activeProjectiles);
+            }
+
 
             // Super basic hit detection until we can figure out bounding spheres, just using 0.5 which is quite arbitrary for now:
             foreach (Player player in players)
             {
                 foreach (Projectile projectile in activeProjectiles)
                 {
-                    if (Vector3.Distance(player.Position, projectile.Position) < 0.5f)
-                    {
-                        player.Life--;
-                        activeProjectiles.Remove(projectile);
+                    //we should decide how much distance
+                    if (player.Grab(projectile, activeProjectiles) || player.GetHit(projectile, activeProjectiles, players))
                         break;
-                    }
                 }
             }
 
