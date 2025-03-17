@@ -2,5 +2,6 @@ public enum ProjectileType
 {
     None,
     Frog,
-    Swordfish
+    Swordfish,
+    Tomato
 }

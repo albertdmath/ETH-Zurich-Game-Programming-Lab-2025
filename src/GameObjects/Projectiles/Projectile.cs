@@ -9,6 +9,8 @@ namespace src.GameObjects
         // Private fields:
         public ProjectileType Type { get; set; }
         protected float velocity;
+        public static int frogCount = 0;
+        public static int maxFrogs = 5;
 
         // Constructor:
         public Projectile(ProjectileType type, Vector3 origin, Vector3 orientation)
@@ -29,6 +31,8 @@ namespace src.GameObjects
                     return new Frog(type, origin, target);
                 case ProjectileType.Swordfish:
                     return new Swordfish(type, origin, target);
+                case ProjectileType.Tomato:
+                    return new Tomato(type, origin, target);
                 default:
                     throw new ArgumentException("Invalid projectile type");
             }

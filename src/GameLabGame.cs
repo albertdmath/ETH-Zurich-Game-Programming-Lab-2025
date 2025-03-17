@@ -6,9 +6,12 @@ using System.Net.NetworkInformation;
 
 //using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
 
 //local imports
 using src.GameObjects;
@@ -50,9 +53,9 @@ namespace GameLab
         private Matrix playerTranslation = Matrix.CreateTranslation(new Vector3(0, 0.2f, 0));
 
         // Projectile transformations:
-        private Matrix projectileRotation = Matrix.CreateRotationX((float) -Math.PI / 2);
+        private Matrix projectileRotation = Matrix.CreateRotationX((float)-Math.PI / 2);
 
-        private static float timeUntilNextProjectile = 5f; // Random interval before next projectile
+        private static float timeUntilNextProjectile = 5.0f+(float)rng.NextDouble()*10; // Random interval before next projectile
 
         public GameLabGame()
         {
@@ -91,6 +94,13 @@ namespace GameLab
             // Load the projectile models
             projectileModels.Add(ProjectileType.Frog, Content.Load<Model>("frog"));
             projectileModels.Add(ProjectileType.Swordfish, Content.Load<Model>("fish"));
+            //it should be a tomato
+            projectileModels.Add(ProjectileType.Tomato, Content.Load<Model>("fish"));
+
+            // Load Sounds:
+            Sounds.bgMusic = Content.Load<Song>("Audio/yoga-dogs-all-good-folks");
+            MediaPlayer.Play(Sounds.bgMusic);
+            MediaPlayer.IsRepeating = true;
         }
 
         protected override void Update(GameTime gameTime)
@@ -109,10 +119,19 @@ namespace GameLab
                                       .Cast<ProjectileType>()
                                       .Where(p => p != ProjectileType.None)
                                       .ToArray();
-                ProjectileType type = (ProjectileType)values.GetValue(rng.Next(values.Length));
                 Vector3 origin = ring.RndCircPoint();
                 Vector3 direction = players[rng.Next(0, NUM_PLAYERS)].Position - origin;
-                activeProjectiles.AddLast(Projectile.createProjectile(type, origin, direction));
+                ProjectileType type = (ProjectileType)values.GetValue(rng.Next(values.Length));
+                Projectile newProjectile = Projectile.createProjectile(type, origin, direction);
+                if(type == ProjectileType.Frog)
+                {
+                    Projectile.frogCount++;
+                }
+
+                if(!(type == ProjectileType.Frog && Projectile.frogCount > Projectile.maxFrogs))
+                {
+                    activeProjectiles.AddLast(newProjectile);
+                }
             }
 
             // Move all the projectiles
@@ -155,6 +174,13 @@ namespace GameLab
                     effect.World = world;
                     effect.View = this.view;
                     effect.Projection = this.projection;
+
+                    if(model == Content.Load<Model>("frog"))
+                    {
+                        Texture2D frogTexture = Content.Load<Texture2D>("Textures/frogTexture");
+                        effect.Texture = frogTexture;
+                        effect.TextureEnabled = true;
+                    }
                     effect.EnableDefaultLighting();
                 }
                 mesh.Draw();
@@ -175,18 +201,23 @@ namespace GameLab
             DrawModel(arena, arenaScaling);
 
             // Draw all active projectiles:
-            foreach (Projectile projectile in activeProjectiles) {
-                int randomPlayerIndex = rng.Next(0, NUM_PLAYERS);
-                Vector3 dir = players[randomPlayerIndex].Position - projectile.Position;
-                dir.Normalize();
-                float angle = (float)Math.Atan2(dir.Z, dir.X);
-                DrawModel(projectileModels[projectile.Type], projectileRotation * Matrix.CreateRotationY(-angle + (float)Math.PI / 2) * Matrix.CreateTranslation(projectile.Position));
+            foreach (Projectile projectile in activeProjectiles)
+            {
+                if(projectile.Type == ProjectileType.Frog) {
+                    Matrix frogRotationMatrix = Matrix.CreateRotationY((float)(Math.PI / 2 - Math.Atan2(projectile.Orientation.Z, projectile.Orientation.X)));
+                    DrawModel(projectileModels[projectile.Type], projectileRotation * frogRotationMatrix * Matrix.CreateTranslation(projectile.Position));
+                }
+
+                if(projectile.Type == ProjectileType.Swordfish) {
+                    Matrix frogRotationMatrix = Matrix.CreateRotationY((float) Math.PI- (float) Math.Atan2(projectile.Orientation.Z, projectile.Orientation.X));
+                    DrawModel(projectileModels[projectile.Type], projectileRotation * frogRotationMatrix * Matrix.CreateTranslation(projectile.Position));
+                }
             }
 
             // Draw all players:
             foreach (Player player in players)
                 DrawModel(playerModel, Matrix.CreateTranslation(player.Position) * playerTranslation * playerScaling);
-            
+
             // Debug Code:
             // foreach (Player player in players)
             //     Console.WriteLine(player.Position);
