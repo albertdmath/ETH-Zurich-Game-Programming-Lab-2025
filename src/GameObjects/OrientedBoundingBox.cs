@@ -32,6 +32,13 @@ public class OrientedBoundingBox
         return vertices;
     }
 
+    /* 
+        This is a little complex, basically it finds the center of a mesh and 
+        then does PCA to find the orientation of the most significant 3 axis in the point cloud
+        Probs to a few parts of this go to GenAI who helped me put the individual parts together, 
+        the Accord library does a very good job at eigendecomposition;
+        it also computes the halfextents (so the distances from the center to the border of the box)
+    */
     public static OrientedBoundingBox ComputeOBB(ModelMesh mesh)
     {
         List<Vector3> vertices = GetMeshVertices(mesh);
@@ -65,7 +72,7 @@ public class OrientedBoundingBox
         var evd = new EigenvalueDecomposition(covarianceMatrix);
         double[,] eigenvectors = evd.Eigenvectors;
 
-        // Convert eigenvectors to Monogame Vector3
+        // Convert eigenvectors to Xna Vector3
         Vector3[] axes = new Vector3[3];
         for (int i = 0; i < 3; i++)
         {
