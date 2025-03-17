@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
+
 //using System.Numerics;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
@@ -109,7 +110,9 @@ namespace GameLab
                                       .Where(p => p != ProjectileType.None)
                                       .ToArray();
                 ProjectileType type = (ProjectileType)values.GetValue(rng.Next(values.Length));
-                activeProjectiles.AddLast(Projectile.createProjectile(type, ring.RndCircPoint(), players[rng.Next(0, NUM_PLAYERS)].Position));
+                Vector3 origin = ring.RndCircPoint();
+                Vector3 direction = players[rng.Next(0, NUM_PLAYERS)].Position - origin;
+                activeProjectiles.AddLast(Projectile.createProjectile(type, origin, direction));
             }
 
             // Move all the projectiles
@@ -191,7 +194,7 @@ namespace GameLab
             // Draw the player's life:
             _spriteBatch.DrawString(font, "Lives: " + players[0].Life, new Vector2(5, 5), Color.White);
             _spriteBatch.End();
-            
+
             foreach (ModelMesh mesh in arena.Meshes)
                 BoundingBoxRenderer.DrawOBB(GraphicsDevice, OrientedBoundingBox.ComputeOBB(
                     mesh), view, projection);

@@ -26,7 +26,7 @@ namespace src.GameObjects
             Orientation = new Vector3(Orientation.X, 0, Orientation.Z);
             Orientation.Normalize();
             Position += velocity * Orientation * dt;
-            Position = new Vector3(Position.X, (float)Math.Sin(jumpProgress * Math.PI), Position.Z);
+            Position = new Vector3(Position.X, 0.05f + (float)Math.Sin(jumpProgress * Math.PI), Position.Z);
       
 
             if (timeBeforeHop > 2 * HOP_TIME)
