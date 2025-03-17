@@ -11,15 +11,15 @@ namespace src.GameObjects
         protected float velocity;
 
         // Constructor:
-        public Projectile(ProjectileType type, Vector3 origin, Vector3 target)
+        public Projectile(ProjectileType type, Vector3 origin, Vector3 orientation)
         {
             Type = type;
             Position = origin;
-            Orientation = Vector3.Normalize(target - origin);
+            Orientation = Vector3.Normalize(orientation);
         }
 
         // Factory method to create a random projectile:
-        #nullable enable
+#nullable enable
         public static Projectile createProjectile(ProjectileType type, Vector3 origin, Vector3 target)
         {
             // Randomly create a projectile:
@@ -34,13 +34,8 @@ namespace src.GameObjects
             }
         }
 
-    
+
         // Move the projectile:
         public virtual void Move(float dt) { }
     }
-
-
-
-   
-
 }

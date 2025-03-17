@@ -57,9 +57,9 @@ namespace src.GameObjects
         // Method to grab an object:
         public bool Grab(Projectile projectile, LinkedList<Projectile> activeProjectiles)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.E) 
+            if (Keyboard.GetState().IsKeyDown(Keys.E)
                 && typeOfProjectileHeld == ProjectileType.None
-                && Vector3.Distance(Position, projectile.Position) < 2.0f 
+                && Vector3.Distance(Position, projectile.Position) < 2.0f
                 && timeSinceCatch > TIME_CATCH_THROW)
             {
                 this.typeOfProjectileHeld = projectile.Type;
@@ -75,8 +75,8 @@ namespace src.GameObjects
         // Method to throw an object:
         public void Throw(LinkedList<Projectile> activeProjectiles)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.E) 
-                && typeOfProjectileHeld != ProjectileType.None 
+            if (Keyboard.GetState().IsKeyDown(Keys.E)
+                && typeOfProjectileHeld != ProjectileType.None
                 && timeSinceCatch > TIME_CATCH_THROW)
             {
                 activeProjectiles.AddLast(Projectile.createProjectile(typeOfProjectileHeld, Position + Orientation, Orientation));
