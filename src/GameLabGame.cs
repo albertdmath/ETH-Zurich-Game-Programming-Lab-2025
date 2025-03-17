@@ -50,7 +50,7 @@ namespace GameLab
         private Matrix playerTranslation = Matrix.CreateTranslation(new Vector3(0, 0.2f, 0));
 
         // Projectile transformations:
-        private Matrix projectileRotation = Matrix.CreateRotationX((float) -Math.PI / 2);
+        private Matrix projectileRotation = Matrix.CreateRotationX((float)-Math.PI / 2);
 
         private static float timeUntilNextProjectile = 5f; // Random interval before next projectile
 
@@ -91,6 +91,8 @@ namespace GameLab
             // Load the projectile models
             projectileModels.Add(ProjectileType.Frog, Content.Load<Model>("frog"));
             projectileModels.Add(ProjectileType.Swordfish, Content.Load<Model>("fish"));
+            //it should be a tomato
+            projectileModels.Add(ProjectileType.Tomato, Content.Load<Model>("frog"));
         }
 
         protected override void Update(GameTime gameTime)
@@ -175,18 +177,16 @@ namespace GameLab
             DrawModel(arena, arenaScaling);
 
             // Draw all active projectiles:
-            foreach (Projectile projectile in activeProjectiles) {
-                int randomPlayerIndex = rng.Next(0, NUM_PLAYERS);
-                Vector3 dir = players[randomPlayerIndex].Position - projectile.Position;
-                dir.Normalize();
-                float angle = (float)Math.Atan2(dir.Z, dir.X);
-                DrawModel(projectileModels[projectile.Type], projectileRotation * Matrix.CreateRotationY(-angle + (float)Math.PI / 2) * Matrix.CreateTranslation(projectile.Position));
+            foreach (Projectile projectile in activeProjectiles)
+            {
+                Matrix RotationMatrix = Matrix.CreateRotationY((float)(Math.PI / 2 - Math.Atan2(projectile.Orientation.Z, projectile.Orientation.X)));
+                DrawModel(projectileModels[projectile.Type], projectileRotation * RotationMatrix * Matrix.CreateTranslation(projectile.Position));
             }
 
             // Draw all players:
             foreach (Player player in players)
                 DrawModel(playerModel, Matrix.CreateTranslation(player.Position) * playerTranslation * playerScaling);
-            
+
             // Debug Code:
             // foreach (Player player in players)
             //     Console.WriteLine(player.Position);

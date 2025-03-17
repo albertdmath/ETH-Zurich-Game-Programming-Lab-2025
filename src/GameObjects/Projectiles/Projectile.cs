@@ -19,7 +19,7 @@ namespace src.GameObjects
         }
 
         // Factory method to create a random projectile:
-        #nullable enable
+#nullable enable
         public static Projectile createProjectile(ProjectileType type, Vector3 origin, Vector3 target)
         {
             // Randomly create a projectile:
@@ -29,6 +29,8 @@ namespace src.GameObjects
                     return new Frog(type, origin, target);
                 case ProjectileType.Swordfish:
                     return new Swordfish(type, origin, target);
+                case ProjectileType.Tomato:
+                    return new Tomato(type, origin, target);
                 default:
                     throw new ArgumentException("Invalid projectile type");
             }
