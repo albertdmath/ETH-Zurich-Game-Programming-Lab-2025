@@ -48,6 +48,9 @@ namespace GameLab
         private Matrix playerScaling = Matrix.CreateScale(new Vector3(1.5f));
         private Matrix playerTranslation = Matrix.CreateTranslation(new Vector3(0, 0.2f, 0));
 
+        // Projectile transformations:
+        private Matrix projectileRotation = Matrix.CreateRotationX((float) -Math.PI / 2);
+
         private static float timeUntilNextProjectile = 5f; // Random interval before next projectile
 
         public GameLabGame()
@@ -110,7 +113,7 @@ namespace GameLab
             }
 
             // Move all the projectiles
-            foreach (Projectile projectile in activeProjectiles) projectile.Move(dt);
+            foreach (Projectile projectile in activeProjectiles) projectile.Move(dt, players[0].Position);
 
             // Move players
             foreach (Player player in players)
@@ -157,36 +160,41 @@ namespace GameLab
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.DeepSkyBlue); // Background color
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
             // This resolves upscaling issues when going fullscreen
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-            // TODO: Add your drawing code here
+            // Draw the ring of doom:
             //this.ring.DrawRing(_spriteBatch, Content.Load<Texture2D>("ring"));
 
             DrawModel(arena, arenaScaling);
 
+            // Draw all active projectiles:
+            foreach (Projectile projectile in activeProjectiles) {
+                int randomPlayerIndex = rng.Next(0, NUM_PLAYERS);
+                Vector3 dir = players[randomPlayerIndex].Position - projectile.Position;
+                dir.Normalize();
+                float angle = (float)Math.Atan2(dir.Z, dir.X);
+                DrawModel(projectileModels[projectile.Type], projectileRotation * Matrix.CreateRotationY(-angle + (float)Math.PI / 2) * Matrix.CreateTranslation(projectile.Position));
+            }
 
-
-            foreach (Projectile projectile in activeProjectiles)
-                DrawModel(projectileModels[projectile.Type], Matrix.CreateTranslation(projectile.Position));
-
+            // Draw all players:
             foreach (Player player in players)
                 DrawModel(playerModel, Matrix.CreateTranslation(player.Position) * playerTranslation * playerScaling);
-            //foreach (Player player in players)  
-            //   Console.WriteLine(player.Position);
-            _spriteBatch.DrawString(font, "Lives: " + players[0].Life, new Vector2(0, 0), Color.White);
+            
+            // Debug Code:
+            // foreach (Player player in players)
+            //     Console.WriteLine(player.Position);
+
+            // Draw the player's life:
+            _spriteBatch.DrawString(font, "Lives: " + players[0].Life, new Vector2(5, 5), Color.White);
             _spriteBatch.End();
             
             foreach (ModelMesh mesh in arena.Meshes)
                 BoundingBoxRenderer.DrawOBB(GraphicsDevice, OrientedBoundingBox.ComputeOBB(
                     mesh), view, projection);
-
-            
-
-
 
             base.Draw(gameTime);
         }

@@ -90,7 +90,8 @@ namespace src.GameObjects
 
         public bool GetHit(Projectile projectile, LinkedList<Projectile> activeProjectiles, Player[] Players)
         {
-            if (Vector3.Distance(Position, projectile.Position) < 0.5)
+            // Very basic check, DOES NOT USE HITBOXES YET!
+            if (Vector3.Distance(Position, projectile.Position) < 0.05f)
             {
                 Life--;
                 activeProjectiles.Remove(projectile);
