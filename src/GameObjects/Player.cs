@@ -91,9 +91,12 @@ namespace src.GameObjects
         public bool GetHit(Projectile projectile, LinkedList<Projectile> activeProjectiles, Player[] Players)
         {
             // Very basic check, DOES NOT USE HITBOXES YET!
-            if (Vector3.Distance(Position, projectile.Position) < 0.05f)
+            if (Vector3.Distance(Position, projectile.Position) < 0.5f)
             {
                 Life--;
+                if(projectile.Type == ProjectileType.Frog) {
+                    Projectile.frogCount--;
+                }
                 activeProjectiles.Remove(projectile);
                 return true;
             }

@@ -9,6 +9,8 @@ namespace src.GameObjects
         // Private fields:
         public ProjectileType Type { get; set; }
         protected float velocity;
+        public static int frogCount = 0;
+        public static int maxFrogs = 5;
 
         // Constructor:
         public Projectile(ProjectileType type, Vector3 origin, Vector3 orientation)
@@ -19,7 +21,7 @@ namespace src.GameObjects
         }
 
         // Factory method to create a random projectile:
-#nullable enable
+        #nullable enable
         public static Projectile createProjectile(ProjectileType type, Vector3 origin, Vector3 target)
         {
             // Randomly create a projectile:
