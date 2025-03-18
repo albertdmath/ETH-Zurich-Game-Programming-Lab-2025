@@ -125,7 +125,7 @@ namespace src.GameObjects
         }
         
 
-        public void update(float dt){
+        public void Update(float dt){
             Stamina +=dt*5f;
             Stamina = (Stamina >100f) ? 100f : Stamina;
             if(Life>0f){

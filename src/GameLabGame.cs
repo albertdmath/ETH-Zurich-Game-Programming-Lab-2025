@@ -165,7 +165,7 @@ namespace GameLab
             // Move players
             foreach (Player player in players)
             {
-                player.update(dt);
+                player.Update(dt);
                 if(player.projectileHeld != null && !activeProjectiles.Contains(player.projectileHeld))
                     activeProjectiles.AddLast(player.projectileHeld);
             }
