@@ -27,7 +27,7 @@ namespace src.GameObjects
             {
                 input = GamePad.GetState(p).ThumbSticks.Left;
             }
-            Vector3 dir = new Vector3(input.X, 0, input.Y);
+            Vector3 dir = new Vector3(input.X, 0, -1f*input.Y);
             if (dir.Length() > 0)
             {
                 dir = Vector3.Normalize(dir);

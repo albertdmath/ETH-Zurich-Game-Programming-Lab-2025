@@ -80,7 +80,7 @@ namespace GameLab
                     goto case 2;
                 case 2:
                     //players[1] = new Player(new Vector3(playerStartPositions[1], 0, 0),new InputController(PlayerIndex.One));
-                    players[1] = new Player(new Vector3(playerStartPositions[1], 0, 0),new InputKeyboard());
+                    players[1] = new Player(new Vector3(playerStartPositions[1], 0, 0),new InputController(PlayerIndex.One));
                     goto case 1;
                 case 1: 
                     players[0] = new Player(new Vector3(playerStartPositions[0], 0, 0),new Input());
