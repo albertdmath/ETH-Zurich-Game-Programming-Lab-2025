@@ -38,12 +38,12 @@ namespace src.GameObjects
         // Method returns true if action button is pressed
         public override bool Action()
         {
-            return GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed;
+            return GamePad.GetState(p).Buttons.A == ButtonState.Pressed;
         }
         // Method to dash:
         public override bool Dash()
         {
-            return GamePad.GetState(PlayerIndex.One).Buttons.B == ButtonState.Pressed;
+            return GamePad.GetState(p).Buttons.B == ButtonState.Pressed;
         }
     }
 }
