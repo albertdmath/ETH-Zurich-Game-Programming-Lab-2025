@@ -75,7 +75,7 @@ namespace GameLab
             int planeWidth = 10, planeHeight = 10;
             this.ring = new RingOfDoom(planeWidth, planeHeight);
 
-            float[] playerStartPositions = { -0.75f, -0.25f, 0.25f, 0.75f };
+            float[] playerStartPositions = { 0,0,0,0 };
             for (int i = 0; i < NUM_PLAYERS; i++)
                 players[i] = new Player(new Vector3(playerStartPositions[i], 0, 0));
 
@@ -226,12 +226,15 @@ namespace GameLab
             _spriteBatch.DrawString(font, "Lives: " + players[0].Life, new Vector2(5, 5), Color.White);
             _spriteBatch.End();
 
-            foreach (ModelMesh mesh in arena.Meshes)
-                BoundingBoxRenderer.DrawOBB(GraphicsDevice, OrientedBoundingBox.ComputeOBB(mesh, arenaScaling), view, projection);
+            OrientedBoundingBox obb1 = OrientedBoundingBox.ComputeOBB(arena.Meshes[15], arenaScaling);
+            BoundingBoxRenderer.DrawOBB(GraphicsDevice, obb1, view, projection);
 
-            foreach (ModelMesh mesh in playerModel.Meshes)
-                BoundingBoxRenderer.DrawOBB(GraphicsDevice, OrientedBoundingBox.ComputeOBB(mesh, Matrix.CreateTranslation(players[0].Position) * playerTranslation * playerScaling), view, projection);
+            OrientedBoundingBox obb2 =  OrientedBoundingBox.ComputeOBB(playerModel.Meshes[1], Matrix.CreateTranslation(players[0].Position) * playerTranslation * playerScaling);
+            BoundingBoxRenderer.DrawOBB(GraphicsDevice, obb2 ,view, projection);
 
+            if(obb1.Intersects(obb2)) {
+                Console.WriteLine("yay");
+            }
             base.Draw(gameTime);
         }
     }

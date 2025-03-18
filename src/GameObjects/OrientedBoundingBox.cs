@@ -33,12 +33,24 @@ public class OrientedBoundingBox
         return vertices;
     }
 
+    public void Transform(Matrix transformation) {
+        // Apply global transformations that were passed to the function in @param transformation
+        // We extract scaling and rotation so we can apply them to the extents / rotation individually
+        transformation.Decompose(out Vector3 t_scale, out Microsoft.Xna.Framework.Quaternion t_rotation, out Vector3 _);
+
+        Center = Vector3.Transform(Center, transformation);
+        Extents *= new Vector3(Math.Abs(t_scale.X), Math.Abs(t_scale.Y), Math.Abs(t_scale.Z));
+        Orientation *= Matrix.CreateFromQuaternion(t_rotation);
+    }
+
     /* 
         This is a little complex, basically it finds the center of a mesh and 
         then does PCA to find the orientation of the most significant 3 axis in the point cloud
-        Probs to a few parts of this go to GenAI who helped me put the individual parts together, 
+        Probs to a few parts of this go to GPT who helped me put the individual parts together, 
         the Accord library does a very good job at eigendecomposition;
         it also computes the halfextents (so the distances from the center to the border of the box)
+        Center, (half)extents and orientation form the OBB
+        If I ever come back here to steal this genius piece of code: hey, you can do it! :)
     */
     public static OrientedBoundingBox ComputeOBB(ModelMesh mesh, Matrix transformation)
     {
@@ -94,7 +106,7 @@ public class OrientedBoundingBox
         if (Math.Abs(Vector3.Dot(axes[1], Vector3.UnitY)) > 0.9999f) axes[1] = Vector3.UnitY;
         if (Math.Abs(Vector3.Dot(axes[2], Vector3.UnitZ)) > 0.9999f) axes[2] = Vector3.UnitZ;
 
-        // Create Monogame rotation matrix
+        // Create Xna rotation matrix
         Matrix rotation = new Matrix(
             axes[0].X, axes[0].Y, axes[0].Z, 0,
             axes[1].X, axes[1].Y, axes[1].Z, 0,
@@ -125,16 +137,83 @@ public class OrientedBoundingBox
         obbCenter = Vector3.Transform(obbCenter, rotation) + mean;
 
 
-        // Apply global transformations that were passed to the function in @param transformation
-        // Need to extract rotation and scale without translation
-      
+        OrientedBoundingBox OBB = new OrientedBoundingBox(
+            obbCenter, 
+            extents, 
+            rotation
+        );
+        // Apply global transformations
+        OBB.Transform(transformation);
+        return OBB;
+    }
     
-        transformation.Decompose(out Vector3 t_scale, out Microsoft.Xna.Framework.Quaternion t_rotation, out Vector3 _);
+    public bool Intersects(OrientedBoundingBox other)
+    {
+        // Get axes for both boxes
+        Vector3[] A = GetAxes(Orientation);
+        Vector3[] B = GetAxes(other.Orientation);
 
-        return new OrientedBoundingBox(
-            Vector3.Transform(obbCenter, transformation), 
-            extents*new Vector3(Math.Abs(t_scale.X), Math.Abs(t_scale.Y), Math.Abs(t_scale.Z)), 
-            rotation*Matrix.CreateFromQuaternion(t_rotation));
+        // Translation vector from this box to the other
+        Vector3 T = other.Center - Center;
+
+        // Test the 3 axes of this box
+        for (int i = 0; i < 3; i++)
+        {
+            if (IsSeparated(A[i], this, other, T)) return false;
+        }
+
+        // Test the 3 axes of the other box
+        for (int i = 0; i < 3; i++)
+        {
+            if (IsSeparated(B[i], this, other, T)) return false;
+        }
+
+        // Test the 9 cross product axes
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                Vector3 axis = Vector3.Cross(A[i], B[j]);
+                float length = axis.Length(); // Use Length() instead of LengthSquared()
+                
+                // Skip near-parallel axes to avoid numerical issues
+                if (length > 1e-6)
+                {
+                    // Normalize the axis
+                    axis /= length;
+                    if (IsSeparated(axis, this, other, T)) return false;
+                }
+            }
+        }
+        return true; // No separating axis found → intersection exists
     }
 
+    private bool IsSeparated(Vector3 axis, OrientedBoundingBox A, OrientedBoundingBox B, Vector3 T)
+    {
+        axis = Vector3.Normalize(axis); // Ensure unit axis
+
+        float rA = ProjectedRadius(A, axis);
+        float rB = ProjectedRadius(B, axis);
+        float dist = Math.Abs(Vector3.Dot(T, axis));
+
+        return dist > rA + rB;
+    }
+
+    private float ProjectedRadius(OrientedBoundingBox obb, Vector3 axis)
+    {
+        Vector3[] axes = GetAxes(obb.Orientation);
+        return Math.Abs(Vector3.Dot(axes[0], axis)) * obb.Extents.X +
+            Math.Abs(Vector3.Dot(axes[1], axis)) * obb.Extents.Y +
+            Math.Abs(Vector3.Dot(axes[2], axis)) * obb.Extents.Z;
+    }
+
+    private Vector3[] GetAxes(Matrix orientation)
+    {
+        return new Vector3[]
+        {
+            new Vector3(orientation.M11, orientation.M21, orientation.M31),
+            new Vector3(orientation.M12, orientation.M22, orientation.M32),
+            new Vector3(orientation.M13, orientation.M23, orientation.M33)
+        };
+    }
 }
