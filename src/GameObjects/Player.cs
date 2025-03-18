@@ -14,7 +14,7 @@ namespace src.GameObjects
         private float playerSpeed = 2f;
         public int Life { get; set; } = 3;
         public float Stamina { get; set; } = 0f;
-        private Projectile projectileHeld;
+        public Projectile projectileHeld;
         //private ProjectileType typeOfProjectileHeld = ProjectileType.None;
         private float dashTime = 0f;
         private const float TIME_CATCH_THROW = 0.5f;
@@ -104,7 +104,17 @@ namespace src.GameObjects
                 return false;
             }
         }
-
+        private bool Spawn()
+        {
+            if(input.Dash() &&dashTime<=0f && Stamina>40f && projectileHeld == null){
+                projectileHeld = Projectile.createProjectile(ProjectileType.Swordfish,Position,Orientation);
+                projectileHeld.Caught(this);
+                playerSpeed = 0.3f;
+                Stamina-=40f;
+                return false;
+            }
+            return true;
+        }
         
 
         public void update(float dt){
@@ -120,7 +130,7 @@ namespace src.GameObjects
                     }
                 }
             }else if(mob){
-                if(!Dash(dt)){
+                if(Spawn()){
                     Move(dt);
                     if(projectileHeld != null){
                         Throw(dt);

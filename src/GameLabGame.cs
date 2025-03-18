@@ -165,6 +165,8 @@ namespace GameLab
             foreach (Player player in players)
             {
                 player.update(dt);
+                if(player.projectileHeld != null && !activeProjectiles.Contains(player.projectileHeld))
+                    activeProjectiles.AddLast(player.projectileHeld);
             }
 
 
