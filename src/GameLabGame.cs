@@ -33,7 +33,7 @@ namespace GameLab
         private LinkedList<Projectile> hitProjectiles = new LinkedList<Projectile>();
 
         // Player settings
-        private static int NUM_PLAYERS = 2;
+        private static int NUM_PLAYERS = 3;
         private Player[] players = new Player[NUM_PLAYERS];
         private LinkedList<Player> activePlayers = new LinkedList<Player>();
         private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
@@ -159,7 +159,7 @@ namespace GameLab
             }
 
             // Move all the projectiles
-            foreach (Projectile projectile in activeProjectiles) projectile.Update(dt);
+            foreach (Projectile projectile in activeProjectiles) projectile.Update(dt, players[0].Position);
 
             // Move players
             foreach (Player player in players)
@@ -288,7 +288,7 @@ namespace GameLab
             OrientedBoundingBox obb1 = OrientedBoundingBox.ComputeOBB(arena.Meshes[15], arenaScaling);
             BoundingBoxRenderer.DrawOBB(GraphicsDevice, obb1, view, projection);
 
-            OrientedBoundingBox obb2 =  OrientedBoundingBox.ComputeOBB(playerModel.Meshes[1], Matrix.CreateTranslation(players[0].Position) * playerTranslation * playerScaling);
+            OrientedBoundingBox obb2 =  OrientedBoundingBox.ComputeOBB(playerModel.Meshes[1],  Matrix.CreateRotationY((float)Math.Atan2(-1f*players[0].Orientation.X,-1f*players[0].Orientation.Z)) * Matrix.CreateTranslation(players[0].Position) * playerTranslation );
             BoundingBoxRenderer.DrawOBB(GraphicsDevice, obb2 ,view, projection);
 
             if(obb1.Intersects(obb2)) {

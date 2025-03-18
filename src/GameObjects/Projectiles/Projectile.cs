@@ -19,7 +19,7 @@ namespace src.GameObjects
         {
             Type = type;
             Position = origin + new Vector3(0,0.2f,0);
-            Orientation = Vector3.Normalize(target - origin);
+            Orientation = Vector3.Normalize(orientation - origin);
         }
 
         // Factory method to create a random projectile:
@@ -42,9 +42,9 @@ namespace src.GameObjects
 
         // Move the projectile:
         public virtual void Move(float dt, Vector3 playerPosition) { }
-        public void Update(float dt) { 
+        public void Update(float dt, Vector3 playerPosition) { 
             if(holdByPlayer==null){
-                this.Move(dt);
+                this.Move(dt, playerPosition);
             }else{
                 this.Position = holdByPlayer.Position + holdByPlayer.Orientation*0.3f+new Vector3(.1f, 0.2f, -.1f);
             }
