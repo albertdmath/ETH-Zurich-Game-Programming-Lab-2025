@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 using Matrix = Microsoft.Xna.Framework.Matrix;
 using Accord.Math.Decompositions;
+using System.Numerics;
 public class OrientedBoundingBox
 {
 
@@ -39,7 +40,7 @@ public class OrientedBoundingBox
         the Accord library does a very good job at eigendecomposition;
         it also computes the halfextents (so the distances from the center to the border of the box)
     */
-    public static OrientedBoundingBox ComputeOBB(ModelMesh mesh)
+    public static OrientedBoundingBox ComputeOBB(ModelMesh mesh, Matrix transformation)
     {
         List<Vector3> vertices = GetMeshVertices(mesh);
         if (vertices == null || vertices.Count == 0)
@@ -123,7 +124,17 @@ public class OrientedBoundingBox
         // Transform the center back to world space
         obbCenter = Vector3.Transform(obbCenter, rotation) + mean;
 
-        return new OrientedBoundingBox(obbCenter*0.5f, extents*0.5f, rotation);
+
+        // Apply global transformations that were passed to the function in @param transformation
+        // Need to extract rotation and scale without translation
+      
+    
+        transformation.Decompose(out Vector3 t_scale, out Microsoft.Xna.Framework.Quaternion t_rotation, out Vector3 _);
+
+        return new OrientedBoundingBox(
+            Vector3.Transform(obbCenter, transformation), 
+            extents*new Vector3(Math.Abs(t_scale.X), Math.Abs(t_scale.Y), Math.Abs(t_scale.Z)), 
+            rotation*Matrix.CreateFromQuaternion(t_rotation));
     }
 
 }

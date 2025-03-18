@@ -227,8 +227,10 @@ namespace GameLab
             _spriteBatch.End();
 
             foreach (ModelMesh mesh in arena.Meshes)
-                BoundingBoxRenderer.DrawOBB(GraphicsDevice, OrientedBoundingBox.ComputeOBB(
-                    mesh), view, projection);
+                BoundingBoxRenderer.DrawOBB(GraphicsDevice, OrientedBoundingBox.ComputeOBB(mesh, arenaScaling), view, projection);
+
+            foreach (ModelMesh mesh in playerModel.Meshes)
+                BoundingBoxRenderer.DrawOBB(GraphicsDevice, OrientedBoundingBox.ComputeOBB(mesh, Matrix.CreateTranslation(players[0].Position) * playerTranslation * playerScaling), view, projection);
 
             base.Draw(gameTime);
         }
