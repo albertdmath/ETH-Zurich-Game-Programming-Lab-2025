@@ -60,6 +60,8 @@ namespace GameLab
 
         private static float timeUntilNextProjectile = 5.0f+(float)rng.NextDouble()*10; // Random interval before next projectile
 
+        private Ellipse ellipse = new Ellipse(7.5f,4f);
+
         public GameLabGame()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -73,17 +75,16 @@ namespace GameLab
             switch (n)
             {
                 case 4:
-                    players[3] = new Player(new Vector3(playerStartPositions[3], 0, 0),new InputController(PlayerIndex.Three));
+                    players[3] = new Player(new Vector3(playerStartPositions[3], 0, 0),new InputController(PlayerIndex.Three),ellipse);
                     goto case 3;
                 case 3:
-                    players[2] = new Player(new Vector3(playerStartPositions[2], 0, 0),new InputController(PlayerIndex.Two));
+                    players[2] = new Player(new Vector3(playerStartPositions[2], 0, 0),new InputController(PlayerIndex.Two),ellipse);
                     goto case 2;
                 case 2:
-                    //players[1] = new Player(new Vector3(playerStartPositions[1], 0, 0),new InputController(PlayerIndex.One));
-                    players[1] = new Player(new Vector3(playerStartPositions[1], 0, 0),new InputController(PlayerIndex.One));
+                    players[1] = new Player(new Vector3(playerStartPositions[1], 0, 0),new InputController(PlayerIndex.One),ellipse);
                     goto case 1;
                 case 1: 
-                    players[0] = new Player(new Vector3(playerStartPositions[0], 0, 0),new Input());
+                    players[0] = new Player(new Vector3(playerStartPositions[0], 0, 0),new Input(),ellipse);
                     goto default;
                 default:
                 break;
@@ -122,9 +123,9 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Tomato, Content.Load<Model>("fish"));
 
             // Load Sounds:
-            Sounds.bgMusic = Content.Load<Song>("Audio/yoga-dogs-all-good-folks");
+            /* Sounds.bgMusic = Content.Load<Song>("Audio/yoga-dogs-all-good-folks");
             MediaPlayer.Play(Sounds.bgMusic);
-            MediaPlayer.IsRepeating = true;
+            MediaPlayer.IsRepeating = true; */
         }
 
         protected override void Update(GameTime gameTime)
