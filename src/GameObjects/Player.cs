@@ -1,9 +1,9 @@
 using GameLab;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using System.Runtime.CompilerServices;
 using System;
 using System.Collections.Generic;
+using Accord.Math.Distances;
 
 namespace src.GameObjects
 {
@@ -13,101 +13,144 @@ namespace src.GameObjects
         // Private fields:
         private float playerSpeed = 2f;
         public int Life { get; set; } = 3;
-        private int stamina = 3;
-        //private Projectile *projectileHeld;
-        private ProjectileType typeOfProjectileHeld = ProjectileType.None;
-        private bool isDashing = false;
+        public float Stamina { get; set; } = 0f;
+        public Projectile projectileHeld;
+        //private ProjectileType typeOfProjectileHeld = ProjectileType.None;
+        private float dashTime = 0f;
         private const float TIME_CATCH_THROW = 0.5f;
-        private float timeSinceCatch = 0f;
+        private float timeSinceThrow = 0f;
+        private float actionPushedDuration;
+        public bool notImportant = false;
+        private bool mob = false;
+
+        private Input input;
 
         // Constructor: Only allow to assign position here, lifes stamina and so on are a global property and need to be the same for
-        public Player(Vector3 position)
+        public Player(Vector3 position, Input input)
         {
             Position = position;
+            this.input = input;
+            projectileHeld = null;
         }
 
         // The player move method:
         public void Move(float dt)
         {
-            Vector3 dir = new Vector3(0, 0, 0);
-            KeyboardState newState = Keyboard.GetState();
-            if (newState.IsKeyDown(Keys.A))
-                dir.X -= 1;
-
-            if (newState.IsKeyDown(Keys.D))
-                dir.X += 1;
-
-            if (newState.IsKeyDown(Keys.W))
-                dir.Z -= 1;
-
-            if (newState.IsKeyDown(Keys.S))
-                dir.Z += 1;
-
+            Vector3 dir = input.Direction();
             if (dir.Length() > 0)
             {
                 dir = Vector3.Normalize(dir);
                 Orientation = dir;
             }
-
             Position += playerSpeed * dir * dt;
-
-            timeSinceCatch += dt;
         }
 
         // Method to grab an object:
-        public bool Grab(Projectile projectile, LinkedList<Projectile> activeProjectiles)
-        {
-            if (Keyboard.GetState().IsKeyDown(Keys.E)
-                && typeOfProjectileHeld == ProjectileType.None
-                && Vector3.Distance(Position, projectile.Position) < 2.0f
-                && timeSinceCatch > TIME_CATCH_THROW)
-            {
-                this.typeOfProjectileHeld = projectile.Type;
-                activeProjectiles.Remove(projectile);
-                timeSinceCatch = 0f;
-                Console.WriteLine("Grabbing " + projectile.Type);
-                return true;
+        public bool GrabOrHit(Projectile projectile)
+        {   
+            //if(Life<=0f) return false;
+            if(projectile != projectileHeld){
+                if (input.Action() 
+                    && projectileHeld == null
+                    && Vector3.Distance(Position, projectile.Position) < 1.0f
+                    && timeSinceThrow>1f
+                    && actionPushedDuration<0.2f)
+                {
+                    projectileHeld = projectile;
+                    projectile.Caught(this);
+                    Console.WriteLine("Grabbing " + projectile.Type);
+                    playerSpeed = 0.3f;
+                    return false;
+                }else if (Vector3.Distance(Position, projectile.Position) < 0.5)
+                {
+                    Life-=notImportant?0:1;
+                    if(Life == 0f){
+                        Position = Position - new Vector3(0,0.2f,0);
+                        playerSpeed = 1f;
+                    }
+                    return true;
+                }
             }
-
             return false;
         }
 
         // Method to throw an object:
-        public void Throw(LinkedList<Projectile> activeProjectiles)
+        private void Throw(float dt)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.E)
-                && typeOfProjectileHeld != ProjectileType.None
-                && timeSinceCatch > TIME_CATCH_THROW)
+            if (input.Action() && actionPushedDuration == 0f)
             {
-                activeProjectiles.AddLast(Projectile.createProjectile(typeOfProjectileHeld, Position + Orientation, Orientation));
-                typeOfProjectileHeld = ProjectileType.None;
-                timeSinceCatch = 0f;
-
+                playerSpeed = 0f;
+            }else if(!input.Action() && actionPushedDuration > 0 && playerSpeed == 0f){
+                projectileHeld.Throw();
+                projectileHeld = null;
+                timeSinceThrow = 0f;
+                playerSpeed = 2f;
                 Console.WriteLine("Throwing projectile with orientation: " + Orientation);
             }
         }
 
-
-        public bool GetHit(Projectile projectile, LinkedList<Projectile> activeProjectiles, Player[] Players)
-        {
-            // Very basic check, DOES NOT USE HITBOXES YET!
-            if (Vector3.Distance(Position, projectile.Position) < 0.5f)
-            {
-                Life--;
-                if(projectile.Type == ProjectileType.Frog) {
-                    Projectile.frogCount--;
-                }
-                activeProjectiles.Remove(projectile);
-                return true;
-            }
-
-            return false;
-        }
-
         // Method to dash:
-        public void Dash()
+        private bool Dash(float dt)
         {
-            this.isDashing = true;
+            if(input.Dash() &&dashTime<=0f && Stamina>30f){
+                dashTime=0.1f;
+                Stamina-=30f;
+            }
+            if(dashTime>0f){
+                Position += 6*playerSpeed * Orientation * dt;
+                dashTime -= dt;
+                return true;
+            }else{
+                return false;
+            }
+        }
+        private bool Spawn()
+        {
+            if(input.Dash() &&dashTime<=0f && Stamina>40f && projectileHeld == null){
+                projectileHeld = Projectile.createProjectile(ProjectileType.Swordfish,Position,Orientation);
+                projectileHeld.Caught(this);
+                playerSpeed = 0.3f;
+                Stamina-=40f;
+                return false;
+            }
+            return true;
+        }
+        
+
+        public void update(float dt){
+            Stamina +=dt*5f;
+            Stamina = (Stamina >100f) ? 100f : Stamina;
+            if(Life>0f){
+                if(!Dash(dt)){
+                    Move(dt);
+                    if(projectileHeld != null){
+                        Throw(dt);
+                    }else {
+                        timeSinceThrow += dt;
+                    }
+                }
+            }else if(mob){
+                if(Spawn()){
+                    Move(dt);
+                    if(projectileHeld != null){
+                        Throw(dt);
+                    }else {
+                        timeSinceThrow += dt;
+                    }
+                    if(Math.Abs(Position.X)<7.5f&&Math.Abs(Position.Z)<4f){
+                        Move(-1f*dt);
+                    }
+                }
+            }else{
+                Move(dt);
+                if(Math.Abs(Position.X)>7.5f||Math.Abs(Position.Z)>4f){
+                    Position = Position + new Vector3(0,0.2f,0);
+                    mob = true;
+                    playerSpeed = 2f;
+                }
+            }
+            notImportant = notImportant || (input.Action() && input.Dash());
+            actionPushedDuration = (input.Action()) ? actionPushedDuration + dt : 0f;
         }
     }
 }

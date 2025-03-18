@@ -30,10 +30,13 @@ namespace GameLab
         private Dictionary<ProjectileType, Model> projectileModels = new Dictionary<ProjectileType, Model>();
         private RingOfDoom ring;
         private LinkedList<Projectile> activeProjectiles = new LinkedList<Projectile>();
+        private LinkedList<Projectile> hitProjectiles = new LinkedList<Projectile>();
 
         // Player settings
-        private static int NUM_PLAYERS = 1;
+        private static int NUM_PLAYERS = 3;
         private Player[] players = new Player[NUM_PLAYERS];
+        private LinkedList<Player> activePlayers = new LinkedList<Player>();
+        private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
 
         // Camera settings
         private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 10, 7), new Vector3(0, 0, 0), Vector3.Up);
@@ -63,22 +66,43 @@ namespace GameLab
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
-
+        private void initializePlayers()
+        {
+            int n = players.Length;
+            float[] playerStartPositions = { -0.75f, -0.25f, 0.25f, 0.75f };
+            switch (n)
+            {
+                case 4:
+                    players[3] = new Player(new Vector3(playerStartPositions[3], 0, 0),new InputController(PlayerIndex.Three));
+                    goto case 3;
+                case 3:
+                    players[2] = new Player(new Vector3(playerStartPositions[2], 0, 0),new InputController(PlayerIndex.Two));
+                    goto case 2;
+                case 2:
+                    //players[1] = new Player(new Vector3(playerStartPositions[1], 0, 0),new InputController(PlayerIndex.One));
+                    players[1] = new Player(new Vector3(playerStartPositions[1], 0, 0),new InputController(PlayerIndex.One));
+                    goto case 1;
+                case 1: 
+                    players[0] = new Player(new Vector3(playerStartPositions[0], 0, 0),new Input());
+                    goto default;
+                default:
+                break;
+            }
+            for(int i = 0; i<n;i++)
+                activePlayers.AddLast(players[i]);
+        }
         protected override void Initialize()
         {
             _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-            _graphics.IsFullScreen = true; // Enable full screen
+            _graphics.IsFullScreen = false; // Enable full screen
             _graphics.ApplyChanges();
 
             // Initialize the ring of doom:
             int planeWidth = 10, planeHeight = 10;
             this.ring = new RingOfDoom(planeWidth, planeHeight);
-
-            float[] playerStartPositions = { 0,0,0,0 };
-            for (int i = 0; i < NUM_PLAYERS; i++)
-                players[i] = new Player(new Vector3(playerStartPositions[i], 0, 0));
-
+                
+            initializePlayers();
             base.Initialize();
         }
 
@@ -135,27 +159,32 @@ namespace GameLab
             }
 
             // Move all the projectiles
-            foreach (Projectile projectile in activeProjectiles) projectile.Move(dt, players[0].Position);
+            foreach (Projectile projectile in activeProjectiles) projectile.Update(dt, players[0].Position);
 
             // Move players
             foreach (Player player in players)
             {
-                player.Move(dt);
-                player.Throw(activeProjectiles);
+                player.update(dt);
+                if(player.projectileHeld != null && !activeProjectiles.Contains(player.projectileHeld))
+                    activeProjectiles.AddLast(player.projectileHeld);
             }
 
 
             // Super basic hit detection until we can figure out bounding spheres, just using 0.5 which is quite arbitrary for now:
-            foreach (Player player in players)
+            foreach (Player player in activePlayers)
             {
                 foreach (Projectile projectile in activeProjectiles)
                 {
                     //we should decide how much distance
-                    if (player.Grab(projectile, activeProjectiles) || player.GetHit(projectile, activeProjectiles, players))
-                        break;
+                    if (player.GrabOrHit(projectile))
+                        hitProjectiles.AddLast(projectile);
                 }
             }
-
+            foreach (Projectile projectile in hitProjectiles)
+                activeProjectiles.Remove(projectile);
+            foreach (Player player in players)
+                if(player.Life<=0) activePlayers.Remove(player);
+            hitProjectiles = new LinkedList<Projectile>();
             // Postpone the ring closing for the low target, right now functional minimum!!
             /*
             //close the ring of doom
@@ -185,6 +214,39 @@ namespace GameLab
                 }
                 mesh.Draw();
             }
+        }
+        private void DrawHealthAndStamina()
+        {
+            int n = players.Length;
+            switch (n)
+            {
+                case 4:
+                    _spriteBatch.DrawString(font, "Lives: " + players[3].Life + "  Stamina: " + (int)players[3].Stamina, new Vector2(1500, 950), Color.Yellow);
+                    goto case 3;
+                case 3:
+                    _spriteBatch.DrawString(font, "Lives: " + players[2].Life + "  Stamina: " + (int)players[2].Stamina, new Vector2(10, 950), Color.Orange);
+                    goto case 2;
+                case 2:
+                    _spriteBatch.DrawString(font, "Lives: " + players[1].Life + "  Stamina: " + (int)players[1].Stamina, new Vector2(1500, 10), Color.White);
+                    goto case 1;
+                case 1: 
+                    _spriteBatch.DrawString(font, "Lives: " + players[0].Life + "  Stamina: " + (int)players[0].Stamina, new Vector2(10, 10), Color.Red);
+                    //_spriteBatch.DrawString(font, "Lives: " + players[0].Position + "  Stamina: " + (int)players[0].Stamina, new Vector2(10, 10), Color.Red);
+                    goto default;
+                default:
+                break;
+            }
+        }
+
+        private void DrawWin(){
+            if(activePlayers.Count == 1){
+                int n = 0;
+                for(int i = 0; i<players.Length;i++)
+                    n = activePlayers.Contains(players[i]) ? i:n;
+                players[n].notImportant = true;
+                _spriteBatch.DrawString(font, "Player " + n + "  wins!", new Vector2(750, 475), Color.Gold);
+            }
+            
         }
 
         protected override void Draw(GameTime gameTime)
@@ -216,20 +278,17 @@ namespace GameLab
 
             // Draw all players:
             foreach (Player player in players)
-                DrawModel(playerModel, Matrix.CreateTranslation(player.Position) * playerTranslation * playerScaling);
-
-            // Debug Code:
-            // foreach (Player player in players)
-            //     Console.WriteLine(player.Position);
-
-            // Draw the player's life:
-            _spriteBatch.DrawString(font, "Lives: " + players[0].Life, new Vector2(5, 5), Color.White);
+                DrawModel(playerModel, Matrix.CreateRotationY((float)Math.Atan2(-1f*player.Orientation.X,-1f*player.Orientation.Z))* Matrix.CreateTranslation(player.Position) * playerTranslation);
+            //foreach (Player player in players)  
+            //   Console.WriteLine(player.Position);
+            DrawHealthAndStamina();
+            DrawWin();
             _spriteBatch.End();
 
             OrientedBoundingBox obb1 = OrientedBoundingBox.ComputeOBB(arena.Meshes[15], arenaScaling);
             BoundingBoxRenderer.DrawOBB(GraphicsDevice, obb1, view, projection);
 
-            OrientedBoundingBox obb2 =  OrientedBoundingBox.ComputeOBB(playerModel.Meshes[1], Matrix.CreateTranslation(players[0].Position) * playerTranslation * playerScaling);
+            OrientedBoundingBox obb2 =  OrientedBoundingBox.ComputeOBB(playerModel.Meshes[1],  Matrix.CreateRotationY((float)Math.Atan2(-1f*players[0].Orientation.X,-1f*players[0].Orientation.Z)) * Matrix.CreateTranslation(players[0].Position) * playerTranslation );
             BoundingBoxRenderer.DrawOBB(GraphicsDevice, obb2 ,view, projection);
 
             if(obb1.Intersects(obb2)) {

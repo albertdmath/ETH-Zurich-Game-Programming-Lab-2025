@@ -12,12 +12,14 @@ namespace src.GameObjects
         public static int frogCount = 0;
         public static int maxFrogs = 5;
 
+        protected Player holdByPlayer = null;
+
         // Constructor:
         public Projectile(ProjectileType type, Vector3 origin, Vector3 orientation)
         {
             Type = type;
-            Position = origin;
-            Orientation = Vector3.Normalize(orientation);
+            Position = origin + new Vector3(0,0.2f,0);
+            Orientation = Vector3.Normalize(orientation - origin);
         }
 
         // Factory method to create a random projectile:
@@ -40,6 +42,25 @@ namespace src.GameObjects
 
         // Move the projectile:
         public virtual void Move(float dt, Vector3 playerPosition) { }
+        public void Update(float dt, Vector3 playerPosition) { 
+            if(holdByPlayer==null){
+                this.Move(dt, playerPosition);
+            }else{
+                this.Position = holdByPlayer.Position + holdByPlayer.Orientation*0.3f+new Vector3(.1f, 0.2f, -.1f);
+            }
+        }
+    
+        // Move the projectile:
+        public virtual void Move(float dt) { }
+
+        public  void Throw() { 
+            this.Position = holdByPlayer.Position + holdByPlayer.Orientation + new Vector3(0,0.2f,0);
+            this.Orientation = holdByPlayer.Orientation;
+            holdByPlayer = null;
+        }
+        public  void Caught(Player player) { 
+            this.holdByPlayer=player;
+        }
     }
 }
 
