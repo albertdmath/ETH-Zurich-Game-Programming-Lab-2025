@@ -19,7 +19,9 @@ namespace src.GameObjects
         private float dashTime = 0f;
         private const float TIME_CATCH_THROW = 0.5f;
         private float timeSinceThrow = 0f;
-        private bool actionPushed;
+        private float actionPushedDuration;
+        public bool notImportant = false;
+        private bool mob = false;
 
         private Input input;
 
@@ -44,21 +46,28 @@ namespace src.GameObjects
         }
 
         // Method to grab an object:
-        public bool GrabOrHit(Projectile projectile, LinkedList<Projectile> activeProjectiles)
+        public bool GrabOrHit(Projectile projectile)
         {   
+            //if(Life<=0f) return false;
             if(projectile != projectileHeld){
                 if (input.Action() 
                     && projectileHeld == null
                     && Vector3.Distance(Position, projectile.Position) < 1.0f
-                    && timeSinceThrow>1f)
+                    && timeSinceThrow>1f
+                    && actionPushedDuration<0.2f)
                 {
                     projectileHeld = projectile;
                     projectile.Caught(this);
                     Console.WriteLine("Grabbing " + projectile.Type);
+                    playerSpeed = 0.3f;
                     return false;
                 }else if (Vector3.Distance(Position, projectile.Position) < 0.5)
                 {
-                    Life--;
+                    Life-=notImportant?0:1;
+                    if(Life == 0f){
+                        Position = Position - new Vector3(0,0.2f,0);
+                        playerSpeed = 1f;
+                    }
                     return true;
                 }
             }
@@ -66,23 +75,26 @@ namespace src.GameObjects
         }
 
         // Method to throw an object:
-        public void Throw(float dt)
+        private void Throw(float dt)
         {
-            if (input.Action() && !actionPushed)
+            if (input.Action() && actionPushedDuration == 0f)
             {
+                playerSpeed = 0f;
+            }else if(!input.Action() && actionPushedDuration > 0 && playerSpeed == 0f){
                 projectileHeld.Throw();
                 projectileHeld = null;
                 timeSinceThrow = 0f;
+                playerSpeed = 2f;
                 Console.WriteLine("Throwing projectile with orientation: " + Orientation);
             }
         }
 
         // Method to dash:
-        public bool Dash(float dt)
+        private bool Dash(float dt)
         {
-            if(input.Dash() &&dashTime<=0f && Stamina>60f){
+            if(input.Dash() &&dashTime<=0f && Stamina>30f){
                 dashTime=0.1f;
-                Stamina-=60f;
+                Stamina-=30f;
             }
             if(dashTime>0f){
                 Position += 6*playerSpeed * Orientation * dt;
@@ -93,18 +105,42 @@ namespace src.GameObjects
             }
         }
 
+        
+
         public void update(float dt){
-            Stamina +=dt*10;
+            Stamina +=dt*5f;
             Stamina = (Stamina >100f) ? 100f : Stamina;
-            if(!Dash(dt)){
+            if(Life>0f){
+                if(!Dash(dt)){
+                    Move(dt);
+                    if(projectileHeld != null){
+                        Throw(dt);
+                    }else {
+                        timeSinceThrow += dt;
+                    }
+                }
+            }else if(mob){
+                if(!Dash(dt)){
+                    Move(dt);
+                    if(projectileHeld != null){
+                        Throw(dt);
+                    }else {
+                        timeSinceThrow += dt;
+                    }
+                    if(Math.Abs(Position.X)<7.5f&&Math.Abs(Position.Z)<4f){
+                        Move(-1f*dt);
+                    }
+                }
+            }else{
                 Move(dt);
-                if(projectileHeld != null){
-                    Throw(dt);
-                }else {
-                    timeSinceThrow += dt;
+                if(Math.Abs(Position.X)>7.5f||Math.Abs(Position.Z)>4f){
+                    Position = Position + new Vector3(0,0.2f,0);
+                    mob = true;
+                    playerSpeed = 2f;
                 }
             }
-            actionPushed = input.Action();
+            notImportant = notImportant || (input.Action() && input.Dash());
+            actionPushedDuration = (input.Action()) ? actionPushedDuration + dt : 0f;
         }
     }
 }

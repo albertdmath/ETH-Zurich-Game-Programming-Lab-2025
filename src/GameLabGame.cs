@@ -35,6 +35,7 @@ namespace GameLab
         // Player settings
         private static int NUM_PLAYERS = 2;
         private Player[] players = new Player[NUM_PLAYERS];
+        private LinkedList<Player> activePlayers = new LinkedList<Player>();
         private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
 
         // Camera settings
@@ -87,6 +88,8 @@ namespace GameLab
                 default:
                 break;
             }
+            for(int i = 0; i<n;i++)
+                activePlayers.AddLast(players[i]);
         }
         protected override void Initialize()
         {
@@ -166,18 +169,19 @@ namespace GameLab
 
 
             // Super basic hit detection until we can figure out bounding spheres, just using 0.5 which is quite arbitrary for now:
-            foreach (Player player in players)
+            foreach (Player player in activePlayers)
             {
                 foreach (Projectile projectile in activeProjectiles)
                 {
                     //we should decide how much distance
-                    if (player.GrabOrHit(projectile, activeProjectiles))
+                    if (player.GrabOrHit(projectile))
                         hitProjectiles.AddLast(projectile);
-                        //activeProjectiles.Remove(projectile);
                 }
             }
             foreach (Projectile projectile in hitProjectiles)
                 activeProjectiles.Remove(projectile);
+            foreach (Player player in players)
+                if(player.Life<=0) activePlayers.Remove(player);
             hitProjectiles = new LinkedList<Projectile>();
             // Postpone the ring closing for the low target, right now functional minimum!!
             /*
@@ -225,11 +229,24 @@ namespace GameLab
                     goto case 1;
                 case 1: 
                     _spriteBatch.DrawString(font, "Lives: " + players[0].Life + "  Stamina: " + (int)players[0].Stamina, new Vector2(10, 10), Color.Red);
+                    //_spriteBatch.DrawString(font, "Lives: " + players[0].Position + "  Stamina: " + (int)players[0].Stamina, new Vector2(10, 10), Color.Red);
                     goto default;
                 default:
                 break;
             }
         }
+
+        private void DrawWin(){
+            if(activePlayers.Count == 1){
+                int n = 0;
+                for(int i = 0; i<players.Length;i++)
+                    n = activePlayers.Contains(players[i]) ? i:n;
+                players[n].notImportant = true;
+                _spriteBatch.DrawString(font, "Player " + n + "  wins!", new Vector2(750, 475), Color.Gold);
+            }
+            
+        }
+
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.DeepSkyBlue); // Background color
@@ -263,6 +280,7 @@ namespace GameLab
             //foreach (Player player in players)  
             //   Console.WriteLine(player.Position);
             DrawHealthAndStamina();
+            DrawWin();
             _spriteBatch.End();
 
             OrientedBoundingBox obb1 = OrientedBoundingBox.ComputeOBB(arena.Meshes[15], arenaScaling);
