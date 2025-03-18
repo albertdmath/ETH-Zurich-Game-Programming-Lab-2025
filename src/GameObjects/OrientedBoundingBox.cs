@@ -147,73 +147,94 @@ public class OrientedBoundingBox
         return OBB;
     }
     
+ 
+    /*
+        This function again is kinda complex, thanks to claude for some of the math. Basically it uses the separating axis theorem
+        to see if we can fit a plane between this box and the other one. If we can they dont intersect and if we can't they don't.
+    */
     public bool Intersects(OrientedBoundingBox other)
     {
-        // Get axes for both boxes
-        Vector3[] A = GetAxes(Orientation);
-        Vector3[] B = GetAxes(other.Orientation);
+        // Get the axes of both boxes (the columns of the orientation matrices)
+        Vector3[] thisAxes = new Vector3[3]
+        {
+            new Vector3(Orientation.M11, Orientation.M12, Orientation.M13),
+            new Vector3(Orientation.M21, Orientation.M22, Orientation.M23),
+            new Vector3(Orientation.M31, Orientation.M32, Orientation.M33)
+        };
 
-        // Translation vector from this box to the other
-        Vector3 T = other.Center - Center;
+        Vector3[] otherAxes = new Vector3[3]
+        {
+            new Vector3(other.Orientation.M11, other.Orientation.M12, other.Orientation.M13),
+            new Vector3(other.Orientation.M21, other.Orientation.M22, other.Orientation.M23),
+            new Vector3(other.Orientation.M31, other.Orientation.M32, other.Orientation.M33)
+        };
 
-        // Test the 3 axes of this box
+        // Normalize the axes
         for (int i = 0; i < 3; i++)
         {
-            if (IsSeparated(A[i], this, other, T)) return false;
+            thisAxes[i].Normalize();
+            otherAxes[i].Normalize();
         }
 
-        // Test the 3 axes of the other box
+        // Vector from center of this box to center of other box
+        Vector3 toCenter = other.Center - Center;
+
+        // Check this box's axes (face normals)
         for (int i = 0; i < 3; i++)
         {
-            if (IsSeparated(B[i], this, other, T)) return false;
+            if (!OverlapOnAxis(thisAxes[i], toCenter, thisAxes, otherAxes, this.Extents, other.Extents))
+                return false;
         }
 
-        // Test the 9 cross product axes
+        // Check other box's axes (face normals)
+        for (int i = 0; i < 3; i++)
+        {
+            if (!OverlapOnAxis(otherAxes[i], toCenter, thisAxes, otherAxes, this.Extents, other.Extents))
+                return false;
+        }
+
+        // Check axes formed by cross products of edges (9 potential separating axes)
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
             {
-                Vector3 axis = Vector3.Cross(A[i], B[j]);
-                float length = axis.Length(); // Use Length() instead of LengthSquared()
+                Vector3 crossAxis = Vector3.Cross(thisAxes[i], otherAxes[j]);
                 
-                // Skip near-parallel axes to avoid numerical issues
-                if (length > 1e-6)
-                {
-                    // Normalize the axis
-                    axis /= length;
-                    if (IsSeparated(axis, this, other, T)) return false;
-                }
+                // If the cross product is near zero, the edges are parallel and this is not a separating axis
+                if (crossAxis.LengthSquared() < 0.0001f)
+                    continue;
+                
+                crossAxis.Normalize();
+                
+                if (!OverlapOnAxis(crossAxis, toCenter, thisAxes, otherAxes, this.Extents, other.Extents))
+                    return false;
             }
         }
-        return true; // No separating axis found → intersection exists
+
+        // No separating axis found, boxes must intersect
+        return true;
     }
 
-    private bool IsSeparated(Vector3 axis, OrientedBoundingBox A, OrientedBoundingBox B, Vector3 T)
+    
+    // Does the axis tests yessir
+    private bool OverlapOnAxis(Vector3 axis, Vector3 toCenter, Vector3[] thisAxes, Vector3[] otherAxes, Vector3 thisExtents, Vector3 otherExtents)
     {
-        axis = Vector3.Normalize(axis); // Ensure unit axis
+        // Project the half-sizes of each box onto the axis
+        float thisProjection = 
+            Math.Abs(Vector3.Dot(axis, thisAxes[0]) * thisExtents.X) +
+            Math.Abs(Vector3.Dot(axis, thisAxes[1]) * thisExtents.Y) +
+            Math.Abs(Vector3.Dot(axis, thisAxes[2]) * thisExtents.Z);
+            
+        float otherProjection = 
+            Math.Abs(Vector3.Dot(axis, otherAxes[0]) * otherExtents.X) +
+            Math.Abs(Vector3.Dot(axis, otherAxes[1]) * otherExtents.Y) +
+            Math.Abs(Vector3.Dot(axis, otherAxes[2]) * otherExtents.Z);
 
-        float rA = ProjectedRadius(A, axis);
-        float rB = ProjectedRadius(B, axis);
-        float dist = Math.Abs(Vector3.Dot(T, axis));
+        // Project the center-to-center vector onto the axis
+        float distance = Math.Abs(Vector3.Dot(toCenter, axis));
 
-        return dist > rA + rB;
-    }
-
-    private float ProjectedRadius(OrientedBoundingBox obb, Vector3 axis)
-    {
-        Vector3[] axes = GetAxes(obb.Orientation);
-        return Math.Abs(Vector3.Dot(axes[0], axis)) * obb.Extents.X +
-            Math.Abs(Vector3.Dot(axes[1], axis)) * obb.Extents.Y +
-            Math.Abs(Vector3.Dot(axes[2], axis)) * obb.Extents.Z;
-    }
-
-    private Vector3[] GetAxes(Matrix orientation)
-    {
-        return new Vector3[]
-        {
-            new Vector3(orientation.M11, orientation.M21, orientation.M31),
-            new Vector3(orientation.M12, orientation.M22, orientation.M32),
-            new Vector3(orientation.M13, orientation.M23, orientation.M33)
-        };
+        // If the sum of the projections is less than the distance between centers, 
+        // then there is a separating axis and the boxes do not intersect
+        return distance <= thisProjection + otherProjection;
     }
 }
