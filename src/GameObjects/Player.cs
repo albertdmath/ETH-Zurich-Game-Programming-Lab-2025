@@ -24,12 +24,15 @@ namespace src.GameObjects
         private bool mob = false;
 
         private Input input;
+        private Ellipse ellipse;
+
 
         // Constructor: Only allow to assign position here, lifes stamina and so on are a global property and need to be the same for
-        public Player(Vector3 position, Input input)
+        public Player(Vector3 position, Input input,Ellipse ellipse)
         {
             Position = position;
             this.input = input;
+            this.ellipse = ellipse;
             projectileHeld = null;
         }
 
@@ -44,6 +47,11 @@ namespace src.GameObjects
             }
             Position += playerSpeed * dir * dt;
         }
+        public void MoveBack(float dt)
+        {
+            Position -= playerSpeed * Orientation * dt * 0.2f;
+        }
+
 
         // Method to grab an object:
         public bool GrabOrHit(Projectile projectile)
@@ -129,6 +137,9 @@ namespace src.GameObjects
                         timeSinceThrow += dt;
                     }
                 }
+                while(ellipse.Outside(Position.X,Position.Z)){
+                    MoveBack(dt);
+                }
             }else if(mob){
                 if(Spawn()){
                     Move(dt);
@@ -137,13 +148,13 @@ namespace src.GameObjects
                     }else {
                         timeSinceThrow += dt;
                     }
-                    if(Math.Abs(Position.X)<7.5f&&Math.Abs(Position.Z)<4f){
-                        Move(-1f*dt);
+                    while(ellipse.Inside(Position.X,Position.Z)){
+                        MoveBack(dt);
                     }
                 }
             }else{
                 Move(dt);
-                if(Math.Abs(Position.X)>7.5f||Math.Abs(Position.Z)>4f){
+                if(ellipse.Outside(Position.X,Position.Z)){
                     Position = Position + new Vector3(0,0.2f,0);
                     mob = true;
                     playerSpeed = 2f;
