@@ -141,7 +141,7 @@ namespace GameLab
 
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             float randomFloat = (float)(random.NextDouble() *2f* Math.PI);
-            if(zombies.Count<100)
+            if(zombies.Count<300)
                 zombies.Add(new Zombie(new Vector3(9f*(float)Math.Sin(randomFloat),0.2f,9f*(float)Math.Cos(randomFloat)),ellipse,zombies,playerModel));
             // Spawn a new projectile:
             if ((timeUntilNextProjectile -= dt) <= 0)
