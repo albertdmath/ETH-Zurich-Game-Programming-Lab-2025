@@ -286,15 +286,7 @@ namespace GameLab
             DrawWin();
             _spriteBatch.End();
 
-            OrientedBoundingBox obb1 = OrientedBoundingBox.ComputeOBB(arena.Meshes[15], arenaScaling);
-            BoundingBoxRenderer.DrawOBB(GraphicsDevice, obb1, view, projection);
-
-            OrientedBoundingBox obb2 =  OrientedBoundingBox.ComputeOBB(playerModel.Meshes[1],  Matrix.CreateRotationY((float)Math.Atan2(-1f*players[0].Orientation.X,-1f*players[0].Orientation.Z)) * Matrix.CreateTranslation(players[0].Position) * playerTranslation );
-            BoundingBoxRenderer.DrawOBB(GraphicsDevice, obb2 ,view, projection);
-
-            if(obb1.Intersects(obb2)) {
-                Console.WriteLine("yay");
-            }
+            
             base.Draw(gameTime);
         }
     }
