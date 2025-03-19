@@ -1,5 +1,7 @@
 using System;
+using GameLab;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace src.GameObjects
 {
@@ -10,9 +12,9 @@ namespace src.GameObjects
         private new const float velocity = 0.5f;
         private float timeBeforeHop = 0f;
         // Constructor:
-        public Frog(ProjectileType type, Vector3 origin, Vector3 target) : base(type, origin, target) { }
+        public Frog(ProjectileType type, Vector3 origin, Vector3 target,Model model) : base(type, origin, target, model) { }
 
-        public override void Move(float dt, Vector3 playerPosition)
+        public override void Move(float dt)
         {
             if ((timeBeforeHop += dt) < HOP_TIME) return;
 
@@ -20,7 +22,7 @@ namespace src.GameObjects
             float jumpProgress = (timeBeforeHop - HOP_TIME) / HOP_TIME;
             
             // Orient the frog towards the player
-            Orientation = Vector3.Normalize(playerPosition - Position);
+            Orientation = Vector3.Normalize(GameLabGame.players[0].Position - Position);
             Orientation = new Vector3(Orientation.X, 0, Orientation.Z);
             Orientation.Normalize();
             

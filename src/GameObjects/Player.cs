@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System;
 using System.Collections.Generic;
 using Accord.Math.Distances;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace src.GameObjects
 {
@@ -28,7 +29,7 @@ namespace src.GameObjects
 
 
         // Constructor: Only allow to assign position here, lifes stamina and so on are a global property and need to be the same for
-        public Player(Vector3 position, Input input,Ellipse ellipse)
+        public Player(Vector3 position, Input input,Ellipse ellipse, Model model) : base(model)
         {
             Position = position;
             this.input = input;
@@ -49,7 +50,7 @@ namespace src.GameObjects
         }
         public void MoveBack(float dt)
         {
-            Position -= playerSpeed * Orientation * dt * 0.2f;
+            Position -= playerSpeed * Orientation * dt * 1f;
         }
 
 
@@ -60,16 +61,18 @@ namespace src.GameObjects
             if(projectile != projectileHeld){
                 if (input.Action() 
                     && projectileHeld == null
-                    && Vector3.Distance(Position, projectile.Position) < 1.0f
+                    //&& Vector3.Distance(Position, projectile.Position) < 1.0f
+                    && Hitbox.Intersects(projectile.Hitbox)
                     && timeSinceThrow>1f
-                    && actionPushedDuration<0.2f)
+                    //&& actionPushedDuration<0.2f
+                    )
                 {
                     projectileHeld = projectile;
                     projectile.Caught(this);
                     Console.WriteLine("Grabbing " + projectile.Type);
                     playerSpeed = 0.3f;
                     return false;
-                }else if (Vector3.Distance(Position, projectile.Position) < 0.5)
+                }else if (Hitbox.Intersects(projectile.Hitbox))
                 {
                     Life-=notImportant?0:1;
                     if(Life == 0f){
@@ -115,7 +118,7 @@ namespace src.GameObjects
         private bool Spawn()
         {
             if(input.Dash() &&dashTime<=0f && Stamina>40f && projectileHeld == null){
-                projectileHeld = Projectile.createProjectile(ProjectileType.Swordfish,Position,Orientation);
+                projectileHeld = Projectile.createProjectile(ProjectileType.Swordfish,Position,Orientation,GameLabGame.projectileModels[ProjectileType.Swordfish]);
                 projectileHeld.Caught(this);
                 playerSpeed = 0.3f;
                 Stamina-=40f;
@@ -125,7 +128,7 @@ namespace src.GameObjects
         }
         
 
-        public void Update(float dt){
+        public override void Update(float dt){
             Stamina +=dt*5f;
             Stamina = (Stamina >100f) ? 100f : Stamina;
             if(Life>0f){
@@ -137,7 +140,7 @@ namespace src.GameObjects
                         timeSinceThrow += dt;
                     }
                 }
-                while(ellipse.Outside(Position.X,Position.Z)){
+                if(Hitbox.Intersects(GameLabGame.arenaModel.Hitbox)){
                     MoveBack(dt);
                 }
             }else if(mob){

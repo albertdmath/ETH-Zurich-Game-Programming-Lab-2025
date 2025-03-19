@@ -27,14 +27,15 @@ namespace GameLab
 
         // Private fields:
         private Model arena, playerModel;
-        private Dictionary<ProjectileType, Model> projectileModels = new Dictionary<ProjectileType, Model>();
+        public static GameModel arenaModel;
+        public static Dictionary<ProjectileType, Model> projectileModels = new Dictionary<ProjectileType, Model>();
         private RingOfDoom ring;
         private LinkedList<Projectile> activeProjectiles = new LinkedList<Projectile>();
         private LinkedList<Projectile> hitProjectiles = new LinkedList<Projectile>();
 
         // Player settings
         private static int NUM_PLAYERS = 3;
-        private Player[] players = new Player[NUM_PLAYERS];
+        public static Player[] players = new Player[NUM_PLAYERS];
         private LinkedList<Player> activePlayers = new LinkedList<Player>();
         private List<Zombie> zombies = new List<Zombie>();
         private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
@@ -54,7 +55,6 @@ namespace GameLab
 
         // Player transformations
         private Matrix playerScaling = Matrix.CreateScale(new Vector3(1.5f));
-        private Matrix playerTranslation = Matrix.CreateTranslation(new Vector3(0, 0.2f, 0));
 
         // Projectile transformations:
         private Matrix projectileRotation = Matrix.CreateRotationX((float)-Math.PI / 2);
@@ -78,16 +78,16 @@ namespace GameLab
             switch (n)
             {
                 case 4:
-                    players[3] = new Player(new Vector3(playerStartPositions[3], 0, 0),new InputController(PlayerIndex.Three),ellipse);
+                    players[3] = new Player(new Vector3(playerStartPositions[3], 0.2f, 0),new InputController(PlayerIndex.Three),ellipse,playerModel);
                     goto case 3;
                 case 3:
-                    players[2] = new Player(new Vector3(playerStartPositions[2], 0, 0),new InputController(PlayerIndex.Two),ellipse);
+                    players[2] = new Player(new Vector3(playerStartPositions[2], 0.2f, 0),new InputController(PlayerIndex.Two),ellipse,playerModel);
                     goto case 2;
                 case 2:
-                    players[1] = new Player(new Vector3(playerStartPositions[1], 0, 0),new InputController(PlayerIndex.One),ellipse);
+                    players[1] = new Player(new Vector3(playerStartPositions[1], 0.2f, 0),new InputController(PlayerIndex.One),ellipse,playerModel);
                     goto case 1;
                 case 1: 
-                    players[0] = new Player(new Vector3(playerStartPositions[0], 0, 0),new Input(),ellipse);
+                    players[0] = new Player(new Vector3(playerStartPositions[0], 0.2f, 0),new Input(),ellipse,playerModel);
                     goto default;
                 default:
                 break;
@@ -106,7 +106,6 @@ namespace GameLab
             int planeWidth = 10, planeHeight = 10;
             this.ring = new RingOfDoom(planeWidth, planeHeight);
                 
-            initializePlayers();
             base.Initialize();
             random = new Random();
         }
@@ -125,7 +124,10 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Swordfish, Content.Load<Model>("fish"));
             //it should be a tomato
             projectileModels.Add(ProjectileType.Tomato, Content.Load<Model>("fish"));
-
+            initializePlayers();
+            arenaModel = new GameModel(arena);
+            arenaModel.Transform = arenaScaling;
+            arenaModel.Hitbox.Transform(arenaScaling);
             // Load Sounds:
             /* Sounds.bgMusic = Content.Load<Song>("Audio/yoga-dogs-all-good-folks");
             MediaPlayer.Play(Sounds.bgMusic);
@@ -139,8 +141,8 @@ namespace GameLab
 
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             float randomFloat = (float)(random.NextDouble() *2f* Math.PI);
-            if(zombies.Count<1000)
-                zombies.Add(new Zombie(new Vector3(9f*(float)Math.Sin(randomFloat),0.2f,9f*(float)Math.Cos(randomFloat)),ellipse));
+            if(zombies.Count<100)
+                zombies.Add(new Zombie(new Vector3(9f*(float)Math.Sin(randomFloat),0.2f,9f*(float)Math.Cos(randomFloat)),ellipse,zombies,playerModel));
             // Spawn a new projectile:
             if ((timeUntilNextProjectile -= dt) <= 0)
             {
@@ -153,7 +155,7 @@ namespace GameLab
                 Vector3 origin = ring.RndCircPoint();
                 Vector3 direction = players[rng.Next(0, NUM_PLAYERS)].Position - origin;
                 ProjectileType type = (ProjectileType)values.GetValue(rng.Next(values.Length));
-                Projectile newProjectile = Projectile.createProjectile(type, origin, direction);
+                Projectile newProjectile = Projectile.createProjectile(type, origin, direction,projectileModels[type]);
                 if(type == ProjectileType.Frog)
                 {
                     Projectile.frogCount++;
@@ -166,14 +168,14 @@ namespace GameLab
             }
 
             // Move all the projectiles
-            foreach (Projectile projectile in activeProjectiles) projectile.Update(dt, players[0].Position);
-
-            foreach (Zombie zombie in zombies) zombie.Update(dt);
+            foreach (Projectile projectile in activeProjectiles) projectile.updateWrap(dt);
+            // MOve all zombies(mob)
+            foreach (Zombie zombie in zombies) zombie.updateWrap(dt);
 
             // Move players
             foreach (Player player in players)
             {
-                player.Update(dt);
+                player.updateWrap(dt);
                 if(player.projectileHeld != null && !activeProjectiles.Contains(player.projectileHeld))
                     activeProjectiles.AddLast(player.projectileHeld);
             }
@@ -240,7 +242,7 @@ namespace GameLab
                     goto case 1;
                 case 1: 
                     _spriteBatch.DrawString(font, "Lives: " + players[0].Life + "  Stamina: " + (int)players[0].Stamina, new Vector2(10, 10), Color.Red);
-                    //_spriteBatch.DrawString(font, "Lives: " + players[0].Position + "  Stamina: " + (int)players[0].Stamina, new Vector2(10, 10), Color.Red);
+                    //_spriteBatch.DrawString(font, "Lives: " + players[0].Position + "  Hitbox: " + players[0].Hitbox.BoundingBoxes[0].Center, new Vector2(10, 10), Color.Red);
                     goto default;
                 default:
                 break;
@@ -269,8 +271,9 @@ namespace GameLab
             // Draw the ring of doom:
             //this.ring.DrawRing(_spriteBatch, Content.Load<Texture2D>("ring"));
 
-            DrawModel(arena, arenaScaling);
-
+            //DrawModel(arena, arenaScaling);
+            arenaModel.Draw(view,projection);
+            arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             // Draw all active projectiles:
             foreach (Projectile projectile in activeProjectiles)
             {
@@ -283,14 +286,17 @@ namespace GameLab
                     Matrix frogRotationMatrix = Matrix.CreateRotationY((float) Math.PI- (float) Math.Atan2(projectile.Orientation.Z, projectile.Orientation.X));
                     DrawModel(projectileModels[projectile.Type], projectileRotation * frogRotationMatrix * Matrix.CreateTranslation(projectile.Position));
                 }
+                projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             }
 
             // Draw all players:
-            foreach (Player player in players)
-                DrawModel(playerModel, Matrix.CreateRotationY((float)Math.Atan2(-1f*player.Orientation.X,-1f*player.Orientation.Z))* Matrix.CreateTranslation(player.Position) * playerTranslation);
+            foreach (Player player in players){
+                player.Draw(view,projection);
+                player.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+            }
             //foreach (Player player in players)  
             foreach (Zombie zombie in zombies)
-                DrawModel(playerModel, Matrix.CreateRotationY((float)Math.Atan2(-1f*zombie.Orientation.X,-1f*zombie.Orientation.Z))* Matrix.CreateTranslation(zombie.Position));
+                zombie.Draw(view,projection);
             //   Console.WriteLine(player.Position);
             DrawHealthAndStamina();
             DrawWin();
@@ -299,7 +305,7 @@ namespace GameLab
             OrientedBoundingBox obb1 = OrientedBoundingBox.ComputeOBB(arena.Meshes[15], arenaScaling);
             BoundingBoxRenderer.DrawOBB(GraphicsDevice, obb1, view, projection);
 
-            OrientedBoundingBox obb2 =  OrientedBoundingBox.ComputeOBB(playerModel.Meshes[1],  Matrix.CreateRotationY((float)Math.Atan2(-1f*players[0].Orientation.X,-1f*players[0].Orientation.Z)) * Matrix.CreateTranslation(players[0].Position) * playerTranslation );
+            OrientedBoundingBox obb2 =  OrientedBoundingBox.ComputeOBB(playerModel.Meshes[1],  Matrix.CreateRotationY((float)Math.Atan2(-1f*players[0].Orientation.X,-1f*players[0].Orientation.Z)) * Matrix.CreateTranslation(players[0].Position) );
             BoundingBoxRenderer.DrawOBB(GraphicsDevice, obb2 ,view, projection);
 
             if(obb1.Intersects(obb2)) {

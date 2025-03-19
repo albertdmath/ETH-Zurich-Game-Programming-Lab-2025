@@ -1,5 +1,7 @@
+using GameLab;
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 /** Class for the projectiles **/
 namespace src.GameObjects
@@ -15,26 +17,28 @@ namespace src.GameObjects
         protected Player holdByPlayer = null;
 
         // Constructor:
-        public Projectile(ProjectileType type, Vector3 origin, Vector3 orientation)
+        public Projectile(ProjectileType type, Vector3 origin, Vector3 orientation, Model model) : base(model)
         {
             Type = type;
             Position = origin + new Vector3(0,0.2f,0);
             Orientation = Vector3.Normalize(orientation - origin);
+            CalculateTransform();
+            
         }
 
         // Factory method to create a random projectile:
         #nullable enable
-        public static Projectile createProjectile(ProjectileType type, Vector3 origin, Vector3 target)
+        public static Projectile createProjectile(ProjectileType type, Vector3 origin, Vector3 target,Model model)
         {
             // Randomly create a projectile:
             switch (type)
             {
                 case ProjectileType.Frog:
-                    return new Frog(type, origin, target);
+                    return new Frog(type, origin, target, model);
                 case ProjectileType.Swordfish:
-                    return new Swordfish(type, origin, target);
+                    return new Swordfish(type, origin, target, model);
                 case ProjectileType.Tomato:
-                    return new Tomato(type, origin, target);
+                    return new Tomato(type, origin, target, model);
                 default:
                     throw new ArgumentException("Invalid projectile type");
             }
@@ -42,9 +46,9 @@ namespace src.GameObjects
 
         // Move the projectile:
         public virtual void Move(float dt, Vector3 playerPosition) { }
-        public void Update(float dt, Vector3 playerPosition) { 
+        public override void Update(float dt) { 
             if(holdByPlayer==null){
-                this.Move(dt, playerPosition);
+                this.Move(dt);
             }else{
                 this.Position = holdByPlayer.Position + holdByPlayer.Orientation*0.3f+new Vector3(.1f, 0.2f, -.1f);
             }
