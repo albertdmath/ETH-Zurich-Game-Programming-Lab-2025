@@ -17,9 +17,9 @@ namespace src.GameObjects
         //there should be an UI element that lets you change this
         public static Dictionary<ProjectileType, float> projectileProbability = new Dictionary<ProjectileType, float>
         {
-            { ProjectileType.Frog, 0.1f },
-            { ProjectileType.Swordfish, 0.5f },
-            { ProjectileType.Tomato, 0.2f }
+            { ProjectileType.Frog, 0f },
+            { ProjectileType.Swordfish, 0f },
+            { ProjectileType.Tomato, 1f }
         };
 
         // Constructor:
@@ -50,16 +50,16 @@ namespace src.GameObjects
 
         public static void MobShoot(float dt, Random rng)
         {
-            //the probability to shoot is once every second
+            //the probability to shoot is once every 0.1 second
             if ((timeUntilNextProjectile += dt) < 0.1f) return;
-
+            
             foreach (var entry in projectileProbability)
             {
-                if (rng.NextDouble() > entry.Value*0.1) continue;
+                if (rng.NextDouble() > entry.Value * 0.1) continue;
 
                 Vector3 origin = Ring.active.RndCircPoint();
-                Vector3 direction = Player.active[rng.Next(0, Player.active.Count)].Position - origin;
-                active.AddLast(createProjectile(entry.Key, origin, direction));
+                Vector3 target = Player.active[rng.Next(0, Player.active.Count)].Position;
+                active.AddLast(createProjectile(entry.Key, origin, target));
             }
 
             timeUntilNextProjectile = 0f;

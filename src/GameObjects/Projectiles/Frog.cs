@@ -8,7 +8,7 @@ namespace src.GameObjects
     {
         // Private fields:
         private const float HOP_TIME = 1.0f; // 1 second hop time
-        private new const float velocity = 0.5f;
+        private new const float velocity = 0.7f;
         private float timeBeforeHop = 0f;
         private const float ROTATION_SPEED = 3.0f; // Adjust for smoother turning
 
