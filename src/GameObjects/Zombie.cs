@@ -13,6 +13,7 @@ namespace src.GameObjects
         // Private fields:
         private float ZombieSpeed = 2f;
         private Ellipse ellipse;
+        public BoundingSphere BoundingSphere { get; set; }
 
 
         // Constructor: Only allow to assign position here, lifes stamina and so on are a global property and need to be the same for
