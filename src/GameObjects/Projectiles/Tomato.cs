@@ -13,7 +13,7 @@ namespace src.GameObjects
         // Constructor:
         public Tomato(ProjectileType type, Vector3 origin, Vector3 target) : base(type, origin, target) { }
 
-        public override void Move(float dt, Vector3 playerPosition)
+        public override void Move(float dt)
         {
             if ((timeAlive += dt) > FLIGHT_TIME) return;
 

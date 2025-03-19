@@ -10,7 +10,7 @@ public class Swordfish : Projectile
     // Constructor:
     public Swordfish(ProjectileType type, Vector3 origin, Vector3 target) : base(type, origin, target) { }
 
-    public override void Move(float dt, Vector3 playerPosition)
+    public override void Move(float dt)
     {
         Position += velocity * Orientation * dt;
         Position = new Vector3(Position.X, 0.1f, Position.Z);

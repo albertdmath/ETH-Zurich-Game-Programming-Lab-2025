@@ -12,22 +12,29 @@ namespace src.GameObjects
         // Constructor:
         public Frog(ProjectileType type, Vector3 origin, Vector3 target) : base(type, origin, target) { }
 
-        public override void Move(float dt, Vector3 playerPosition)
+        public override void Move(float dt)
         {
             if ((timeBeforeHop += dt) < HOP_TIME) return;
 
             // After HOP_TIME seconds, move the frog
             float jumpProgress = (timeBeforeHop - HOP_TIME) / HOP_TIME;
-            
+
+            Player nearestPlayer = Player.active[0];
+            foreach (Player player in Player.active)
+            {
+                if (Vector3.Distance(Position, player.Position) < Vector3.Distance(Position, nearestPlayer.Position))
+                    nearestPlayer = player;
+            }
+
             // Orient the frog towards the player
-            Orientation = Vector3.Normalize(playerPosition - Position);
+            Orientation = Vector3.Normalize(nearestPlayer.Position - Position);
             Orientation = new Vector3(Orientation.X, 0, Orientation.Z);
             Orientation.Normalize();
-            
+
             // Update the position of the frog:
             Position += velocity * Orientation * dt;
             Position = new Vector3(Position.X, 0.07f + (float)Math.Sin(jumpProgress * Math.PI), Position.Z);
-            
+
             // Reset the time before the next hop:
             if (timeBeforeHop > 2 * HOP_TIME) timeBeforeHop = 0f;
         }
