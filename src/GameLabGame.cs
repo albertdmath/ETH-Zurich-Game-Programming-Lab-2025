@@ -38,10 +38,11 @@ namespace GameLab
         public static Player[] players = new Player[NUM_PLAYERS];
         private LinkedList<Player> activePlayers = new LinkedList<Player>();
         private List<Zombie> zombies = new List<Zombie>();
+        private List<Zombie>[] sortedZombies = new List<Zombie>[24*24];
         private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
 
         // Camera settings
-        private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 10, 7), new Vector3(0, 0, 0), Vector3.Up);
+        private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 9, 7), new Vector3(0, 0, 1), Vector3.Up);
         private Matrix projection = Matrix.CreatePerspectiveFieldOfView(
             MathHelper.ToRadians(45f), // Field of view in radians (e.g., 45 degrees)
             16f / 9f, // Aspect ratio (change as needed)
@@ -61,7 +62,9 @@ namespace GameLab
 
         private static float timeUntilNextProjectile = 5.0f+(float)rng.NextDouble()*10; // Random interval before next projectile
 
-        private Ellipse ellipse = new Ellipse(7.5f,4f);
+        private Ellipse innerEllipse = new Ellipse(7.2f,3.8f);
+        private Ellipse outerEllipse = new Ellipse(7.5f,4f);
+        private float totalTimePassed = 0f;
 
         Random random;//random variable for zombies
 
@@ -78,16 +81,16 @@ namespace GameLab
             switch (n)
             {
                 case 4:
-                    players[3] = new Player(new Vector3(playerStartPositions[3], 0.2f, 0),new InputController(PlayerIndex.Three),ellipse,playerModel);
+                    players[3] = new Player(new Vector3(playerStartPositions[3], 0.2f, 0),new InputController(PlayerIndex.Three),innerEllipse,playerModel);
                     goto case 3;
                 case 3:
-                    players[2] = new Player(new Vector3(playerStartPositions[2], 0.2f, 0),new InputController(PlayerIndex.Two),ellipse,playerModel);
+                    players[2] = new Player(new Vector3(playerStartPositions[2], 0.2f, 0),new InputController(PlayerIndex.Two),innerEllipse,playerModel);
                     goto case 2;
                 case 2:
-                    players[1] = new Player(new Vector3(playerStartPositions[1], 0.2f, 0),new InputController(PlayerIndex.One),ellipse,playerModel);
+                    players[1] = new Player(new Vector3(playerStartPositions[1], 0.2f, 0),new InputController(PlayerIndex.One),innerEllipse,playerModel);
                     goto case 1;
                 case 1: 
-                    players[0] = new Player(new Vector3(playerStartPositions[0], 0.2f, 0),new Input(),ellipse,playerModel);
+                    players[0] = new Player(new Vector3(playerStartPositions[0], 0.2f, 0),new Input(),innerEllipse,playerModel);
                     goto default;
                 default:
                 break;
@@ -140,9 +143,19 @@ namespace GameLab
                 Exit();
 
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            float randomFloat = (float)(random.NextDouble() *2f* Math.PI);
-            if(zombies.Count<300)
-                zombies.Add(new Zombie(new Vector3(9f*(float)Math.Sin(randomFloat),0.2f,9f*(float)Math.Cos(randomFloat)),ellipse,zombies,playerModel));
+            totalTimePassed+=dt;
+            if(totalTimePassed>20f){
+                float a = 7.5f - 0.1f*((float)Math.Round(totalTimePassed-20f));
+                a = a < 0.5f ? 0.5f : a;
+                float b = 4f - 0.05f*((float)Math.Round(totalTimePassed-20f));
+                b = b < 0.5f ? 0.5f : b;
+                innerEllipse.Set(a-0.2f,b-0.2f);
+                outerEllipse.Set(a,b);
+            }
+            if(zombies.Count<700){
+                float randomFloat = (float)(random.NextDouble() *2f* Math.PI);
+                zombies.Add(new Zombie(new Vector3(9f*(float)Math.Sin(randomFloat),0.2f,8f*(float)Math.Cos(randomFloat)),outerEllipse,playerModel));
+            }
             // Spawn a new projectile:
             if ((timeUntilNextProjectile -= dt) <= 0)
             {
@@ -169,8 +182,22 @@ namespace GameLab
 
             // Move all the projectiles
             foreach (Projectile projectile in activeProjectiles) projectile.updateWrap(dt);
+            sortedZombies = new List<Zombie>[24*24];
+            for(int i = 0;i<24*24;i++)
+                sortedZombies[i] = new List<Zombie>();
+            foreach (Zombie zombie in zombies) sortedZombies[(int)Math.Round(zombie.Position.X)+11+((int)Math.Round(zombie.Position.Y)+11)*24].Add(zombie);
             // MOve all zombies(mob)
-            foreach (Zombie zombie in zombies) zombie.Force();
+            for(int j = 0; j<23;j++){
+                for(int i = 0; i<23;i++){
+                    List<Zombie> tempList = sortedZombies[i+j*24];
+                    for(int k=0; k<tempList.Count;++k){
+                        tempList[k].Force(tempList,k);
+                        tempList[k].Force(sortedZombies[i+j*24+1],-1);
+                        tempList[k].Force(sortedZombies[i+j*24+24],-1);
+                        tempList[k].Force(sortedZombies[i+j*24+25],-1);
+                    }
+                }
+            }
             foreach (Zombie zombie in zombies) zombie.updateWrap(dt);
 
             // Move players
@@ -294,8 +321,7 @@ namespace GameLab
             foreach (Player player in players){
                 player.Draw(view,projection);
                 player.Hitbox.DebugDraw(GraphicsDevice,view,projection);
-            }
-            //foreach (Player player in players)  
+            } 
             foreach (Zombie zombie in zombies)
                 zombie.Draw(view,projection);
             //   Console.WriteLine(player.Position);
