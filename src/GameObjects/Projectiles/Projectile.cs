@@ -9,11 +9,18 @@ namespace src.GameObjects
     {
         // Private fields:
         public static LinkedList<Projectile> active = new LinkedList<Projectile>();
-        private static ProjectileType[] values = (ProjectileType[])Enum.GetValues(typeof(ProjectileType));
-        private static float timeUntilNextProjectile = 5.0f;
+        private static float timeUntilNextProjectile = 0f;
         public ProjectileType Type { get; set; }
         protected float velocity;
         protected Player holdByPlayer = null;
+
+        //there should be an UI element that lets you change this
+        public static Dictionary<ProjectileType, float> projectileProbability = new Dictionary<ProjectileType, float>
+        {
+            { ProjectileType.Frog, 0.1f },
+            { ProjectileType.Swordfish, 0.5f },
+            { ProjectileType.Tomato, 0.2f }
+        };
 
         // Constructor:
         public Projectile(ProjectileType type, Vector3 origin, Vector3 target)
@@ -23,6 +30,7 @@ namespace src.GameObjects
             Orientation = Vector3.Normalize(target - origin);
         }
 
+        // Static functions:
         // Factory method to create a random projectile:
         public static Projectile createProjectile(ProjectileType type, Vector3 origin, Vector3 target)
         {
@@ -42,15 +50,19 @@ namespace src.GameObjects
 
         public static void MobShoot(float dt, Random rng)
         {
-            if ((timeUntilNextProjectile -= dt) > 0) return;
-            
-            ProjectileType type = values[rng.Next(1, values.Length)];
-            Vector3 origin = Ring.active.RndCircPoint();
-            Vector3 direction = Player.active[rng.Next(0, Player.active.Count)].Position - origin;
-            Projectile newProjectile = createProjectile(type, origin, direction);
-            active.AddLast(newProjectile);
+            //the probability to shoot is once every second
+            if ((timeUntilNextProjectile += dt) < 0.1f) return;
 
-            timeUntilNextProjectile = (float)rng.NextDouble() * 5f;
+            foreach (var entry in projectileProbability)
+            {
+                if (rng.NextDouble() > entry.Value*0.1) continue;
+
+                Vector3 origin = Ring.active.RndCircPoint();
+                Vector3 direction = Player.active[rng.Next(0, Player.active.Count)].Position - origin;
+                active.AddLast(createProjectile(entry.Key, origin, direction));
+            }
+
+            timeUntilNextProjectile = 0f;
         }
 
         public virtual void Move(float dt) { }

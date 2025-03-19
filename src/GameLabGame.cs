@@ -218,6 +218,7 @@ namespace GameLab
             // Draw the ring of doom:
             //this.ring.DrawRing(_spriteBatch, Content.Load<Texture2D>("ring"));
 
+            // Draw the arena:
             DrawModel(arena, arenaScaling * arenaTranslation);
 
             // Draw all active projectiles:
@@ -230,14 +231,13 @@ namespace GameLab
             // Draw all players:
             foreach (Player player in Player.active)
                 DrawModel(playerModel, Matrix.CreateRotationY((float)Math.Atan2(-1f * player.Orientation.X, -1f * player.Orientation.Z)) * Matrix.CreateTranslation(player.Position) * playerTranslation);
-            //foreach (Player player in players)  
-            //   Console.WriteLine(player.Position);
 
             DrawHealthAndStamina();
             DrawWin();
 
             _spriteBatch.End();
 
+            /*
             OrientedBoundingBox obb1 = OrientedBoundingBox.ComputeOBB(arena.Meshes[15], arenaScaling);
             BoundingBoxRenderer.DrawOBB(GraphicsDevice, obb1, view, projection);
 
@@ -248,6 +248,7 @@ namespace GameLab
             {
                 Console.WriteLine("yay");
             }
+            */
             base.Draw(gameTime);
         }
     }
