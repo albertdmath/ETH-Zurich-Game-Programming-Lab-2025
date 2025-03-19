@@ -12,7 +12,7 @@ namespace src.GameObjects
     public class Zombie : GameModel
     {
         // Private fields:
-        private float ZombieSpeed = 2f;
+        private Vector2 ZombieSpeed = new Vector2(0,0);
         private Ellipse ellipse;
         public BoundingSphere BoundingSphere { get; set; }
         List<Zombie> zombies;
@@ -31,24 +31,27 @@ namespace src.GameObjects
         // The Zombie move method:
         private void Move(float dt)
         {
-            Vector3 dir = -1f*Position;
-            if (dir.Length() > 0)
-            {
-                dir = Vector3.Normalize(dir);
-                Orientation = dir;
+            Orientation = new Vector3(ZombieSpeed.X,0f,ZombieSpeed.Y);
+            if(ellipse.Inside(Position.X,Position.Z)){
+                Orientation = ellipse.tangentPart(Position.X,Position.Z,Orientation);
             }
-            Position += ZombieSpeed * Orientation * dt;
+            Position += Orientation * dt;
+            while(ellipse.Inside(Position.X,Position.Z)){
+                Position += ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
+            }
             //BoundingSphere = new BoundingSphere(Position,0.1f);
         }
         private void MoveBack(float dt)
         {
-            Position -= ZombieSpeed * Orientation * dt * 1f;
+            Position -= Orientation * dt * 1f;
         }
-        public void Update(float dt){
+        public override void Update(float dt){
             Move(dt);
-            if(ellipse.Inside(Position.X,Position.Z)||Close()){
-                MoveBack(dt);
-            }
+            /* else{
+                while(ellipse.Inside(Position.X,Position.Z)){
+                    Position += ZombieSpeed * ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
+                }
+            } */
         }
 
         private bool Intersects(){
@@ -60,20 +63,39 @@ namespace src.GameObjects
             return false;
         }
 
-        private bool Close(){
+        private void Close(){
             for(int i=0; i<zombies.Count;++i){
-                //if(this.BoundingSphere.Intersects(zombies[i].BoundingSphere)&&zombies[i]!=this){
                 if(closeDistance(zombies[i])&&zombies[i]!=this){
-                    return true;
+                    Vector3 diff = zombies[i].Position-Position;
+                    Orientation = Orientation - Vector3.Dot(Orientation,diff)/Vector3.Dot(diff,diff)*diff;
+
                 }
             }
-            return false;
+            //Console.WriteLine("Zombie runs with orientation: " + Orientation);
+        }
+        public void Force(){
+            Vector3 dir = -1f*Position;
+            if (dir.Length() > 0)
+            {
+                dir = Vector3.Normalize(dir);
+            }
+            ZombieSpeed = new Vector2(dir.X, dir.Z);
+            for(int i=0; i<zombies.Count;++i){
+                if(closeDistance(zombies[i])&&zombies[i]!=this){
+                    Vector2 diff = Vector2.Normalize(new Vector2(Position.X-zombies[i].Position.X,Position.Y-zombies[i].Position.Y));
+                    ZombieSpeed = ZombieSpeed + 2*diff/(diff.LengthSquared());
+
+                }
+            }
+            //Console.WriteLine("Zombie runs with orientation: " + Orientation);
         }
 
         private bool closeDistance(Zombie zombie){
             float x = this.Position.X - zombie.Position.X;
             float y = this.Position.Y - zombie.Position.Y;
-            return (x*x+y*y)< 0.01f && Position.LengthSquared() > zombie.Position.LengthSquared();
+            //return (x*x+y*y)< 1f && Position.LengthSquared() > zombie.Position.LengthSquared();
+            return (x*x+y*y)< 4f;
         }
+        
     }
 }

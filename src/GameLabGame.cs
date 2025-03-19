@@ -170,6 +170,7 @@ namespace GameLab
             // Move all the projectiles
             foreach (Projectile projectile in activeProjectiles) projectile.updateWrap(dt);
             // MOve all zombies(mob)
+            foreach (Zombie zombie in zombies) zombie.Force();
             foreach (Zombie zombie in zombies) zombie.updateWrap(dt);
 
             // Move players

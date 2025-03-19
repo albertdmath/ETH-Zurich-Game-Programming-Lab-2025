@@ -140,8 +140,8 @@ namespace src.GameObjects
                         timeSinceThrow += dt;
                     }
                 }
-                if(Hitbox.Intersects(GameLabGame.arenaModel.Hitbox)){
-                    MoveBack(dt);
+                while(ellipse.Outside(Position.X,Position.Z)){
+                    Position += playerSpeed * ellipse.Normal(Position.X,Position.Z) * dt * 0.1f;
                 }
             }else if(mob){
                 if(Spawn()){
@@ -152,7 +152,7 @@ namespace src.GameObjects
                         timeSinceThrow += dt;
                     }
                     while(ellipse.Inside(Position.X,Position.Z)){
-                        MoveBack(dt);
+                        Position += playerSpeed * ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
                     }
                 }
             }else{

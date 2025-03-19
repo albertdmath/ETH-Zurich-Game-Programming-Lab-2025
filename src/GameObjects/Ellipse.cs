@@ -32,5 +32,26 @@ namespace src.GameObjects
             this.a = a;
             this.b = b;
         }
+
+        private Vector3 Tangent(float x, float y){
+            if(y==0f){
+                return new Vector3(1f,0f,0f);
+            }else{
+                return Vector3.Normalize(new Vector3(1f,0f,-1f*b*b*x/(a*a*y)));
+            }
+        }
+        public Vector3 Normal(float x, float y){
+            if(x==0f){
+                return new Vector3(0f,0f,1f) * (y>0f?-1f:1f);
+            }else{
+                float temp = (x<0) ? 1f : -1f;
+                return Vector3.Normalize(new Vector3(temp,0f,temp*(a*a*y)/(b*b*x)));
+            }
+        }
+
+        public Vector3 tangentPart(float x, float y,Vector3 orientation){
+            Vector3 temp = Tangent(x,y);
+            return Vector3.Dot(orientation,temp)*temp;
+        }
     }
 }
