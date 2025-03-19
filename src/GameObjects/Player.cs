@@ -1,5 +1,6 @@
 using GameLab;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using System.Runtime.CompilerServices;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,9 @@ namespace src.GameObjects
     /** Anything regarding player characters, from movement to the actual Model files goes here. **/
     public class Player : GameModel
     {
+        public static List<Player> active = new List<Player>();
+
+        public int Id { get; set; }
         // Private fields:
         private float playerSpeed = 2f;
         public int Life { get; set; } = 3;
@@ -28,12 +32,26 @@ namespace src.GameObjects
 
 
         // Constructor: Only allow to assign position here, lifes stamina and so on are a global property and need to be the same for
-        public Player(Vector3 position, Input input,Ellipse ellipse)
+        public Player(Vector3 position, Input input, int id)
         {
             Position = position;
             this.input = input;
             this.ellipse = ellipse;
             projectileHeld = null;
+            this.Id = id;
+        }
+
+        public static void Initialize()
+        {
+            float[] playerStartPositions = { -0.75f, -0.25f, 0.25f, 0.75f };
+            //this should be removed
+            active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0));
+            for (int i = 0; i < 4; i++)
+            {
+                PlayerIndex idx = (PlayerIndex)i;
+                if (GamePad.GetState(idx).IsConnected)
+                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new InputController(idx), i + 1));
+            }
         }
 
         // The player move method:
@@ -55,25 +73,28 @@ namespace src.GameObjects
 
         // Method to grab an object:
         public bool GrabOrHit(Projectile projectile)
-        {   
+        {
             //if(Life<=0f) return false;
-            if(projectile != projectileHeld){
-                if (input.Action() 
+            if (projectile != projectileHeld)
+            {
+                if (input.Action()
                     && projectileHeld == null
                     && Vector3.Distance(Position, projectile.Position) < 1.0f
-                    && timeSinceThrow>1f
-                    && actionPushedDuration<0.2f)
+                    && timeSinceThrow > 1f
+                    && actionPushedDuration < 0.2f)
                 {
                     projectileHeld = projectile;
                     projectile.Caught(this);
                     Console.WriteLine("Grabbing " + projectile.Type);
                     playerSpeed = 0.3f;
                     return false;
-                }else if (Vector3.Distance(Position, projectile.Position) < 0.5)
+                }
+                else if (Vector3.Distance(Position, projectile.Position) < 0.5)
                 {
-                    Life-=notImportant?0:1;
-                    if(Life == 0f){
-                        Position = Position - new Vector3(0,0.2f,0);
+                    Life -= notImportant ? 0 : 1;
+                    if (Life == 0f)
+                    {
+                        Position = Position - new Vector3(0, 0.2f, 0);
                         playerSpeed = 1f;
                     }
                     return true;
@@ -88,7 +109,9 @@ namespace src.GameObjects
             if (input.Action() && actionPushedDuration == 0f)
             {
                 playerSpeed = 0f;
-            }else if(!input.Action() && actionPushedDuration > 0 && playerSpeed == 0f){
+            }
+            else if (!input.Action() && actionPushedDuration > 0 && playerSpeed == 0f)
+            {
                 projectileHeld.Throw();
                 projectileHeld = null;
                 timeSinceThrow = 0f;
@@ -100,62 +123,80 @@ namespace src.GameObjects
         // Method to dash:
         private bool Dash(float dt)
         {
-            if(input.Dash() &&dashTime<=0f && Stamina>30f){
-                dashTime=0.1f;
-                Stamina-=30f;
+            if (input.Dash() && dashTime <= 0f && Stamina > 30f)
+            {
+                dashTime = 0.1f;
+                Stamina -= 30f;
             }
-            if(dashTime>0f){
-                Position += 6*playerSpeed * Orientation * dt;
+            if (dashTime > 0f)
+            {
+                Position += 6 * playerSpeed * Orientation * dt;
                 dashTime -= dt;
                 return true;
-            }else{
+            }
+            else
+            {
                 return false;
             }
         }
         private bool Spawn()
         {
-            if(input.Dash() &&dashTime<=0f && Stamina>40f && projectileHeld == null){
-                projectileHeld = Projectile.createProjectile(ProjectileType.Swordfish,Position,Orientation);
+            if (input.Dash() && dashTime <= 0f && Stamina > 40f && projectileHeld == null)
+            {
+                projectileHeld = Projectile.createProjectile(ProjectileType.Swordfish, Position, Orientation);
                 projectileHeld.Caught(this);
                 playerSpeed = 0.3f;
-                Stamina-=40f;
+                Stamina -= 40f;
                 return false;
             }
             return true;
         }
-        
 
-        public void Update(float dt){
-            Stamina +=dt*5f;
-            Stamina = (Stamina >100f) ? 100f : Stamina;
-            if(Life>0f){
-                if(!Dash(dt)){
+
+        public void update(float dt)
+        {
+            Stamina += dt * 5f;
+            Stamina = (Stamina > 100f) ? 100f : Stamina;
+            if (Life > 0f)
+            {
+                if (!Dash(dt))
+                {
                     Move(dt);
-                    if(projectileHeld != null){
+                    if (projectileHeld != null)
+                    {
                         Throw(dt);
-                    }else {
+                    }
+                    else
+                    {
                         timeSinceThrow += dt;
                     }
                 }
-                while(ellipse.Outside(Position.X,Position.Z)){
-                    MoveBack(dt);
-                }
-            }else if(mob){
-                if(Spawn()){
+            }
+            else if (mob)
+            {
+                if (Spawn())
+                {
                     Move(dt);
-                    if(projectileHeld != null){
+                    if (projectileHeld != null)
+                    {
                         Throw(dt);
-                    }else {
+                    }
+                    else
+                    {
                         timeSinceThrow += dt;
                     }
-                    while(ellipse.Inside(Position.X,Position.Z)){
-                        MoveBack(dt);
+                    if (Math.Abs(Position.X) < 7.5f && Math.Abs(Position.Z) < 4f)
+                    {
+                        Move(-1f * dt);
                     }
                 }
-            }else{
+            }
+            else
+            {
                 Move(dt);
-                if(ellipse.Outside(Position.X,Position.Z)){
-                    Position = Position + new Vector3(0,0.2f,0);
+                if (Math.Abs(Position.X) > 7.5f || Math.Abs(Position.Z) > 4f)
+                {
+                    Position = Position + new Vector3(0, 0.2f, 0);
                     mob = true;
                     playerSpeed = 2f;
                 }

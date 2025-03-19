@@ -4,18 +4,19 @@ using System;
 
 namespace src.GameObjects
 {
-    public class RingOfDoom
+    public class Ring
     {
         /** 
         This is the class for the menacing mob. 
         **/
+        public static Ring active;
         private float initialRadius, radius;
         private Vector3 currCenter, endCenter;
         private static Random rng = new Random();
         private const float START_CLOSING_TIME = 60000f; // 1 minute in milliseconds
         private const float CLOSING_TIME = 60000f; // 1 minute in milliseconds
 
-        public RingOfDoom(int planeWidth, int planeHeight)
+        public Ring(int planeWidth, int planeHeight)
         {
             // Get radius of the circle
             this.initialRadius = Math.Min(planeWidth, planeHeight) / 2 - 1;
@@ -25,8 +26,8 @@ namespace src.GameObjects
             this.currCenter = Vector3.Zero;
 
             // Calculate a random point inside the circle
-            float angle = (float) rng.NextDouble() * 2 * MathF.PI;
-            float distance = this.initialRadius * MathF.Sqrt((float) rng.NextDouble());
+            float angle = (float)rng.NextDouble() * 2 * MathF.PI;
+            float distance = this.initialRadius * MathF.Sqrt((float)rng.NextDouble());
             float x = distance * MathF.Cos(angle);
             float z = distance * MathF.Sin(angle);
             this.endCenter = new Vector3(x, 0, z);
@@ -46,7 +47,7 @@ namespace src.GameObjects
         //this is from where tho shoot the projectiles
         public Vector3 RndCircPoint()
         {
-            float angle = (float) rng.NextDouble() * 2 * MathF.PI;
+            float angle = (float)rng.NextDouble() * 2 * MathF.PI;
             float x = currCenter.X + this.radius * MathF.Cos(angle);
             float z = currCenter.Z + this.radius * MathF.Sin(angle);
 

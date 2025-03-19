@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 /** Class for the projectiles **/
 namespace src.GameObjects
@@ -7,23 +8,30 @@ namespace src.GameObjects
     public class Projectile : GameModel
     {
         // Private fields:
+        public static LinkedList<Projectile> active = new LinkedList<Projectile>();
+        private static float timeUntilNextProjectile = 0f;
         public ProjectileType Type { get; set; }
         protected float velocity;
-        public static int frogCount = 0;
-        public static int maxFrogs = 5;
-
         protected Player holdByPlayer = null;
 
+        //there should be an UI element that lets you change this
+        public static Dictionary<ProjectileType, float> projectileProbability = new Dictionary<ProjectileType, float>
+        {
+            { ProjectileType.Frog, 0f },
+            { ProjectileType.Swordfish, 0f },
+            { ProjectileType.Tomato, 1f }
+        };
+
         // Constructor:
-        public Projectile(ProjectileType type, Vector3 origin, Vector3 orientation)
+        public Projectile(ProjectileType type, Vector3 origin, Vector3 target)
         {
             Type = type;
-            Position = origin + new Vector3(0,0.2f,0);
-            Orientation = Vector3.Normalize(orientation - origin);
+            Position = origin;
+            Orientation = Vector3.Normalize(target - origin);
         }
 
+        // Static functions:
         // Factory method to create a random projectile:
-        #nullable enable
         public static Projectile createProjectile(ProjectileType type, Vector3 origin, Vector3 target)
         {
             // Randomly create a projectile:
@@ -40,26 +48,42 @@ namespace src.GameObjects
             }
         }
 
-        // Move the projectile:
-        public virtual void Move(float dt, Vector3 playerPosition) { }
-        public void Update(float dt, Vector3 playerPosition) { 
-            if(holdByPlayer==null){
-                this.Move(dt, playerPosition);
-            }else{
-                this.Position = holdByPlayer.Position + holdByPlayer.Orientation*0.3f+new Vector3(.1f, 0.2f, -.1f);
-            }
-        }
-    
-        // Move the projectile:
-        public virtual void Move(float dt) { }
+        public static void MobShoot(float dt, Random rng)
+        {
+            //the probability to shoot is once every 0.1 second
+            if ((timeUntilNextProjectile += dt) < 0.1f) return;
+            
+            foreach (var entry in projectileProbability)
+            {
+                if (rng.NextDouble() > entry.Value * 0.1) continue;
 
-        public  void Throw() { 
-            this.Position = holdByPlayer.Position + holdByPlayer.Orientation + new Vector3(0,0.2f,0);
-            this.Orientation = holdByPlayer.Orientation;
-            holdByPlayer = null;
+                Vector3 origin = Ring.active.RndCircPoint();
+                Vector3 target = Player.active[rng.Next(0, Player.active.Count)].Position;
+                active.AddLast(createProjectile(entry.Key, origin, target));
+            }
+
+            timeUntilNextProjectile = 0f;
         }
-        public  void Caught(Player player) { 
-            this.holdByPlayer=player;
+
+        public virtual void Move(float dt) { }
+        // Move the projectile:
+        public void Update(float dt)
+        {
+            if (holdByPlayer == null)
+                this.Move(dt);
+            else
+                this.Position = holdByPlayer.Position + holdByPlayer.Orientation * 0.3f + new Vector3(.1f, 0.2f, -.1f);
+        }
+
+        public void Throw()
+        {
+            this.Position = holdByPlayer.Position + holdByPlayer.Orientation + new Vector3(0, 0.2f, 0);
+            this.Orientation = holdByPlayer.Orientation;
+            this.holdByPlayer = null;
+        }
+        public void Caught(Player player)
+        {
+            this.holdByPlayer = player;
         }
     }
 }
