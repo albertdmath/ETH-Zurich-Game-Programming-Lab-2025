@@ -13,15 +13,14 @@ namespace src.GameObjects
         private static float timeUntilNextProjectile = 5.0f;
         public ProjectileType Type { get; set; }
         protected float velocity;
-
         protected Player holdByPlayer = null;
 
         // Constructor:
-        public Projectile(ProjectileType type, Vector3 origin, Vector3 orientation)
+        public Projectile(ProjectileType type, Vector3 origin, Vector3 target)
         {
             Type = type;
-            Position = origin + new Vector3(0, 0.2f, 0);
-            Orientation = Vector3.Normalize(orientation - origin);
+            Position = origin;
+            Orientation = Vector3.Normalize(target - origin);
         }
 
         // Factory method to create a random projectile:
@@ -43,16 +42,15 @@ namespace src.GameObjects
 
         public static void MobShoot(float dt, Random rng)
         {
-            if ((timeUntilNextProjectile -= dt) <= 0)
-            {
-                ProjectileType type = (ProjectileType)values.GetValue(rng.Next(1, values.Length));
-                Vector3 origin = Ring.active.RndCircPoint();
-                Vector3 direction = Player.active[rng.Next(0, Player.active.Count)].Position - origin;
-                Projectile newProjectile = createProjectile(type, origin, direction);
-                active.AddLast(newProjectile);
+            if ((timeUntilNextProjectile -= dt) > 0) return;
+            
+            ProjectileType type = values[rng.Next(1, values.Length)];
+            Vector3 origin = Ring.active.RndCircPoint();
+            Vector3 direction = Player.active[rng.Next(0, Player.active.Count)].Position - origin;
+            Projectile newProjectile = createProjectile(type, origin, direction);
+            active.AddLast(newProjectile);
 
-                timeUntilNextProjectile = (float)rng.NextDouble() * 5f;
-            }
+            timeUntilNextProjectile = (float)rng.NextDouble() * 5f;
         }
 
         public virtual void Move(float dt) { }

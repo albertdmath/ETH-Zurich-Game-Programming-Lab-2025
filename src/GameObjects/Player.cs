@@ -13,6 +13,7 @@ namespace src.GameObjects
     {
         public static List<Player> active = new List<Player>();
 
+        public int Id { get; set; }
         // Private fields:
         private float playerSpeed = 2f;
         public int Life { get; set; } = 3;
@@ -29,23 +30,24 @@ namespace src.GameObjects
         private Input input;
 
         // Constructor: Only allow to assign position here, lifes stamina and so on are a global property and need to be the same for
-        public Player(Vector3 position, Input input)
+        public Player(Vector3 position, Input input, int id)
         {
             Position = position;
             this.input = input;
             projectileHeld = null;
+            this.Id = id;
         }
 
         public static void Initialize()
         {
             float[] playerStartPositions = { -0.75f, -0.25f, 0.25f, 0.75f };
             //this should be removed
-            active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input()));
+            active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0));
             for (int i = 0; i < 4; i++)
             {
                 PlayerIndex idx = (PlayerIndex)i;
                 if (GamePad.GetState(idx).IsConnected)
-                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new InputController(idx)));
+                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new InputController(idx), i + 1));
             }
         }
 

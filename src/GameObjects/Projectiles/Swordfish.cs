@@ -13,6 +13,5 @@ public class Swordfish : Projectile
     public override void Move(float dt)
     {
         Position += velocity * Orientation * dt;
-        Position = new Vector3(Position.X, 0.1f, Position.Z);
     }
 }

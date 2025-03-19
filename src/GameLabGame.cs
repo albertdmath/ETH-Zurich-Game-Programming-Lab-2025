@@ -30,9 +30,6 @@ namespace GameLab
         private Dictionary<ProjectileType, Model> projectileModels = new Dictionary<ProjectileType, Model>();
         private LinkedList<Projectile> hitProjectiles = new LinkedList<Projectile>();
 
-        // Player settings
-        private Vector3 playerSpawnOrientation = new Vector3(0, 0, -1);
-
         // Camera settings
         private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 10, 7), new Vector3(0, 0, 0), Vector3.Up);
         private Matrix projection = Matrix.CreatePerspectiveFieldOfView(
@@ -44,7 +41,7 @@ namespace GameLab
 
         // Arena transformations
         private Matrix arenaScaling = Matrix.CreateScale(new Vector3(0.5f));
-        //private Matrix arenaTranslation = Matrix.CreateTranslation(new Vector3(0));
+        private Matrix arenaTranslation = Matrix.CreateTranslation(new Vector3(0, -1f, 0));
 
         // Player transformations
         private Matrix playerScaling = Matrix.CreateScale(new Vector3(1.5f));
@@ -52,8 +49,6 @@ namespace GameLab
 
         // Projectile transformations:
         private Matrix projectileRotation = Matrix.CreateRotationX((float)-Math.PI / 2);
-
-        private static float timeUntilNextProjectile = 5.0f + (float)rng.NextDouble() * 10; // Random interval before next projectile
 
         public GameLabGame()
         {
@@ -193,7 +188,6 @@ namespace GameLab
                     goto case 1;
                 case 1:
                     _spriteBatch.DrawString(font, "Lives: " + Player.active[0].Life + "  Stamina: " + (int)Player.active[0].Stamina, new Vector2(10, 10), Color.Red);
-                    //_spriteBatch.DrawString(font, "Lives: " + players[0].Position + "  Stamina: " + (int)players[0].Stamina, new Vector2(10, 10), Color.Red);
                     goto default;
                 default:
                     break;
@@ -208,7 +202,7 @@ namespace GameLab
                 for (int i = 0; i < Player.active.Count; i++)
                     n = Player.active.Contains(Player.active[i]) ? i : n;
                 Player.active[n].notImportant = true;
-                _spriteBatch.DrawString(font, "Player " + n + "  wins!", new Vector2(750, 475), Color.Gold);
+                _spriteBatch.DrawString(font, "Player " + Player.active[0].Id + "  wins!", new Vector2(750, 475), Color.Gold);
             }
 
         }
@@ -224,22 +218,13 @@ namespace GameLab
             // Draw the ring of doom:
             //this.ring.DrawRing(_spriteBatch, Content.Load<Texture2D>("ring"));
 
-            DrawModel(arena, arenaScaling);
+            DrawModel(arena, arenaScaling * arenaTranslation);
 
             // Draw all active projectiles:
             foreach (Projectile projectile in Projectile.active)
             {
-                if (projectile.Type == ProjectileType.Frog)
-                {
-                    Matrix frogRotationMatrix = Matrix.CreateRotationY((float)(Math.PI / 2 - Math.Atan2(projectile.Orientation.Z, projectile.Orientation.X)));
-                    DrawModel(projectileModels[projectile.Type], projectileRotation * frogRotationMatrix * Matrix.CreateTranslation(projectile.Position));
-                }
-
-                if (projectile.Type == ProjectileType.Swordfish)
-                {
-                    Matrix frogRotationMatrix = Matrix.CreateRotationY((float)Math.PI - (float)Math.Atan2(projectile.Orientation.Z, projectile.Orientation.X));
-                    DrawModel(projectileModels[projectile.Type], projectileRotation * frogRotationMatrix * Matrix.CreateTranslation(projectile.Position));
-                }
+                Matrix RotationMatrix = Matrix.CreateRotationY((float)(Math.PI / 2 - Math.Atan2(projectile.Orientation.Z, projectile.Orientation.X)));
+                DrawModel(projectileModels[projectile.Type], projectileRotation * RotationMatrix * Matrix.CreateTranslation(projectile.Position));
             }
 
             // Draw all players:
@@ -247,8 +232,10 @@ namespace GameLab
                 DrawModel(playerModel, Matrix.CreateRotationY((float)Math.Atan2(-1f * player.Orientation.X, -1f * player.Orientation.Z)) * Matrix.CreateTranslation(player.Position) * playerTranslation);
             //foreach (Player player in players)  
             //   Console.WriteLine(player.Position);
+
             DrawHealthAndStamina();
             DrawWin();
+
             _spriteBatch.End();
 
             OrientedBoundingBox obb1 = OrientedBoundingBox.ComputeOBB(arena.Meshes[15], arenaScaling);
