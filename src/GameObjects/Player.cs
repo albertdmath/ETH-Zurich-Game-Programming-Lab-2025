@@ -27,6 +27,8 @@ namespace src.GameObjects
         private Input input;
         private Ellipse ellipse;
 
+        private Vector3 Inertia;
+
 
         // Constructor: Only allow to assign position here, lifes stamina and so on are a global property and need to be the same for
         public Player(Vector3 position, Input input,Ellipse ellipse, Model model) : base(model)
@@ -35,18 +37,27 @@ namespace src.GameObjects
             this.input = input;
             this.ellipse = ellipse;
             projectileHeld = null;
+            Inertia =new Vector3(0,0,0);
         }
 
         // The player move method:
         public void Move(float dt)
         {
             Vector3 dir = input.Direction();
+            Inertia -=(5f*dt)* Inertia;
             if (dir.Length() > 0)
             {
                 dir = Vector3.Normalize(dir);
-                Orientation = dir;
+                Inertia += (5f*dt)*dir;
+                if (Inertia.Length() > 1f)
+                    Inertia = Vector3.Normalize(Inertia);
             }
-            Position += playerSpeed * dir * dt;
+            if (Inertia.Length() > 0)
+            {
+                Orientation = Vector3.Normalize(Inertia);
+                
+            }
+            Position += playerSpeed * Inertia * dt;
         }
         public void MoveBack(float dt)
         {
