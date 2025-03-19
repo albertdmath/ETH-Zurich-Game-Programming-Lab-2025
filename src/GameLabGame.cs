@@ -36,6 +36,7 @@ namespace GameLab
         private static int NUM_PLAYERS = 3;
         private Player[] players = new Player[NUM_PLAYERS];
         private LinkedList<Player> activePlayers = new LinkedList<Player>();
+        private List<Zombie> zombies = new List<Zombie>();
         private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
 
         // Camera settings
@@ -61,6 +62,8 @@ namespace GameLab
         private static float timeUntilNextProjectile = 5.0f+(float)rng.NextDouble()*10; // Random interval before next projectile
 
         private Ellipse ellipse = new Ellipse(7.5f,4f);
+
+        Random random;//random variable for zombies
 
         public GameLabGame()
         {
@@ -105,6 +108,7 @@ namespace GameLab
                 
             initializePlayers();
             base.Initialize();
+            random = new Random();
         }
 
         protected override void LoadContent()
@@ -134,7 +138,9 @@ namespace GameLab
                 Exit();
 
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
+            float randomFloat = (float)(random.NextDouble() *2f* Math.PI);
+            if(zombies.Count<1000)
+                zombies.Add(new Zombie(new Vector3(9f*(float)Math.Sin(randomFloat),0.2f,9f*(float)Math.Cos(randomFloat)),ellipse));
             // Spawn a new projectile:
             if ((timeUntilNextProjectile -= dt) <= 0)
             {
@@ -161,6 +167,8 @@ namespace GameLab
 
             // Move all the projectiles
             foreach (Projectile projectile in activeProjectiles) projectile.Update(dt, players[0].Position);
+
+            foreach (Zombie zombie in zombies) zombie.Update(dt);
 
             // Move players
             foreach (Player player in players)
@@ -281,6 +289,8 @@ namespace GameLab
             foreach (Player player in players)
                 DrawModel(playerModel, Matrix.CreateRotationY((float)Math.Atan2(-1f*player.Orientation.X,-1f*player.Orientation.Z))* Matrix.CreateTranslation(player.Position) * playerTranslation);
             //foreach (Player player in players)  
+            foreach (Zombie zombie in zombies)
+                DrawModel(playerModel, Matrix.CreateRotationY((float)Math.Atan2(-1f*zombie.Orientation.X,-1f*zombie.Orientation.Z))* Matrix.CreateTranslation(zombie.Position));
             //   Console.WriteLine(player.Position);
             DrawHealthAndStamina();
             DrawWin();
