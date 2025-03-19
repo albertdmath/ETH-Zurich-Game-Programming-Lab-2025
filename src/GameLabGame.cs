@@ -27,11 +27,18 @@ namespace GameLab
 
         // Private fields:
         private Model arena, playerModel;
-        private Dictionary<ProjectileType, Model> projectileModels = new Dictionary<ProjectileType, Model>();
+        public static GameModel arenaModel;
+        public static Dictionary<ProjectileType, Model> projectileModels = new Dictionary<ProjectileType, Model>();
         private LinkedList<Projectile> hitProjectiles = new LinkedList<Projectile>();
 
+        // Player settings
+        public static int NUM_PLAYERS = 1;
+        public static Player[] players = new Player[NUM_PLAYERS];
+        private LinkedList<Player> activePlayers = new LinkedList<Player>();
+        private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
+
         // Camera settings
-        private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 10, 7), new Vector3(0, 0, 0), Vector3.Up);
+        private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 9, 7), new Vector3(0, 0, 1), Vector3.Up);
         private Matrix projection = Matrix.CreatePerspectiveFieldOfView(
             MathHelper.ToRadians(45f), // Field of view in radians (e.g., 45 degrees)
             16f / 9f, // Aspect ratio (change as needed)
@@ -45,10 +52,17 @@ namespace GameLab
 
         // Player transformations
         private Matrix playerScaling = Matrix.CreateScale(new Vector3(1.5f));
-        private Matrix playerTranslation = Matrix.CreateTranslation(new Vector3(0, 0.2f, 0));
 
         // Projectile transformations:
         private Matrix projectileRotation = Matrix.Identity;
+
+        private Ellipse innerEllipse = new Ellipse(7.2f,3.8f);
+        private Ellipse outerEllipse = new Ellipse(7.5f,4f);
+
+        private Mob mob;
+
+        Random random;//random variable for zombies
+
         public GameLabGame()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -66,7 +80,6 @@ namespace GameLab
             int planeWidth = 10, planeHeight = 10;
             Ring.active = new Ring(planeWidth, planeHeight);
 
-            Player.Initialize();
 
             base.Initialize();
         }
@@ -83,8 +96,17 @@ namespace GameLab
             // Load the projectile models
             projectileModels.Add(ProjectileType.Frog, Content.Load<Model>("frog"));
             projectileModels.Add(ProjectileType.Swordfish, Content.Load<Model>("swordfish"));
-            //it should be a tomato
             projectileModels.Add(ProjectileType.Tomato, Content.Load<Model>("tomato"));
+
+
+            // Initialize game models (they are only known at this point so they can't be in the initialize method)
+            Player.Initialize(innerEllipse, playerModel);
+            arenaModel = new GameModel(arena);
+            arenaModel.Transform = arenaScaling;
+            arenaModel.Hitbox.Transform(arenaScaling);
+
+            // Initialize mob
+            mob = new Mob(innerEllipse, outerEllipse, projectileModels[ProjectileType.Frog]);
 
             // Load Sounds:
             //Sounds.bgMusic = Content.Load<Song>("Audio/yoga-dogs-all-good-folks");
@@ -98,23 +120,24 @@ namespace GameLab
                 Exit();
 
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            // Spawn a new projectile:
+            
+            // Spawn a new projectile
             Projectile.MobShoot(dt, rng);
 
-            // Move all the projectiles
-            foreach (Projectile projectile in Projectile.active) projectile.Update(dt);
+            // Move Projectiles
+            foreach (Projectile projectile in Projectile.active) 
+                projectile.updateWrap(dt);
+
 
             // Move players
             foreach (Player player in Player.active)
             {
-                player.update(dt);
-                if (player.projectileHeld != null && !Projectile.active.Contains(player.projectileHeld))
+                player.updateWrap(dt);
+                if(player.projectileHeld != null && !Projectile.active.Contains(player.projectileHeld))
                     Projectile.active.AddLast(player.projectileHeld);
             }
 
-
-            // Super basic hit detection until we can figure out bounding spheres, just using 0.5 which is quite arbitrary for now:
+            // Check if players got hit / grabbed something
             foreach (Player player in Player.active)
             {
                 foreach (Projectile projectile in Projectile.active)
@@ -125,10 +148,11 @@ namespace GameLab
                 }
             }
 
+            // Remove projectiles that hit someone
             foreach (Projectile projectile in hitProjectiles)
                 Projectile.active.Remove(projectile);
 
-            //if two die at the same time only one will win...
+            // If two die at the same time only one will win...
             foreach (Player player in Player.active)
             {
                 if (player.Life <= 0)
@@ -140,32 +164,12 @@ namespace GameLab
 
             hitProjectiles = new LinkedList<Projectile>();
 
-            // Postpone the ring closing for the low target, right now functional minimum!!
-            /*
-            //close the ring of doom
-            ring.CloseRing(gameTime);
-            this.player.Position = this.ring.RingClamp(this.player.Position);
-            */
+            // Update mob
+            mob.Update(dt);
 
             base.Update(gameTime);
         }
 
-        private void DrawModel(Model model, Matrix world)
-        {
-            foreach (ModelMesh mesh in model.Meshes)
-            {
-                foreach (BasicEffect effect in mesh.Effects)
-                {
-                    effect.World = world;
-                    effect.View = this.view;
-                    effect.Projection = this.projection;
-
-                
-                    effect.EnableDefaultLighting();
-                }
-                mesh.Draw();
-            }
-        }
         private void DrawHealthAndStamina()
         {
             switch (Player.active.Count)
@@ -208,40 +212,32 @@ namespace GameLab
             // This resolves upscaling issues when going fullscreen
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-            // Draw the ring of doom:
-            //this.ring.DrawRing(_spriteBatch, Content.Load<Texture2D>("ring"));
-
-            // Draw the arena:
-            DrawModel(arena, arenaScaling * arenaTranslation);
-
+            //DrawModel(arena, arenaScaling);
+            arenaModel.Draw(view,projection);
+            arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             // Draw all active projectiles:
             foreach (Projectile projectile in Projectile.active)
             {
-                Matrix RotationMatrix = Matrix.CreateRotationY((float)(Math.PI / 2 - Math.Atan2(projectile.Orientation.Z, projectile.Orientation.X)));
-                DrawModel(projectileModels[projectile.Type], projectileRotation * RotationMatrix * Matrix.CreateTranslation(projectile.Position));
+                projectile.Draw(view, projection);
+                projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             }
 
-            // Draw all players:
+            // Draw all players
             foreach (Player player in Player.active)
-                DrawModel(playerModel, Matrix.CreateRotationY((float)Math.Atan2(-1f * player.Orientation.X, -1f * player.Orientation.Z)) * Matrix.CreateTranslation(player.Position) * playerTranslation);
+            {
+                player.Draw(view, projection);
+                player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
+            } 
+
+            // Draw mob
+            mob.Draw(view, projection);
+           
 
             DrawHealthAndStamina();
             DrawWin();
 
             _spriteBatch.End();
 
-            /*
-            OrientedBoundingBox obb1 = OrientedBoundingBox.ComputeOBB(arena.Meshes[15], arenaScaling);
-            BoundingBoxRenderer.DrawOBB(GraphicsDevice, obb1, view, projection);
-
-            OrientedBoundingBox obb2 = OrientedBoundingBox.ComputeOBB(playerModel.Meshes[1], Matrix.CreateRotationY((float)Math.Atan2(-1f * Player.active[0].Orientation.X, -1f * Player.active[0].Orientation.Z)) * Matrix.CreateTranslation(Player.active[0].Position) * playerTranslation);
-            BoundingBoxRenderer.DrawOBB(GraphicsDevice, obb2, view, projection);
-
-            if (obb1.Intersects(obb2))
-            {
-                Console.WriteLine("yay");
-            }
-            */
             base.Draw(gameTime);
         }
     }

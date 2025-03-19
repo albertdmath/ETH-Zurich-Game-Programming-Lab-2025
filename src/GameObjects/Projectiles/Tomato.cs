@@ -15,7 +15,7 @@ namespace src.GameObjects
         private const float A = 5f; // Height factor for the parabola
 
         // Constructor:
-        public Tomato(ProjectileType type, Vector3 origin, Vector3 target) : base(type, origin, target)
+        public Tomato(ProjectileType type, Vector3 origin, Vector3 target,Model model) : base(type, origin, target, model)
         {
             this.origin = origin;
             this.target = target;

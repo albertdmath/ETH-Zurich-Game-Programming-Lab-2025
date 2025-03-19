@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System;
 using System.Collections.Generic;
 using Accord.Math.Distances;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace src.GameObjects
 {
@@ -30,27 +31,31 @@ namespace src.GameObjects
         private Input input;
         private Ellipse ellipse;
 
+        private Vector3 Inertia;
 
-        // Constructor: Only allow to assign position here, lifes stamina and so on are a global property and need to be the same for
-        public Player(Vector3 position, Input input, int id)
+        public Player(Vector3 position, Input input, int id, Ellipse ellipse, Model model) : base(model)
         {
             Position = position;
             this.input = input;
             this.ellipse = ellipse;
             projectileHeld = null;
             this.Id = id;
+            Inertia = new Vector3(0,0,0);
         }
 
-        public static void Initialize()
+        public static void Initialize(Ellipse ellipse, Model model)
         {
             float[] playerStartPositions = { -0.75f, -0.25f, 0.25f, 0.75f };
-            //this should be removed
-            active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0));
-            for (int i = 0; i < 4; i++)
+
+            // This should be removed, for Debug!
+            active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, ellipse, model));
+
+            // TODO: fix player creation
+            for (int i = 0; i < GameLabGame.NUM_PLAYERS; i++)
             {
                 PlayerIndex idx = (PlayerIndex)i;
                 if (GamePad.GetState(idx).IsConnected)
-                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new InputController(idx), i + 1));
+                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new InputController(idx), i + 1, ellipse, model));
             }
         }
 
@@ -58,16 +63,24 @@ namespace src.GameObjects
         public void Move(float dt)
         {
             Vector3 dir = input.Direction();
+            Inertia -=(5f*dt)* Inertia;
             if (dir.Length() > 0)
             {
                 dir = Vector3.Normalize(dir);
-                Orientation = dir;
+                Inertia += (5f*dt)*dir;
+                if (Inertia.Length() > 1f)
+                    Inertia = Vector3.Normalize(Inertia);
             }
-            Position += playerSpeed * dir * dt;
+            if (Inertia.Length() > 0)
+            {
+                Orientation = Vector3.Normalize(Inertia);
+                
+            }
+            Position += playerSpeed * Inertia * dt;
         }
         public void MoveBack(float dt)
         {
-            Position -= playerSpeed * Orientation * dt * 0.2f;
+            Position -= playerSpeed * Orientation * dt * 1f;
         }
 
 
@@ -79,17 +92,18 @@ namespace src.GameObjects
             {
                 if (input.Action()
                     && projectileHeld == null
-                    && Vector3.Distance(Position, projectile.Position) < 1.0f
-                    && timeSinceThrow > 1f
-                    && actionPushedDuration < 0.2f)
+                    //&& Vector3.Distance(Position, projectile.Position) < 1.0f
+                    && Hitbox.Intersects(projectile.Hitbox)
+                    && timeSinceThrow>1f
+                    //&& actionPushedDuration<0.2f
+                    )
                 {
                     projectileHeld = projectile;
                     projectile.Caught(this);
                     Console.WriteLine("Grabbing " + projectile.Type);
                     playerSpeed = 0.3f;
                     return false;
-                }
-                else if (Vector3.Distance(Position, projectile.Position) < 0.5)
+                } else if (Hitbox.Intersects(projectile.Hitbox))
                 {
                     Life -= notImportant ? 0 : 1;
                     if (Life == 0f)
@@ -141,9 +155,9 @@ namespace src.GameObjects
         }
         private bool Spawn()
         {
-            if (input.Dash() && dashTime <= 0f && Stamina > 40f && projectileHeld == null)
+            if(input.Dash() &&dashTime<=0f && Stamina>40f && projectileHeld == null)
             {
-                projectileHeld = Projectile.createProjectile(ProjectileType.Swordfish, Position, Orientation);
+                projectileHeld = Projectile.createProjectile(ProjectileType.Swordfish,Position,Orientation,GameLabGame.projectileModels[ProjectileType.Swordfish]);
                 projectileHeld.Caught(this);
                 playerSpeed = 0.3f;
                 Stamina -= 40f;
@@ -153,7 +167,7 @@ namespace src.GameObjects
         }
 
 
-        public void update(float dt)
+        public override void Update(float dt)
         {
             Stamina += dt * 5f;
             Stamina = (Stamina > 100f) ? 100f : Stamina;
@@ -171,10 +185,11 @@ namespace src.GameObjects
                         timeSinceThrow += dt;
                     }
                 }
-            }
-            else if (mob)
+                while(ellipse.Outside(Position.X,Position.Z))
+                    Position += playerSpeed * ellipse.Normal(Position.X,Position.Z) * dt * 0.1f;
+            } else if(mob)
             {
-                if (Spawn())
+                if(Spawn())
                 {
                     Move(dt);
                     if (projectileHeld != null)
@@ -185,13 +200,10 @@ namespace src.GameObjects
                     {
                         timeSinceThrow += dt;
                     }
-                    if (Math.Abs(Position.X) < 7.5f && Math.Abs(Position.Z) < 4f)
-                    {
-                        Move(-1f * dt);
-                    }
+                    while(ellipse.Inside(Position.X,Position.Z))
+                        Position += playerSpeed * ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
                 }
-            }
-            else
+            } else
             {
                 Move(dt);
                 if (Math.Abs(Position.X) > 7.5f || Math.Abs(Position.Z) > 4f)

@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace src.GameObjects;
 public class Swordfish : Projectile
@@ -8,7 +9,7 @@ public class Swordfish : Projectile
     private new const float velocity = 2.0f;
 
     // Constructor:
-    public Swordfish(ProjectileType type, Vector3 origin, Vector3 target) : base(type, origin, target) { }
+    public Swordfish(ProjectileType type, Vector3 origin, Vector3 target,Model model) : base(type, origin, target, model) { }
 
     public override void Move(float dt)
     {

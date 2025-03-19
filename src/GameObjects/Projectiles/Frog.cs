@@ -1,6 +1,8 @@
 using System;
+using GameLab;
 using Microsoft.Xna.Framework;
 using System.Linq;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace src.GameObjects
 {
@@ -13,7 +15,7 @@ namespace src.GameObjects
         private const float ROTATION_SPEED = 3.0f; // Adjust for smoother turning
 
         // Constructor:
-        public Frog(ProjectileType type, Vector3 origin, Vector3 target) : base(type, origin, target) { }
+        public Frog(ProjectileType type, Vector3 origin, Vector3 target,Model model) : base(type, origin, target, model) { }
 
         public override void Move(float dt)
         {

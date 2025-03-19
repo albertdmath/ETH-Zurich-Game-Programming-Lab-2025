@@ -11,11 +11,17 @@ public class OrientedBoundingBox
     public Vector3 Center { get; private set; }
     public Vector3 Extents { get; private set; }
     public Matrix Orientation { get; private set; }
+     public Vector3 CenterCentered { get; private set; }
+    public Vector3 ExtentsCentered { get; private set; }
+    public Matrix OrientationCentered { get; private set; }
     public OrientedBoundingBox(Vector3 center, Vector3 extents, Matrix orientation)
     {
         Center = center;
         Extents = extents;
         Orientation = orientation;
+        CenterCentered = center;
+        ExtentsCentered = extents;
+        OrientationCentered = orientation;
     }
 
     // Returns a list of vertices of the given mesh
@@ -38,9 +44,9 @@ public class OrientedBoundingBox
         // We extract scaling and rotation so we can apply them to the extents / rotation individually
         transformation.Decompose(out Vector3 t_scale, out Microsoft.Xna.Framework.Quaternion t_rotation, out Vector3 _);
 
-        Center = Vector3.Transform(Center, transformation);
-        Extents *= new Vector3(Math.Abs(t_scale.X), Math.Abs(t_scale.Y), Math.Abs(t_scale.Z));
-        Orientation *= Matrix.CreateFromQuaternion(t_rotation);
+        Center = Vector3.Transform(CenterCentered, transformation);
+        Extents = ExtentsCentered* new Vector3(Math.Abs(t_scale.X), Math.Abs(t_scale.Y), Math.Abs(t_scale.Z));
+        Orientation = OrientationCentered*Matrix.CreateFromQuaternion(t_rotation);
     }
 
     /* 
