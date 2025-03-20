@@ -18,6 +18,8 @@ namespace src.GameObjects
 
         private Model model;
 
+        private float closingDistance = 30f;
+
 
         public Mob(Ellipse innerEllipse, Ellipse outerEllipse, Model model) {
             this.innerEllipse = innerEllipse;
@@ -30,9 +32,9 @@ namespace src.GameObjects
             totalTimePassed+=dt;
             if(totalTimePassed>20f)
             {
-                float a = 7.5f - 0.1f*((float)Math.Round(totalTimePassed-20f));
+                float a = 7.5f - closingDistance*0.1f*((float)Math.Round((totalTimePassed-20f)/closingDistance));
                 a = a < 0.5f ? 0.5f : a;
-                float b = 4f - 0.05f*((float)Math.Round(totalTimePassed-20f));
+                float b = 4f - closingDistance*0.05f*((float)Math.Round((totalTimePassed-20f)/closingDistance));
                 b = b < 0.5f ? 0.5f : b;
                 innerEllipse.Set(a-0.2f,b-0.2f);
                 outerEllipse.Set(a,b);

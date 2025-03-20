@@ -14,6 +14,8 @@ namespace src.GameObjects
         // Private fields:
         public float ZombieSpeedX = 0;
         public float ZombieSpeedY = 0;
+
+        private float movementSpeed = 0.3f;
         private Ellipse ellipse;
         // Constructor: Only allow to assign position here,
         public Zombie(Vector3 position, Ellipse ellipse, Model model) : base(model)
@@ -44,8 +46,8 @@ namespace src.GameObjects
             Vector3 dir = -1f*Position;
             if (dir.Length() > 0)
                 dir = Vector3.Normalize(dir);
-            ZombieSpeedX = dir.X;
-            ZombieSpeedY = dir.Z;
+            ZombieSpeedX = dir.X * movementSpeed;
+            ZombieSpeedY = dir.Z * movementSpeed;
         }
         public void Force(List<Zombie> zombies,int index){
             for(int i=index+1; i<zombies.Count;++i){

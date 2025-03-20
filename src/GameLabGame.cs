@@ -38,7 +38,7 @@ namespace GameLab
         private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
 
         // Camera settings
-        private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 9, 7), new Vector3(0, 0, 1), Vector3.Up);
+        private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 9, 7), new Vector3(0, 0, 0.7f), Vector3.Up);
         private Matrix projection = Matrix.CreatePerspectiveFieldOfView(
             MathHelper.ToRadians(45f), // Field of view in radians (e.g., 45 degrees)
             16f / 9f, // Aspect ratio (change as needed)
@@ -48,16 +48,8 @@ namespace GameLab
 
         // Arena transformations
         private Matrix arenaScaling = Matrix.CreateScale(new Vector3(0.5f));
-        private Matrix arenaTranslation = Matrix.CreateTranslation(new Vector3(0, -1f, 0));
-
-        // Player transformations
-        private Matrix playerScaling = Matrix.CreateScale(new Vector3(1.5f));
-
-        // Projectile transformations:
-        private Matrix projectileRotation = Matrix.Identity;
-
-        private Ellipse innerEllipse = new Ellipse(7.2f,3.8f);
-        private Ellipse outerEllipse = new Ellipse(7.5f,4f);
+        private Ellipse innerEllipse = new Ellipse(7.0f,4f);
+        private Ellipse outerEllipse = new Ellipse(7.3f,4.2f);
 
         private Mob mob;
 
@@ -119,6 +111,7 @@ namespace GameLab
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+        
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             
             // Spawn a new projectile
@@ -199,7 +192,29 @@ namespace GameLab
                 for (int i = 0; i < Player.active.Count; i++)
                     n = Player.active.Contains(Player.active[i]) ? i : n;
                 Player.active[n].notImportant = true;
-                _spriteBatch.DrawString(font, "Player " + Player.active[0].Id + "  wins!", new Vector2(750, 475), Color.Gold);
+                Texture2D pixel;
+                pixel = new Texture2D(_graphics.GraphicsDevice, 1, 1);
+                pixel.SetData(new[] { Color.White });
+
+                // Define text
+                string winMessage = "Player " + Player.active[0].Id + " wins!";
+
+                // Measure text size
+                Vector2 textSize = font.MeasureString(winMessage);
+                Vector2 textPosition = 
+                    new Vector2(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width/2 - 100, 
+                                GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height/2 - 50);
+
+                // Define background rectangle position and size
+                Vector2 padding = new Vector2(20, 10); // Add some padding around text
+                Rectangle backgroundRect = new Rectangle(
+                    (int)(0),
+                    (int)(textPosition.Y - 50),
+                    (int)(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width),
+                    (int)(textSize.Y + 100)
+                );
+                _spriteBatch.Draw(pixel, backgroundRect, Color.Black * 0.5f); // Semi-transparent black
+                _spriteBatch.DrawString(font, winMessage, textPosition, Color.Gold);
             }
 
         }
