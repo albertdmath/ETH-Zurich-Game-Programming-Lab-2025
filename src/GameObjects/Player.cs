@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using Accord.Math.Distances;
 using Microsoft.Xna.Framework.Graphics;
+using System.Security.Cryptography.X509Certificates;
 
 namespace src.GameObjects
 {
@@ -36,6 +37,7 @@ namespace src.GameObjects
         public Player(Vector3 position, Input input, int id, Ellipse ellipse, Model model) : base(model)
         {
             Position = position;
+            Orientation = new Vector3(0,0,1f);
             this.input = input;
             this.ellipse = ellipse;
             projectileHeld = null;
@@ -49,9 +51,10 @@ namespace src.GameObjects
 
             // This should be removed, for Debug!
             active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, ellipse, model));
+            active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, model));
 
             // TODO: fix player creation
-            for (int i = 0; i < GameLabGame.NUM_PLAYERS; i++)
+            for (int i = 2; i < GameLabGame.NUM_PLAYERS; i++)
             {
                 PlayerIndex idx = (PlayerIndex)i;
                 if (GamePad.GetState(idx).IsConnected)
@@ -114,7 +117,7 @@ namespace src.GameObjects
                     if (Life == 0f)
                     {
                         // For now the player is moved down to indacet crawling. Later done with an animation
-                        Position = Position - new Vector3(0, -0.2f, 0);
+                        Position = Position - new Vector3(0, 0.2f, 0);
                         playerSpeed = 1f;
                     }
                     return true;
@@ -181,6 +184,15 @@ namespace src.GameObjects
             return true;
         }
 
+        public void playerCollision(Player player){
+            Vector3 dir = 0.1f * Vector3.Normalize(new Vector3(Position.X-player.Position.X,0f,Position.Z-player.Position.Z));
+            while(Hitbox.Intersects(player.Hitbox)){
+                Position += dir;
+                player.Position -= dir;
+                updateHitbox();
+                player.updateHitbox();
+            }
+        }
         // Update function called each update
         public override void Update(float dt)
         {
@@ -222,9 +234,9 @@ namespace src.GameObjects
             } else // Crawling
             {
                 Move(dt);
-                if (Math.Abs(Position.X) > 7.5f || Math.Abs(Position.Z) > 4f)
+                if (ellipse.Outside(Position.X,Position.Z))
                 {
-                    Position = Position + new Vector3(0, 0f, 0);
+                    Position = Position + new Vector3(0, 0.2f, 0);
                     mob = true;
                     playerSpeed = 2f;
                 }

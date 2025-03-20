@@ -32,7 +32,7 @@ namespace GameLab
         private LinkedList<Projectile> hitProjectiles = new LinkedList<Projectile>();
 
         // Player settings
-        public static int NUM_PLAYERS = 1;
+        public static int NUM_PLAYERS = 2;
         private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
 
         // Camera settings
@@ -124,16 +124,21 @@ namespace GameLab
                 if(player.projectileHeld != null && !Projectile.active.Contains(player.projectileHeld))
                     Projectile.active.AddLast(player.projectileHeld);
             }
+            // Players bumping into each other
+            for(int i= 0;i<Player.active.Count;++i)
+                for(int j= i+1;j<Player.active.Count;++j)
+                    Player.active[i].playerCollision(Player.active[j]);
 
             // Check if players got hit / grabbed something
             foreach (Player player in Player.active)
             {
-                foreach (Projectile projectile in Projectile.active)
-                {
-                    //we should decide how much distance
-                    if (player.GrabOrHit(projectile))
-                        hitProjectiles.AddLast(projectile);
-                }
+                if (player.Life > 0)
+                    foreach (Projectile projectile in Projectile.active)
+                    {
+                        //we should decide how much distance
+                        if (player.GrabOrHit(projectile))
+                            hitProjectiles.AddLast(projectile);
+                    }
             }
 
             // Remove projectiles that hit someone
@@ -145,7 +150,7 @@ namespace GameLab
             {
                 if (player.Life <= 0)
                 {
-                    Player.active.Remove(player);
+                    //Player.active.Remove(player);
                     break;
                 }
             }

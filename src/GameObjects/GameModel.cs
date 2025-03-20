@@ -23,6 +23,9 @@ public class GameModel {
     }
     public void updateWrap(float dt){
         Update(dt);
+        updateHitbox();
+    }
+    public void updateHitbox(){
         CalculateTransform();
         Hitbox.Transform(Transform);
     }
