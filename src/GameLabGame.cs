@@ -50,6 +50,8 @@ namespace GameLab
         private Ellipse outerEllipse = new Ellipse(7.3f,4.2f);
 
         private Mob mob;
+        private int nAlivePlayers = NUM_PLAYERS;
+        private Player lastPlayer;
 
         public GameLabGame()
         {
@@ -113,8 +115,12 @@ namespace GameLab
             Projectile.MobShoot(dt, rng);
 
             // Move all the projectiles
-            foreach (Projectile projectile in Projectile.active) 
+            foreach (Projectile projectile in Projectile.active)
+            {
                 projectile.updateWrap(dt);
+                if(projectile.Position.LengthSquared()>100f)
+                    hitProjectiles.AddLast(projectile);
+            }
 
             // Move players
             foreach (Player player in Player.active)
@@ -129,30 +135,25 @@ namespace GameLab
                     Player.active[i].playerCollision(Player.active[j]);
 
             // Check if players got hit / grabbed something
+            nAlivePlayers = 0;
             foreach (Player player in Player.active)
             {
                 if (player.Life > 0)
+                {
+                    nAlivePlayers++;
+                    lastPlayer = player;
                     foreach (Projectile projectile in Projectile.active)
                     {
                         //we should decide how much distance
                         if (player.GrabOrHit(projectile))
                             hitProjectiles.AddLast(projectile);
                     }
+                }
             }
 
             // Remove projectiles that hit someone
             foreach (Projectile projectile in hitProjectiles)
                 Projectile.active.Remove(projectile);
-
-            // If two die at the same time only one will win...
-            foreach (Player player in Player.active)
-            {
-                if (player.Life <= 0)
-                {
-                    //Player.active.Remove(player);
-                    break;
-                }
-            }
 
             hitProjectiles = new LinkedList<Projectile>();
 
@@ -185,18 +186,15 @@ namespace GameLab
 
         private void DrawWin()
         {
-            if (Player.active.Count == 1)
+            if (nAlivePlayers == 1)
             {
-                int n = 0;
-                for (int i = 0; i < Player.active.Count; i++)
-                    n = Player.active.Contains(Player.active[i]) ? i : n;
-                Player.active[n].notImportant = true;
+                lastPlayer.notImportant = true;
                 Texture2D pixel;
                 pixel = new Texture2D(_graphics.GraphicsDevice, 1, 1);
                 pixel.SetData(new[] { Color.White });
 
                 // Define text
-                string winMessage = "Player " + Player.active[0].Id + " wins!";
+                string winMessage = "Player " + lastPlayer.Id + " wins!";
 
                 // Measure text size
                 Vector2 textSize = font.MeasureString(winMessage);
