@@ -48,8 +48,7 @@ namespace GameLab
         private Matrix playerTranslation = Matrix.CreateTranslation(new Vector3(0, 0.2f, 0));
 
         // Projectile transformations:
-        private Matrix projectileRotation = Matrix.CreateRotationX((float)-Math.PI / 2);
-
+        private Matrix projectileRotation = Matrix.Identity;
         public GameLabGame()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -84,9 +83,9 @@ namespace GameLab
 
             // Load the projectile models
             projectileModels.Add(ProjectileType.Frog, Content.Load<Model>("frog"));
-            projectileModels.Add(ProjectileType.Swordfish, Content.Load<Model>("fish"));
+            projectileModels.Add(ProjectileType.Swordfish, Content.Load<Model>("swordfish"));
             //it should be a tomato
-            projectileModels.Add(ProjectileType.Tomato, Content.Load<Model>("fish"));
+            projectileModels.Add(ProjectileType.Tomato, Content.Load<Model>("tomato"));
 
             // Load Sounds:
             //Sounds.bgMusic = Content.Load<Song>("Audio/yoga-dogs-all-good-folks");
@@ -163,12 +162,7 @@ namespace GameLab
                     effect.View = this.view;
                     effect.Projection = this.projection;
 
-                    if (model == Content.Load<Model>("frog"))
-                    {
-                        Texture2D frogTexture = Content.Load<Texture2D>("Textures/frogTexture");
-                        effect.Texture = frogTexture;
-                        effect.TextureEnabled = true;
-                    }
+                
                     effect.EnableDefaultLighting();
                 }
                 mesh.Draw();
