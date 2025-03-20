@@ -77,10 +77,11 @@ namespace src.GameObjects
 
         public void Throw()
         {
-            this.Position = holdByPlayer.Position + holdByPlayer.Orientation + new Vector3(0, 0.2f, 0);
+            this.Position = holdByPlayer.Position + holdByPlayer.Orientation;
             this.Orientation = holdByPlayer.Orientation;
             this.holdByPlayer = null;
         }
+
         public void Caught(Player player)
         {
             this.holdByPlayer = player;

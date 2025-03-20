@@ -105,7 +105,8 @@ namespace GameLab
             Projectile.MobShoot(dt, rng);
 
             // Move all the projectiles
-            foreach (Projectile projectile in Projectile.active) projectile.Update(dt);
+            foreach (Projectile projectile in Projectile.active) 
+                projectile.Update(dt);
 
             // Move players
             foreach (Player player in Player.active)

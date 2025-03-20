@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -7,36 +8,36 @@ namespace src.GameObjects
     public class Tomato : Projectile
     {
         // Private fields:
-        private new const float velocity = 1.1f;
-        private const float FLIGHT_TIME = 2f; // Total time to reach the target
+        private static readonly float angle = (float)Math.PI / 3; // angle of throw
+        private static readonly float cos = (float)Math.Cos(angle), sin = (float)Math.Sin(angle);
+        private static readonly float HALF_GRAVITY = 4.9f; // Gravity effect (adjust as needed)
         private float timeAlive = 0f;
-        private Vector3 origin; // Starting position
-        private Vector3 target; // Target position
-        private const float A = 5f; // Height factor for the parabola
+        private Vector3 origin;
 
         // Constructor:
         public Tomato(ProjectileType type, Vector3 origin, Vector3 target) : base(type, origin, target)
         {
+            velocity = CalculateVelocity(origin, target);
             this.origin = origin;
-            this.target = target;
+        }
+
+        private float CalculateVelocity(Vector3 origin, Vector3 target)
+        {
+            // Calculate the horizontal distance (XZ-plane)
+            float distance = Vector3.Distance(target, origin);
+
+            // Calculate the initial velocity using the simplified formula
+            return (float)Math.Sqrt((HALF_GRAVITY * distance) / (cos * sin));
         }
 
         public override void Move(float dt)
         {
-            // Stop moving if the flight time is over
-            if ((timeAlive += dt) > FLIGHT_TIME) return;
+            timeAlive += dt;
+            
+            Vector3 horizontalMotion = Orientation * velocity * cos;
+            Vector3 verticalMotion = new Vector3(0, velocity * sin - HALF_GRAVITY * timeAlive, 0);
 
-            // Calculate the progress (normalized time between 0 and 1)
-            float timeProgress = timeAlive / FLIGHT_TIME;
-
-            // Horizontal motion: Linear interpolation between origin and target
-            Vector3 horizontalPosition = Vector3.Lerp(origin, target, timeProgress);
-
-            // Vertical motion: Parabolic trajectory
-            float verticalOffset = A * timeProgress * (1 - timeProgress);
-
-            // Update the tomato's position
-            Position = new Vector3(horizontalPosition.X, verticalOffset, horizontalPosition.Z);
+            Position = origin + (horizontalMotion + verticalMotion) * timeAlive;
         }
     }
 }
