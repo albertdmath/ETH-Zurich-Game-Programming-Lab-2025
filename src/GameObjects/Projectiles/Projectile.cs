@@ -15,6 +15,7 @@ namespace src.GameObjects
         private static float timeUntilNextProjectile = 0f;
         public ProjectileType Type { get; set; }
         protected float velocity;
+        protected float baseVelocity;
         protected Player holdByPlayer = null;
 
         //there should be an UI element that lets you change this
@@ -31,6 +32,7 @@ namespace src.GameObjects
             Type = type;
             Position = origin;
             Orientation = Vector3.Normalize(target - origin);
+            baseVelocity=velocity;
             // CalculateTransform(); think this can go in da trash
         }
 
@@ -79,11 +81,12 @@ namespace src.GameObjects
                 this.Position = holdByPlayer.Position + holdByPlayer.Orientation * 0.3f + new Vector3(.1f, 0.2f, -.1f);
         }
 
-        public void Throw()
+        public void Throw(float speedUp)
         {
             this.Position = holdByPlayer.Position + holdByPlayer.Orientation + new Vector3(0, 0.2f, 0);
             this.Orientation = holdByPlayer.Orientation;
             this.holdByPlayer = null;
+            velocity = baseVelocity * speedUp;
         }
         public void Caught(Player player)
         {

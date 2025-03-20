@@ -39,7 +39,7 @@ namespace src.GameObjects
                 innerEllipse.Set(a-0.2f,b-0.2f);
                 outerEllipse.Set(a,b);
             }
-            if(zombies.Count<500)
+            if(zombies.Count<100)
             {
                 float randomFloat = (float)(random.NextDouble() *2f* Math.PI);
                 zombies.Add(new Zombie(

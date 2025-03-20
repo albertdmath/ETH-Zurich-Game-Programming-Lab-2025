@@ -7,7 +7,6 @@ namespace src.GameObjects
     public class Tomato : Projectile
     {
         // Private fields:
-        private new const float velocity = 1.1f;
         private const float FLIGHT_TIME = 2f; // Total time to reach the target
         private float timeAlive = 0f;
         private Vector3 origin; // Starting position
@@ -19,6 +18,7 @@ namespace src.GameObjects
         {
             this.origin = origin;
             this.target = target;
+            velocity = 1.1f;
         }
 
         public override void Move(float dt)

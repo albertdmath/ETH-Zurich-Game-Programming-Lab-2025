@@ -126,7 +126,9 @@ namespace src.GameObjects
             }
             else if (!input.Action() && actionPushedDuration > 0 && playerSpeed == 0f)
             {
-                projectileHeld.Throw();
+                actionPushedDuration = (actionPushedDuration < 2f) ? actionPushedDuration : 2f;
+                float speedUp = 1f+ actionPushedDuration * actionPushedDuration * 0.5f;
+                projectileHeld.Throw(speedUp);
                 projectileHeld = null;
                 timeSinceThrow = 0f;
                 playerSpeed = 2f;

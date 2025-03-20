@@ -53,8 +53,6 @@ namespace GameLab
 
         private Mob mob;
 
-        Random random;//random variable for zombies
-
         public GameLabGame()
         {
             _graphics = new GraphicsDeviceManager(this);
