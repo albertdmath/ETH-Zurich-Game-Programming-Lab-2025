@@ -17,9 +17,9 @@ namespace src.GameObjects
         //there should be an UI element that lets you change this
         public static Dictionary<ProjectileType, float> projectileProbability = new Dictionary<ProjectileType, float>
         {
-            { ProjectileType.Frog, 0f },
+            { ProjectileType.Frog, 0.1f },
             { ProjectileType.Swordfish, 0f },
-            { ProjectileType.Tomato, 1f }
+            { ProjectileType.Tomato, 0f }
         };
 
         // Constructor:
@@ -55,7 +55,7 @@ namespace src.GameObjects
             
             foreach (var entry in projectileProbability)
             {
-                if (rng.NextDouble() > entry.Value * 0.1) continue;
+                if (rng.NextDouble() * 10 > entry.Value) continue;
 
                 Vector3 origin = Ring.active.RndCircPoint();
                 Vector3 target = Player.active[rng.Next(0, Player.active.Count)].Position;
@@ -72,9 +72,10 @@ namespace src.GameObjects
             if (holdByPlayer == null)
                 this.Move(dt);
             else
-                this.Position = holdByPlayer.Position + holdByPlayer.Orientation * 0.3f + new Vector3(.1f, 0.2f, -.1f);
+                this.Position = holdByPlayer.Position + holdByPlayer.Orientation * 0.3f + new Vector3(.1f, 0f, -.1f);
         }
 
+        // this method since it does not use the constructor it doesnt reset any timers
         public void Throw()
         {
             this.Position = holdByPlayer.Position + holdByPlayer.Orientation;
