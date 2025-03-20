@@ -61,7 +61,7 @@ namespace src.GameObjects
             
             foreach (var entry in projectileProbability)
             {
-                if (rng.NextDouble() > entry.Value * 0.1) continue;
+                if (rng.NextDouble() * 10 > entry.Value) continue;
 
                 Vector3 origin = Ring.active.RndCircPoint();
                 Vector3 target = Player.active[rng.Next(0, Player.active.Count)].Position;
@@ -78,16 +78,17 @@ namespace src.GameObjects
             if (holdByPlayer == null)
                 this.Move(dt);
             else
-                this.Position = holdByPlayer.Position + holdByPlayer.Orientation * 0.3f + new Vector3(.1f, 0.2f, -.1f);
+                this.Position = holdByPlayer.Position + holdByPlayer.Orientation * 0.3f + new Vector3(.1f, 0f, -.1f);
         }
 
         public void Throw(float speedUp)
         {
-            this.Position = holdByPlayer.Position + holdByPlayer.Orientation + new Vector3(0, 0.2f, 0);
+            this.Position = holdByPlayer.Position + holdByPlayer.Orientation;
             this.Orientation = holdByPlayer.Orientation;
             this.holdByPlayer = null;
             velocity = baseVelocity * speedUp;
         }
+
         public void Caught(Player player)
         {
             this.holdByPlayer = player;

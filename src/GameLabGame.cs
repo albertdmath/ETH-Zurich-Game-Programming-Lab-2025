@@ -33,8 +33,6 @@ namespace GameLab
 
         // Player settings
         public static int NUM_PLAYERS = 1;
-        public static Player[] players = new Player[NUM_PLAYERS];
-        private LinkedList<Player> activePlayers = new LinkedList<Player>();
         private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
 
         // Camera settings
@@ -115,10 +113,9 @@ namespace GameLab
             // Spawn a new projectile
             Projectile.MobShoot(dt, rng);
 
-            // Move Projectiles
+            // Move all the projectiles
             foreach (Projectile projectile in Projectile.active) 
                 projectile.updateWrap(dt);
-
 
             // Move players
             foreach (Player player in Player.active)
