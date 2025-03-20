@@ -15,7 +15,8 @@ namespace src.GameObjects
 
         // Constructor:
         public Frog(ProjectileType type, Vector3 origin, Vector3 target,Model model) : base(type, origin, target, model) {
-            velocity = 0.7f;
+            baseVelocity = 0.7f;
+            velocity=baseVelocity;
         }
 
         public override void Move(float dt)

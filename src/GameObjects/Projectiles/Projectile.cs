@@ -32,7 +32,6 @@ namespace src.GameObjects
             Type = type;
             Position = origin;
             Orientation = Vector3.Normalize(target - origin);
-            baseVelocity=velocity;
             // CalculateTransform(); think this can go in da trash
         }
 
@@ -86,6 +85,7 @@ namespace src.GameObjects
             this.Position = holdByPlayer.Position + holdByPlayer.Orientation;
             this.Orientation = holdByPlayer.Orientation;
             this.holdByPlayer = null;
+            Console.WriteLine("Projectile thrown with orientation: " + Orientation+ " and speedup: " +speedUp);
             velocity = baseVelocity * speedUp;
         }
 

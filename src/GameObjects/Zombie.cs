@@ -41,6 +41,7 @@ namespace src.GameObjects
             } */
             }
         }
+        //Updating movement and gravity towards center
         public override void Update(float dt){
             Move(dt);
             Vector3 dir = -1f*Position;
@@ -49,6 +50,7 @@ namespace src.GameObjects
             ZombieSpeedX = dir.X * movementSpeed;
             ZombieSpeedY = dir.Z * movementSpeed;
         }
+        // Force update for movement
         public void Force(List<Zombie> zombies,int index){
             for(int i=index+1; i<zombies.Count;++i){
                 float x = this.Position.X - zombies[i].Position.X;

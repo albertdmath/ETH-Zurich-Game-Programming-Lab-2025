@@ -12,7 +12,7 @@ namespace src.GameObjects
     {
         private float a;
         private float b;
-        // Constructor: Only allow to assign position here, lifes stamina and so on are a global property and need to be the same for
+        // Constructor: assign radius a for x axis and b for z axis
         public Ellipse(float a, float b){ 
             this.a = a;
             this.b = b;
@@ -23,7 +23,7 @@ namespace src.GameObjects
         {
             return ((x*x)/(a*a)+(y*y)/(b*b)<=1f);
         }
-        // Method to dash:
+        // Method true if outside elipse
         public bool Outside(float x, float y)
         {
             return ((x*x)/(a*a)+(y*y)/(b*b)>1f);
@@ -33,6 +33,7 @@ namespace src.GameObjects
             this.b = b;
         }
 
+        // Returns vector tangent to ellipse in the given point
         private Vector3 Tangent(float x, float y){
             if(y==0f){
                 return new Vector3(1f,0f,0f);
@@ -40,6 +41,7 @@ namespace src.GameObjects
                 return Vector3.Normalize(new Vector3(1f,0f,-1f*b*b*x/(a*a*y)));
             }
         }
+        // Returns vector normal to ellipse in the given point pointing inwards
         public Vector3 Normal(float x, float y){
             if(x==0f){
                 return new Vector3(0f,0f,1f) * (y>0f?-1f:1f);

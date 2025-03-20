@@ -63,52 +63,58 @@ namespace src.GameObjects
         public void Move(float dt)
         {
             Vector3 dir = input.Direction();
+            //inertia to keep some movement from last update;
             Inertia -=(5f*dt)* Inertia;
             if (dir.Length() > 0)
             {
                 dir = Vector3.Normalize(dir);
                 Inertia += (5f*dt)*dir;
+                // Limit Inertia to a vector of length 1
                 if (Inertia.Length() > 1f)
                     Inertia = Vector3.Normalize(Inertia);
             }
+            // Only update orientation if inertia is not 0
             if (Inertia.Length() > 0)
             {
                 Orientation = Vector3.Normalize(Inertia);
                 
             }
+            // Updating the position of the player
             Position += playerSpeed * Inertia * dt;
         }
+
+        // Simple method to move back after collision. Not used and outdated
         public void MoveBack(float dt)
         {
             Position -= playerSpeed * Orientation * dt * 1f;
         }
 
 
-        // Method to grab an object:
+        // Method to test for a collision with a projectile and potentially grab it:
         public bool GrabOrHit(Projectile projectile)
         {
-            //if(Life<=0f) return false;
-            if (projectile != projectileHeld)
+            if (projectile != projectileHeld && Hitbox.Intersects(projectile.Hitbox))
             {
+                // case 1 no projectile held and action button pressed not to long ago -> catch it
                 if (input.Action()
                     && projectileHeld == null
-                    //&& Vector3.Distance(Position, projectile.Position) < 1.0f
-                    && Hitbox.Intersects(projectile.Hitbox)
-                    && timeSinceThrow>1f
-                    //&& actionPushedDuration<0.2f
+                    && actionPushedDuration<0.7f
                     )
                 {
                     projectileHeld = projectile;
                     projectile.Caught(this);
+                    timeSinceThrow = 0f;
                     Console.WriteLine("Grabbing " + projectile.Type);
+                    // Here the player speed is set for the movement with projectile in hand
                     playerSpeed = 0.3f;
                     return false;
-                } else if (Hitbox.Intersects(projectile.Hitbox))
+                } else // the player is hit by the projectile
                 {
                     Life -= notImportant ? 0 : 1;
                     if (Life == 0f)
                     {
-                        Position = Position - new Vector3(0, 0.2f, 0);
+                        // For now the player is moved down to indacet crawling. Later done with an animation
+                        Position = Position - new Vector3(0, -0.2f, 0);
                         playerSpeed = 1f;
                     }
                     return true;
@@ -120,23 +126,29 @@ namespace src.GameObjects
         // Method to throw an object:
         private void Throw(float dt)
         {
-            if (input.Action() && actionPushedDuration == 0f)
+            if(timeSinceThrow == 0f)
             {
-                playerSpeed = 0f;
-            }
-            else if (!input.Action() && actionPushedDuration > 0 && playerSpeed == 0f)
-            {
-                actionPushedDuration = (actionPushedDuration < 2f) ? actionPushedDuration : 2f;
-                float speedUp = 1f+ actionPushedDuration * actionPushedDuration * 0.5f;
-                projectileHeld.Throw(speedUp);
-                projectileHeld = null;
-                timeSinceThrow = 0f;
-                playerSpeed = 2f;
-                Console.WriteLine("Throwing projectile with orientation: " + Orientation);
+                if (input.Action() && actionPushedDuration == 0f) // Aiming
+                {
+                    playerSpeed = 0f;
+                }
+                else if (!input.Action() && actionPushedDuration > 0f && playerSpeed == 0f) // Releasing projectile
+                {
+                    actionPushedDuration = (actionPushedDuration < 4f) ? actionPushedDuration : 4f;
+                    float speedUp = 1f+ actionPushedDuration * actionPushedDuration * 0.5f;
+                    projectileHeld.Throw(speedUp);
+                    playerSpeed = 2f;
+                    timeSinceThrow += dt;
+                    Console.WriteLine("Throwing projectile with orientation: " + Orientation+ " and speedup: " +speedUp);
+                }
+            }else { // Immune to hit by thrwon projectile for 1s. Also blocks catchin a new projectile
+                if(timeSinceThrow > 1f)
+                    projectileHeld = null;
+                timeSinceThrow += dt;
             }
         }
 
-        // Method to dash:
+        // Method to dash. Current dash cost 30
         private bool Dash(float dt)
         {
             if (input.Dash() && dashTime <= 0f && Stamina > 30f)
@@ -155,9 +167,10 @@ namespace src.GameObjects
                 return false;
             }
         }
+        // Spawning a projectile in hand when part of the mob. Currently only swordfish
         private bool Spawn()
         {
-            if(input.Dash() &&dashTime<=0f && Stamina>40f && projectileHeld == null)
+            if(input.Action() && Stamina>40f && projectileHeld == null)
             {
                 projectileHeld = Projectile.createProjectile(ProjectileType.Swordfish,Position,Orientation,GameLabGame.projectileModels[ProjectileType.Swordfish]);
                 projectileHeld.Caught(this);
@@ -168,12 +181,12 @@ namespace src.GameObjects
             return true;
         }
 
-
+        // Update function called each update
         public override void Update(float dt)
         {
             Stamina += dt * 5f;
             Stamina = (Stamina > 100f) ? 100f : Stamina;
-            if (Life > 0f)
+            if (Life > 0f) // Behaviour when alive
             {
                 if (!Dash(dt))
                 {
@@ -184,12 +197,12 @@ namespace src.GameObjects
                     }
                     else
                     {
-                        timeSinceThrow += dt;
+                        
                     }
                 }
                 while(ellipse.Outside(Position.X,Position.Z))
                     Position += playerSpeed * ellipse.Normal(Position.X,Position.Z) * dt * 0.1f;
-            } else if(mob)
+            } else if(mob) // Behaviour when part of mob
             {
                 if(Spawn())
                 {
@@ -201,16 +214,17 @@ namespace src.GameObjects
                     else
                     {
                         timeSinceThrow += dt;
+                        projectileHeld = (timeSinceThrow < 1f) ? projectileHeld : null;
                     }
                     while(ellipse.Inside(Position.X,Position.Z))
                         Position += playerSpeed * ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
                 }
-            } else
+            } else // Crawling
             {
                 Move(dt);
                 if (Math.Abs(Position.X) > 7.5f || Math.Abs(Position.Z) > 4f)
                 {
-                    Position = Position + new Vector3(0, 0.2f, 0);
+                    Position = Position + new Vector3(0, 0f, 0);
                     mob = true;
                     playerSpeed = 2f;
                 }
