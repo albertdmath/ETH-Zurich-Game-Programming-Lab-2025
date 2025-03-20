@@ -43,7 +43,7 @@ namespace src.GameObjects
             {
                 float randomFloat = (float)(random.NextDouble() *2f* Math.PI);
                 zombies.Add(new Zombie(
-                    new Vector3(9f*(float)Math.Sin(randomFloat), 0.2f, 8f*(float)Math.Cos(randomFloat)), outerEllipse, model)
+                    new Vector3(9f*(float)Math.Sin(randomFloat), 0.2f, 8f*(float)Math.Cos(randomFloat)), outerEllipse, model,1f)
                 );
             }
 

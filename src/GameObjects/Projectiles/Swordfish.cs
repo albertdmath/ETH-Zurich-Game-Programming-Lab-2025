@@ -8,7 +8,7 @@ public class Swordfish : Projectile
     // Private fields:
 
     // Constructor:
-    public Swordfish(ProjectileType type, Vector3 origin, Vector3 target,Model model) : base(type, origin, target, model) {
+    public Swordfish(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling) {
         baseVelocity = 2.0f;
         velocity=baseVelocity;
      }

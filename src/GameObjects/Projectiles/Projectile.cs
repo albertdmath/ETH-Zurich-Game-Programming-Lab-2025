@@ -27,7 +27,7 @@ namespace src.GameObjects
         };
 
         // Constructor:
-        public Projectile(ProjectileType type, Vector3 origin, Vector3 target, Model model) : base(model) 
+        public Projectile(ProjectileType type, Vector3 origin, Vector3 target, Model model, float scaling) : base(model, scaling) 
         {
             Type = type;
             Position = origin;
@@ -43,11 +43,11 @@ namespace src.GameObjects
             switch (type)
             {
                 case ProjectileType.Frog:
-                    return new Frog(type, origin, target, model);
+                    return new Frog(type, origin, target, model,0.5f);
                 case ProjectileType.Swordfish:
-                    return new Swordfish(type, origin, target, model);
+                    return new Swordfish(type, origin, target, model,0.5f);
                 case ProjectileType.Tomato:
-                    return new Tomato(type, origin, target, model);
+                    return new Tomato(type, origin, target, model,1f);
                 default:
                     throw new ArgumentException("Invalid projectile type");
             }

@@ -89,9 +89,8 @@ namespace GameLab
 
             // Initialize game models (they are only known at this point so they can't be in the initialize method)
             Player.Initialize(innerEllipse, playerModel);
-            arenaModel = new GameModel(arena);
-            arenaModel.Transform = arenaScaling;
-            arenaModel.Hitbox.Transform(arenaScaling);
+            //private Matrix arenaScaling = Matrix.CreateScale(new Vector3(0.5f));
+            arenaModel = new GameModel(arena,0.5f);
 
             // Initialize mob
             mob = new Mob(innerEllipse, outerEllipse, projectileModels[ProjectileType.Frog]);

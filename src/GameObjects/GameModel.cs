@@ -12,14 +12,16 @@ public class GameModel {
     public Hitbox Hitbox { get; set; }
 
     public Matrix Transform { get; set; }
-    public GameModel(Model model) {
+    protected Matrix Scaling;
+    public GameModel(Model model,float scale) {
         Model = model;
+        Scaling = Matrix.CreateScale(scale);
         CalculateTransform();
         Hitbox = new Hitbox(Model,Transform);
     }
 
     protected void CalculateTransform(){
-        Transform = Matrix.CreateRotationY((float)Math.Atan2(-1f*Orientation.X,-1f*Orientation.Z))* Matrix.CreateTranslation(Position);
+        Transform = Scaling * Matrix.CreateRotationY((float)Math.Atan2(-1f*Orientation.X,-1f*Orientation.Z))* Matrix.CreateTranslation(Position);
     }
     public void updateWrap(float dt){
         Update(dt);

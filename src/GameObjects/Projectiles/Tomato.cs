@@ -15,7 +15,7 @@ namespace src.GameObjects
         private Vector3 origin;
 
         // Constructor:
-        public Tomato(ProjectileType type, Vector3 origin, Vector3 target,Model model) : base(type, origin, target, model)
+        public Tomato(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling)
         {
             velocity = CalculateVelocity(origin, target);
             this.origin = origin;

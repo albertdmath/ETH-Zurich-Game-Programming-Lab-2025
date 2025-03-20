@@ -34,7 +34,7 @@ namespace src.GameObjects
 
         private Vector3 Inertia;
 
-        public Player(Vector3 position, Input input, int id, Ellipse ellipse, Model model) : base(model)
+        public Player(Vector3 position, Input input, int id, Ellipse ellipse, Model model,float scale) : base(model,scale)
         {
             Position = position;
             Orientation = new Vector3(0,0,1f);
@@ -48,17 +48,17 @@ namespace src.GameObjects
         public static void Initialize(Ellipse ellipse, Model model)
         {
             float[] playerStartPositions = { -0.75f, -0.25f, 0.25f, 0.75f };
-
+            float scaling = 1f;
             // This should be removed, for Debug!
-            active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, ellipse, model));
-            active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, model));
+            active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, ellipse, model, scaling));
+            active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, model, scaling));
 
             // TODO: fix player creation
             for (int i = 2; i < GameLabGame.NUM_PLAYERS; i++)
             {
                 PlayerIndex idx = (PlayerIndex)i;
                 if (GamePad.GetState(idx).IsConnected)
-                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new InputController(idx), i + 1, ellipse, model));
+                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new InputController(idx), i + 1, ellipse, model, scaling));
             }
         }
 
@@ -178,6 +178,7 @@ namespace src.GameObjects
                 projectileHeld = Projectile.createProjectile(ProjectileType.Swordfish,Position,Orientation,GameLabGame.projectileModels[ProjectileType.Swordfish]);
                 projectileHeld.Caught(this);
                 playerSpeed = 0.3f;
+                timeSinceThrow = 0f;
                 Stamina -= 40f;
                 return false;
             }
@@ -185,7 +186,7 @@ namespace src.GameObjects
         }
 
         public void playerCollision(Player player){
-            Vector3 dir = 0.1f * Vector3.Normalize(new Vector3(Position.X-player.Position.X,0f,Position.Z-player.Position.Z));
+            Vector3 dir = 0.02f * Vector3.Normalize(new Vector3(Position.X-player.Position.X,0f,Position.Z-player.Position.Z));
             while(Hitbox.Intersects(player.Hitbox)){
                 Position += dir;
                 player.Position -= dir;
@@ -222,11 +223,6 @@ namespace src.GameObjects
                     if (projectileHeld != null)
                     {
                         Throw(dt);
-                    }
-                    else
-                    {
-                        timeSinceThrow += dt;
-                        projectileHeld = (timeSinceThrow < 1f) ? projectileHeld : null;
                     }
                     while(ellipse.Inside(Position.X,Position.Z))
                         Position += playerSpeed * ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;

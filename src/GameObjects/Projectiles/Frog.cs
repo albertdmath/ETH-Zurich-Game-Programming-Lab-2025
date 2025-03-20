@@ -14,7 +14,7 @@ namespace src.GameObjects
         private const float ROTATION_SPEED = 3.0f; // Adjust for smoother turning
 
         // Constructor:
-        public Frog(ProjectileType type, Vector3 origin, Vector3 target,Model model) : base(type, origin, target, model) {
+        public Frog(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling) {
             baseVelocity = 0.7f;
             velocity=baseVelocity;
         }

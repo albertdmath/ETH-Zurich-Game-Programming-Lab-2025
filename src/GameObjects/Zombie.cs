@@ -18,7 +18,7 @@ namespace src.GameObjects
         private float movementSpeed = 0.3f;
         private Ellipse ellipse;
         // Constructor: Only allow to assign position here,
-        public Zombie(Vector3 position, Ellipse ellipse, Model model) : base(model)
+        public Zombie(Vector3 position, Ellipse ellipse, Model model, float scaling) : base(model, scaling)
         {
             Position = position;
             this.ellipse = ellipse;
