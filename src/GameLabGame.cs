@@ -53,6 +53,8 @@ namespace GameLab
         private int nAlivePlayers = NUM_PLAYERS;
         private Player lastPlayer;
 
+        private Menu _gameMenu;
+        private KeyboardState _previousKeyboardState;
         public GameLabGame()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -87,7 +89,8 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Frog, Content.Load<Model>("frog"));
             projectileModels.Add(ProjectileType.Swordfish, Content.Load<Model>("swordfish"));
             projectileModels.Add(ProjectileType.Tomato, Content.Load<Model>("tomato"));
-
+            //GameMeun
+            _gameMenu = new Menu(font,GraphicsDevice);
 
             // Initialize game models (they are only known at this point so they can't be in the initialize method)
             Player.Initialize(innerEllipse, playerModel);
@@ -105,12 +108,21 @@ namespace GameLab
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            //get keyboardstate
+            KeyboardState keyboardState = Keyboard.GetState();
+            _gameMenu.Update(keyboardState,_previousKeyboardState);
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || (_gameMenu.IsActive() && keyboardState.IsKeyDown(Keys.Escape)))
                 Exit();
-
-        
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             
+            if(_gameMenu.IsActive()){
+            _previousKeyboardState = keyboardState;
+
+            base.Update(gameTime);
+            return;
+            }            
+
+
             // Spawn a new projectile
             Projectile.MobShoot(dt, rng);
 
@@ -159,6 +171,8 @@ namespace GameLab
 
             // Update mob
             mob.Update(dt);
+            // Update previous keyboardstate
+            _previousKeyboardState = keyboardState;
 
             base.Update(gameTime);
         }
@@ -249,7 +263,7 @@ namespace GameLab
             DrawWin();
 
             _spriteBatch.End();
-
+            _gameMenu.Draw(_spriteBatch);
             base.Draw(gameTime);
         }
     }
