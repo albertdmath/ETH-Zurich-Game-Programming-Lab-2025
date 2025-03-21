@@ -33,7 +33,7 @@ public class GameModel {
     }
     public virtual void Update(float dt){}
 
-    public void Draw(Matrix view, Matrix projection){
+    public virtual void Draw(Matrix view, Matrix projection){
         foreach (ModelMesh mesh in Model.Meshes)
             {
                 foreach (BasicEffect effect in mesh.Effects)

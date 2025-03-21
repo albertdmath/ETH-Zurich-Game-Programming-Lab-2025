@@ -238,7 +238,7 @@ namespace GameLab
             foreach (Player player in Player.active)
             {
                 player.Draw(view, projection);
-                player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
+                //player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
             } 
 
             // Draw mob

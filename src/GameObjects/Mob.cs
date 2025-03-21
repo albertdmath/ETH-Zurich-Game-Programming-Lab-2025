@@ -32,10 +32,10 @@ namespace src.GameObjects
             totalTimePassed+=dt;
             if(totalTimePassed>20f)
             {
-                float a = 7.5f - closingDistance*0.1f*((float)Math.Round((totalTimePassed-20f)/closingDistance));
-                a = a < 0.5f ? 0.5f : a;
-                float b = 4f - closingDistance*0.05f*((float)Math.Round((totalTimePassed-20f)/closingDistance));
-                b = b < 0.5f ? 0.5f : b;
+                float a = 7.5f - closingDistance*0.1f*(((totalTimePassed-20f)/closingDistance));
+                a = a < 1.5f ? 1.5f : a;
+                float b = 4f - closingDistance*0.05f*(((totalTimePassed-20f)/closingDistance));
+                b = b < 1.5f ? 1.5f : b;
                 innerEllipse.Set(a-0.2f,b-0.2f);
                 outerEllipse.Set(a,b);
             }

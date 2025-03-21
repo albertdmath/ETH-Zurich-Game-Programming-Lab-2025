@@ -26,6 +26,7 @@ namespace src.GameObjects
         private const float TIME_CATCH_THROW = 0.5f;
         private float timeSinceThrow = 0f;
         private float actionPushedDuration;
+        private float stunDuration = 0f;
         public bool notImportant = false;
         private bool mob = false;
 
@@ -67,11 +68,11 @@ namespace src.GameObjects
         {
             Vector3 dir = input.Direction();
             //inertia to keep some movement from last update;
-            Inertia -=(5f*dt)* Inertia;
-            if (dir.Length() > 0)
+            Inertia -=(9f*dt)* Inertia;
+            if (stunDuration<=0f && dir.Length() > 0)
             {
                 dir = Vector3.Normalize(dir);
-                Inertia += (5f*dt)*dir;
+                Inertia += (9f*dt)*dir;
                 // Limit Inertia to a vector of length 1
                 if (Inertia.Length() > 1f)
                     Inertia = Vector3.Normalize(Inertia);
@@ -99,7 +100,7 @@ namespace src.GameObjects
             if (projectile != projectileHeld && Hitbox.Intersects(projectile.Hitbox))
             {
                 // case 1 no projectile held and action button pressed not to long ago -> catch it
-                if (input.Action()
+                if (stunDuration<=0f && input.Action()
                     && projectileHeld == null
                     && actionPushedDuration<0.7f
                     )
@@ -109,7 +110,7 @@ namespace src.GameObjects
                     timeSinceThrow = 0f;
                     Console.WriteLine("Grabbing " + projectile.Type);
                     // Here the player speed is set for the movement with projectile in hand
-                    playerSpeed = 0.3f;
+                    playerSpeed = 0.9f;
                     return false;
                 } else // the player is hit by the projectile
                 {
@@ -138,7 +139,7 @@ namespace src.GameObjects
                 else if (!input.Action() && actionPushedDuration > 0f && playerSpeed == 0f) // Releasing projectile
                 {
                     actionPushedDuration = (actionPushedDuration < 4f) ? actionPushedDuration : 4f;
-                    float speedUp = 1f+ actionPushedDuration * actionPushedDuration * 0.5f;
+                    float speedUp = 1f+ actionPushedDuration * actionPushedDuration * 2f;
                     projectileHeld.Throw(speedUp);
                     playerSpeed = 2f;
                     timeSinceThrow += dt;
@@ -154,7 +155,7 @@ namespace src.GameObjects
         // Method to dash. Current dash cost 30
         private bool Dash(float dt)
         {
-            if (input.Dash() && dashTime <= 0f && Stamina > 30f)
+            if (stunDuration<=0f && input.Dash() && dashTime <= 0f && Stamina > 30f)
             {
                 dashTime = 0.1f;
                 Stamina -= 30f;
@@ -177,7 +178,7 @@ namespace src.GameObjects
             {
                 projectileHeld = Projectile.createProjectile(ProjectileType.Swordfish,Position,Orientation,GameLabGame.projectileModels[ProjectileType.Swordfish]);
                 projectileHeld.Caught(this);
-                playerSpeed = 0.3f;
+                playerSpeed = 0.9f;
                 timeSinceThrow = 0f;
                 Stamina -= 40f;
                 return false;
@@ -200,21 +201,24 @@ namespace src.GameObjects
             Stamina += dt * 5f;
             Stamina = (Stamina > 100f) ? 100f : Stamina;
             if (Life > 0f) // Behaviour when alive
-            {
+            {   
+                stunDuration -= dt;
                 if (!Dash(dt))
                 {
                     Move(dt);
-                    if (projectileHeld != null)
+                    if (stunDuration<=0f && projectileHeld != null)
                     {
                         Throw(dt);
                     }
-                    else
-                    {
-                        
-                    }
                 }
-                while(ellipse.Outside(Position.X,Position.Z))
-                    Position += playerSpeed * ellipse.Normal(Position.X,Position.Z) * dt * 0.1f;
+                if(ellipse.Outside(Position.X,Position.Z))
+                {
+                    while(ellipse.Outside(Position.X,Position.Z))
+                        Position += playerSpeed * ellipse.Normal(Position.X,Position.Z) * dt * 0.1f;
+                    Orientation = ellipse.Normal(Position.X,Position.Z);
+                    Inertia = 3f * Orientation;
+                    stunDuration = 1f;
+                }
             } else if(mob) // Behaviour when part of mob
             {
                 if(Spawn())
@@ -239,6 +243,12 @@ namespace src.GameObjects
             }
             notImportant = notImportant || (input.Action() && input.Dash());
             actionPushedDuration = (input.Action()) ? actionPushedDuration + dt : 0f;
+        }
+
+        public override void Draw(Matrix view, Matrix projection)
+        {
+            if(stunDuration<=0f || ((int)(stunDuration*10f))%2==0)
+                base.Draw(view, projection);
         }
     }
 }
