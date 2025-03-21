@@ -99,7 +99,7 @@ namespace src.GameObjects
                     )
                 {
                     projectileHeld = projectile;
-                    projectile.Caught(this);
+                    projectile.Catch(this);
                     Console.WriteLine("Grabbing " + projectile.Type);
                     playerSpeed = 0.3f;
                     return false;
@@ -159,8 +159,8 @@ namespace src.GameObjects
         {
             if(input.Dash() &&dashTime<=0f && Stamina>40f && projectileHeld == null)
             {
-                projectileHeld = Projectile.createProjectile(ProjectileType.Swordfish,Position,Orientation,GameLabGame.projectileModels[ProjectileType.Swordfish]);
-                projectileHeld.Caught(this);
+                projectileHeld = Projectile.CreateProjectile(ProjectileType.Swordfish,Position,Orientation,GameLabGame.projectileModels[ProjectileType.Swordfish]);
+                projectileHeld.Catch(this);
                 playerSpeed = 0.3f;
                 Stamina -= 40f;
                 return false;
@@ -187,7 +187,7 @@ namespace src.GameObjects
                         timeSinceThrow += dt;
                     }
                 }
-                while(ellipse.Outside(Position.X,Position.Z))
+                while(!ellipse.Inside(Position.X,Position.Z))
                     Position += playerSpeed * ellipse.Normal(Position.X,Position.Z) * dt * 0.1f;
             } else if(mob)
             {

@@ -15,9 +15,9 @@ namespace src.GameObjects
         private Vector3 origin;
 
         // Constructor:
-        public Tomato(ProjectileType type, Vector3 origin, Vector3 target,Model model) : base(type, origin, target, model)
+        public Tomato(ProjectileType type, Vector3 origin, Vector3 target, Model model) : base(type, origin, target, model)
         {
-            velocity = CalculateVelocity(origin, target);
+            Velocity = CalculateVelocity(origin, target);
             this.origin = origin;
         }
 
@@ -34,10 +34,19 @@ namespace src.GameObjects
         {
             timeAlive += dt;
             
-            Vector3 horizontalMotion = Orientation * velocity * cos;
-            Vector3 verticalMotion = new Vector3(0, velocity * sin - HALF_GRAVITY * timeAlive, 0);
+            Vector3 horizontalMotion = Orientation * Velocity * cos;
+            Vector3 verticalMotion = new Vector3(0, Velocity * sin - HALF_GRAVITY * timeAlive, 0);
 
             Position = origin + (horizontalMotion + verticalMotion) * timeAlive;
+        }
+
+        public override void Throw(float chargeUp)
+        {
+            this.Position = Holder.Position + Holder.Orientation;
+            this.Orientation = Holder.Orientation;
+            this.Holder = null;
+            Velocity = chargeUp;
+            timeAlive = 0f;
         }
     }
 }
