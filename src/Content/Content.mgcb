@@ -32,11 +32,41 @@
 /processorParam:TextureFormat=Compressed
 /build:arena.dae
 
-#begin Audio/yoga-dogs-all-good-folks.mp3
-/importer:Mp3Importer
+#begin Audio/angrymobSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/angrymobSFX.wav
+
+#begin Audio/equipSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/equipSFX.wav
+
+#begin Audio/frogSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/frogSFX.wav
+
+#begin Audio/swordfishSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/swordfishSFX.wav
+
+#begin Audio/tomatoSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/tomatoSFX.wav
+
+#begin Audio/yoga-dogs-all-good-folks.wav
+/importer:WavImporter
 /processor:SongProcessor
 /processorParam:Quality=Best
-/build:Audio/yoga-dogs-all-good-folks.mp3
+/build:Audio/yoga-dogs-all-good-folks.wav
 
 #begin font.spritefont
 /importer:FontDescriptionImporter

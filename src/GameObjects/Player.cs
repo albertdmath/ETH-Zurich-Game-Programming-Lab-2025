@@ -7,6 +7,9 @@ using System.Collections.Generic;
 using Accord.Math.Distances;
 using Microsoft.Xna.Framework.Graphics;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
+using Accord.Collections;
 
 namespace src.GameObjects
 {
@@ -111,6 +114,10 @@ namespace src.GameObjects
                     Console.WriteLine("Grabbing " + projectile.Type);
                     // Here the player speed is set for the movement with projectile in hand
                     playerSpeed = 0.9f;
+
+                    // Handle the equip sound effect.
+                    // For anyone reading, it takes 3 parameters: volume, pitch, pan.
+                    MusicAndSoundEffects.equipSFX.Play(0.7f, 0.0f, 0.0f);
                     return false;
                 } else // the player is hit by the projectile
                 {
@@ -120,6 +127,24 @@ namespace src.GameObjects
                         // For now the player is moved down to indacet crawling. Later done with an animation
                         Position = Position - new Vector3(0, 0.2f, 0);
                         playerSpeed = 1f;
+                    }
+
+                    // SFX handling:
+                    if(GameLabGame.SOUND_ENABLED) {
+                        switch(projectile.Type)
+                        {
+                            case ProjectileType.Frog:
+                                MusicAndSoundEffects.frogSFX.Play(0.5f, 0.0f, 0.0f);
+                                break;
+                            case ProjectileType.Swordfish:
+                                MusicAndSoundEffects.swordfishSFX.Play(0.8f, 0.0f, 0.0f);
+                                break;
+                            case ProjectileType.Tomato:
+                                MusicAndSoundEffects.tomatoSFX.Play(0.9f, 0.0f, 0.0f);
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     return true;
                 }

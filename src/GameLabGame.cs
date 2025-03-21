@@ -31,6 +31,8 @@ namespace GameLab
         public static Dictionary<ProjectileType, Model> projectileModels = new Dictionary<ProjectileType, Model>();
         private LinkedList<Projectile> hitProjectiles = new LinkedList<Projectile>();
         Texture2D playerHearts;
+        private SoundEffectInstance angrymobInstance;
+        public const bool SOUND_ENABLED = true;
 
         // Player settings
         public static int NUM_PLAYERS = 2;
@@ -100,9 +102,22 @@ namespace GameLab
             mob = new Mob(innerEllipse, outerEllipse, projectileModels[ProjectileType.Tomato]);
 
             // Load Sounds:
-            // MusicAndSoundEffects.bgMusic = Content.Load<Song>("Audio/yoga-dogs-all-good-folks");
-            // MediaPlayer.Play(MusicAndSoundEffects.bgMusic);
-            // MediaPlayer.IsRepeating = true;
+            MusicAndSoundEffects.bgMusic = Content.Load<Song>("Audio/yoga-dogs-all-good-folks");
+            MediaPlayer.Volume = 0.1f;
+            MediaPlayer.IsRepeating = true;
+            MusicAndSoundEffects.equipSFX = Content.Load<SoundEffect>("Audio/equipSFX");
+            MusicAndSoundEffects.frogSFX = Content.Load<SoundEffect>("Audio/frogSFX");
+            MusicAndSoundEffects.swordfishSFX = Content.Load<SoundEffect>("Audio/swordfishSFX");
+            MusicAndSoundEffects.tomatoSFX = Content.Load<SoundEffect>("Audio/tomatoSFX");
+            MusicAndSoundEffects.angrymobSFX = Content.Load<SoundEffect>("Audio/angrymobSFX");
+            angrymobInstance = MusicAndSoundEffects.angrymobSFX.CreateInstance();
+            angrymobInstance.IsLooped = true;
+            angrymobInstance.Volume = 0.3f;
+
+            if(SOUND_ENABLED) {
+                MediaPlayer.Play(MusicAndSoundEffects.bgMusic);
+                angrymobInstance.Play();
+            }
         }
 
         protected override void Update(GameTime gameTime)
