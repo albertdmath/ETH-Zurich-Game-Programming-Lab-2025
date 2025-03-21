@@ -30,6 +30,7 @@ namespace GameLab
         public static GameModel arenaModel;
         public static Dictionary<ProjectileType, Model> projectileModels = new Dictionary<ProjectileType, Model>();
         private LinkedList<Projectile> hitProjectiles = new LinkedList<Projectile>();
+        Texture2D playerHearts;
 
         // Player settings
         public static int NUM_PLAYERS = 2;
@@ -82,6 +83,7 @@ namespace GameLab
             arena = Content.Load<Model>("arena");
             playerModel = Content.Load<Model>("player");
             font = Content.Load<SpriteFont>("font");
+            playerHearts = Content.Load<Texture2D>("player_heart");
 
             // Load the projectile models
             projectileModels.Add(ProjectileType.Frog, Content.Load<Model>("frog"));
@@ -95,12 +97,12 @@ namespace GameLab
             arenaModel = new GameModel(arena,0.5f);
 
             // Initialize mob
-            mob = new Mob(innerEllipse, outerEllipse, projectileModels[ProjectileType.Frog]);
+            mob = new Mob(innerEllipse, outerEllipse, projectileModels[ProjectileType.Tomato]);
 
             // Load Sounds:
-            //Sounds.bgMusic = Content.Load<Song>("Audio/yoga-dogs-all-good-folks");
-            //MediaPlayer.Play(Sounds.bgMusic);
-            //MediaPlayer.IsRepeating = true;
+            // MusicAndSoundEffects.bgMusic = Content.Load<Song>("Audio/yoga-dogs-all-good-folks");
+            // MediaPlayer.Play(MusicAndSoundEffects.bgMusic);
+            // MediaPlayer.IsRepeating = true;
         }
 
         protected override void Update(GameTime gameTime)
@@ -129,9 +131,10 @@ namespace GameLab
                 if(player.projectileHeld != null && !Projectile.active.Contains(player.projectileHeld))
                     Projectile.active.AddLast(player.projectileHeld);
             }
+
             // Players bumping into each other
-            for(int i= 0;i<Player.active.Count;++i)
-                for(int j= i+1;j<Player.active.Count;++j)
+            for(int i = 0; i<Player.active.Count; ++i)
+                for(int j = i+1; j<Player.active.Count; ++j)
                     Player.active[i].playerCollision(Player.active[j]);
 
             // Check if players got hit / grabbed something
@@ -168,16 +171,28 @@ namespace GameLab
             switch (Player.active.Count)
             {
                 case 4:
-                    _spriteBatch.DrawString(font, "Lives: " + Player.active[3].Life + "  Stamina: " + (int)Player.active[3].Stamina, new Vector2(1500, 950), Color.Yellow);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[3].Stamina, new Vector2(1500, 950), Color.Green);
+                    for(int i = 0; i < Player.active[3].Life; i++) {
+                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
+                    }          
                     goto case 3;
                 case 3:
-                    _spriteBatch.DrawString(font, "Lives: " + Player.active[2].Life + "  Stamina: " + (int)Player.active[2].Stamina, new Vector2(10, 950), Color.Orange);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[2].Stamina, new Vector2(10, 950), Color.Yellow);
+                    for(int i = 0; i < Player.active[2].Life; i++) {
+                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
+                    }
                     goto case 2;
                 case 2:
-                    _spriteBatch.DrawString(font, "Lives: " + Player.active[1].Life + "  Stamina: " + (int)Player.active[1].Stamina, new Vector2(1500, 10), Color.White);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[1].Stamina, new Vector2(1500, 50), Color.Blue);
+                    for(int i = 0; i < Player.active[1].Life; i++) {
+                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
+                    }
                     goto case 1;
                 case 1:
-                    _spriteBatch.DrawString(font, "Lives: " + Player.active[0].Life + "  Stamina: " + (int)Player.active[0].Stamina, new Vector2(10, 10), Color.Red);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[0].Stamina, new Vector2(10, 50), Color.Red);
+                    for(int i = 0; i < Player.active[0].Life; i++) {
+                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
+                    }
                     goto default;
                 default:
                     break;
@@ -194,7 +209,7 @@ namespace GameLab
                 pixel.SetData(new[] { Color.White });
 
                 // Define text
-                string winMessage = "Player " + lastPlayer.Id + " wins!";
+                string winMessage = "Player " + (lastPlayer.Id+1) + " wins!";
 
                 // Measure text size
                 Vector2 textSize = font.MeasureString(winMessage);
@@ -213,7 +228,6 @@ namespace GameLab
                 _spriteBatch.Draw(pixel, backgroundRect, Color.Black * 0.5f); // Semi-transparent black
                 _spriteBatch.DrawString(font, winMessage, textPosition, Color.Gold);
             }
-
         }
 
         protected override void Draw(GameTime gameTime)
@@ -226,12 +240,12 @@ namespace GameLab
 
             //DrawModel(arena, arenaScaling);
             arenaModel.Draw(view,projection);
-            arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+            //arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             // Draw all active projectiles:
             foreach (Projectile projectile in Projectile.active)
             {
                 projectile.Draw(view, projection);
-                projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+                //projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             }
 
             // Draw all players
@@ -241,13 +255,10 @@ namespace GameLab
                 //player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
             } 
 
-            // Draw mob
+            // Draw mob and player statistics:
             mob.Draw(view, projection);
-           
-
             DrawHealthAndStamina();
             DrawWin();
-
             _spriteBatch.End();
 
             base.Draw(gameTime);

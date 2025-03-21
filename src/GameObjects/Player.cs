@@ -18,7 +18,7 @@ namespace src.GameObjects
         public int Id { get; set; }
         // Private fields:
         private float playerSpeed = 2f;
-        public int Life { get; set; } = 3;
+        public int Life { get; set; } = 5;
         public float Stamina { get; set; } = 0f;
         public Projectile projectileHeld;
         //private ProjectileType typeOfProjectileHeld = ProjectileType.None;
