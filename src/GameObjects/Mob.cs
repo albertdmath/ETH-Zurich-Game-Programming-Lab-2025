@@ -60,9 +60,9 @@ namespace src.GameObjects
         private void SpawnMob() {
             for(int i = 0; i<N_ZOMBIES; i++)
             {
-                float randomFloat = (float)(random.NextDouble() *2f* Math.PI);
+                float angle = (float)(random.NextDouble() * 2f * Math.PI);
                 active[i] = new Zombie(
-                    new Vector3(8f*(float)Math.Sin(randomFloat), 0.2f, 8f*(float)Math.Cos(randomFloat)), 
+                    new Vector3(startMinorAxis*(float)Math.Sin(angle), 0, startMajorAxis*(float)Math.Cos(angle)) * 1.3f, 
                     Ellipse, 
                     model
                 );
@@ -80,25 +80,26 @@ namespace src.GameObjects
             // Wait until the time between closings has passed
             if (closing >= N_CLOSINGS || (timeAlive += dt) < TIME_BETWEEN_CLOSING) return;
 
-            // Calculate the progress of the current closing (normalized to [0, 1])
-            float progress = Math.Clamp((timeAlive - TIME_BETWEEN_CLOSING) / CLOSING_TIME, 0, 1);
+            // Calculate the progress
+            float progress = (timeAlive - TIME_BETWEEN_CLOSING) / CLOSING_TIME;
 
-            // Calculate the total progress across all closings
-            float totalProgress = (closing + progress) / N_CLOSINGS;
-
-            // Update the ellipse
-            Ellipse.Set(
-                MathHelper.Lerp(startMinorAxis, endMinorAxis, totalProgress), // Minor axis
-                MathHelper.Lerp(startMajorAxis, endMajorAxis, totalProgress), // Major axis
-                Vector3.Lerp(Vector3.Zero, endCenter, totalProgress) // Center
-            );
-
-            // If the closing is complete, reset for the next closing
-            if (progress >= 1f)
+            if (progress <= 1f)
             {
-                closing++;
+                float totalProgress = (closing + progress) / N_CLOSINGS;
+
+                // Update the ellipse
+                Ellipse.Set(
+                    MathHelper.Lerp(startMinorAxis, endMinorAxis, totalProgress), // Minor axis
+                    MathHelper.Lerp(startMajorAxis, endMajorAxis, totalProgress), // Major axis
+                    Vector3.Lerp(Vector3.Zero, endCenter, totalProgress) // Center
+                );
+            } 
+            else
+            {
+                // Reset the time and increment the number of closings
                 timeAlive = 0f;
-            }
+                closing++;
+            }   
         }
 
         private void MobPhysics(){
