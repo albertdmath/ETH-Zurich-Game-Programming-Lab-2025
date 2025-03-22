@@ -44,15 +44,9 @@ namespace src.GameObjects
             float translatedX = x - center.X;
             float translatedY = y - center.Z;
 
-            if (translatedY == 0f)
-            {
-                return new Vector3(1f, 0f, 0f); // Horizontal tangent
-            }
-            else
-            {
-                // Calculate the tangent vector
-                return Vector3.Normalize(new Vector3(1f, 0f, -1f * b * b * translatedX / (a * a * translatedY)));
-            }
+            return (translatedY == 0f) 
+                ? new Vector3(0f, 0f, 1f) 
+                : new Vector3(1f, 0f, -1f * b * b * translatedX / (a * a * translatedY));
         }
 
         // Method to calculate the normal vector at a point (x, y) on the ellipse
