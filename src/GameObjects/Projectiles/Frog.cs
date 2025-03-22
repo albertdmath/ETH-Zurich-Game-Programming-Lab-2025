@@ -31,13 +31,13 @@ namespace src.GameObjects
             timeAlive += dt;
 
             if (beingThrown)
-                MoveWhileThrown(dt);
+                ThrownMove();
             else
-                MoveWhileHopping(dt);
+                HopMove(dt);
             
         }
 
-        private void MoveWhileThrown(float dt)
+        private void ThrownMove()
         {
             // Calculate horizontal and vertical motion
             Vector3 horizontalMotion = Orientation * Velocity * (float)Math.Cos(THROW_ANGLE);
@@ -56,10 +56,10 @@ namespace src.GameObjects
             }
         }
 
-        private void MoveWhileHopping(float dt)
+        private void HopMove(float dt)
         {
             if (timeAlive < HOP_TIME)
-                TurnTowardsNearestPlayer(dt);
+                TurnToPlayer(dt);
             else
                 Hop(dt);
 
@@ -68,7 +68,7 @@ namespace src.GameObjects
                 timeAlive = 0f;
         }
 
-        private void TurnTowardsNearestPlayer(float dt)
+        private void TurnToPlayer(float dt)
         {
             Player nearestPlayer = Player.active
                 .OrderBy(player => Vector3.Distance(Position, player.Position))

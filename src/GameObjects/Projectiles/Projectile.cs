@@ -53,19 +53,19 @@ namespace src.GameObjects
                 case ProjectileType.Tomato:
                     return new Tomato(type, origin, target, model);
                 default:
-                    throw new ArgumentException("Invalid projectile type");
+                    throw new ArgumentException("Invalid projectile type: ", type.ToString());
             }
         }
 
         // Mob shooting logic
-        public static void MobShoot(float deltaTime, Random rng)
+        public static void MobShoot(float dt, Random rng)
         {
-            // Shoot a projectile every 0.1 seconds
-            if ((timeUntilNextProjectile += deltaTime) < 0.1f) return;
+            //the probability to shoot is once every 0.1 second
+            if ((timeUntilNextProjectile += dt) < 0.01f) return;
 
             foreach (var entry in ProjectileProbability)
             {
-                if (rng.NextDouble() * 10 > entry.Value) continue;
+                if (rng.NextDouble() * 100 > entry.Value) continue;
 
                 Vector3 origin = Mob.active[rng.Next(0, Mob.active.Length)].Position;
                 Vector3 target = Player.active[rng.Next(0, Player.active.Count)].Position;
@@ -76,16 +76,16 @@ namespace src.GameObjects
         }
 
         // Virtual methods for derived classes to override
-        public virtual void Move(float deltaTime) { }
+        public virtual void Move(float dt) { }
         public virtual void Throw(float chargeUp) { }
 
         // Update the projectile's state
-        public override void Update(float deltaTime)
+        public override void Update(float dt)
         {
             if (Holder == null)
-                Move(deltaTime);
+                Move(dt);
             else
-                Position = Holder.Position + Holder.Orientation * 0.3f + new Vector3(0.1f, 0f, -0.1f); 
+                Position = Holder.Position + Holder.Orientation * 0.3f + new Vector3(0.1f, 0f, -0.1f);
         }
 
         // Catch the projectile
