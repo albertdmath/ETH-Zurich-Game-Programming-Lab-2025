@@ -155,7 +155,6 @@ namespace GameLab
                     lastPlayer = player;
                     foreach (Projectile projectile in Projectile.active)
                     {
-                        //we should decide how much distance
                         if (projectile.Free() && player.GrabOrHit(projectile))
                             hitProjectiles.AddLast(projectile);
                     }

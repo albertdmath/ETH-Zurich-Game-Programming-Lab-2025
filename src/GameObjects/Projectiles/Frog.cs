@@ -21,8 +21,7 @@ namespace src.GameObjects
         // Constructor:
         public Frog(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling)
         {
-            Velocity = 0.7f;
-            this.origin = origin;
+            Throw(origin,target);
         }
 
         public override void Move(float dt)
@@ -95,6 +94,13 @@ namespace src.GameObjects
             base.Throw(chargeUp);
             beingThrown = true;
             Velocity = chargeUp;
+        }
+        public override void Throw(Vector3 origin, Vector3 target) {
+            base.Throw(origin,target);
+            Velocity = 0.7f;
+            this.origin = origin;
+            timeAlive = 0f;
+            beingThrown = false;
         }
     }
 }

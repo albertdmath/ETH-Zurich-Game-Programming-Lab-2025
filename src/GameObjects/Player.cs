@@ -24,7 +24,6 @@ namespace src.GameObjects
         public int Life { get; set; } = 5;
         public float Stamina { get; set; } = 0f;
         public Projectile projectileHeld;
-        //private ProjectileType typeOfProjectileHeld = ProjectileType.None;
         private float dashTime = 0f;
         private const float TIME_CATCH_THROW = 0.5f;
         private float timeSinceThrow = 0f;
@@ -201,7 +200,7 @@ namespace src.GameObjects
         {
             if(input.Action() && Stamina>40f && projectileHeld == null)
             {
-                projectileHeld = Projectile.CreateProjectile(ProjectileType.Swordfish,Position,Orientation,GameLabGame.projectileModels[ProjectileType.Swordfish]);
+                projectileHeld = Projectile.CreateProjectile(ProjectileType.Swordfish,Position,Orientation);
                 projectileHeld.Catch(this);
                 playerSpeed = 0.9f;
                 timeSinceThrow = 0f;

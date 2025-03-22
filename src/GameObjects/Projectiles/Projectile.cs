@@ -24,7 +24,7 @@ namespace src.GameObjects
         public ProjectileType Type { get; private set; }
         protected float BaseVelocity { get; set; }
         protected float Velocity { get; set; }
-        protected Player Holder { get; set; }
+        protected GameModel Holder { get; set; }
 
         // Projectile spawn probabilities (can be adjusted via UI)
         public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
@@ -38,24 +38,22 @@ namespace src.GameObjects
         public Projectile(ProjectileType type, Vector3 origin, Vector3 target, Model model, float scaling) : base(model, scaling) 
         {
             Type = type;
-            Position = origin;
-            Orientation = Vector3.Normalize(target - origin);
         }
 
         // Factory method to create a projectile
-        public static Projectile CreateProjectile(ProjectileType type, Vector3 origin, Vector3 target, Model model)
+        public static Projectile CreateProjectile(ProjectileType type, Vector3 origin, Vector3 target)
         {
             Projectile projectile;
             switch (type)
             {
                 case ProjectileType.Frog:
-                    projectile = new Frog(type, origin, target, model,0.5f);
+                    projectile = new Frog(type, origin, target, GameLabGame.projectileModels[ProjectileType.Frog],0.5f);
                     break;
                 case ProjectileType.Swordfish:
-                    projectile = new Swordfish(type, origin, target, model,0.5f);
+                    projectile = new Swordfish(type, origin, target, GameLabGame.projectileModels[ProjectileType.Swordfish],0.5f);
                     break;
                 case ProjectileType.Tomato:
-                    projectile = new Tomato(type, origin, target, model,1f);
+                    projectile = new Tomato(type, origin, target, GameLabGame.projectileModels[ProjectileType.Tomato],1f);
                     break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());
@@ -76,7 +74,7 @@ namespace src.GameObjects
 
                 Vector3 origin = Mob.active[rng.Next(0, Mob.active.Length)].Position;
                 Vector3 target = Player.active[rng.Next(0, Player.active.Count)].Position;
-                CreateProjectile(entry.Key, origin, target, GameLabGame.projectileModels[entry.Key]);
+                CreateProjectile(entry.Key, origin, target);
             }
 
             timeUntilNextProjectile = 0f;
@@ -89,7 +87,13 @@ namespace src.GameObjects
             this.Orientation = Holder.Orientation;
             this.Holder = null;
             Console.WriteLine("Projectile thrown with orientation: " + Orientation+ " and speedup: " +chargeUp);
-         }
+        }
+        public virtual void Throw(Vector3 origin, Vector3 target) 
+        {
+            Position = origin;
+            Orientation = Vector3.Normalize(target - origin);
+        }
+
 
         // Update the projectile's state
         public override void Update(float dt)
@@ -101,7 +105,7 @@ namespace src.GameObjects
         }
 
         // Catch the projectile
-        public void Catch(Player player)
+        public void Catch(GameModel player)
         {
             Holder = player;
         }

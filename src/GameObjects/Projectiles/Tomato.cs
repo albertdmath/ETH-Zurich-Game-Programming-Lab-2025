@@ -17,8 +17,7 @@ namespace src.GameObjects
         // Constructor:
         public Tomato(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling)
         {
-            Velocity = CalculateVelocity(origin, target);
-            this.origin = origin;
+            Throw(origin,target);
         }
 
         private float CalculateVelocity(Vector3 origin, Vector3 target)
@@ -44,6 +43,13 @@ namespace src.GameObjects
         {
             base.Throw(chargeUp);
             Velocity = chargeUp;
+            timeAlive = 0f;
+        }
+        public override void Throw(Vector3 origin, Vector3 target) 
+        {
+            base.Throw(origin,target);
+            Velocity = CalculateVelocity(origin, target);
+            this.origin = origin;
             timeAlive = 0f;
         }
     }

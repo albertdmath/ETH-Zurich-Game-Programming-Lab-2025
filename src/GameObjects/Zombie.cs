@@ -17,7 +17,10 @@ namespace src.GameObjects
 
         private float movementSpeed = 0.3f;
         private Ellipse ellipse;
-        public Vector3 Target = new Vector3(0f,0f,0f);
+        public Vector3 Target = new Vector3(0f,0f,0f); // Target for movement
+        private Vector3 targetThrow = new Vector3(0f,0f,0f); // Target for throw
+        public Projectile projectileHeld;
+        private float timeSinceSpawn = 0f;
         // Constructor: Only allow to assign position here,
         public Zombie(Vector3 position, Ellipse ellipse, Model model, float scaling) : base(model, scaling)
         {
@@ -46,6 +49,7 @@ namespace src.GameObjects
         //Updating movement and gravity towards center
         public override void Update(float dt){
             Move(dt);
+            if(projectileHeld != null) Throw(dt);
             Vector3 dir = Target - Position;
             if (dir.Length() > 0)
             {
@@ -80,6 +84,30 @@ namespace src.GameObjects
                 float temp = (0.5f-lengthSquared)/length;
                 ZombieSpeedX += 10f*x*temp;
                 ZombieSpeedY += 10f*y*temp;
+            }
+        }
+        public bool Spawn(ProjectileType type, Vector3 target)
+        {
+            if(projectileHeld == null)
+            {
+                targetThrow = target;
+                projectileHeld = Projectile.CreateProjectile(type,Position,Orientation);
+                projectileHeld.Catch(this);
+                timeSinceSpawn = 0f;
+                return false;
+            }
+            return true;
+        }
+        private void Throw(float dt)
+        {
+            if(timeSinceSpawn > 1f) // If zombie holds the projectile long enough
+            {
+                float speedUp = 1f;
+                projectileHeld.Throw(speedUp);
+                projectileHeld = null;
+                Console.WriteLine("Mobe throwing projectile with orientation: " + Orientation+ " and speedup: " +speedUp);
+            }else { 
+                timeSinceSpawn += dt;
             }
         }
     }
