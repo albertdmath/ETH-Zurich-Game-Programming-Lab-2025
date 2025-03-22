@@ -221,6 +221,19 @@ namespace src.GameObjects
                 player.updateHitbox();
             }
         }
+        public void mobCollision(Zombie zombie){
+            Vector3 dir = 0.02f * Vector3.Normalize(new Vector3(Position.X-zombie.Position.X,0f,Position.Z-zombie.Position.Z));
+            if(Hitbox.Intersects(zombie.Hitbox))
+            {
+                while(Hitbox.Intersects(zombie.Hitbox)){
+                    Position += dir;
+                    updateHitbox();
+                }
+                Orientation = ellipse.Normal(Position.X,Position.Z);
+                Inertia = 1.6f * Orientation;
+                stunDuration = 1f;
+            }
+        }
         // Update function called each update
         public override void Update(float dt)
         {
@@ -236,14 +249,6 @@ namespace src.GameObjects
                     {
                         Throw(dt);
                     }
-                }
-                if(ellipse.Outside(Position.X,Position.Z))
-                {
-                    while(ellipse.Outside(Position.X,Position.Z))
-                        Position += playerSpeed * ellipse.Normal(Position.X,Position.Z) * dt * 0.1f;
-                    Orientation = ellipse.Normal(Position.X,Position.Z);
-                    Inertia = 3f * Orientation;
-                    stunDuration = 1f;
                 }
             } else if(mob) // Behaviour when part of mob
             {

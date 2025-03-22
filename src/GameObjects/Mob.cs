@@ -72,6 +72,7 @@ namespace src.GameObjects
         public void Update (float dt) {
             CloseRing(dt);
             MobPhysics();
+            MobPlayerInteraction();
             foreach (Zombie zombie in active) zombie.updateWrap(dt);
         }
 
@@ -111,7 +112,7 @@ namespace src.GameObjects
                 sortedZombies[i] = new List<Zombie>();
             foreach (Zombie zombie in active) 
                 sortedZombies[(int)Math.Round(zombie.Position.X)+11+((int)Math.Round(zombie.Position.Y)+11)*24].Add(zombie);
-            // MOve all zombies(mob)
+            // Update force for all zombies(mob)
             for(int j = 0; j<23;j++)
             {
                 for(int i = 0; i<23;i++)
@@ -127,6 +128,43 @@ namespace src.GameObjects
                 }
             }
         }
+        private void MobPlayerInteraction(){
+
+            foreach (Player player in Player.active)
+            { 
+                int i = (int)Math.Round(player.Position.X)+11;
+                int j = (int)Math.Round(player.Position.Y)+11;
+                int iNeighbour = (player.Position.X-(float)i) < 0.5f ? -1 : 1;
+                int jNeighbour = (player.Position.Y-(float)j) < 0.5f ? -24 : 24;
+                if(player.Life<=0)
+                {
+                    foreach (Zombie zombie in sortedZombies[i+j*24]) zombie.ForceByPlayer(player);
+                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour]) zombie.ForceByPlayer(player);
+                    foreach (Zombie zombie in sortedZombies[i+j*24+jNeighbour]) zombie.ForceByPlayer(player);
+                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour+jNeighbour]) zombie.ForceByPlayer(player);
+                }else{
+                    foreach (Zombie zombie in sortedZombies[i+j*24]) player.mobCollision(zombie);
+                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour]) player.mobCollision(zombie);
+                    foreach (Zombie zombie in sortedZombies[i+j*24+jNeighbour]) player.mobCollision(zombie);
+                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour+jNeighbour]) player.mobCollision(zombie);
+                }
+            }
+            for(int j = 0; j<23;j++)
+            {
+                for(int i = 0; i<23;i++)
+                {
+                    List<Zombie> tempList = sortedZombies[i+j*24];
+                    for(int k=0; k<tempList.Count;++k)
+                    {
+                        tempList[k].Force(tempList,k);
+                        tempList[k].Force(sortedZombies[i+j*24+1],-1);
+                        tempList[k].Force(sortedZombies[i+j*24+24],-1);
+                        tempList[k].Force(sortedZombies[i+j*24+25],-1);
+                    }
+                }
+            }
+        }
+
 
         public void Draw(Matrix view, Matrix projection) {
             foreach (Zombie zombie in active)
