@@ -17,6 +17,7 @@ namespace src.GameObjects
 
         private float movementSpeed = 0.3f;
         private Ellipse ellipse;
+        public Vector3 Target = new Vector3(0f,0f,0f);
         // Constructor: Only allow to assign position here,
         public Zombie(Vector3 position, Ellipse ellipse, Model model, float scaling) : base(model, scaling)
         {
@@ -27,24 +28,25 @@ namespace src.GameObjects
         // The Zombie move method:
         private void Move(float dt)
         {
-            if(ellipse.Inside(Position.X, Position.Z)) return;
-
-            Vector3 speed = new Vector3(ZombieSpeedX,0f,ZombieSpeedY);
-            if (speed.LengthSquared() > 0){
-                Orientation = Vector3.Normalize(speed);
-            }
+            if(ellipse.Outside(Position.X, Position.Z)){
+                Vector3 speed = new Vector3(ZombieSpeedX,0f,ZombieSpeedY);
+                if (speed.LengthSquared() > 0){
+                    Orientation = Vector3.Normalize(speed);
+                }
             /* if(ellipse.Inside(Position.X,Position.Z)){
                 speed = ellipse.tangentPart(Position.X,Position.Z,speed);
             } */
-            Position += speed * dt;
-        /* while(ellipse.Inside(Position.X,Position.Z)){
-            Position += ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
-        } */
+                Position += speed * dt;
+            }
+            
+            while(ellipse.Inside(Position.X,Position.Z)){
+                Position += ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
+            }
         }
         //Updating movement and gravity towards center
         public override void Update(float dt){
             Move(dt);
-            Vector3 dir = -1f*Position;
+            Vector3 dir = Target - Position;
             if (dir.Length() > 0)
                 dir = Vector3.Normalize(dir);
             ZombieSpeedX = dir.X * movementSpeed;
@@ -58,12 +60,23 @@ namespace src.GameObjects
                 float lengthSquared = (x*x+y*y);
                 float length = (float)Math.Sqrt(lengthSquared);
                 if(lengthSquared<0.5f&&zombies[i]!=this){
-                    Vector2 diff = new Vector2(Position.X-zombies[i].Position.X,Position.Z-zombies[i].Position.Z);
-                    ZombieSpeedX += 10f*x/length*(0.5f-diff.LengthSquared());
-                    ZombieSpeedY += 10f*y/length*(0.5f-diff.LengthSquared());
-                    zombies[i].ZombieSpeedX -= 10f*x/length*(0.5f-diff.LengthSquared());
-                    zombies[i].ZombieSpeedY -= 10f*y/length*(0.5f-diff.LengthSquared());
+                    float temp = (0.5f-lengthSquared)/length;
+                    ZombieSpeedX += 10f*x*temp;
+                    ZombieSpeedY += 10f*y*temp;
+                    zombies[i].ZombieSpeedX -= 10f*x*temp;
+                    zombies[i].ZombieSpeedY -= 10f*y*temp;
                 }
+            }
+        }
+        public void ForceByPlayer(Player player){
+            float x = this.Position.X - player.Position.X;
+            float y = this.Position.Z - player.Position.Z;
+            float lengthSquared = (x*x+y*y);
+            float length = (float)Math.Sqrt(lengthSquared);
+            if(lengthSquared<0.5f){
+                float temp = (0.5f-lengthSquared)/length;
+                ZombieSpeedX += 10f*x*temp;
+                ZombieSpeedY += 10f*y*temp;
             }
         }
     }

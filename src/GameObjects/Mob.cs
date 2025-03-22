@@ -29,8 +29,8 @@ namespace src.GameObjects
 
         public Mob(float height, float width, Model model) {
             // Set the major and minor axes of the ellipse
-            this.startMajorAxis = width / 2; // Half the width of the plane
-            this.startMinorAxis = height / 2; // Half the height of the plane
+            this.startMajorAxis = width * 0.5f; // Half the width of the plane
+            this.startMinorAxis = height * 0.5f; // Half the height of the plane
             this.endMajorAxis = this.endMinorAxis * width / height;
             //inside the ellipse
             this.endCenter = GetRandomPointInside();
@@ -93,6 +93,7 @@ namespace src.GameObjects
                     MathHelper.Lerp(startMajorAxis, endMajorAxis, totalProgress), // Major axis
                     Vector3.Lerp(Vector3.Zero, endCenter, totalProgress) // Center
                 );
+                foreach (Zombie zombie in active) zombie.Target = endCenter;
             } 
             else
             {

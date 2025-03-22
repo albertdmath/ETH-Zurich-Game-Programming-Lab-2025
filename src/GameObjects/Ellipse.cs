@@ -45,6 +45,11 @@ namespace src.GameObjects
             this.b = b;
             this.center = center;
         }
+        public void Set(float a, float b)
+        {
+            this.a = a;
+            this.b = b;
+        }
 
         // Method to calculate the tangent vector at a point (x, y) on the ellipse
         private Vector3 Tangent(float x, float y)
