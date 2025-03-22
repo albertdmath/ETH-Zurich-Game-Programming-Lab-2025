@@ -124,7 +124,7 @@ namespace GameLab
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             
             // Spawn a new projectile
-            Projectile.MobShoot(dt, rng);
+            //Projectile.MobShoot(dt, rng);
 
             // Move all the projectiles
             foreach (Projectile projectile in Projectile.active)

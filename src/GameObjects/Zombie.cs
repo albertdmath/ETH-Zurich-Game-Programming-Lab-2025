@@ -18,7 +18,7 @@ namespace src.GameObjects
         private float movementSpeed = 0.3f;
         private Ellipse ellipse;
         public Vector3 Target = new Vector3(0f,0f,0f); // Target for movement
-        private Vector3 targetThrow = new Vector3(0f,0f,0f); // Target for throw
+        private Player targetThrow; // Target for throw
         public Projectile projectileHeld;
         private float timeSinceSpawn = 0f;
         // Constructor: Only allow to assign position here,
@@ -86,7 +86,7 @@ namespace src.GameObjects
                 ZombieSpeedY += 10f*y*temp;
             }
         }
-        public bool Spawn(ProjectileType type, Vector3 target)
+        public bool Spawn(ProjectileType type, Player target)
         {
             if(projectileHeld == null)
             {
@@ -103,7 +103,7 @@ namespace src.GameObjects
             if(timeSinceSpawn > 1f) // If zombie holds the projectile long enough
             {
                 float speedUp = 1f;
-                projectileHeld.Throw(speedUp);
+                projectileHeld.Throw(Position+Orientation,targetThrow.Position);
                 projectileHeld = null;
                 Console.WriteLine("Mobe throwing projectile with orientation: " + Orientation+ " and speedup: " +speedUp);
             }else { 

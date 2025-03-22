@@ -63,7 +63,7 @@ namespace src.GameObjects
         }
 
         // Mob shooting logic
-        public static void MobShoot(float dt, Random rng)
+        /* public static void MobShoot(float dt, Random rng)
         {
             //the probability to shoot is once every 0.1 second
             if ((timeUntilNextProjectile += dt) < 0.01f) return;
@@ -78,7 +78,7 @@ namespace src.GameObjects
             }
 
             timeUntilNextProjectile = 0f;
-        }
+        } */
 
         // Virtual methods for derived classes to override
         public virtual void Move(float dt) { }
@@ -90,6 +90,7 @@ namespace src.GameObjects
         }
         public virtual void Throw(Vector3 origin, Vector3 target) 
         {
+            this.Holder = null;
             Position = origin;
             Orientation = Vector3.Normalize(target - origin);
         }
