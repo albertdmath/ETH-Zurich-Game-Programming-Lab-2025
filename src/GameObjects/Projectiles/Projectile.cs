@@ -1,25 +1,33 @@
 using GameLab;
-using System;
 using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 
-/** Class for the projectiles **/
 namespace src.GameObjects
 {
+    public enum ProjectileType
+    {
+        Frog,
+        Swordfish,
+        Tomato
+    }
+
+    /** Class for the projectiles **/
     public class Projectile : GameModel
     {
-        // Private fields:
+        // Static fields
         public static LinkedList<Projectile> active = new LinkedList<Projectile>();
+        private static float timeUntilNextProjectile;
 
-        private static float timeUntilNextProjectile = 0f;
-        public ProjectileType Type { get; set; }
-        protected float velocity;
-        protected float baseVelocity;
-        protected Player holdByPlayer = null;
+        // Projectile properties
+        public ProjectileType Type { get; private set; }
+        protected float BaseVelocity { get; set; }
+        protected float Velocity { get; set; }
+        protected Player Holder { get; set; }
 
-        //there should be an UI element that lets you change this
-        public static Dictionary<ProjectileType, float> projectileProbability = new Dictionary<ProjectileType, float>
+        // Projectile spawn probabilities (can be adjusted via UI)
+        public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
         {
             { ProjectileType.Frog, 0.1f },
             { ProjectileType.Swordfish, 0.45f },
@@ -32,14 +40,11 @@ namespace src.GameObjects
             Type = type;
             Position = origin;
             Orientation = Vector3.Normalize(target - origin);
-            // CalculateTransform(); think this can go in da trash
         }
 
-        // Static functions:
-        // Factory method to create a random projectile:
-        public static Projectile createProjectile(ProjectileType type, Vector3 origin, Vector3 target ,Model model)
+        // Factory method to create a projectile
+        public static Projectile CreateProjectile(ProjectileType type, Vector3 origin, Vector3 target, Model model)
         {
-            // Randomly create a projectile:
             switch (type)
             {
                 case ProjectileType.Frog:
@@ -49,50 +54,50 @@ namespace src.GameObjects
                 case ProjectileType.Tomato:
                     return new Tomato(type, origin, target, model,1f);
                 default:
-                    throw new ArgumentException("Invalid projectile type");
+                    throw new ArgumentException("Invalid projectile type: ", type.ToString());
             }
         }
 
+        // Mob shooting logic
         public static void MobShoot(float dt, Random rng)
         {
             //the probability to shoot is once every 0.1 second
-            if ((timeUntilNextProjectile += dt) < 0.1f) return;
-            
-            foreach (var entry in projectileProbability)
-            {
-                if (rng.NextDouble() * 10 > entry.Value) continue;
+            if ((timeUntilNextProjectile += dt) < 0.01f) return;
 
-                Vector3 origin = Ring.active.RndCircPoint();
+            foreach (var entry in ProjectileProbability)
+            {
+                if (rng.NextDouble() * 100 > entry.Value) continue;
+
+                Vector3 origin = Mob.active[rng.Next(0, Mob.active.Length)].Position;
                 Vector3 target = Player.active[rng.Next(0, Player.active.Count)].Position;
-                active.AddLast(createProjectile(entry.Key, origin, target, GameLabGame.projectileModels[entry.Key]));
+                active.AddLast(CreateProjectile(entry.Key, origin, target, GameLabGame.projectileModels[entry.Key]));
             }
 
             timeUntilNextProjectile = 0f;
         }
 
+        // Virtual methods for derived classes to override
         public virtual void Move(float dt) { }
-        // Move the projectile:
+        public virtual void Throw(float chargeUp) {
+            this.Position = Holder.Position + Holder.Orientation;
+            this.Orientation = Holder.Orientation;
+            this.Holder = null;
+            Console.WriteLine("Projectile thrown with orientation: " + Orientation+ " and speedup: " +chargeUp);
+         }
+
+        // Update the projectile's state
         public override void Update(float dt)
         {
-            if (holdByPlayer == null)
-                this.Move(dt);
+            if (Holder == null)
+                Move(dt);
             else
-                this.Position = holdByPlayer.Position + holdByPlayer.Orientation * 0.3f + new Vector3(.1f, 0f, -.1f);
+                Position = Holder.Position + Holder.Orientation * 0.3f + new Vector3(0.1f, 0f, -0.1f);
         }
 
-        public void Throw(float speedUp)
+        // Catch the projectile
+        public void Catch(Player player)
         {
-            this.Position = holdByPlayer.Position + holdByPlayer.Orientation;
-            this.Orientation = holdByPlayer.Orientation;
-            this.holdByPlayer = null;
-            Console.WriteLine("Projectile thrown with orientation: " + Orientation+ " and speedup: " +speedUp);
-            velocity = baseVelocity * speedUp;
-        }
-
-        public void Caught(Player player)
-        {
-            this.holdByPlayer = player;
+            Holder = player;
         }
     }
 }
-

@@ -9,12 +9,18 @@ public class Swordfish : Projectile
 
     // Constructor:
     public Swordfish(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling) {
-        baseVelocity = 2.0f;
-        velocity=baseVelocity;
+        BaseVelocity = 2.0f;
+        Velocity=BaseVelocity;
      }
 
     public override void Move(float dt)
     {
-        Position += velocity * Orientation * dt;
+        Position += Velocity * Orientation * dt;
     }
+
+    public override void Throw(float chargeUp)
+        {
+            base.Throw(chargeUp);
+            Velocity += chargeUp;
+        }
 }

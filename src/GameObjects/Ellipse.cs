@@ -1,59 +1,87 @@
-using GameLab;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using System.Runtime.CompilerServices;
 using System;
-using System.Collections.Generic;
 
 namespace src.GameObjects
 {
-    /** Anything regarding player characters, from movement to the actual Model files goes here. **/
+    /** Represents an ellipse in 2D space with a center, major axis (a), and minor axis (b). **/
     public class Ellipse
     {
-        private float a;
-        private float b;
-        // Constructor: assign radius a for x axis and b for z axis
-        public Ellipse(float a, float b){ 
+        private float a; // Major axis
+        private float b; // Minor axis
+        private Vector3 center; // Center of the ellipse
+
+        // Constructor
+        public Ellipse(float a, float b, Vector3 center)
+        {
             this.a = a;
             this.b = b;
+            this.center = center;
         }
-        
-        // Method returns true if inside elipse
+
+        // Method returns true if the point (x, y) is inside the ellipse
         public bool Inside(float x, float y)
         {
-            return ((x*x)/(a*a)+(y*y)/(b*b)<=1f);
+            // Translate the point relative to the ellipse's center
+            float translatedX = x - center.X;
+            float translatedY = y - center.Z; // Using Z for 2D Y-axis
+
+            // Check if the point is inside the ellipse
+            return (translatedX * translatedX) / (a * a) + (translatedY * translatedY) / (b * b) <= 1f;
         }
-        // Method true if outside elipse
         public bool Outside(float x, float y)
         {
-            return ((x*x)/(a*a)+(y*y)/(b*b)>1f);
+            // Translate the point relative to the ellipse's center
+            float translatedX = x - center.X;
+            float translatedY = y - center.Z; // Using Z for 2D Y-axis
+
+            // Check if the point is inside the ellipse
+            return (translatedX * translatedX) / (a * a) + (translatedY * translatedY) / (b * b) > 1f;
         }
-        public void Set(float a, float b){ 
+
+        // Method to set new major and minor axes
+        public void Set(float a, float b, Vector3 center)
+        {
             this.a = a;
             this.b = b;
+            this.center = center;
         }
 
-        // Returns vector tangent to ellipse in the given point
-        private Vector3 Tangent(float x, float y){
-            if(y==0f){
-                return new Vector3(1f,0f,0f);
-            }else{
-                return Vector3.Normalize(new Vector3(1f,0f,-1f*b*b*x/(a*a*y)));
-            }
+        // Method to calculate the tangent vector at a point (x, y) on the ellipse
+        private Vector3 Tangent(float x, float y)
+        {
+            // Translate the point relative to the ellipse's center
+            float translatedX = x - center.X;
+            float translatedY = y - center.Z;
+
+            return (translatedY == 0f) 
+                ? new Vector3(0f, 0f, 1f) 
+                : new Vector3(1f, 0f, -1f * b * b * translatedX / (a * a * translatedY));
         }
-        // Returns vector normal to ellipse in the given point pointing inwards
-        public Vector3 Normal(float x, float y){
-            if(x==0f){
-                return new Vector3(0f,0f,1f) * (y>0f?-1f:1f);
-            }else{
-                float temp = (x<0) ? 1f : -1f;
-                return Vector3.Normalize(new Vector3(temp,0f,temp*(a*a*y)/(b*b*x)));
+
+        // Method to calculate the normal vector at a point (x, y) on the ellipse
+        public Vector3 Normal(float x, float y)
+        {
+            // Translate the point relative to the ellipse's center
+            float translatedX = x - center.X;
+            float translatedY = y - center.Z;
+
+            if (translatedX == 0f)
+            {
+                return new Vector3(0f, 0f, 1f) * (translatedY > 0f ? -1f : 1f); // Vertical normal
+            }
+            else
+            {
+                // Calculate the normal vector
+                float temp = (translatedX < 0) ? 1f : -1f;
+                return Vector3.Normalize(new Vector3(temp, 0f, temp * (a * a * translatedY) / (b * b * translatedX)));
             }
         }
 
-        public Vector3 tangentPart(float x, float y,Vector3 orientation){
-            Vector3 temp = Tangent(x,y);
-            return Vector3.Dot(orientation,temp)*temp;
+        // Method to calculate the tangent component of a vector at a point (x, y) on the ellipse
+        public Vector3 TangentPart(float x, float y, Vector3 orientation)
+        {
+            Vector3 tangent = Tangent(x, y);
+            return Vector3.Dot(orientation, tangent) * tangent;
         }
     }
 }

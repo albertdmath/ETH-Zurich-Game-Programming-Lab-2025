@@ -49,8 +49,6 @@ namespace GameLab
 
         // Arena transformations
         private Matrix arenaScaling = Matrix.CreateScale(new Vector3(0.5f));
-        private Ellipse innerEllipse = new Ellipse(7.0f,4f);
-        private Ellipse outerEllipse = new Ellipse(7.3f,4.2f);
 
         private Mob mob;
         private int nAlivePlayers = NUM_PLAYERS;
@@ -68,11 +66,6 @@ namespace GameLab
             _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             _graphics.IsFullScreen = false; // Enable full screen
             _graphics.ApplyChanges();
-
-            // Initialize the ring of doom:
-            int planeWidth = 10, planeHeight = 10;
-            Ring.active = new Ring(planeWidth, planeHeight);
-
 
             base.Initialize();
         }
@@ -94,12 +87,14 @@ namespace GameLab
 
 
             // Initialize game models (they are only known at this point so they can't be in the initialize method)
-            Player.Initialize(innerEllipse, playerModel);
-            //private Matrix arenaScaling = Matrix.CreateScale(new Vector3(0.5f));
             arenaModel = new GameModel(arena,0.5f);
 
             // Initialize mob
-            mob = new Mob(innerEllipse, outerEllipse, projectileModels[ProjectileType.Tomato]);
+            float height = 10f, width = 5f; //this should be the size of the arena
+            mob = new Mob(height, width, projectileModels[ProjectileType.Frog]);
+
+            // Initialize players
+            Player.Initialize(mob.Ellipse, playerModel);
 
             // Load Sounds:
             MusicAndSoundEffects.bgMusic = Content.Load<Song>("Audio/yoga-dogs-all-good-folks");

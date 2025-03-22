@@ -109,8 +109,8 @@ namespace src.GameObjects
                     )
                 {
                     projectileHeld = projectile;
-                    projectile.Caught(this);
                     timeSinceThrow = 0f;
+                    projectile.Catch(this);
                     Console.WriteLine("Grabbing " + projectile.Type);
                     // Here the player speed is set for the movement with projectile in hand
                     playerSpeed = 0.9f;
@@ -201,10 +201,11 @@ namespace src.GameObjects
         {
             if(input.Action() && Stamina>40f && projectileHeld == null)
             {
-                projectileHeld = Projectile.createProjectile(ProjectileType.Swordfish,Position,Orientation,GameLabGame.projectileModels[ProjectileType.Swordfish]);
-                projectileHeld.Caught(this);
+                projectileHeld = Projectile.CreateProjectile(ProjectileType.Swordfish,Position,Orientation,GameLabGame.projectileModels[ProjectileType.Swordfish]);
+                projectileHeld.Catch(this);
                 playerSpeed = 0.9f;
                 timeSinceThrow = 0f;
+                playerSpeed = 0.3f;
                 Stamina -= 40f;
                 return false;
             }

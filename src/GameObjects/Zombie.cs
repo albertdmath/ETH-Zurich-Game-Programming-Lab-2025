@@ -27,19 +27,19 @@ namespace src.GameObjects
         // The Zombie move method:
         private void Move(float dt)
         {
-            if(ellipse.Outside(Position.X,Position.Z)){
-                Vector3 speed = new Vector3(ZombieSpeedX,0f,ZombieSpeedY);
-                if (speed.LengthSquared() > 0){
-                    Orientation = Vector3.Normalize(speed);
-                }
-                /* if(ellipse.Inside(Position.X,Position.Z)){
-                    speed = ellipse.tangentPart(Position.X,Position.Z,speed);
-                } */
-                Position += speed * dt;
-            /* while(ellipse.Inside(Position.X,Position.Z)){
-                Position += ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
-            } */
+            if(ellipse.Inside(Position.X, Position.Z)) return;
+
+            Vector3 speed = new Vector3(ZombieSpeedX,0f,ZombieSpeedY);
+            if (speed.LengthSquared() > 0){
+                Orientation = Vector3.Normalize(speed);
             }
+            /* if(ellipse.Inside(Position.X,Position.Z)){
+                speed = ellipse.tangentPart(Position.X,Position.Z,speed);
+            } */
+            Position += speed * dt;
+        /* while(ellipse.Inside(Position.X,Position.Z)){
+            Position += ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
+        } */
         }
         //Updating movement and gravity towards center
         public override void Update(float dt){
