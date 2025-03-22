@@ -26,7 +26,8 @@ namespace GameLab
         private SpriteFont font;
 
         // Private fields:
-        private Model arena, playerModel;
+        private Model arena;
+        private List<Model> players = new List<Model>();
         public static GameModel arenaModel;
         public static Dictionary<ProjectileType, Model> projectileModels = new Dictionary<ProjectileType, Model>();
         private LinkedList<Projectile> hitProjectiles = new LinkedList<Projectile>();
@@ -76,7 +77,12 @@ namespace GameLab
             // Load the player/projectile models
             // Textured arena model currently named test TODO change that and remove old arena model too
             arena = Content.Load<Model>("arena");
-            playerModel = Content.Load<Model>("player");
+
+            players.Add(Content.Load<Model>("player1"));
+            players.Add(Content.Load<Model>("player2"));
+            players.Add(Content.Load<Model>("player3"));
+            players.Add(Content.Load<Model>("player4"));
+
             font = Content.Load<SpriteFont>("font");
             playerHearts = Content.Load<Texture2D>("player_heart");
 
@@ -94,7 +100,7 @@ namespace GameLab
             mob = new Mob(height, width, projectileModels[ProjectileType.Frog]);
 
             // Initialize players
-            Player.Initialize(mob.Ellipse, playerModel);
+            Player.Initialize(mob.Ellipse, players);
 
             // Load Sounds:
             MusicAndSoundEffects.bgMusic = Content.Load<Song>("Audio/yoga-dogs-all-good-folks");
