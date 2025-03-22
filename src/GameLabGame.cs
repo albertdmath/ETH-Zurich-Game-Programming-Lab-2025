@@ -138,8 +138,6 @@ namespace GameLab
             foreach (Player player in Player.active)
             {
                 player.updateWrap(dt);
-                if(player.projectileHeld != null && !Projectile.active.Contains(player.projectileHeld))
-                    Projectile.active.AddLast(player.projectileHeld);
             }
 
             // Players bumping into each other

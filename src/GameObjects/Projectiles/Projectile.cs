@@ -45,17 +45,23 @@ namespace src.GameObjects
         // Factory method to create a projectile
         public static Projectile CreateProjectile(ProjectileType type, Vector3 origin, Vector3 target, Model model)
         {
+            Projectile projectile;
             switch (type)
             {
                 case ProjectileType.Frog:
-                    return new Frog(type, origin, target, model,0.5f);
+                    projectile = new Frog(type, origin, target, model,0.5f);
+                    break;
                 case ProjectileType.Swordfish:
-                    return new Swordfish(type, origin, target, model,0.5f);
+                    projectile = new Swordfish(type, origin, target, model,0.5f);
+                    break;
                 case ProjectileType.Tomato:
-                    return new Tomato(type, origin, target, model,1f);
+                    projectile = new Tomato(type, origin, target, model,1f);
+                    break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());
             }
+            Projectile.active.AddLast(projectile);
+            return projectile;
         }
 
         // Mob shooting logic
@@ -70,7 +76,7 @@ namespace src.GameObjects
 
                 Vector3 origin = Mob.active[rng.Next(0, Mob.active.Length)].Position;
                 Vector3 target = Player.active[rng.Next(0, Player.active.Count)].Position;
-                active.AddLast(CreateProjectile(entry.Key, origin, target, GameLabGame.projectileModels[entry.Key]));
+                CreateProjectile(entry.Key, origin, target, GameLabGame.projectileModels[entry.Key]);
             }
 
             timeUntilNextProjectile = 0f;
