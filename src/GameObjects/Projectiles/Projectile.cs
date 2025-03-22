@@ -105,5 +105,10 @@ namespace src.GameObjects
         {
             Holder = player;
         }
+
+        public bool Free()
+        {
+            return Holder == null;
+        }
     }
 }

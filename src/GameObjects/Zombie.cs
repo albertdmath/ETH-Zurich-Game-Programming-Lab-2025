@@ -28,10 +28,10 @@ namespace src.GameObjects
         // The Zombie move method:
         private void Move(float dt)
         {
-            if(ellipse.Outside(Position.X, Position.Z)){
+            if(ellipse.Outside(Position.X, Position.Z) && (ZombieSpeedY*ZombieSpeedY+ZombieSpeedX*ZombieSpeedX)>0.08f){
                 Vector3 speed = new Vector3(ZombieSpeedX,0f,ZombieSpeedY);
-                if (speed.LengthSquared() > 0){
-                    Orientation = Vector3.Normalize(speed);
+                if (speed.LengthSquared() > 0 && dt>0f){
+                    Orientation = Vector3.Normalize(((1f-dt)*Orientation)+(dt*speed));
                 }
             /* if(ellipse.Inside(Position.X,Position.Z)){
                 speed = ellipse.tangentPart(Position.X,Position.Z,speed);
@@ -48,7 +48,10 @@ namespace src.GameObjects
             Move(dt);
             Vector3 dir = Target - Position;
             if (dir.Length() > 0)
+            {
                 dir = Vector3.Normalize(dir);
+                //Orientation = dir;
+            }
             ZombieSpeedX = dir.X * movementSpeed;
             ZombieSpeedY = dir.Z * movementSpeed;
         }
