@@ -69,7 +69,7 @@ namespace src.GameObjects
         private void TurnToPlayer(float dt)
         {
             Player nearestPlayer = Player.active
-                .OrderBy(player => Vector3.Distance(Position, player.Position))
+                .OrderBy(player => (player.Life>0)?(Vector3.Distance(Position, player.Position)):1000)
                 .First();
 
             // Desired direction toward the player
@@ -93,14 +93,14 @@ namespace src.GameObjects
         {
             base.Throw(chargeUp);
             beingThrown = true;
-            Velocity = chargeUp;
+            Velocity = chargeUp*0.1f;
+            timeAlive = 0f;
         }
         public override void Throw(Vector3 origin, Vector3 target) {
             base.Throw(origin,target);
             Velocity = 0.7f;
             this.origin = origin;
             timeAlive = 0f;
-            beingThrown = false;
         }
     }
 }

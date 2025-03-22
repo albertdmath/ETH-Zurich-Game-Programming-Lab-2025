@@ -105,7 +105,7 @@ namespace src.GameObjects
                 float speedUp = 1f;
                 projectileHeld.Throw(Position+Orientation,targetThrow.Position);
                 projectileHeld = null;
-                Console.WriteLine("Mobe throwing projectile with orientation: " + Orientation+ " and speedup: " +speedUp);
+                Console.WriteLine("Mob throwing projectile with orientation: " + Orientation+ " and speedup: " +speedUp);
             }else { 
                 timeSinceSpawn += dt;
             }

@@ -42,8 +42,7 @@ namespace src.GameObjects
         public override void Throw(float chargeUp)
         {
             base.Throw(chargeUp);
-            Velocity = chargeUp;
-            timeAlive = 0f;
+            Throw(Position-Orientation,Position+chargeUp*Orientation);
         }
         public override void Throw(Vector3 origin, Vector3 target) 
         {

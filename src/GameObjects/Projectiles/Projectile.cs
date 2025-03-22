@@ -18,7 +18,6 @@ namespace src.GameObjects
     {
         // Static fields
         public static LinkedList<Projectile> active = new LinkedList<Projectile>();
-        private static float timeUntilNextProjectile;
 
         // Projectile properties
         public ProjectileType Type { get; private set; }
@@ -61,24 +60,6 @@ namespace src.GameObjects
             Projectile.active.AddLast(projectile);
             return projectile;
         }
-
-        // Mob shooting logic
-        /* public static void MobShoot(float dt, Random rng)
-        {
-            //the probability to shoot is once every 0.1 second
-            if ((timeUntilNextProjectile += dt) < 0.01f) return;
-
-            foreach (var entry in ProjectileProbability)
-            {
-                if (rng.NextDouble() * 100 > entry.Value) continue;
-
-                Vector3 origin = Mob.active[rng.Next(0, Mob.active.Length)].Position;
-                Vector3 target = Player.active[rng.Next(0, Player.active.Count)].Position;
-                CreateProjectile(entry.Key, origin, target);
-            }
-
-            timeUntilNextProjectile = 0f;
-        } */
 
         // Virtual methods for derived classes to override
         public virtual void Move(float dt) { }
