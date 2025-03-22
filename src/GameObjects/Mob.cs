@@ -9,7 +9,7 @@ namespace src.GameObjects
     public class Mob
     {
         // Zombies
-        private const int N_ZOMBIES = 100;
+        private const int N_ZOMBIES = 300;
         public static Zombie[] active = new Zombie[N_ZOMBIES];
         private List<Zombie>[] sortedZombies = new List<Zombie>[24 * 24];
 
@@ -20,7 +20,7 @@ namespace src.GameObjects
         private const int N_CLOSINGS = 4;
         public Ellipse Ellipse { get; private set; }
         private float startMajorAxis, startMinorAxis;
-        private float endMajorAxis, endMinorAxis = 1f;
+        private float endMajorAxis, endMinorAxis = 3f;
         private Vector3 endCenter;
 
         private Random random = new();
@@ -36,7 +36,7 @@ namespace src.GameObjects
             //inside the ellipse
             this.endCenter = GetRandomPointInside();
             // Create the ellipse
-            this.Ellipse = new Ellipse(startMinorAxis, startMajorAxis, Vector3.Zero);
+            this.Ellipse = new Ellipse(startMajorAxis, startMinorAxis, Vector3.Zero);
 
             this.model = model;
             SpawnMob();
@@ -48,7 +48,7 @@ namespace src.GameObjects
             float angle = (float)(random.NextDouble() * 2 * Math.PI);
 
             // Generate a random radius between 0 and 1
-            float radius = (float)Math.Sqrt(random.NextDouble());
+            float radius = (float)Math.Sqrt(random.NextDouble())*0.3f;
 
             // Calculate the x and y coordinates
             float x = radius * startMajorAxis * (float)Math.Cos(angle);
@@ -63,7 +63,7 @@ namespace src.GameObjects
             {
                 float angle = (float)(random.NextDouble() * 2f * Math.PI);
                 active[i] = new Zombie(
-                    new Vector3(startMinorAxis*(float)Math.Sin(angle), 0, startMajorAxis*(float)Math.Cos(angle)) * 1.3f, 
+                    new Vector3(startMajorAxis*(float)Math.Sin(angle), 0, startMinorAxis*(float)Math.Cos(angle)) * 1.3f, 
                     Ellipse, 
                     model, 1f
                 );
@@ -92,8 +92,8 @@ namespace src.GameObjects
 
                 // Update the ellipse
                 Ellipse.Set(
-                    MathHelper.Lerp(startMinorAxis, endMinorAxis, totalProgress), // Minor axis
                     MathHelper.Lerp(startMajorAxis, endMajorAxis, totalProgress), // Major axis
+                    MathHelper.Lerp(startMinorAxis, endMinorAxis, totalProgress), // Minor axis
                     Vector3.Lerp(Vector3.Zero, endCenter, totalProgress) // Center
                 );
                 foreach (Zombie zombie in active) zombie.Target = endCenter;

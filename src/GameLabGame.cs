@@ -90,7 +90,7 @@ namespace GameLab
             arenaModel = new GameModel(arena,0.5f);
 
             // Initialize mob
-            float height = 10f, width = 5f; //this should be the size of the arena
+            float height = 9f, width = 15f; //this should be the size of the arena
             mob = new Mob(height, width, projectileModels[ProjectileType.Frog]);
 
             // Initialize players

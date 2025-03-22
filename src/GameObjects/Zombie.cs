@@ -15,7 +15,7 @@ namespace src.GameObjects
         public float ZombieSpeedX = 0;
         public float ZombieSpeedY = 0;
 
-        private float movementSpeed = 0.3f;
+        private float movementSpeed = 0.6f;
         private Ellipse ellipse;
         public Vector3 Target = new Vector3(0f,0f,0f); // Target for movement
         private Player targetThrow; // Target for throw
@@ -31,7 +31,7 @@ namespace src.GameObjects
         // The Zombie move method:
         private void Move(float dt)
         {
-            if(ellipse.Outside(Position.X, Position.Z) && (ZombieSpeedY*ZombieSpeedY+ZombieSpeedX*ZombieSpeedX)>0.08f){
+            if(ellipse.Outside(Position.X, Position.Z) && (ZombieSpeedY*ZombieSpeedY+ZombieSpeedX*ZombieSpeedX)>0.15f){
                 Vector3 speed = new Vector3(ZombieSpeedX,0f,ZombieSpeedY);
                 if (speed.LengthSquared() > 0 && dt>0f){
                     Orientation = Vector3.Normalize(((1f-dt)*Orientation)+(dt*speed));
@@ -39,7 +39,7 @@ namespace src.GameObjects
             /* if(ellipse.Inside(Position.X,Position.Z)){
                 speed = ellipse.tangentPart(Position.X,Position.Z,speed);
             } */
-                Position += speed * dt;
+                Position += 0.5f*speed * dt;
             }
             
             while(ellipse.Inside(Position.X,Position.Z)){
