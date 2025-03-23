@@ -186,25 +186,25 @@ namespace GameLab
             switch (Player.active.Count)
             {
                 case 4:
-                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[3].Stamina, new Vector2(1500, 950), Color.Green);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[3].Stamina, new Vector2(1500, 950), Color.Yellow);
                     for(int i = 0; i < Player.active[3].Life; i++) {
                         _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
                     }          
                     goto case 3;
                 case 3:
-                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[2].Stamina, new Vector2(10, 950), Color.Yellow);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[2].Stamina, new Vector2(10, 950), Color.Green);
                     for(int i = 0; i < Player.active[2].Life; i++) {
                         _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
                     }
                     goto case 2;
                 case 2:
-                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[1].Stamina, new Vector2(1500, 50), Color.Blue);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[1].Stamina, new Vector2(1500, 50), Color.Pink);
                     for(int i = 0; i < Player.active[1].Life; i++) {
                         _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
                     }
                     goto case 1;
                 case 1:
-                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[0].Stamina, new Vector2(10, 50), Color.Red);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[0].Stamina, new Vector2(10, 50), Color.Blue);
                     for(int i = 0; i < Player.active[0].Life; i++) {
                         _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
                     }

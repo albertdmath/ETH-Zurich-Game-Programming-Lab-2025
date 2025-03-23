@@ -63,7 +63,7 @@ namespace src.GameObjects
             {
                 PlayerIndex idx = (PlayerIndex)i;
                 if (GamePad.GetState(idx).IsConnected)
-                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new InputController(idx), i + 1, ellipse, models[i], scaling));
+                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new InputController(idx), i, ellipse, models[i], scaling));
             }
         }
 
@@ -273,7 +273,7 @@ namespace src.GameObjects
                     playerSpeed = 2f;
                 }
             }
-            notImportant = notImportant || (input.Action() && input.Dash());
+            //notImportant = notImportant || (input.Action() && input.Dash());
             actionPushedDuration = (input.Action()) ? actionPushedDuration + dt : 0f;
         }
 

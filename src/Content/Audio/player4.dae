@@ -5,8 +5,8 @@
       <author>Blender User</author>
       <authoring_tool>Blender 4.4.0 commit date:2025-03-17, commit time:17:00, hash:05377985c527</authoring_tool>
     </contributor>
-    <created>2025-03-23T16:31:25</created>
-    <modified>2025-03-23T16:31:25</modified>
+    <created>2025-03-23T16:11:17</created>
+    <modified>2025-03-23T16:11:17</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -66,14 +66,7 @@
       </profile_COMMON>
     </effect>
   </library_effects>
-  <library_images>
-    <image id="player4_texture_png" name="player4_texture_png">
-      <init_from>player4_texture.png</init_from>
-    </image>
-    <image id="player_face_png" name="player_face_png">
-      <init_from>player_face.png</init_from>
-    </image>
-  </library_images>
+  <library_images/>
   <library_materials>
     <material id="Material_0-material" name="Material_0">
       <instance_effect url="#Material_0-effect"/>
