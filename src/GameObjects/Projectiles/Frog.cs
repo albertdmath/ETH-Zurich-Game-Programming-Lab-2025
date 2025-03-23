@@ -19,10 +19,7 @@ namespace src.GameObjects
         private Vector3 origin;
 
         // Constructor:
-        public Frog(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling)
-        {
-            Throw(origin,target);
-        }
+        public Frog(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling) {}
 
         public override void Move(float dt)
         {
@@ -69,7 +66,8 @@ namespace src.GameObjects
         private void TurnToPlayer(float dt)
         {
             Player nearestPlayer = Player.active
-                .OrderBy(player => (player.Life>0)?(Vector3.Distance(Position, player.Position)):1000)
+                .Where(player => player.Life > 0)
+                .OrderBy(player => Vector3.Distance(Position, player.Position))
                 .First();
 
             // Desired direction toward the player
@@ -92,15 +90,29 @@ namespace src.GameObjects
         public override void Throw(float chargeUp)
         {
             base.Throw(chargeUp);
-            beingThrown = true;
-            Velocity = chargeUp*0.1f;
-            timeAlive = 0f;
+            StartThrow(Position, chargeUp);
         }
+
         public override void Throw(Vector3 origin, Vector3 target) {
             base.Throw(origin,target);
-            Velocity = 0.7f;
+            StartThrow(origin, CalculateVelocity(origin, target));
+        }
+
+        private void StartThrow(Vector3 origin, float velocity)
+        {
             this.origin = origin;
+            beingThrown = true;
+            Velocity = velocity;
             timeAlive = 0f;
+        }
+
+        private float CalculateVelocity(Vector3 origin, Vector3 target)
+        {
+            // Calculate the horizontal distance (XZ-plane)
+            float distance = Vector3.Distance(target, origin);
+
+            // Calculate the initial velocity using the simplified formula
+            return (float)Math.Sqrt((HALF_GRAVITY * distance) / (Math.Cos(THROW_ANGLE) * Math.Sin(THROW_ANGLE)));
         }
     }
 }

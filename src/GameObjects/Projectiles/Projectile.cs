@@ -21,22 +21,22 @@ namespace src.GameObjects
 
         // Projectile properties
         public ProjectileType Type { get; private set; }
-        protected float BaseVelocity { get; set; }
         protected float Velocity { get; set; }
         protected GameModel Holder { get; set; }
 
         // Projectile spawn probabilities (can be adjusted via UI)
         public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
         {
-            { ProjectileType.Frog, 0.1f },
-            { ProjectileType.Swordfish, 0.45f },
-            { ProjectileType.Tomato, 0.45f }
+            { ProjectileType.Frog, 0.5f },
+            { ProjectileType.Swordfish, 0f },
+            { ProjectileType.Tomato, 0f }
         };
 
         // Constructor:
         public Projectile(ProjectileType type, Vector3 origin, Vector3 target, Model model, float scaling) : base(model, scaling) 
         {
             Type = type;
+            this.Throw(origin,target);
         }
 
         // Factory method to create a projectile
@@ -63,12 +63,14 @@ namespace src.GameObjects
 
         // Virtual methods for derived classes to override
         public virtual void Move(float dt) { }
+
         public virtual void Throw(float chargeUp) {
             this.Position = Holder.Position + Holder.Orientation;
             this.Orientation = Holder.Orientation;
             this.Holder = null;
-            Console.WriteLine("Projectile thrown with orientation: " + Orientation+ " and speedup: " +chargeUp);
+            //Console.WriteLine("Projectile thrown with orientation: " + Orientation + " and speedup: " + chargeUp);
         }
+
         public virtual void Throw(Vector3 origin, Vector3 target) 
         {
             this.Holder = null;
@@ -76,13 +78,13 @@ namespace src.GameObjects
             Orientation = Vector3.Normalize(target - origin);
         }
 
-
         // Update the projectile's state
         public override void Update(float dt)
         {
             if (Holder == null)
                 Move(dt);
-            else {
+            else 
+            {
                 // Ensures projectile is held in right hand for a more realistic look:
                 Vector3 orthogonalHolderOrientation = new Vector3(-Holder.Orientation.Z, Holder.Orientation.Y, Holder.Orientation.X);
                 Position = Holder.Position + orthogonalHolderOrientation * 0.2f;
@@ -91,14 +93,8 @@ namespace src.GameObjects
         }
 
         // Catch the projectile
-        public void Catch(GameModel player)
-        {
-            Holder = player;
-        }
+        public void Catch(GameModel player) { Holder = player; }
 
-        public bool Free()
-        {
-            return Holder == null;
-        }
+        public bool Free() { return Holder == null; }
     }
 }

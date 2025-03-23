@@ -8,10 +8,7 @@ public class Swordfish : Projectile
     // Private fields:
 
     // Constructor:
-    public Swordfish(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling) {
-        BaseVelocity = 2.0f;
-        Throw(origin,target);
-     }
+    public Swordfish(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling) {}
 
     public override void Move(float dt)
     {
@@ -23,9 +20,10 @@ public class Swordfish : Projectile
         base.Throw(chargeUp);
         Velocity += chargeUp;
     }
+
     public override void Throw(Vector3 origin, Vector3 target) 
     {
-        base.Throw(origin,target);
-        Velocity=BaseVelocity;
+        base.Throw(origin, target);
+        Velocity = 2f;
     }
 }
