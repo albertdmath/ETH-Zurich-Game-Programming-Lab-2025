@@ -37,7 +37,7 @@ namespace GameLab
         public const bool SOUND_ENABLED = true;
 
         // Player settings
-        public static int NUM_PLAYERS = 2;
+        public static int NUM_PLAYERS = 4;
         private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
 
         // Camera settings
