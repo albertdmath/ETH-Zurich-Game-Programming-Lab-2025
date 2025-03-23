@@ -6,6 +6,7 @@ namespace src.GameObjects;
 public class Swordfish : Projectile
 {
     // Private fields:
+    private const float MAX_VELOCITY = 20;
 
     // Constructor:
     public Swordfish(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling) {}
@@ -18,7 +19,7 @@ public class Swordfish : Projectile
     public override void Throw(float chargeUp)
     {
         base.Throw(chargeUp);
-        Velocity += chargeUp;
+        Velocity = Math.Min(Velocity + chargeUp, MAX_VELOCITY);
     }
 
     public override void Throw(Vector3 origin, Vector3 target) 
