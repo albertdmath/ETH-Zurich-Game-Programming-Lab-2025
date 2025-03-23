@@ -24,11 +24,11 @@ namespace src.GameObjects
         private Vector3 endCenter;
 
         private Random random = new();
-        private List<Model> models;
+        private List<DrawModel> models;
         private float closing = 0;
         private float timeUntilNextProjectile;
 
-        public Mob(float height, float width, List<Model> models) {
+        public Mob(float height, float width, List<DrawModel> models) {
             // Set the major and minor axes of the ellipse
             this.startMajorAxis = width * 0.5f; // Half the width of the plane
             this.startMinorAxis = height * 0.5f; // Half the height of the plane
@@ -185,9 +185,9 @@ namespace src.GameObjects
         }
 
 
-        public void Draw(Matrix view, Matrix projection) {
+        public void Draw(Matrix view, Matrix projection, Shader shader, bool shadowDraw) {
             foreach (Zombie zombie in active)
-                zombie.Draw(view, projection);
+                zombie.Draw(view, projection, shader, false);
         }
     }
     

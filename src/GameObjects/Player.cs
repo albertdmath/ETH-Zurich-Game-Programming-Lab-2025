@@ -37,7 +37,7 @@ namespace src.GameObjects
 
         private Vector3 Inertia;
 
-        public Player(Vector3 position, Input input, int id, Ellipse ellipse, Model model,float scale) : base(model,scale)
+        public Player(Vector3 position, Input input, int id, Ellipse ellipse, DrawModel model,float scale) : base(model,scale)
         {
             Position = position;
             Orientation = new Vector3(0,0,1f);
@@ -50,7 +50,7 @@ namespace src.GameObjects
             this.Hitbox.BoundingBoxes.RemoveAt(this.Hitbox.BoundingBoxes.Count - 1);
         }
 
-        public static void Initialize(Ellipse ellipse, List<Model> models)
+        public static void Initialize(Ellipse ellipse, List<DrawModel> models)
         {
             float[] playerStartPositions = { -0.75f, -0.25f, 0.25f, 0.75f };
             float scaling = 0.5f;
@@ -277,10 +277,10 @@ namespace src.GameObjects
             actionPushedDuration = (input.Action()) ? actionPushedDuration + dt : 0f;
         }
 
-        public override void Draw(Matrix view, Matrix projection)
+        public override void Draw(Matrix view, Matrix projection, Shader shader, bool shadowDraw)
         {
             if(stunDuration<=0f || ((int)(stunDuration*10f))%2==0)
-                base.Draw(view, projection);
+                base.Draw(view, projection, shader, shadowDraw);
         }
     }
 }

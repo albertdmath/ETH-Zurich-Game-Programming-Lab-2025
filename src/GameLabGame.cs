@@ -26,22 +26,27 @@ namespace GameLab
         private SpriteFont font;
 
         // Private fields:
-        private Model arena;
-        private List<Model> players = new List<Model>();
-        private List<Model> mobs = new List<Model>();
+        private DrawModel arena;
+        private List<DrawModel> players = new List<DrawModel>();
+        private List<DrawModel> mobs = new List<DrawModel>();
 
         public static GameModel arenaModel;
-        public static Dictionary<ProjectileType, Model> projectileModels = new Dictionary<ProjectileType, Model>();
+        public static Dictionary<ProjectileType, DrawModel> projectileModels = new Dictionary<ProjectileType, DrawModel>();
         private LinkedList<Projectile> hitProjectiles = new LinkedList<Projectile>();
         Texture2D playerHearts;
         private SoundEffectInstance angrymobInstance;
         public const bool SOUND_ENABLED = true;
 
+        private Light Sun; 
+
         // Player settings
         public static int NUM_PLAYERS = 2;
         private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
 
+        PhongShading lightingShader; 
+
         // Camera settings
+        private Vector3 cameraPos = new Vector3(0f, 9, 7);
         private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 9, 7), new Vector3(0, 0, 0.7f), Vector3.Up);
         private Matrix projection = Matrix.CreatePerspectiveFieldOfView(
             MathHelper.ToRadians(45f), // Field of view in radians (e.g., 45 degrees)
@@ -78,24 +83,32 @@ namespace GameLab
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             // Load the player/projectile models
             // Textured arena model currently named test TODO change that and remove old arena model too
-            arena = Content.Load<Model>("arena");
+            arena = new DrawModel(Content.Load<Model>("arena"));
 
-            players.Add(Content.Load<Model>("player1"));
-            players.Add(Content.Load<Model>("player2"));
-            players.Add(Content.Load<Model>("player3"));
-            players.Add(Content.Load<Model>("player4"));
+            players.Add(new DrawModel(Content.Load<Model>("player1")));
+            players.Add(new DrawModel(Content.Load<Model>("player2")));
+            players.Add(new DrawModel(Content.Load<Model>("player3")));
+            players.Add(new DrawModel(Content.Load<Model>("player4")));
 
-            mobs.Add(Content.Load<Model>("mob1"));
-            mobs.Add(Content.Load<Model>("mob2"));
+            mobs.Add(new DrawModel(Content.Load<Model>("mob1")));
+            mobs.Add(new DrawModel(Content.Load<Model>("mob2")));
 
+            Effect eff = Content.Load<Effect>("lighting");
+            this.lightingShader = new PhongShading(eff);
+            this.Sun = new Light(new Vector3(0.99f,0.98f,0.82f), -new Vector3(3.0f,9.0f,7.0f));
+
+            lightingShader.setCameraPosition(this.cameraPos);
+            lightingShader.setViewMatrix(this.view);
+            lightingShader.setProjectionMatrix(this.projection);
+            lightingShader.setLight(this.Sun);
 
             font = Content.Load<SpriteFont>("font");
             playerHearts = Content.Load<Texture2D>("player_heart");
 
             // Load the projectile models
-            projectileModels.Add(ProjectileType.Frog, Content.Load<Model>("frog"));
-            projectileModels.Add(ProjectileType.Swordfish, Content.Load<Model>("swordfish"));
-            projectileModels.Add(ProjectileType.Tomato, Content.Load<Model>("tomato"));
+            projectileModels.Add(ProjectileType.Frog, new DrawModel(Content.Load<Model>("frog")));
+            projectileModels.Add(ProjectileType.Swordfish, new DrawModel(Content.Load<Model>("swordfish")));
+            projectileModels.Add(ProjectileType.Tomato, new DrawModel(Content.Load<Model>("tomato")));
 
 
             // Initialize game models (they are only known at this point so they can't be in the initialize method)
@@ -254,25 +267,24 @@ namespace GameLab
             // This resolves upscaling issues when going fullscreen
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-            //DrawModel(arena, arenaScaling);
-            arenaModel.Draw(view,projection);
+            arenaModel.Draw(view,projection,lightingShader,false);
             //arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             // Draw all active projectiles:
             foreach (Projectile projectile in Projectile.active)
             {
-                projectile.Draw(view, projection);
+                projectile.Draw(view, projection,lightingShader,false);
                 //projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             }
 
             // Draw all players
             foreach (Player player in Player.active)
             {
-                player.Draw(view, projection);
+                player.Draw(view, projection, lightingShader, false);
                 //player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
             } 
 
             // Draw mob and player statistics:
-            mob.Draw(view, projection);
+            mob.Draw(view, projection, lightingShader, false);
             DrawHealthAndStamina();
             DrawWin();
             _spriteBatch.End();

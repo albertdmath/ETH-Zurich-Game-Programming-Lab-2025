@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -8,16 +9,18 @@ namespace src.GameObjects;
 public class GameModel {
     public Vector3 Position { get; set; }
     public Vector3 Orientation { get; set; }
-    protected Model Model { get; set; }
+    protected DrawModel drawModel { get; set; }
     public Hitbox Hitbox { get; set; }
 
     public Matrix Transform { get; set; }
     protected Matrix Scaling;
-    public GameModel(Model model,float scale) {
-        Model = model;
+
+    public GameModel(DrawModel model,float scale) {
+        this.drawModel = model;
         Scaling = Matrix.CreateScale(scale);
         CalculateTransform();
-        Hitbox = new Hitbox(Model,Transform);
+        Hitbox = new Hitbox(this.drawModel.model,Transform);
+
     }
 
     protected void CalculateTransform(){
@@ -33,18 +36,19 @@ public class GameModel {
     }
     public virtual void Update(float dt){}
 
-    public virtual void Draw(Matrix view, Matrix projection){
+
+    public virtual void Draw(Matrix view, Matrix projection, Shader shader, bool shadowDraw){
         CalculateTransform();
-        foreach (ModelMesh mesh in Model.Meshes)
+        int i = 0; 
+        foreach (ModelMesh mesh in drawModel.model.Meshes)
             {
-                foreach (BasicEffect effect in mesh.Effects)
-                {
-                    effect.World = Transform;
-                    effect.View = view;
-                    effect.Projection = projection;
-                    effect.EnableDefaultLighting();
-                }
-                mesh.Draw();
+               foreach(ModelMeshPart part in mesh.MeshParts){
+                    part.Effect = shader.effect; 
+                    shader.setWorldMatrix(Transform);
+                    shader.setTexture(this.drawModel.textures[i]);
+               }
+               i++;
+            mesh.Draw();
             }
     }
 }

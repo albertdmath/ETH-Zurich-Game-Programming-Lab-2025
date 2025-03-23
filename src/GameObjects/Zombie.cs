@@ -22,7 +22,7 @@ namespace src.GameObjects
         public Projectile projectileHeld;
         private float timeSinceSpawn = 0f;
         // Constructor: Only allow to assign position here,
-        public Zombie(Vector3 position, Ellipse ellipse, Model model, float scaling) : base(model, scaling)
+        public Zombie(Vector3 position, Ellipse ellipse, DrawModel model, float scaling) : base(model, scaling)
         {
             Position = position;
             this.ellipse = ellipse;

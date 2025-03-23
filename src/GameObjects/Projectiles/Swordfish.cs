@@ -8,7 +8,7 @@ public class Swordfish : Projectile
     // Private fields:
 
     // Constructor:
-    public Swordfish(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling) {}
+    public Swordfish(ProjectileType type, Vector3 origin, Vector3 target,DrawModel model, float scaling) : base(type, origin, target, model, scaling) {}
 
     public override void Move(float dt)
     {
