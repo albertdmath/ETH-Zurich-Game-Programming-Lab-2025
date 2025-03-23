@@ -261,7 +261,7 @@ namespace src.GameObjects
                         Throw(dt);
                     }
                     while(ellipse.Inside(Position.X,Position.Z))
-                        Position += playerSpeed * ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
+                        Position += ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
                 }
             } else // Crawling
             {
