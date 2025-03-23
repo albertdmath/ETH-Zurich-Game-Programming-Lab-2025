@@ -46,18 +46,18 @@ namespace src.GameObjects
             switch (type)
             {
                 case ProjectileType.Frog:
-                    projectile = new Frog(type, origin, target, GameLabGame.projectileModels[ProjectileType.Frog],0.5f);
+                    projectile = new Frog(type, origin, target, GameLabGame.projectileModels[ProjectileType.Frog], 0.5f);
                     break;
                 case ProjectileType.Swordfish:
-                    projectile = new Swordfish(type, origin, target, GameLabGame.projectileModels[ProjectileType.Swordfish],0.5f);
+                    projectile = new Swordfish(type, origin, target, GameLabGame.projectileModels[ProjectileType.Swordfish], 0.5f);
                     break;
                 case ProjectileType.Tomato:
-                    projectile = new Tomato(type, origin, target, GameLabGame.projectileModels[ProjectileType.Tomato],1f);
+                    projectile = new Tomato(type, origin, target, GameLabGame.projectileModels[ProjectileType.Tomato], 1f);
                     break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());
             }
-            Projectile.active.AddLast(projectile);
+            active.AddLast(projectile);
             return projectile;
         }
 

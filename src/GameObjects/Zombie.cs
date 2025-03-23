@@ -21,6 +21,7 @@ namespace src.GameObjects
         private Player targetThrow; // Target for throw
         public Projectile projectileHeld;
         private float timeSinceSpawn = 0f;
+        private Random random = new Random();
         // Constructor: Only allow to assign position here,
         public Zombie(Vector3 position, Ellipse ellipse, Model model, float scaling) : base(model, scaling)
         {
@@ -91,7 +92,7 @@ namespace src.GameObjects
             if(projectileHeld == null)
             {
                 targetThrow = target;
-                projectileHeld = Projectile.CreateProjectile(type,Position,Orientation);
+                projectileHeld = Projectile.CreateProjectile(type, Position, Orientation);
                 projectileHeld.Catch(this);
                 timeSinceSpawn = 0f;
                 return false;
@@ -103,10 +104,10 @@ namespace src.GameObjects
             if(timeSinceSpawn > 1f) // If zombie holds the projectile long enough
             {
                 float speedUp = 1f;
-                projectileHeld.Throw(Position+Orientation,targetThrow.Position);
+                projectileHeld.Throw(Position+Orientation, targetThrow.Position + targetThrow.Orientation * (float)random.NextDouble());
                 projectileHeld = null;
-                Console.WriteLine("Mob throwing projectile with orientation: " + Orientation+ " and speedup: " +speedUp);
-            }else { 
+                Console.WriteLine("Mob throwing projectile with orientation: " + Orientation+ " and speedup: " + speedUp);
+            } else { 
                 timeSinceSpawn += dt;
             }
         }

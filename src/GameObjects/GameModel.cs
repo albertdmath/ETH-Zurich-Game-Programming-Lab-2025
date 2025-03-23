@@ -13,7 +13,7 @@ public class GameModel {
 
     public Matrix Transform { get; set; }
     protected Matrix Scaling;
-    public GameModel(Model model,float scale) {
+    public GameModel(Model model, float scale) {
         Model = model;
         Scaling = Matrix.CreateScale(scale);
         CalculateTransform();

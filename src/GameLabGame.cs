@@ -20,7 +20,6 @@ namespace GameLab
 {
     public class GameLabGame : Game
     {
-        protected static Random rng = new Random();
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private SpriteFont font;

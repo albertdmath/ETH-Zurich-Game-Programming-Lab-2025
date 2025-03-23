@@ -94,7 +94,7 @@ namespace src.GameObjects
         }
 
         public override void Throw(Vector3 origin, Vector3 target) {
-            base.Throw(origin,target);
+            base.Throw(origin, target);
             StartThrow(origin, CalculateVelocity(origin, target));
         }
 
