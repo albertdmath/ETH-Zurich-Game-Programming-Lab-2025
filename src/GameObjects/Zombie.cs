@@ -101,15 +101,15 @@ namespace src.GameObjects
         }
         private void Throw(float dt)
         {
-            if(timeSinceSpawn > 1f) // If zombie holds the projectile long enough
+            if(timeSinceSpawn <= 1f)
             {
-                float speedUp = 1f;
-                projectileHeld.Throw(Position+Orientation, targetThrow.Position + targetThrow.Orientation * (float)random.NextDouble());
-                projectileHeld = null;
-                Console.WriteLine("Mob throwing projectile with orientation: " + Orientation+ " and speedup: " + speedUp);
-            } else { 
                 timeSinceSpawn += dt;
+                return;
             }
+            //float speedUp = 1f;
+            projectileHeld.Throw(Position+Orientation, targetThrow.Position + targetThrow.Orientation * (float)random.NextDouble());
+            projectileHeld = null;
+            //Console.WriteLine("Mob throwing projectile with orientation: " + Orientation+ " and speedup: " + speedUp);
         }
     }
 }
