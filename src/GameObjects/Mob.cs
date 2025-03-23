@@ -166,6 +166,7 @@ namespace src.GameObjects
                 }
             }
         }
+
         private void NewMobProjectile(float dt)
         {
             //the probability to shoot is once every 0.1 second
@@ -174,11 +175,14 @@ namespace src.GameObjects
             foreach (var entry in Projectile.ProjectileProbability)
             {
                 if (random.NextDouble() * 100 > entry.Value) continue;
+
                 Zombie throwingZombie = Mob.active[random.Next(0, Mob.active.Length)];
                 while(throwingZombie.projectileHeld != null) throwingZombie = Mob.active[random.Next(0, Mob.active.Length)];
+
                 Player targetPlayer = Player.active[random.Next(0, Player.active.Count)];
                 while(targetPlayer.Life <= 0) targetPlayer = Player.active[random.Next(0, Player.active.Count)];
-                throwingZombie.Spawn(entry.Key,targetPlayer);
+
+                throwingZombie.Spawn(entry.Key, targetPlayer);
             }
 
             timeUntilNextProjectile = 0f;
