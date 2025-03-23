@@ -28,6 +28,8 @@ namespace GameLab
         // Private fields:
         private Model arena;
         private List<Model> players = new List<Model>();
+        private List<Model> mobs = new List<Model>();
+
         public static GameModel arenaModel;
         public static Dictionary<ProjectileType, Model> projectileModels = new Dictionary<ProjectileType, Model>();
         private LinkedList<Projectile> hitProjectiles = new LinkedList<Projectile>();
@@ -83,6 +85,10 @@ namespace GameLab
             players.Add(Content.Load<Model>("player3"));
             players.Add(Content.Load<Model>("player4"));
 
+            mobs.Add(Content.Load<Model>("mob1"));
+            mobs.Add(Content.Load<Model>("mob2"));
+
+
             font = Content.Load<SpriteFont>("font");
             playerHearts = Content.Load<Texture2D>("player_heart");
 
@@ -97,7 +103,7 @@ namespace GameLab
 
             // Initialize mob
             float height = 9f, width = 15f; //this should be the size of the arena
-            mob = new Mob(height, width, projectileModels[ProjectileType.Frog]);
+            mob = new Mob(height, width, mobs);
 
             // Initialize players
             Player.Initialize(mob.Ellipse, players);

@@ -24,11 +24,11 @@ namespace src.GameObjects
         private Vector3 endCenter;
 
         private Random random = new();
-        private Model model;
+        private List<Model> models;
         private float closing = 0;
         private float timeUntilNextProjectile;
 
-        public Mob(float height, float width, Model model) {
+        public Mob(float height, float width, List<Model> models) {
             // Set the major and minor axes of the ellipse
             this.startMajorAxis = width * 0.5f; // Half the width of the plane
             this.startMinorAxis = height * 0.5f; // Half the height of the plane
@@ -38,7 +38,7 @@ namespace src.GameObjects
             // Create the ellipse
             this.Ellipse = new Ellipse(startMajorAxis, startMinorAxis, Vector3.Zero);
 
-            this.model = model;
+            this.models = models;
             SpawnMob();
         }
 
@@ -65,7 +65,7 @@ namespace src.GameObjects
                 active[i] = new Zombie(
                     new Vector3(startMajorAxis*(float)Math.Sin(angle), 0, startMinorAxis*(float)Math.Cos(angle)) * 1.3f, 
                     Ellipse, 
-                    model, 1f
+                    models[i%2], 0.7f
                 );
             }
         }
