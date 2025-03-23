@@ -82,8 +82,12 @@ namespace src.GameObjects
         {
             if (Holder == null)
                 Move(dt);
-            else
-                Position = Holder.Position + Holder.Orientation * 0.3f + new Vector3(0.1f, 0f, -0.1f);
+            else {
+                // Ensures projectile is held in right hand for a more realistic look:
+                Vector3 orthogonalHolderOrientation = new Vector3(-Holder.Orientation.Z, Holder.Orientation.Y, Holder.Orientation.X);
+                Position = Holder.Position + orthogonalHolderOrientation * 0.2f;
+                Orientation = Holder.Orientation;
+            }
         }
 
         // Catch the projectile
