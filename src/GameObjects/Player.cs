@@ -46,6 +46,8 @@ namespace src.GameObjects
             projectileHeld = null;
             this.Id = id;
             Inertia = new Vector3(0,0,0);
+            // Remove hat from hitbox; this is trashcode and needs to be removed / done better at some point
+            this.Hitbox.BoundingBoxes.RemoveAt(this.Hitbox.BoundingBoxes.Count - 1);
         }
 
         public static void Initialize(Ellipse ellipse, List<Model> models)
