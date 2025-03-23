@@ -54,9 +54,9 @@ namespace src.GameObjects
         {
             float[] playerStartPositions = { -0.75f, -0.25f, 0.25f, 0.75f };
             float scaling = 0.5f;
-            // This should be removed, for Debug!
-            //active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, ellipse, models[0], scaling));
-            //active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, models[1], scaling));
+            // Keyboard controls for debug:
+            active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, ellipse, models[0], scaling));
+            active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, models[1], scaling));
 
             // TODO: fix player creation
             for (int i = 0; i < GameLabGame.NUM_PLAYERS; i++)
