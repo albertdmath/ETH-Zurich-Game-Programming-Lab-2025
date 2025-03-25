@@ -55,7 +55,7 @@ namespace src.GameObjects
             float[] playerStartPositions = { -0.75f, -0.25f, 0.25f, 0.75f };
             float scaling = 0.5f;
             // Keyboard controls for debug:
-            //active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, ellipse, models[0], scaling));
+            active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, ellipse, models[0], scaling));
             //active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, models[1], scaling));
 
             // TODO: fix player creation
@@ -164,12 +164,20 @@ namespace src.GameObjects
                 }
                 else if (!input.Action() && actionPushedDuration > 0f && playerSpeed == 0f) // Releasing projectile
                 {
-                    actionPushedDuration = (actionPushedDuration < 4f) ? actionPushedDuration : 4f;
-                    float speedUp = 1f+ actionPushedDuration * actionPushedDuration * 2f;
-                    projectileHeld.Throw(speedUp);
-                    playerSpeed = 2f;
-                    timeSinceThrow += dt;
-                    Console.WriteLine("Throwing projectile with orientation: " + Orientation+ " and speedup: " +speedUp);
+                    if(projectileHeld.Type!= ProjectileType.Frog){
+                        actionPushedDuration = (actionPushedDuration < 4f) ? actionPushedDuration : 4f;
+                        float speedUp = 1f+ actionPushedDuration * actionPushedDuration * 2f;
+                        projectileHeld.Throw(speedUp);
+                        playerSpeed = 2f;
+                        timeSinceThrow += dt;
+                        Console.WriteLine("Throwing projectile with orientation: " + Orientation+ " and speedup: " +speedUp);
+                    }else{
+                        Projectile.active.Remove(projectileHeld);
+                        playerSpeed = 2f;
+                        Life++;
+                        timeSinceThrow += dt;
+                        Console.WriteLine("Eating frog. ");
+                    }
                 }
             }else { // Immune to hit by thrwon projectile for 1s. Also blocks catchin a new projectile
                 if(timeSinceThrow > 1f)
