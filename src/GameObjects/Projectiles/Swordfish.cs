@@ -25,6 +25,6 @@ public class Swordfish : Projectile
     public override void Throw(Vector3 origin, Vector3 target) 
     {
         base.Throw(origin, target);
-        Velocity = 2f;
+        Velocity = 4f;
     }
 }
