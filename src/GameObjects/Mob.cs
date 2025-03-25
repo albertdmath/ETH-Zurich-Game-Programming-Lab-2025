@@ -174,7 +174,7 @@ namespace src.GameObjects
 
             foreach (var entry in Projectile.ProjectileProbability)
             {
-                if (random.NextDouble() > entry.Value * 0.01f) continue;
+                if (random.NextDouble() > entry.Value * 0.02f) continue;
 
                 Zombie throwingZombie = Mob.active[random.Next(0, Mob.active.Length)];
                 while(throwingZombie.projectileHeld != null) throwingZombie = Mob.active[random.Next(0, Mob.active.Length)];
