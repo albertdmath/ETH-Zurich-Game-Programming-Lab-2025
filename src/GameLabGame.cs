@@ -37,6 +37,7 @@ namespace GameLab
         private SoundEffectInstance angrymobInstance;
         public const bool SOUND_ENABLED = true;
 
+        RenderTarget2D shadowMap;
         private Light Sun; 
 
         // Player settings
@@ -44,7 +45,7 @@ namespace GameLab
         private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
 
         PhongShading lightingShader; 
-
+        Shader shadowShader;
         // Camera settings
         private Vector3 cameraPos = new Vector3(0f, 9, 7);
         private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 9, 7), new Vector3(0, 0, 0.7f), Vector3.Up);
@@ -93,9 +94,17 @@ namespace GameLab
             mobs.Add(new DrawModel(Content.Load<Model>("mob1")));
             mobs.Add(new DrawModel(Content.Load<Model>("mob2")));
 
-            Effect eff = Content.Load<Effect>("lighting");
+            Effect eff = Content.Load<Effect>("lightingWithShadow");
+            
+            Effect eff2 = Content.Load<Effect>("shadowMap");
             this.lightingShader = new PhongShading(eff);
+            this.shadowShader = new Shader(eff2);
             this.Sun = new Light(new Vector3(0.99f,0.98f,0.82f), -new Vector3(3.0f,9.0f,7.0f));
+            shadowMap =new RenderTarget2D(_graphics.GraphicsDevice, 2048, 2048, false, SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
+
+            this.shadowShader.setLightSpaceMatrix(this.Sun.lightSpaceMatrix);
+
+            this.lightingShader.setLightSpaceMatrix(this.Sun.lightSpaceMatrix);
 
             lightingShader.setCameraPosition(this.cameraPos);
             lightingShader.setViewMatrix(this.view);
@@ -261,6 +270,36 @@ namespace GameLab
 
         protected override void Draw(GameTime gameTime)
         {
+            //SHADOW ZONE
+            GraphicsDevice.SetRenderTarget(shadowMap); 
+            GraphicsDevice.Clear(Color.Black);
+
+             arenaModel.Draw(view,projection,shadowShader,true);
+            //arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+            // Draw all active projectiles:
+            foreach (Projectile projectile in Projectile.active)
+            {
+                projectile.Draw(view, projection,shadowShader,true);
+                //projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+            }
+
+            // Draw all players
+            foreach (Player player in Player.active)
+            {
+                player.Draw(view, projection, shadowShader, true);
+                //player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
+            } 
+            mob.Draw(view, projection, shadowShader, true);
+
+            
+            //lightingShader.setShadowTexture(this.shadowMap);
+
+            GraphicsDevice.SetRenderTarget(null);
+            // _spriteBatch.Begin(0, BlendState.Opaque, SamplerState.AnisotropicClamp);
+            // _spriteBatch.Draw(shadowMap, new Rectangle(0, 0, 500, 500), Color.White);
+            // _spriteBatch.End();
+
+
             GraphicsDevice.Clear(Color.DeepSkyBlue); // Background color
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 

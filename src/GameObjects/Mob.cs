@@ -187,7 +187,7 @@ namespace src.GameObjects
 
         public void Draw(Matrix view, Matrix projection, Shader shader, bool shadowDraw) {
             foreach (Zombie zombie in active)
-                zombie.Draw(view, projection, shader, false);
+                zombie.Draw(view, projection, shader, shadowDraw);
         }
     }
     

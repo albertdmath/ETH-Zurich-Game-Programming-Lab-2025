@@ -45,7 +45,10 @@ public class GameModel {
                foreach(ModelMeshPart part in mesh.MeshParts){
                     part.Effect = shader.effect; 
                     shader.setWorldMatrix(Transform);
+                    
+                    if(!shadowDraw){
                     shader.setTexture(this.drawModel.textures[i]);
+                    }
                }
                i++;
             mesh.Draw();

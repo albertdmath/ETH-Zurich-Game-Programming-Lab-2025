@@ -100,6 +100,12 @@
 /processorParam:DebugMode=Auto
 /build:lighting.fx
 
+#begin lightingWithShadow.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:lightingWithShadow.fx
+
 #begin mob1.dae
 /importer:FbxImporter
 /processor:ModelProcessor
@@ -244,6 +250,12 @@
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
 /build:player4.dae
+
+#begin shadowMap.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:shadowMap.fx
 
 #begin swordfish.dae
 /importer:FbxImporter

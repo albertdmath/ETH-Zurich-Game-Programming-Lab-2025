@@ -21,6 +21,10 @@ public class Shader {
         effect.Parameters["World"].SetValue(world);
    }
 
+         public void setLightSpaceMatrix(Matrix lightSpace){
+        effect.Parameters["LightViewProjection"].SetValue(lightSpace);
+   }
+
    public void setLight(Light light){
     effect.Parameters["LightDirection"].SetValue(light.direction);
     effect.Parameters["LightColor"].SetValue(light.color);
@@ -29,6 +33,10 @@ public class Shader {
    
     public void setTexture(Texture2D tex){
         effect.Parameters["TextureSampler+ModelTexture"].SetValue(tex);
+    }
+
+    public void setShadowTexture(Texture2D shadowMap){
+      effect.Parameters["ShadowTexture"].SetValue(shadowMap);
     }
 
 }
