@@ -7,6 +7,9 @@ using System.Collections.Generic;
 using Accord.Math.Distances;
 using Microsoft.Xna.Framework.Graphics;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
+using Accord.Collections;
 
 namespace src.GameObjects
 {
@@ -18,14 +21,14 @@ namespace src.GameObjects
         public int Id { get; set; }
         // Private fields:
         private float playerSpeed = 2f;
-        public int Life { get; set; } = 3;
+        public int Life { get; set; } = 5;
         public float Stamina { get; set; } = 0f;
         public Projectile projectileHeld;
-        //private ProjectileType typeOfProjectileHeld = ProjectileType.None;
         private float dashTime = 0f;
         private const float TIME_CATCH_THROW = 0.5f;
         private float timeSinceThrow = 0f;
         private float actionPushedDuration;
+        private float stunDuration = 0f;
         public bool notImportant = false;
         private bool mob = false;
 
@@ -43,22 +46,24 @@ namespace src.GameObjects
             projectileHeld = null;
             this.Id = id;
             Inertia = new Vector3(0,0,0);
+            // Remove hat from hitbox; this is trashcode and needs to be removed / done better at some point
+            this.Hitbox.BoundingBoxes.RemoveAt(this.Hitbox.BoundingBoxes.Count - 1);
         }
 
-        public static void Initialize(Ellipse ellipse, Model model)
+        public static void Initialize(Ellipse ellipse, List<Model> models)
         {
             float[] playerStartPositions = { -0.75f, -0.25f, 0.25f, 0.75f };
-            float scaling = 1f;
-            // This should be removed, for Debug!
-            active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, ellipse, model, scaling));
-            active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, model, scaling));
+            float scaling = 0.5f;
+            // Keyboard controls for debug:
+            active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, ellipse, models[0], scaling));
+            //active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, models[1], scaling));
 
             // TODO: fix player creation
-            for (int i = 2; i < GameLabGame.NUM_PLAYERS; i++)
+            for (int i = 0; i < GameLabGame.NUM_PLAYERS; i++)
             {
                 PlayerIndex idx = (PlayerIndex)i;
                 if (GamePad.GetState(idx).IsConnected)
-                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new InputController(idx), i + 1, ellipse, model, scaling));
+                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new InputController(idx), i, ellipse, models[i], scaling));
             }
         }
 
@@ -67,11 +72,11 @@ namespace src.GameObjects
         {
             Vector3 dir = input.Direction();
             //inertia to keep some movement from last update;
-            Inertia -=(5f*dt)* Inertia;
-            if (dir.Length() > 0)
+            Inertia -=(9f*dt)* Inertia;
+            if (stunDuration<=0f && dir.Length() > 0)
             {
                 dir = Vector3.Normalize(dir);
-                Inertia += (5f*dt)*dir;
+                Inertia += (9f*dt)*dir;
                 // Limit Inertia to a vector of length 1
                 if (Inertia.Length() > 1f)
                     Inertia = Vector3.Normalize(Inertia);
@@ -99,17 +104,21 @@ namespace src.GameObjects
             if (projectile != projectileHeld && Hitbox.Intersects(projectile.Hitbox))
             {
                 // case 1 no projectile held and action button pressed not to long ago -> catch it
-                if (input.Action()
+                if (stunDuration<=0f && input.Action()
                     && projectileHeld == null
                     && actionPushedDuration<0.7f
                     )
                 {
                     projectileHeld = projectile;
-                    projectile.Caught(this);
                     timeSinceThrow = 0f;
+                    projectile.Catch(this);
                     Console.WriteLine("Grabbing " + projectile.Type);
                     // Here the player speed is set for the movement with projectile in hand
-                    playerSpeed = 0.3f;
+                    playerSpeed = 0.9f;
+
+                    // Handle the equip sound effect.
+                    // For anyone reading, it takes 3 parameters: volume, pitch, pan.
+                    MusicAndSoundEffects.equipSFX.Play(0.7f, 0.0f, 0.0f);
                     return false;
                 } else // the player is hit by the projectile
                 {
@@ -119,6 +128,24 @@ namespace src.GameObjects
                         // For now the player is moved down to indacet crawling. Later done with an animation
                         Position = Position - new Vector3(0, 0.2f, 0);
                         playerSpeed = 1f;
+                    }
+
+                    // SFX handling:
+                    if(GameLabGame.SOUND_ENABLED) {
+                        switch(projectile.Type)
+                        {
+                            case ProjectileType.Frog:
+                                MusicAndSoundEffects.frogSFX.Play(0.5f, 0.0f, 0.0f);
+                                break;
+                            case ProjectileType.Swordfish:
+                                MusicAndSoundEffects.swordfishSFX.Play(0.8f, 0.0f, 0.0f);
+                                break;
+                            case ProjectileType.Tomato:
+                                MusicAndSoundEffects.tomatoSFX.Play(0.9f, 0.0f, 0.0f);
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     return true;
                 }
@@ -137,12 +164,20 @@ namespace src.GameObjects
                 }
                 else if (!input.Action() && actionPushedDuration > 0f && playerSpeed == 0f) // Releasing projectile
                 {
-                    actionPushedDuration = (actionPushedDuration < 4f) ? actionPushedDuration : 4f;
-                    float speedUp = 1f+ actionPushedDuration * actionPushedDuration * 0.5f;
-                    projectileHeld.Throw(speedUp);
-                    playerSpeed = 2f;
-                    timeSinceThrow += dt;
-                    Console.WriteLine("Throwing projectile with orientation: " + Orientation+ " and speedup: " +speedUp);
+                    if(projectileHeld.Type!= ProjectileType.Frog){
+                        actionPushedDuration = (actionPushedDuration < 4f) ? actionPushedDuration : 4f;
+                        float speedUp = 1f+ actionPushedDuration * actionPushedDuration * 2f;
+                        projectileHeld.Throw(speedUp);
+                        playerSpeed = 2f;
+                        timeSinceThrow += dt;
+                        Console.WriteLine("Throwing projectile with orientation: " + Orientation+ " and speedup: " +speedUp);
+                    }else{
+                        Projectile.active.Remove(projectileHeld);
+                        playerSpeed = 2f;
+                        Life++;
+                        timeSinceThrow += dt;
+                        Console.WriteLine("Eating frog. ");
+                    }
                 }
             }else { // Immune to hit by thrwon projectile for 1s. Also blocks catchin a new projectile
                 if(timeSinceThrow > 1f)
@@ -154,7 +189,7 @@ namespace src.GameObjects
         // Method to dash. Current dash cost 30
         private bool Dash(float dt)
         {
-            if (input.Dash() && dashTime <= 0f && Stamina > 30f)
+            if (stunDuration<=0f && input.Dash() && dashTime <= 0f && Stamina > 30f)
             {
                 dashTime = 0.1f;
                 Stamina -= 30f;
@@ -175,10 +210,11 @@ namespace src.GameObjects
         {
             if(input.Action() && Stamina>40f && projectileHeld == null)
             {
-                projectileHeld = Projectile.createProjectile(ProjectileType.Swordfish,Position,Orientation,GameLabGame.projectileModels[ProjectileType.Swordfish]);
-                projectileHeld.Caught(this);
-                playerSpeed = 0.3f;
+                projectileHeld = Projectile.CreateProjectile(ProjectileType.Swordfish,Position,Orientation);
+                projectileHeld.Catch(this);
+                playerSpeed = 0.9f;
                 timeSinceThrow = 0f;
+                playerSpeed = 0.3f;
                 Stamina -= 40f;
                 return false;
             }
@@ -194,27 +230,35 @@ namespace src.GameObjects
                 player.updateHitbox();
             }
         }
+        public void mobCollision(Zombie zombie){
+            Vector3 dir = 0.02f * Vector3.Normalize(new Vector3(Position.X-zombie.Position.X,0f,Position.Z-zombie.Position.Z));
+            if(Hitbox.Intersects(zombie.Hitbox))
+            {
+                while(Hitbox.Intersects(zombie.Hitbox)){
+                    Position += dir;
+                    updateHitbox();
+                }
+                Orientation = ellipse.Normal(Position.X,Position.Z);
+                Inertia = 1.6f * Orientation;
+                stunDuration = 1f;
+            }
+        }
         // Update function called each update
         public override void Update(float dt)
         {
             Stamina += dt * 5f;
             Stamina = (Stamina > 100f) ? 100f : Stamina;
             if (Life > 0f) // Behaviour when alive
-            {
+            {   
+                stunDuration -= dt;
                 if (!Dash(dt))
                 {
                     Move(dt);
-                    if (projectileHeld != null)
+                    if (stunDuration<=0f && projectileHeld != null)
                     {
                         Throw(dt);
                     }
-                    else
-                    {
-                        
-                    }
                 }
-                while(ellipse.Outside(Position.X,Position.Z))
-                    Position += playerSpeed * ellipse.Normal(Position.X,Position.Z) * dt * 0.1f;
             } else if(mob) // Behaviour when part of mob
             {
                 if(Spawn())
@@ -225,7 +269,7 @@ namespace src.GameObjects
                         Throw(dt);
                     }
                     while(ellipse.Inside(Position.X,Position.Z))
-                        Position += playerSpeed * ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
+                        Position += ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
                 }
             } else // Crawling
             {
@@ -237,8 +281,14 @@ namespace src.GameObjects
                     playerSpeed = 2f;
                 }
             }
-            notImportant = notImportant || (input.Action() && input.Dash());
+            //notImportant = notImportant || (input.Action() && input.Dash());
             actionPushedDuration = (input.Action()) ? actionPushedDuration + dt : 0f;
+        }
+
+        public override void Draw(Matrix view, Matrix projection)
+        {
+            if(stunDuration<=0f || ((int)(stunDuration*10f))%2==0)
+                base.Draw(view, projection);
         }
     }
 }

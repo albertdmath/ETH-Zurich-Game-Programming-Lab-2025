@@ -13,7 +13,7 @@ public class GameModel {
 
     public Matrix Transform { get; set; }
     protected Matrix Scaling;
-    public GameModel(Model model,float scale) {
+    public GameModel(Model model, float scale) {
         Model = model;
         Scaling = Matrix.CreateScale(scale);
         CalculateTransform();
@@ -33,7 +33,8 @@ public class GameModel {
     }
     public virtual void Update(float dt){}
 
-    public void Draw(Matrix view, Matrix projection){
+    public virtual void Draw(Matrix view, Matrix projection){
+        CalculateTransform();
         foreach (ModelMesh mesh in Model.Meshes)
             {
                 foreach (BasicEffect effect in mesh.Effects)

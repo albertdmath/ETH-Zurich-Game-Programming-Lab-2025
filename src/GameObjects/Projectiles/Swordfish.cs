@@ -6,15 +6,25 @@ namespace src.GameObjects;
 public class Swordfish : Projectile
 {
     // Private fields:
+    private const float MAX_VELOCITY = 20;
 
     // Constructor:
-    public Swordfish(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling) {
-        baseVelocity = 2.0f;
-        velocity=baseVelocity;
-     }
+    public Swordfish(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling) {}
 
     public override void Move(float dt)
     {
-        Position += velocity * Orientation * dt;
+        Position += Velocity * Orientation * dt;
+    }
+
+    public override void Throw(float chargeUp)
+    {
+        base.Throw(chargeUp);
+        Velocity = Math.Min(Velocity + chargeUp, MAX_VELOCITY);
+    }
+
+    public override void Throw(Vector3 origin, Vector3 target) 
+    {
+        base.Throw(origin, target);
+        Velocity = 4f;
     }
 }

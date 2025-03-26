@@ -13,8 +13,14 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
 
-public static class Sounds
+public static class MusicAndSoundEffects
 {
-    public static SoundEffect projectileSound;
+    // Sound effects:
+    public static SoundEffect equipSFX;
+    public static SoundEffect swordfishSFX;
+    public static SoundEffect frogSFX;
+    public static SoundEffect tomatoSFX;
+    public static SoundEffect angrymobSFX;
+    // Backing track:
     public static Song bgMusic;
 }
