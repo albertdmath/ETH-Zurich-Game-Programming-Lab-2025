@@ -12,7 +12,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
-
+using Myra;
+using Myra.Graphics2D.UI;
 //local imports
 using src.GameObjects;
 
@@ -20,19 +21,26 @@ namespace GameLab
 {
     public class GameLabGame : Game
     {
-        protected static Random rng = new Random();
+        private Desktop _desktop;
+        private bool _pausemenuopen=false;
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private SpriteFont font;
-
+        private KeyboardState _previousKeyboardstate;
         // Private fields:
-        private Model arena, playerModel;
+        private Model arena;
+        private List<Model> players = new List<Model>();
+        private List<Model> mobs = new List<Model>();
+
         public static GameModel arenaModel;
         public static Dictionary<ProjectileType, Model> projectileModels = new Dictionary<ProjectileType, Model>();
         private LinkedList<Projectile> hitProjectiles = new LinkedList<Projectile>();
+        Texture2D playerHearts;
+        private SoundEffectInstance angrymobInstance;
+        public const bool SOUND_ENABLED = true;
 
         // Player settings
-        public static int NUM_PLAYERS = 2;
+        public static int NUM_PLAYERS = 4;
         private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
 
         // Camera settings
@@ -46,15 +54,11 @@ namespace GameLab
 
         // Arena transformations
         private Matrix arenaScaling = Matrix.CreateScale(new Vector3(0.5f));
-        private Ellipse innerEllipse = new Ellipse(7.0f,4f);
-        private Ellipse outerEllipse = new Ellipse(7.3f,4.2f);
 
         private Mob mob;
         private int nAlivePlayers = NUM_PLAYERS;
         private Player lastPlayer;
 
-        private Menu _gameMenu;
-        private KeyboardState _previousKeyboardState;
         public GameLabGame()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -68,11 +72,6 @@ namespace GameLab
             _graphics.IsFullScreen = false; // Enable full screen
             _graphics.ApplyChanges();
 
-            // Initialize the ring of doom:
-            int planeWidth = 10, planeHeight = 10;
-            Ring.active = new Ring(planeWidth, planeHeight);
-
-
             base.Initialize();
         }
 
@@ -82,49 +81,132 @@ namespace GameLab
             // Load the player/projectile models
             // Textured arena model currently named test TODO change that and remove old arena model too
             arena = Content.Load<Model>("arena");
-            playerModel = Content.Load<Model>("player");
+
+            players.Add(Content.Load<Model>("player1"));
+            players.Add(Content.Load<Model>("player2"));
+            players.Add(Content.Load<Model>("player3"));
+            players.Add(Content.Load<Model>("player4"));
+
+            mobs.Add(Content.Load<Model>("mob1"));
+            mobs.Add(Content.Load<Model>("mob2"));
+
+
             font = Content.Load<SpriteFont>("font");
+            playerHearts = Content.Load<Texture2D>("player_heart");
 
             // Load the projectile models
             projectileModels.Add(ProjectileType.Frog, Content.Load<Model>("frog"));
             projectileModels.Add(ProjectileType.Swordfish, Content.Load<Model>("swordfish"));
             projectileModels.Add(ProjectileType.Tomato, Content.Load<Model>("tomato"));
-            //GameMeun
-            _gameMenu = new Menu(font,GraphicsDevice);
+
 
             // Initialize game models (they are only known at this point so they can't be in the initialize method)
-            Player.Initialize(innerEllipse, playerModel);
-            //private Matrix arenaScaling = Matrix.CreateScale(new Vector3(0.5f));
             arenaModel = new GameModel(arena,0.5f);
 
             // Initialize mob
-            mob = new Mob(innerEllipse, outerEllipse, projectileModels[ProjectileType.Frog]);
+            float height = 9f, width = 15f; //this should be the size of the arena
+            mob = new Mob(height, width, mobs);
+
+            // Initialize players
+            Player.Initialize(mob.Ellipse, players);
 
             // Load Sounds:
-            //Sounds.bgMusic = Content.Load<Song>("Audio/yoga-dogs-all-good-folks");
-            //MediaPlayer.Play(Sounds.bgMusic);
-            //MediaPlayer.IsRepeating = true;
+            MusicAndSoundEffects.bgMusic = Content.Load<Song>("Audio/yoga-dogs-all-good-folks");
+            MediaPlayer.Volume = 0.1f;
+            MediaPlayer.IsRepeating = true;
+            MusicAndSoundEffects.equipSFX = Content.Load<SoundEffect>("Audio/equipSFX");
+            MusicAndSoundEffects.frogSFX = Content.Load<SoundEffect>("Audio/frogSFX");
+            MusicAndSoundEffects.swordfishSFX = Content.Load<SoundEffect>("Audio/swordfishSFX");
+            MusicAndSoundEffects.tomatoSFX = Content.Load<SoundEffect>("Audio/tomatoSFX");
+            MusicAndSoundEffects.angrymobSFX = Content.Load<SoundEffect>("Audio/angrymobSFX");
+            angrymobInstance = MusicAndSoundEffects.angrymobSFX.CreateInstance();
+            angrymobInstance.IsLooped = true;
+            angrymobInstance.Volume = 0.3f;
+
+            if(SOUND_ENABLED) {
+                MediaPlayer.Play(MusicAndSoundEffects.bgMusic);
+                angrymobInstance.Play();
+            }
+            //MYRA===============
+            MyraEnvironment.Game = this;
+
+            var grid = new Grid{
+                RowSpacing = 8,
+                ColumnSpacing = 8
+            };
+
+            grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+            grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+            grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+            grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+
+            var helloworld = new Label{
+                Id="label",
+                Text = "hello world!"
+            };
+            grid.Widgets.Add(helloworld);
+            
+            var combo = new ComboView();
+            Grid.SetColumn(combo,1);
+            Grid.SetRow(combo,0);
+
+            combo.Widgets.Add(new Label{Text = "Red", TextColor = Color.Red});
+            combo.Widgets.Add(new Label{Text = "Green", TextColor = Color.Green});
+            combo.Widgets.Add(new Label{Text = "Blue", TextColor = Color.Blue});
+
+            grid.Widgets.Add(combo);
+
+            Button button = new Button{
+                Width = 100,
+                Height = 30,
+                Content = new Label
+                {
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Text = "Resume"
+                }
+            };
+            Grid.SetColumn(button,8);
+            Grid.SetRow(button,8);
+            button.Click += (s,a)=>{
+                var messageBox = Dialog.CreateMessageBox("Error", "Cant resume yet");
+                messageBox.ShowModal(_desktop);
+            };
+
+            grid.Widgets.Add(button);
+
+            var spinButton = new SpinButton{
+                Width=100,
+                Nullable=true
+            };
+            Grid.SetColumn(spinButton,2);
+            Grid.SetRow(spinButton,2);
+
+            grid.Widgets.Add(spinButton);
+
+            _desktop = new Desktop();
+            _desktop.Root = grid;
         }
 
         protected override void Update(GameTime gameTime)
         {
-            //get keyboardstate
             KeyboardState keyboardState = Keyboard.GetState();
-            _gameMenu.Update(keyboardState,_previousKeyboardState);
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || (_gameMenu.IsActive() && keyboardState.IsKeyDown(Keys.Escape)))
-                Exit();
+
+            if(keyboardState.IsKeyDown(Keys.Escape) && _previousKeyboardstate.IsKeyUp(Keys.Escape)){
+                _pausemenuopen = !_pausemenuopen;
+            }
+
+            if(_pausemenuopen){
+                
+                _previousKeyboardstate = keyboardState;
+                base.Update(gameTime);
+                return;
+            }
+            //if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+                //Exit();
+
+        
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            
-            if(_gameMenu.IsActive()){
-            _previousKeyboardState = keyboardState;
-
-            base.Update(gameTime);
-            return;
-            }            
-
-
-            // Spawn a new projectile
-            Projectile.MobShoot(dt, rng);
 
             // Move all the projectiles
             foreach (Projectile projectile in Projectile.active)
@@ -138,12 +220,11 @@ namespace GameLab
             foreach (Player player in Player.active)
             {
                 player.updateWrap(dt);
-                if(player.projectileHeld != null && !Projectile.active.Contains(player.projectileHeld))
-                    Projectile.active.AddLast(player.projectileHeld);
             }
+
             // Players bumping into each other
-            for(int i= 0;i<Player.active.Count;++i)
-                for(int j= i+1;j<Player.active.Count;++j)
+            for(int i = 0; i<Player.active.Count; ++i)
+                for(int j = i+1; j<Player.active.Count; ++j)
                     Player.active[i].playerCollision(Player.active[j]);
 
             // Check if players got hit / grabbed something
@@ -156,8 +237,7 @@ namespace GameLab
                     lastPlayer = player;
                     foreach (Projectile projectile in Projectile.active)
                     {
-                        //we should decide how much distance
-                        if (player.GrabOrHit(projectile))
+                        if (projectile.Free() && player.GrabOrHit(projectile))
                             hitProjectiles.AddLast(projectile);
                     }
                 }
@@ -171,8 +251,8 @@ namespace GameLab
 
             // Update mob
             mob.Update(dt);
-            // Update previous keyboardstate
-            _previousKeyboardState = keyboardState;
+
+            _previousKeyboardstate = keyboardState;
 
             base.Update(gameTime);
         }
@@ -182,16 +262,28 @@ namespace GameLab
             switch (Player.active.Count)
             {
                 case 4:
-                    _spriteBatch.DrawString(font, "Lives: " + Player.active[3].Life + "  Stamina: " + (int)Player.active[3].Stamina, new Vector2(1500, 950), Color.Yellow);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[3].Stamina, new Vector2(1500, 950), Color.Yellow);
+                    for(int i = 0; i < Player.active[3].Life; i++) {
+                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
+                    }          
                     goto case 3;
                 case 3:
-                    _spriteBatch.DrawString(font, "Lives: " + Player.active[2].Life + "  Stamina: " + (int)Player.active[2].Stamina, new Vector2(10, 950), Color.Orange);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[2].Stamina, new Vector2(10, 950), Color.Green);
+                    for(int i = 0; i < Player.active[2].Life; i++) {
+                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
+                    }
                     goto case 2;
                 case 2:
-                    _spriteBatch.DrawString(font, "Lives: " + Player.active[1].Life + "  Stamina: " + (int)Player.active[1].Stamina, new Vector2(1500, 10), Color.White);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[1].Stamina, new Vector2(1500, 50), Color.Pink);
+                    for(int i = 0; i < Player.active[1].Life; i++) {
+                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
+                    }
                     goto case 1;
                 case 1:
-                    _spriteBatch.DrawString(font, "Lives: " + Player.active[0].Life + "  Stamina: " + (int)Player.active[0].Stamina, new Vector2(10, 10), Color.Red);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[0].Stamina, new Vector2(10, 50), Color.Blue);
+                    for(int i = 0; i < Player.active[0].Life; i++) {
+                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
+                    }
                     goto default;
                 default:
                     break;
@@ -208,7 +300,7 @@ namespace GameLab
                 pixel.SetData(new[] { Color.White });
 
                 // Define text
-                string winMessage = "Player " + lastPlayer.Id + " wins!";
+                string winMessage = "Player " + (lastPlayer.Id+1) + " wins!";
 
                 // Measure text size
                 Vector2 textSize = font.MeasureString(winMessage);
@@ -227,7 +319,6 @@ namespace GameLab
                 _spriteBatch.Draw(pixel, backgroundRect, Color.Black * 0.5f); // Semi-transparent black
                 _spriteBatch.DrawString(font, winMessage, textPosition, Color.Gold);
             }
-
         }
 
         protected override void Draw(GameTime gameTime)
@@ -240,30 +331,32 @@ namespace GameLab
 
             //DrawModel(arena, arenaScaling);
             arenaModel.Draw(view,projection);
-            arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+            //arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             // Draw all active projectiles:
             foreach (Projectile projectile in Projectile.active)
             {
                 projectile.Draw(view, projection);
-                projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+                //projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             }
 
             // Draw all players
             foreach (Player player in Player.active)
             {
                 player.Draw(view, projection);
-                player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
+                //player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
             } 
 
-            // Draw mob
+            // Draw mob and player statistics:
             mob.Draw(view, projection);
-           
-
             DrawHealthAndStamina();
             DrawWin();
-
             _spriteBatch.End();
-            _gameMenu.Draw(_spriteBatch);
+
+            //MYRA===============
+            if(_pausemenuopen){
+                _desktop.Render();
+            }
+            //===================
             base.Draw(gameTime);
         }
     }
