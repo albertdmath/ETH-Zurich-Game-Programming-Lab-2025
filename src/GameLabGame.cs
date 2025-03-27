@@ -21,12 +21,11 @@ namespace GameLab
 {
     public class GameLabGame : Game
     {
-        private Desktop _desktop;
-        private bool _pausemenuopen=false;
+        private MyMenu _menu;
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private SpriteFont font;
-        private KeyboardState _previousKeyboardstate;
+        private KeyboardState _previousKeyboardState;
         // Private fields:
         private Model arena;
         private List<Model> players = new List<Model>();
@@ -74,7 +73,9 @@ namespace GameLab
 
             base.Initialize();
         }
-
+        private void InitMob(float height, float width){
+            mob = new Mob(height,width,mobs);
+        }
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -105,7 +106,7 @@ namespace GameLab
 
             // Initialize mob
             float height = 9f, width = 15f; //this should be the size of the arena
-            mob = new Mob(height, width, mobs);
+            InitMob(height,width);
 
             // Initialize players
             Player.Initialize(mob.Ellipse, players);
@@ -127,78 +128,26 @@ namespace GameLab
                 MediaPlayer.Play(MusicAndSoundEffects.bgMusic);
                 angrymobInstance.Play();
             }
-            //MYRA===============
-            MyraEnvironment.Game = this;
-
-            var grid = new Grid{
-                RowSpacing = 8,
-                ColumnSpacing = 8
-            };
-
-            grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-            grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-            grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-            grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-
-            var helloworld = new Label{
-                Id="label",
-                Text = "hello world!"
-            };
-            grid.Widgets.Add(helloworld);
-            
-            var combo = new ComboView();
-            Grid.SetColumn(combo,1);
-            Grid.SetRow(combo,0);
-
-            combo.Widgets.Add(new Label{Text = "Red", TextColor = Color.Red});
-            combo.Widgets.Add(new Label{Text = "Green", TextColor = Color.Green});
-            combo.Widgets.Add(new Label{Text = "Blue", TextColor = Color.Blue});
-
-            grid.Widgets.Add(combo);
-
-            Button button = new Button{
-                Width = 100,
-                Height = 30,
-                Content = new Label
-                {
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Text = "Resume"
-                }
-            };
-            Grid.SetColumn(button,8);
-            Grid.SetRow(button,8);
-            button.Click += (s,a)=>{
-                var messageBox = Dialog.CreateMessageBox("Error", "Cant resume yet");
-                messageBox.ShowModal(_desktop);
-            };
-
-            grid.Widgets.Add(button);
-
-            var spinButton = new SpinButton{
-                Width=100,
-                Nullable=true
-            };
-            Grid.SetColumn(spinButton,2);
-            Grid.SetRow(spinButton,2);
-
-            grid.Widgets.Add(spinButton);
-
-            _desktop = new Desktop();
-            _desktop.Root = grid;
+            _menu = new MyMenu(_graphics,this);
+        }
+        public void ReLoad(){
+            //projectileModels.Clear();
+            hitProjectiles.Clear();
+            Projectile.active.Clear();
+            nAlivePlayers = NUM_PLAYERS;
+            InitMob(height:9f,width:15f);
+            Player.Initialize(mob.Ellipse,players);
         }
 
         protected override void Update(GameTime gameTime)
         {
             KeyboardState keyboardState = Keyboard.GetState();
 
-            if(keyboardState.IsKeyDown(Keys.Escape) && _previousKeyboardstate.IsKeyUp(Keys.Escape)){
-                _pausemenuopen = !_pausemenuopen;
-            }
+            _menu.Update(gameTime,keyboardState,_previousKeyboardState);
 
-            if(_pausemenuopen){
+            if(_menu.menuisopen()){
                 
-                _previousKeyboardstate = keyboardState;
+                _previousKeyboardState = keyboardState;
                 base.Update(gameTime);
                 return;
             }
@@ -252,7 +201,7 @@ namespace GameLab
             // Update mob
             mob.Update(dt);
 
-            _previousKeyboardstate = keyboardState;
+            _previousKeyboardState = keyboardState;
 
             base.Update(gameTime);
         }
@@ -353,9 +302,7 @@ namespace GameLab
             _spriteBatch.End();
 
             //MYRA===============
-            if(_pausemenuopen){
-                _desktop.Render();
-            }
+            _menu.Draw();
             //===================
             base.Draw(gameTime);
         }

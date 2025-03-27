@@ -52,6 +52,7 @@ namespace src.GameObjects
 
         public static void Initialize(Ellipse ellipse, List<Model> models)
         {
+            active.Clear();
             float[] playerStartPositions = { -0.75f, -0.25f, 0.25f, 0.75f };
             float scaling = 0.5f;
             // Keyboard controls for debug:
