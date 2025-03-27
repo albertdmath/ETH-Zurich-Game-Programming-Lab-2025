@@ -20,12 +20,12 @@ namespace src.GameObjects
 
         public int Id { get; set; }
         // Private fields:
-        private float playerSpeed = 2f;
+        private float playerSpeed = 4;
         public int Life { get; set; } = 5;
         public float Stamina { get; set; } = 0f;
         public Projectile projectileHeld;
         private float dashTime = 0f;
-        private const float TIME_CATCH_THROW = 0.5f;
+        private const float TIME_CATCH_THROW = 0.9f;
         private float timeSinceThrow = 0f;
         private float actionPushedDuration;
         private float stunDuration = 0f;
@@ -56,7 +56,7 @@ namespace src.GameObjects
             float scaling = 0.5f;
             // Keyboard controls for debug:
             active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, ellipse, models[0], scaling));
-            //active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, models[1], scaling));
+            active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, models[1], scaling));
 
             // TODO: fix player creation
             for (int i = 0; i < GameLabGame.NUM_PLAYERS; i++)
@@ -117,12 +117,12 @@ namespace src.GameObjects
                     playerSpeed = 0.9f;
 
                     // Handle the equip sound effect.
-                    // For anyone reading, it takes 3 parameters: volume, pitch, pan.
-                    MusicAndSoundEffects.equipSFX.Play(0.7f, 0.0f, 0.0f);
+                    MusicAndSoundEffects.playEquipSFX();
                     return false;
                 } else // the player is hit by the projectile
                 {
                     Life -= notImportant ? 0 : 1;
+                    input.Vibrate();
                     if (Life == 0f)
                     {
                         // For now the player is moved down to indacet crawling. Later done with an animation
@@ -132,20 +132,7 @@ namespace src.GameObjects
 
                     // SFX handling:
                     if(GameLabGame.SOUND_ENABLED) {
-                        switch(projectile.Type)
-                        {
-                            case ProjectileType.Frog:
-                                MusicAndSoundEffects.frogSFX.Play(0.5f, 0.0f, 0.0f);
-                                break;
-                            case ProjectileType.Swordfish:
-                                MusicAndSoundEffects.swordfishSFX.Play(0.8f, 0.0f, 0.0f);
-                                break;
-                            case ProjectileType.Tomato:
-                                MusicAndSoundEffects.tomatoSFX.Play(0.9f, 0.0f, 0.0f);
-                                break;
-                            default:
-                                break;
-                        }
+                        MusicAndSoundEffects.playProjectileSound(projectile.Type);
                     }
                     return true;
                 }
@@ -248,6 +235,7 @@ namespace src.GameObjects
         {
             Stamina += dt * 5f;
             Stamina = (Stamina > 100f) ? 100f : Stamina;
+            input.EndVibrate(dt);
             if (Life > 0f) // Behaviour when alive
             {   
                 stunDuration -= dt;

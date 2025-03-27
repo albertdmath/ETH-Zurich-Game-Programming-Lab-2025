@@ -11,6 +11,7 @@ namespace src.GameObjects
     public class InputController : Input
     {
         PlayerIndex p;
+        float vibrate =0f;
         // Constructor: Only allow to assign position here, lifes stamina and so on are a global property and need to be the same for
         public InputController(PlayerIndex p){
             this.p = p;
@@ -44,6 +45,15 @@ namespace src.GameObjects
         public override bool Dash()
         {
             return GamePad.GetState(p).Buttons.B == ButtonState.Pressed;
+        }
+        public override void Vibrate(){
+            GamePad.SetVibration(p,1,1);
+            vibrate = .2f;
+        }
+        public override void EndVibrate(float dt){
+            vibrate-=dt;
+            if(vibrate<0f)
+                GamePad.SetVibration(p,0,0);
         }
     }
 }

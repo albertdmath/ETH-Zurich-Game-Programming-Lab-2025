@@ -48,5 +48,7 @@ namespace src.GameObjects
         {
             return Keyboard.GetState().IsKeyDown(Keys.G);
         }
+        public virtual void Vibrate(){}
+        public virtual void EndVibrate(float dt){}
     }
 }
