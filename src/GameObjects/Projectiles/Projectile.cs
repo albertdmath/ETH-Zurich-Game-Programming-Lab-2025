@@ -10,7 +10,8 @@ namespace src.GameObjects
     {
         Frog,
         Swordfish,
-        Tomato
+        Tomato,
+        Coconut
     }
 
     /** Class for the projectiles **/
@@ -29,7 +30,8 @@ namespace src.GameObjects
         {
             { ProjectileType.Frog, 0.1f },
             { ProjectileType.Swordfish, 0.45f },
-            { ProjectileType.Tomato, 0.45f }
+            { ProjectileType.Tomato, 0.45f },
+            { ProjectileType.Coconut, 0.45f }
         };
 
         // Constructor:
@@ -53,6 +55,9 @@ namespace src.GameObjects
                     break;
                 case ProjectileType.Tomato:
                     projectile = new Tomato(type, origin, target, GameLabGame.projectileModels[ProjectileType.Tomato], 1f);
+                    break;
+                case ProjectileType.Coconut:
+                    projectile = new Tomato(type, origin, target, GameLabGame.projectileModels[ProjectileType.Coconut], 1f);
                     break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());

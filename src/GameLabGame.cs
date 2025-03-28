@@ -5,8 +5,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 
 //using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -38,7 +37,6 @@ namespace GameLab
 
         // Player settings
         public static int NUM_PLAYERS = 4;
-        private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
 
         // Camera settings
         private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 9, 7), new Vector3(0, 0, 0.7f), Vector3.Up);
@@ -95,6 +93,8 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Frog, Content.Load<Model>("frog"));
             projectileModels.Add(ProjectileType.Swordfish, Content.Load<Model>("swordfish"));
             projectileModels.Add(ProjectileType.Tomato, Content.Load<Model>("tomato"));
+            //this should be the coconut model
+            projectileModels.Add(ProjectileType.Coconut, Content.Load<Model>("tomato"));
 
 
             // Initialize game models (they are only known at this point so they can't be in the initialize method)
