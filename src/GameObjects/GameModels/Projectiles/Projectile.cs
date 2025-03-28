@@ -31,7 +31,7 @@ namespace src.GameObjects
             { ProjectileType.Frog, 0.1f },
             { ProjectileType.Swordfish, 0.45f },
             { ProjectileType.Tomato, 0.45f },
-            { ProjectileType.Coconut, 0.45f }
+            { ProjectileType.Coconut, 0.3f }
         };
 
         // Constructor:
@@ -57,7 +57,7 @@ namespace src.GameObjects
                     projectile = new Tomato(type, origin, target, GameLabGame.projectileModels[ProjectileType.Tomato], 1f);
                     break;
                 case ProjectileType.Coconut:
-                    projectile = new Tomato(type, origin, target, GameLabGame.projectileModels[ProjectileType.Coconut], 1f);
+                    projectile = new Coconut(type, origin, target, GameLabGame.projectileModels[ProjectileType.Coconut], 1f);
                     break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());
@@ -68,6 +68,17 @@ namespace src.GameObjects
 
         // Virtual methods for derived classes to override
         public virtual void Move(float dt) { }
+
+        public virtual void Hit() 
+        { 
+            // Check if projectile is out of bounds
+            if (MathF.Abs(Position.X) > GameLabGame.ARENA_HEIGHT * 0.5f || 
+                MathF.Abs(Position.Z) > GameLabGame.ARENA_WIDTH * 0.5f)
+            {
+                active.Remove(this);
+                return;
+            }
+        }
 
         public virtual void Throw(float chargeUp) {
             this.Position = Holder.Position + Holder.Orientation;

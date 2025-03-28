@@ -114,5 +114,24 @@ namespace src.GameObjects
             // Calculate the initial velocity using the simplified formula
             return (float)Math.Sqrt((HALF_GRAVITY * distance) / (Math.Cos(THROW_ANGLE) * Math.Sin(THROW_ANGLE)));
         }
+
+        public override void Hit()
+        {   
+            base.Hit();
+            
+            //check intersection with players
+            bool hit = false;
+            foreach (Player player in Player.active.Where(p => p.Life > 0))
+            {
+                if(this.Hitbox.Intersects(player.Hitbox))
+                {
+                    player.Life--;
+                    hit = true;
+                }
+            }
+
+            //if intersects, update
+            if(hit) active.Remove(this);
+        }
     }
 }

@@ -52,19 +52,20 @@ namespace src.GameObjects
 
         public static void Initialize(Ellipse ellipse, List<Model> models)
         {
-            float[] playerStartPositions = { -0.75f, -0.25f, 0.25f, 0.75f };
-            float scaling = 0.5f;
-            // Keyboard controls for debug:
-            active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, ellipse, models[0], scaling));
-            //active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, models[1], scaling));
+            float[] playerStartPositions = { -1.5f, -0.5f, 0.5f, 1.5f };
 
+            active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, ellipse, models[0], 0.5f));
+            active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, models[1], 0.5f));
+
+            /*
             // TODO: fix player creation
             for (int i = 0; i < GameLabGame.NUM_PLAYERS; i++)
             {
                 PlayerIndex idx = (PlayerIndex)i;
                 if (GamePad.GetState(idx).IsConnected)
-                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new InputController(idx), i, ellipse, models[i], scaling));
+                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new InputController(idx), i, ellipse, models[i], 0.5f));
             }
+            */
         }
 
         // The player move method:

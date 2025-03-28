@@ -45,5 +45,10 @@ namespace src.GameObjects
         {
             return GamePad.GetState(p).Buttons.B == ButtonState.Pressed;
         }
+
+        public bool Emote()
+        {
+            return GamePad.GetState(p).Buttons.X == ButtonState.Pressed;
+        }
     }
 }

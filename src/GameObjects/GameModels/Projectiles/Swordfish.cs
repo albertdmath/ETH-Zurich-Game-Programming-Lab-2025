@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Linq;
 
 namespace src.GameObjects;
 public class Swordfish : Projectile
@@ -25,6 +26,25 @@ public class Swordfish : Projectile
     public override void Throw(Vector3 origin, Vector3 target) 
     {
         base.Throw(origin, target);
-        Velocity = 4f;
+        Velocity = 2f;
+    }
+
+    public override void Hit()
+    {   
+        base.Hit();
+        
+        //check intersection with players
+        bool hit = false;
+        foreach (Player player in Player.active.Where(p => p.Life > 0))
+        {
+            if(this.Hitbox.Intersects(player.Hitbox))
+            {
+                player.Life--;
+                hit = true;
+            }
+        }
+
+        //if intersects, update
+        if(hit) active.Remove(this);
     }
 }

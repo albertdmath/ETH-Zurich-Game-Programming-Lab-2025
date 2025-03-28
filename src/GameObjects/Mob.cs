@@ -1,4 +1,5 @@
 using Accord.Math.Geometry;
+using GameLab;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -28,11 +29,11 @@ namespace src.GameObjects
         private float closing = 0;
         private float timeUntilNextProjectile;
 
-        public Mob(float height, float width, List<Model> models) {
+        public Mob(List<Model> models) {
             // Set the major and minor axes of the ellipse
-            this.startMajorAxis = width * 0.5f; // Half the width of the plane
-            this.startMinorAxis = height * 0.5f; // Half the height of the plane
-            this.endMajorAxis = this.endMinorAxis * width / height;
+            this.startMajorAxis = GameLabGame.ARENA_WIDTH * 0.5f; // Half the width of the plane
+            this.startMinorAxis = GameLabGame.ARENA_HEIGHT * 0.5f; // Half the height of the plane
+            this.endMajorAxis = this.endMinorAxis * GameLabGame.ARENA_WIDTH / GameLabGame.ARENA_HEIGHT;
             //inside the ellipse
             this.endCenter = GetRandomPointInside();
             // Create the ellipse

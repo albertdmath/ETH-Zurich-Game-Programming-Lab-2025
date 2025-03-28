@@ -1,7 +1,7 @@
 using System;
-using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Linq;
 
 namespace src.GameObjects
 {
@@ -48,6 +48,49 @@ namespace src.GameObjects
             Velocity = CalculateVelocity(origin, target);
             this.origin = origin;
             timeAlive = 0f;
+        }
+
+        public override void Hit()
+        {
+            base.Hit();
+            
+            // Check intersection with players
+            bool hit = false;
+            foreach (Player player in Player.active.Where(p => p.Life > 0))
+            {
+                if(this.Hitbox.Intersects(player.Hitbox))
+                {
+                    hit = true;
+                    //this breaks, because the losing life is done in the exploding logic
+                    break;  
+                }
+            }
+
+            // Check intersection with ground
+            if (Position.Y < 0)
+                hit = true; 
+            
+
+            //if intersects, update
+            if(hit)
+            {
+                Explode();
+                active.Remove(this);
+            }
+        }    
+
+        private void Explode()
+        {
+            float explosionRadius = 5f; // Define the explosion radius
+
+            foreach (Player player in Player.active.Where(p => p.Life > 0))
+            {
+                float distance = Vector3.Distance(this.Position, player.Position);
+
+                if (distance <= explosionRadius)
+                    player.Life--; // Reduce life if within explosion radius
+                
+            }
         }
     }
 }

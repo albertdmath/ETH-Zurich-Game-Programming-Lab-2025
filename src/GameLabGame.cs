@@ -48,6 +48,7 @@ namespace GameLab
         );
 
         // Arena transformations
+        public const float ARENA_HEIGHT = 9f, ARENA_WIDTH = 15f;
         private Matrix arenaScaling = Matrix.CreateScale(new Vector3(0.5f));
 
         private Mob mob;
@@ -101,8 +102,7 @@ namespace GameLab
             arenaModel = new GameModel(arena,0.5f);
 
             // Initialize mob
-            float height = 9f, width = 15f; //this should be the size of the arena
-            mob = new Mob(height, width, mobs);
+            mob = new Mob(mobs);
 
             // Initialize players
             Player.Initialize(mob.Ellipse, players);
