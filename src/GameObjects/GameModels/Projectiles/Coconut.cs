@@ -60,7 +60,8 @@ namespace src.GameObjects
                 else
                 {
                     Velocity *= 0.9f;
-                    Position += Velocity * Orientation; // Adjust position after bounce
+                    // Bounce effect, maybe change it depending on the surface hit
+                    Orientation = new Vector3(Orientation.X, -Orientation.Y, Orientation.Z); 
                 }
             }
             
