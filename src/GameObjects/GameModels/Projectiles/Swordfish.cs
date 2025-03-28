@@ -12,24 +12,12 @@ public class Swordfish : Projectile
     // Constructor:
     public Swordfish(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling) {}
 
-    public override void Move(float dt)
+    protected override void Move(float dt)
     {
         Position += Velocity * Orientation * dt;
     }
 
-    public override void Throw(float chargeUp)
-    {
-        base.Throw(chargeUp);
-        Velocity = Math.Min(Velocity + chargeUp, MAX_VELOCITY);
-    }
-
-    public override void Throw(Vector3 origin, Vector3 target) 
-    {
-        base.Throw(origin, target);
-        Velocity = 2f;
-    }
-
-    public override void Hit()
+    protected override void Hit()
     {   
         base.Hit();
 
@@ -46,5 +34,17 @@ public class Swordfish : Projectile
 
         //if intersects, update
         if(hit) active.Remove(this);
+    }
+
+    public override void Throw(float chargeUp)
+    {
+        base.Throw(chargeUp);
+        Velocity = Math.Min(Velocity + chargeUp, MAX_VELOCITY);
+    }
+
+    public override void Throw(Vector3 origin, Vector3 target) 
+    {
+        base.Throw(origin, target);
+        Velocity = 2f;
     }
 }

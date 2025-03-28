@@ -28,10 +28,10 @@ namespace src.GameObjects
         // Projectile spawn probabilities (can be adjusted via UI)
         public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
         {
-            { ProjectileType.Frog, 0.0f },
-            { ProjectileType.Swordfish, 0.0f },
+            { ProjectileType.Frog, 1f },
+            { ProjectileType.Swordfish, 1f },
             { ProjectileType.Tomato, 1f },
-            { ProjectileType.Coconut, 0.0f }
+            { ProjectileType.Coconut, 1f }
         };
 
         // Constructor:
@@ -67,9 +67,9 @@ namespace src.GameObjects
         }
 
         // Virtual methods for derived classes to override
-        public virtual void Move(float dt) { }
+        protected virtual void Move(float dt) { }
 
-        public virtual void Hit() 
+        protected virtual void Hit() 
         { 
             // Check if projectile is out of bounds
             if (MathF.Abs(Position.X) > GameLabGame.ARENA_HEIGHT * 0.5f || 

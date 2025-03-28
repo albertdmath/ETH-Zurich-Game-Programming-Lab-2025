@@ -11,7 +11,7 @@ namespace src.GameObjects
         private static readonly float angle = (float)Math.PI / 3; // angle of throw
         private static readonly float cos = (float)Math.Cos(angle), sin = (float)Math.Sin(angle);
         private static readonly float HALF_GRAVITY = 4.9f; // Gravity effect
-        private const float SQUARED_EXPLOSION_RADIUS = 1f; // Define the explosion radius
+        private const float SQUARED_EXPLOSION_RADIUS = 0.8f; // Define the explosion radius
         private float timeAlive = 0f;
         private Vector3 origin;
 
@@ -27,7 +27,7 @@ namespace src.GameObjects
             return (float)Math.Sqrt((HALF_GRAVITY * distance) / (cos * sin));
         }
 
-        public override void Move(float dt)
+        protected override void Move(float dt)
         {
             timeAlive += dt;
             
@@ -37,21 +37,7 @@ namespace src.GameObjects
             Position = origin + (horizontalMotion + verticalMotion) * timeAlive;
         }
 
-        public override void Throw(float chargeUp)
-        {
-            base.Throw(chargeUp);
-            Throw(Position - Orientation, Position+chargeUp*Orientation);
-        }
-
-        public override void Throw(Vector3 origin, Vector3 target) 
-        {
-            base.Throw(origin, target);
-            Velocity = CalculateVelocity(origin, target);
-            this.origin = origin;
-            timeAlive = 0f;
-        }
-
-        public override void Hit()
+        protected override void Hit()
         {
             base.Hit();
 
@@ -68,10 +54,9 @@ namespace src.GameObjects
             }
 
             // Check intersection with ground
-            if (Position.Y < -0.01f)
+            if (Position.Y < 0f)
                 hit = true; 
             
-
             //if intersects, update
             if(hit)
             {
@@ -87,6 +72,20 @@ namespace src.GameObjects
                 if (Vector3.DistanceSquared(this.Position, player.Position) <= SQUARED_EXPLOSION_RADIUS)
                     player.Life--;
             }
+        }
+
+        public override void Throw(float chargeUp)
+        {
+            base.Throw(chargeUp);
+            Throw(Position - Orientation, Position+chargeUp*Orientation);
+        }
+
+        public override void Throw(Vector3 origin, Vector3 target) 
+        {
+            base.Throw(origin, target);
+            Velocity = CalculateVelocity(origin, target);
+            this.origin = origin;
+            timeAlive = 0f;
         }
     }
 }

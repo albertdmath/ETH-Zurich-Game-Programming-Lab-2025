@@ -10,9 +10,9 @@ public class GameModel {
     public Vector3 Orientation { get; set; }
     protected Model Model { get; set; }
     public Hitbox Hitbox { get; set; }
-
     public Matrix Transform { get; set; }
     protected Matrix Scaling;
+
     public GameModel(Model model, float scale) {
         Model = model;
         Scaling = Matrix.CreateScale(scale);
