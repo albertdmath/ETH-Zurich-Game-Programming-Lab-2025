@@ -32,12 +32,12 @@ public class Swordfish : Projectile
     public override void Hit()
     {   
         base.Hit();
-        
+
         //check intersection with players
         bool hit = false;
         foreach (Player player in Player.active.Where(p => p.Life > 0))
         {
-            if(this.Hitbox.Intersects(player.Hitbox))
+            if(Hitbox.Intersects(player.Hitbox))
             {
                 player.Life--;
                 hit = true;

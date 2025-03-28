@@ -18,7 +18,7 @@ namespace src.GameObjects
     public class Projectile : GameModel
     {
         // Static fields
-        public static LinkedList<Projectile> active = new LinkedList<Projectile>();
+        public static List<Projectile> active = new List<Projectile>();
 
         // Projectile properties
         public ProjectileType Type { get; private set; }
@@ -28,10 +28,10 @@ namespace src.GameObjects
         // Projectile spawn probabilities (can be adjusted via UI)
         public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
         {
-            { ProjectileType.Frog, 0.1f },
-            { ProjectileType.Swordfish, 0.45f },
-            { ProjectileType.Tomato, 0.45f },
-            { ProjectileType.Coconut, 0.3f }
+            { ProjectileType.Frog, 0.0f },
+            { ProjectileType.Swordfish, 0.0f },
+            { ProjectileType.Tomato, 1f },
+            { ProjectileType.Coconut, 0.0f }
         };
 
         // Constructor:
@@ -62,7 +62,7 @@ namespace src.GameObjects
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());
             }
-            active.AddLast(projectile);
+            active.Add(projectile);
             return projectile;
         }
 
@@ -97,6 +97,8 @@ namespace src.GameObjects
         // Update the projectile's state
         public override void Update(float dt)
         {
+            Hit();
+
             if (Holder == null)
                 Move(dt);
             else 

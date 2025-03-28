@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace src.GameObjects
 {
@@ -10,6 +11,8 @@ namespace src.GameObjects
         // Private fields:
         private const float MAX_VELOCITY = 15;
         private const int MAX_BOUNCES = 3;
+        // this is done to avoid the player to be hit multiple times
+        private List<Player> _touching = new List<Player>();
         private int _bounces;
 
         // Constructor:
@@ -41,13 +44,23 @@ namespace src.GameObjects
             // Check intersection with players
             bool hit = false;
             foreach (Player player in Player.active.Where(p => p.Life > 0))
+{
+            bool isTouching = Hitbox.Intersects(player.Hitbox);
+            
+            if (isTouching)
             {
-                if (this.Hitbox.Intersects(player.Hitbox))
+                if (!_touching.Contains(player))
                 {
                     player.Life--;
                     hit = true;
+                    _touching.Add(player);
                 }
             }
+            else
+            {
+                _touching.Remove(player);
+            }
+        }
 
             //if intersects, update
             if (hit)
@@ -61,7 +74,7 @@ namespace src.GameObjects
                 {
                     Velocity *= 0.9f;
                     // Bounce effect, maybe change it depending on the surface hit
-                    Orientation = new Vector3(Orientation.X, -Orientation.Y, Orientation.Z); 
+                    Orientation = new Vector3(-Orientation.X, Orientation.Y, -Orientation.Z); 
                 }
             }
             

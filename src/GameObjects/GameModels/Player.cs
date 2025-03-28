@@ -86,7 +86,6 @@ namespace src.GameObjects
             if (Inertia.Length() > 0)
             {
                 Orientation = Vector3.Normalize(Inertia);
-                
             }
             // Updating the position of the player
             Position += playerSpeed * Inertia * dt;

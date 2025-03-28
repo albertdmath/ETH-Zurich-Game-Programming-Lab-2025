@@ -11,6 +11,7 @@ namespace src.GameObjects
         private static readonly float angle = (float)Math.PI / 3; // angle of throw
         private static readonly float cos = (float)Math.Cos(angle), sin = (float)Math.Sin(angle);
         private static readonly float HALF_GRAVITY = 4.9f; // Gravity effect
+        private const float SQUARED_EXPLOSION_RADIUS = 1f; // Define the explosion radius
         private float timeAlive = 0f;
         private Vector3 origin;
 
@@ -53,12 +54,12 @@ namespace src.GameObjects
         public override void Hit()
         {
             base.Hit();
-            
+
             // Check intersection with players
             bool hit = false;
             foreach (Player player in Player.active.Where(p => p.Life > 0))
             {
-                if(this.Hitbox.Intersects(player.Hitbox))
+                if(Hitbox.Intersects(player.Hitbox))
                 {
                     hit = true;
                     //this breaks, because the losing life is done in the exploding logic
@@ -67,7 +68,7 @@ namespace src.GameObjects
             }
 
             // Check intersection with ground
-            if (Position.Y < 0)
+            if (Position.Y < -0.01f)
                 hit = true; 
             
 
@@ -81,15 +82,10 @@ namespace src.GameObjects
 
         private void Explode()
         {
-            float explosionRadius = 5f; // Define the explosion radius
-
             foreach (Player player in Player.active.Where(p => p.Life > 0))
             {
-                float distance = Vector3.Distance(this.Position, player.Position);
-
-                if (distance <= explosionRadius)
-                    player.Life--; // Reduce life if within explosion radius
-                
+                if (Vector3.DistanceSquared(this.Position, player.Position) <= SQUARED_EXPLOSION_RADIUS)
+                    player.Life--;
             }
         }
     }

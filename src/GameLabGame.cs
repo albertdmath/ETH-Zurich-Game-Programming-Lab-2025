@@ -35,8 +35,6 @@ namespace GameLab
         private SoundEffectInstance angrymobInstance;
         public const bool SOUND_ENABLED = true;
 
-        // Player settings
-        public static int NUM_PLAYERS = 4;
 
         // Camera settings
         private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 9, 7), new Vector3(0, 0, 0.7f), Vector3.Up);
@@ -52,8 +50,6 @@ namespace GameLab
         private Matrix arenaScaling = Matrix.CreateScale(new Vector3(0.5f));
 
         private Mob mob;
-        private int nAlivePlayers = NUM_PLAYERS;
-        private Player lastPlayer;
 
         public GameLabGame()
         {
@@ -134,46 +130,22 @@ namespace GameLab
         
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            // Move all the projectiles
-            foreach (Projectile projectile in Projectile.active)
-            {
-                projectile.updateWrap(dt);
-                if(projectile.Position.LengthSquared()>100f)
-                    hitProjectiles.AddLast(projectile);
-            }
+            // Update the projectiles
+            // this is done to avoid modifying the list while iterating over it
+            for (int i = Projectile.active.Count - 1; i >= 0; i--) 
+                Projectile.active[i].updateWrap(dt);
+            
 
             // Move players
             foreach (Player player in Player.active)
-            {
                 player.updateWrap(dt);
-            }
+            
 
+            // CAN THIS NOT BE MOVED INSIDE THE UPDATE OF PLAYERS
             // Players bumping into each other
             for(int i = 0; i<Player.active.Count; ++i)
                 for(int j = i+1; j<Player.active.Count; ++j)
                     Player.active[i].playerCollision(Player.active[j]);
-
-            // Check if players got hit / grabbed something
-            nAlivePlayers = 0;
-            foreach (Player player in Player.active)
-            {
-                if (player.Life > 0)
-                {
-                    nAlivePlayers++;
-                    lastPlayer = player;
-                    foreach (Projectile projectile in Projectile.active)
-                    {
-                        if (projectile.Free() && player.GrabOrHit(projectile))
-                            hitProjectiles.AddLast(projectile);
-                    }
-                }
-            }
-
-            // Remove projectiles that hit someone
-            foreach (Projectile projectile in hitProjectiles)
-                Projectile.active.Remove(projectile);
-
-            hitProjectiles = new LinkedList<Projectile>();
 
             // Update mob
             mob.Update(dt);
@@ -216,15 +188,16 @@ namespace GameLab
 
         private void DrawWin()
         {
-            if (nAlivePlayers == 1)
+            //this can be also used for the hit projectiles
+            var alivePlayers = Player.active.Where(p => p.Life > 0).ToList();
+            if (alivePlayers.Count() == 1)
             {
-                lastPlayer.notImportant = true;
                 Texture2D pixel;
                 pixel = new Texture2D(_graphics.GraphicsDevice, 1, 1);
                 pixel.SetData(new[] { Color.White });
 
                 // Define text
-                string winMessage = "Player " + (lastPlayer.Id+1) + " wins!";
+                string winMessage = "Player " + (alivePlayers[0].Id+1) + " wins!";
 
                 // Measure text size
                 Vector2 textSize = font.MeasureString(winMessage);
