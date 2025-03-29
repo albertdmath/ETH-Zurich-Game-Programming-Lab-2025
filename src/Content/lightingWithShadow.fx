@@ -21,16 +21,7 @@ float4x4 LightViewProjection;
 float3 CameraPosition;
 
 
-Texture2D ShadowTexture;
-sampler2D ShadowSampler = sampler_state
-{
-    Texture = (ShadowTexture);
-    MAGFILTER = LINEAR;
-    MINFILTER = LINEAR;
-    MIPFILTER = LINEAR;
-    AddressU = Clamp;
-    AddressV = Clamp;
-};
+sampler2D ShadowSampler;
 
 
 
@@ -58,16 +49,16 @@ struct VertexOutput {
 
 
 float ShadowCalc(float4 FragLightPosSpace){
-    float3 projCoords = FragLightPosSpace.xyz/FragLightPosSpace.w;
-    projCoords = projCoords * 0.5 + 0.5; 
+    float2 projCoords = FragLightPosSpace.xy/FragLightPosSpace.w;
+    projCoords = mad(0.5f, projCoords, float2(0.5f,0.5f)); 
     projCoords.y = 1.0 - projCoords.y;
 
 
     float closestDepth = tex2D(ShadowSampler,projCoords.xy).r;
-    float currentDepth = projCoords.z;
+    float currentDepth = FragLightPosSpace.z/FragLightPosSpace.w;
 
    float bias = 0.005;
-float shadow = currentDepth - bias < closestDepth  ? 1.0 : 0.0;  
+    float shadow = (currentDepth - bias) < closestDepth  ? 1.0 : 0.0;  
 
     return shadow;
 }
@@ -103,10 +94,10 @@ float4 PS(VertexOutput input) : SV_Target
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     float3 specular = 0.5 * spec * LightColor;  
 
-   float4 light = float4(texCol * (ambient + (1.0 - shadow) *(diffuse + spec)),1);
+   float4 light = float4(texCol * (ambient + (shadow) *(diffuse + spec)),1);
 
-    //return light;
     return light;
+    //return float4(shadow,shadow,shadow,1.0f);
 }
 
 technique BlinnPhongTec {

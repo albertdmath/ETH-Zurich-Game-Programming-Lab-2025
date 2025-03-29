@@ -43,7 +43,7 @@ float4 ShadowMapPS(ShadowMapVSOutput input) : COLOR
 {   
 
     // Store depth in the red component.
-    return float4(input.Depth,input.Depth,input.Depth,1); 
+    return float4(input.Depth,0.0f,0.0f,1); 
 }
 
 technique ShadowMapDrawing

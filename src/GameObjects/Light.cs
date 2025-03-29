@@ -14,9 +14,9 @@ public class Light {
         this.color = color; 
         this.direction = Vector3.Normalize(-direction); 
 
-        Vector3 lightPos = this.direction;
+        Vector3 lightPos = -direction;
 
-        Matrix lightProjection = Matrix.CreateOrthographic(20.0f, 20.0f, 0.1f, 15.0f);
+        Matrix lightProjection = Matrix.CreateOrthographic(20.0f, 20.0f, 0.1f, 20.0f);
 
         Matrix lightView = Matrix.CreateLookAt(lightPos,new Vector3(0.0f,0.0f,0.0f), Vector3.Up);
 

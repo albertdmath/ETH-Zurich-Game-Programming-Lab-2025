@@ -36,7 +36,7 @@ public class Shader {
     }
 
     public void setShadowTexture(Texture2D shadowMap){
-      effect.Parameters["ShadowTexture"].SetValue(shadowMap);
+      effect.Parameters["ShadowSampler"].SetValue(shadowMap);
     }
 
 }

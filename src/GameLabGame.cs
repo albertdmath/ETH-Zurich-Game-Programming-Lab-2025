@@ -100,7 +100,7 @@ namespace GameLab
             this.lightingShader = new PhongShading(eff);
             this.shadowShader = new Shader(eff2);
             this.Sun = new Light(new Vector3(0.99f,0.98f,0.82f), -new Vector3(3.0f,9.0f,7.0f));
-            shadowMap =new RenderTarget2D(_graphics.GraphicsDevice, 2048, 2048, false, SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
+            shadowMap =new RenderTarget2D(_graphics.GraphicsDevice, 2048, 2048, false, SurfaceFormat.Single, DepthFormat.Depth24);
 
             this.shadowShader.setLightSpaceMatrix(this.Sun.lightSpaceMatrix);
 
@@ -273,7 +273,7 @@ namespace GameLab
             //SHADOW ZONE
             GraphicsDevice.SetRenderTarget(shadowMap); 
             GraphicsDevice.Clear(Color.Black);
-
+            GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;
              arenaModel.Draw(view,projection,shadowShader,true);
             //arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             // Draw all active projectiles:
@@ -292,19 +292,21 @@ namespace GameLab
             mob.Draw(view, projection, shadowShader, true);
 
             
-            //lightingShader.setShadowTexture(this.shadowMap);
+            lightingShader.setShadowTexture(this.shadowMap);
 
             GraphicsDevice.SetRenderTarget(null);
+             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
             // _spriteBatch.Begin(0, BlendState.Opaque, SamplerState.AnisotropicClamp);
             // _spriteBatch.Draw(shadowMap, new Rectangle(0, 0, 500, 500), Color.White);
             // _spriteBatch.End();
 
 
             GraphicsDevice.Clear(Color.DeepSkyBlue); // Background color
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            
 
             // This resolves upscaling issues when going fullscreen
-            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+
+       
 
             arenaModel.Draw(view,projection,lightingShader,false);
             //arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
@@ -324,9 +326,14 @@ namespace GameLab
 
             // Draw mob and player statistics:
             mob.Draw(view, projection, lightingShader, false);
+
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
             DrawHealthAndStamina();
             DrawWin();
             _spriteBatch.End();
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.BlendState = BlendState.Opaque;
 
             base.Draw(gameTime);
         }
