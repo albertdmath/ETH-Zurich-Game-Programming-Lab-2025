@@ -60,7 +60,7 @@ namespace src.GameObjects
             float[] playerStartPositions = { -1.5f, -0.5f, 0.5f, 1.5f };
 
             active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, ellipse, models[0], 0.5f));
-            //active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, models[1], 0.5f));
+            active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, models[1], 0.5f));
 
             /*
             // TODO: fix player creation
@@ -164,18 +164,15 @@ namespace src.GameObjects
             }
         }
         // Spawning a projectile in hand when part of the mob. Currently only swordfish
-        private bool Spawn()
+        private void Spawn()
         {
             if(input.Action() && Stamina>40f && projectileHeld == null)
             {
                 projectileHeld = Projectile.CreateProjectile(ProjectileType.Swordfish,Position,Orientation);
                 projectileHeld.Catch(this);
-                playerSpeed = 0.9f;
-                playerSpeed = 0.3f;
                 Stamina -= 40f;
-                return false;
             }
-            return true;
+        
         }
 
         public void playerCollision(Player player){
@@ -209,7 +206,7 @@ namespace src.GameObjects
             Stamina += dt * 5f;
             Stamina = (Stamina > 100f) ? 100f : Stamina;
 
-            if (Life > 0f) // Behaviour when alive
+            if (Life > 0f || mob) // Behaviour when alive
             {   
                 stunDuration -= dt;
                 immunity -= dt;
@@ -219,17 +216,29 @@ namespace src.GameObjects
 
                 Move(dt);
 
+                if(mob)
+                {
+                    while(ellipse.Inside(Position.X,Position.Z))
+                    Position += ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
+                }
+
                 if (stunDuration>0f) return;
 
                 if (input.Action())
                 {
+                    //wait until the action is released to throw the projectile
                     if (recentlyCaught) return;
 
                     actionPushedDuration += dt;
                     if(projectileHeld != null)
                         playerSpeed = 0f; //Aim
-                    else if(actionPushedDuration<0.7f)
-                        recentlyCaught = Catch(); // Catch projectile
+                    else 
+                    {
+                        if(actionPushedDuration<0.7f)
+                            recentlyCaught = Catch(); // Catch projectile
+                        else if (mob)
+                            Spawn(); // Spawn projectile
+                    }
                 }
                 else
                 {
@@ -241,37 +250,31 @@ namespace src.GameObjects
                     recentlyCaught = false;
                     actionPushedDuration = 0;
                 } 
-                    
-                
-            } else if(mob) // Behaviour when part of mob
-            {
-                if(Spawn())
-                {
-                    Move(dt);
-                    if (projectileHeld != null)
-                    {
-                        Throw();
-                    }
-                    while(ellipse.Inside(Position.X,Position.Z))
-                        Position += ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
-                }
-            } else // Crawling
+            } 
+            else // Crawling
             {
                 Move(dt);
+                playerSpeed = 1f;
+
                 if (ellipse.Outside(Position.X,Position.Z))
                 {
-                    Position = Position + new Vector3(0, 0.2f, 0);
                     mob = true;
                     playerSpeed = 2f;
                 }
             }
-            //notImportant = notImportant || (input.Action() && input.Dash());
-            actionPushedDuration = (input.Action()) ? actionPushedDuration + dt : 0f;
         }
 
         public override void Draw(Matrix view, Matrix projection)
         {
-            if(stunDuration<=0f || ((int)(stunDuration*10f))%2==0)
+            // Blink every 0.1 seconds when either stunDuration or immunity are active
+            bool shouldDraw = true;
+            if(stunDuration > 0)
+               shouldDraw = (int)(stunDuration * 10) % 2 == 0;
+            
+            if(immunity > 0)
+               shouldDraw = (int)(immunity * 10) % 2 == 0;
+
+            if (shouldDraw)
                 base.Draw(view, projection);
         }
     }
