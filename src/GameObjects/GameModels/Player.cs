@@ -10,6 +10,9 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
 using Accord.Collections;
+using System.Linq.Expressions;
+using System.ComponentModel;
+using System.Net;
 
 namespace src.GameObjects
 {
@@ -26,11 +29,13 @@ namespace src.GameObjects
         public Projectile projectileHeld;
         private float dashTime = 0f;
         private const float TIME_CATCH_THROW = 0.5f;
-        private float timeSinceThrow = 0f;
         private float actionPushedDuration;
         private float stunDuration = 0f;
         public bool notImportant = false;
         private bool mob = false;
+        private bool recentlyCaught = false;
+        private float immunity = 0f, throwImmunity = 0f;
+        private Projectile lastThrownProjectile = null; // Store last thrown projectile
 
         private Input input;
         private Ellipse ellipse;
@@ -55,7 +60,7 @@ namespace src.GameObjects
             float[] playerStartPositions = { -1.5f, -0.5f, 0.5f, 1.5f };
 
             active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, ellipse, models[0], 0.5f));
-            active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, models[1], 0.5f));
+            //active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, models[1], 0.5f));
 
             /*
             // TODO: fix player creation
@@ -73,7 +78,7 @@ namespace src.GameObjects
         {
             Vector3 dir = input.Direction();
             //inertia to keep some movement from last update;
-            Inertia -=(9f*dt)* Inertia;
+            Inertia -= (9f*dt) * Inertia;
             if (stunDuration<=0f && dir.Length() > 0)
             {
                 dir = Vector3.Normalize(dir);
@@ -91,99 +96,52 @@ namespace src.GameObjects
             Position += playerSpeed * Inertia * dt;
         }
 
-        // Simple method to move back after collision. Not used and outdated
-        public void MoveBack(float dt)
-        {
-            Position -= playerSpeed * Orientation * dt * 1f;
-        }
-
-
         // Method to test for a collision with a projectile and potentially grab it:
-        public bool GrabOrHit(Projectile projectile)
+        private bool Catch()
         {
-            if (projectile != projectileHeld && Hitbox.Intersects(projectile.Hitbox))
+            float cosTheta = MathF.Cos(MathHelper.ToRadians(30f)); // Precompute cos(30°)
+
+            foreach (Projectile projectile in Projectile.active)
             {
-                // case 1 no projectile held and action button pressed not to long ago -> catch it
-                if (stunDuration<=0f && input.Action()
-                    && projectileHeld == null
-                    && actionPushedDuration<0.7f
-                    )
+                Vector3 toProjectile = projectile.Position - Position;
+                if (toProjectile.LengthSquared() > 2) continue; // Outside radius
+
+                Vector3 directionToProjectile = Vector3.Normalize(toProjectile);
+                if (Vector3.Dot(Orientation, directionToProjectile) >= cosTheta) // Inside 60-degree cone
                 {
                     projectileHeld = projectile;
-                    timeSinceThrow = 0f;
                     projectile.Catch(this);
-                    Console.WriteLine("Grabbing " + projectile.Type);
-                    // Here the player speed is set for the movement with projectile in hand
-                    playerSpeed = 0.9f;
-
-                    // Handle the equip sound effect.
-                    // For anyone reading, it takes 3 parameters: volume, pitch, pan.
                     MusicAndSoundEffects.equipSFX.Play(0.7f, 0.0f, 0.0f);
-                    return false;
-                } else // the player is hit by the projectile
-                {
-                    Life -= notImportant ? 0 : 1;
-                    if (Life == 0f)
-                    {
-                        // For now the player is moved down to indacet crawling. Later done with an animation
-                        Position = Position - new Vector3(0, 0.2f, 0);
-                        playerSpeed = 1f;
-                    }
-
-                    // SFX handling:
-                    if(GameLabGame.SOUND_ENABLED) {
-                        switch(projectile.Type)
-                        {
-                            case ProjectileType.Frog:
-                                MusicAndSoundEffects.frogSFX.Play(0.5f, 0.0f, 0.0f);
-                                break;
-                            case ProjectileType.Swordfish:
-                                MusicAndSoundEffects.swordfishSFX.Play(0.8f, 0.0f, 0.0f);
-                                break;
-                            case ProjectileType.Tomato:
-                                MusicAndSoundEffects.tomatoSFX.Play(0.9f, 0.0f, 0.0f);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
                     return true;
                 }
             }
             return false;
         }
 
-        // Method to throw an object:
-        private void Throw(float dt)
+        public bool GetHit(Projectile projectile)
         {
-            if(timeSinceThrow == 0f)
+            // Saved by throw immunity (return false)
+            if (throwImmunity > 0 && projectile == lastThrownProjectile)
+                return false;
+            
+            // Otherwise check general immunity
+            if (immunity <= 0)
             {
-                if (input.Action() && actionPushedDuration == 0f) // Aiming
-                {
-                    playerSpeed = 0f;
-                }
-                else if (!input.Action() && actionPushedDuration > 0f && playerSpeed == 0f) // Releasing projectile
-                {
-                    if(projectileHeld.Type!= ProjectileType.Frog){
-                        actionPushedDuration = (actionPushedDuration < 4f) ? actionPushedDuration : 4f;
-                        float speedUp = 1f+ actionPushedDuration * actionPushedDuration * 2f;
-                        projectileHeld.Throw(speedUp);
-                        playerSpeed = 2f;
-                        timeSinceThrow += dt;
-                        Console.WriteLine("Throwing projectile with orientation: " + Orientation+ " and speedup: " +speedUp);
-                    }else{
-                        Projectile.active.Remove(projectileHeld);
-                        playerSpeed = 2f;
-                        Life++;
-                        timeSinceThrow += dt;
-                        Console.WriteLine("Eating frog. ");
-                    }
-                }
-            }else { // Immune to hit by thrwon projectile for 1s. Also blocks catchin a new projectile
-                if(timeSinceThrow > 1f)
-                    projectileHeld = null;
-                timeSinceThrow += dt;
+                Life--;
+                immunity = 1f;
             }
+            return true;
+        }
+
+        // Method to throw an object:
+        private void Throw()
+        { 
+            float speedUp = 1 + 2 * (float)Math.Pow(Math.Min(actionPushedDuration, 4f), 2f);
+            throwImmunity = 1f; 
+            lastThrownProjectile = projectileHeld;
+            projectileHeld.Throw(speedUp);
+            projectileHeld = null;
+            Console.WriteLine("Throwing projectile with orientation: " + Orientation+ " and speedup: " +speedUp);
         }
 
         // Method to dash. Current dash cost 30
@@ -213,7 +171,6 @@ namespace src.GameObjects
                 projectileHeld = Projectile.CreateProjectile(ProjectileType.Swordfish,Position,Orientation);
                 projectileHeld.Catch(this);
                 playerSpeed = 0.9f;
-                timeSinceThrow = 0f;
                 playerSpeed = 0.3f;
                 Stamina -= 40f;
                 return false;
@@ -243,22 +200,49 @@ namespace src.GameObjects
                 stunDuration = 1f;
             }
         }
+
+
         // Update function called each update
+        //this needs to be stilla adjusted for hitting yoursealf
         public override void Update(float dt)
         {
             Stamina += dt * 5f;
             Stamina = (Stamina > 100f) ? 100f : Stamina;
+
             if (Life > 0f) // Behaviour when alive
             {   
                 stunDuration -= dt;
-                if (!Dash(dt))
+                immunity -= dt;
+                throwImmunity -= dt;
+
+                if(Dash(dt)) return;
+
+                Move(dt);
+
+                if (stunDuration>0f) return;
+
+                if (input.Action())
                 {
-                    Move(dt);
-                    if (stunDuration<=0f && projectileHeld != null)
-                    {
-                        Throw(dt);
-                    }
+                    if (recentlyCaught) return;
+
+                    actionPushedDuration += dt;
+                    if(projectileHeld != null)
+                        playerSpeed = 0f; //Aim
+                    else if(actionPushedDuration<0.7f)
+                        recentlyCaught = Catch(); // Catch projectile
                 }
+                else
+                {
+                    if (playerSpeed == 0f)
+                    {
+                        Throw(); // Throw projectile
+                        playerSpeed = 2f;
+                    }
+                    recentlyCaught = false;
+                    actionPushedDuration = 0;
+                } 
+                    
+                
             } else if(mob) // Behaviour when part of mob
             {
                 if(Spawn())
@@ -266,7 +250,7 @@ namespace src.GameObjects
                     Move(dt);
                     if (projectileHeld != null)
                     {
-                        Throw(dt);
+                        Throw();
                     }
                     while(ellipse.Inside(Position.X,Position.Z))
                         Position += ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;

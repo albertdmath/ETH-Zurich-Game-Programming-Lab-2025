@@ -26,14 +26,16 @@ public class Swordfish : Projectile
         foreach (Player player in Player.active.Where(p => p.Life > 0))
         {
             if(Hitbox.Intersects(player.Hitbox))
-            {
-                player.Life--;
-                hit = true;
-            }
+                hit = player.GetHit(this);
+            
         }
 
         //if intersects, update
-        if(hit) active.Remove(this);
+        if(hit)
+        {
+            MusicAndSoundEffects.swordfishSFX.Play(0.8f, 0.0f, 0.0f);
+            active.Remove(this);
+        }
     }
 
     public override void Throw(float chargeUp)

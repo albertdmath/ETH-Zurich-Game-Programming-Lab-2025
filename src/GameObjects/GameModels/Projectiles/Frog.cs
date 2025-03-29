@@ -41,14 +41,16 @@ namespace src.GameObjects
             foreach (Player player in Player.active.Where(p => p.Life > 0))
             {
                 if(Hitbox.Intersects(player.Hitbox))
-                {
-                    player.Life--;
-                    hit = true;
-                }
+                    hit = player.GetHit(this);
             }
 
             //if intersects, update
-            if(hit) active.Remove(this);
+            if(hit)
+            {
+                MusicAndSoundEffects.frogSFX.Play(0.5f, 0.0f, 0.0f);
+                active.Remove(this);
+            }
+             
         }
 
         private void ThrownMove()

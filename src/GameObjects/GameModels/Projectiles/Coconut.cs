@@ -12,7 +12,6 @@ namespace src.GameObjects
         private const float MAX_VELOCITY = 15;
         private const int MAX_BOUNCES = 3;
         // this is done to avoid the player to be hit multiple times
-        private List<Player> _touching = new List<Player>();
         private int _bounces;
 
         // Constructor:
@@ -30,23 +29,10 @@ namespace src.GameObjects
             // Check intersection with players
             bool hit = false;
             foreach (Player player in Player.active.Where(p => p.Life > 0))
-{
-            bool isTouching = Hitbox.Intersects(player.Hitbox);
-            
-            if (isTouching)
-            {
-                if (!_touching.Contains(player))
-                {
-                    player.Life--;
-                    hit = true;
-                    _touching.Add(player);
-                }
+            {   
+                if (Hitbox.Intersects(player.Hitbox))
+                    hit = player.GetHit(this);
             }
-            else
-            {
-                _touching.Remove(player);
-            }
-        }
 
             //if intersects, update
             if (hit)

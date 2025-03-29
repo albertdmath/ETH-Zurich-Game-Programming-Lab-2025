@@ -46,11 +46,8 @@ namespace src.GameObjects
             foreach (Player player in Player.active.Where(p => p.Life > 0))
             {
                 if(Hitbox.Intersects(player.Hitbox))
-                {
-                    hit = true;
-                    //this breaks, because the losing life is done in the exploding logic
-                    break;  
-                }
+                    hit = player.GetHit(this);  
+            
             }
 
             // Check intersection with ground
@@ -61,6 +58,7 @@ namespace src.GameObjects
             if(hit)
             {
                 Explode();
+                MusicAndSoundEffects.tomatoSFX.Play(0.9f, 0.0f, 0.0f);
                 active.Remove(this);
             }
         }    
@@ -70,7 +68,7 @@ namespace src.GameObjects
             foreach (Player player in Player.active.Where(p => p.Life > 0))
             {
                 if (Vector3.DistanceSquared(this.Position, player.Position) <= SQUARED_EXPLOSION_RADIUS)
-                    player.Life--;
+                    player.GetHit(this);
             }
         }
 
