@@ -97,10 +97,11 @@ namespace src.GameObjects
         // Update the projectile's state
         public override void Update(float dt)
         {
-            Hit();
-
             if (Holder == null)
+            {
                 Move(dt);
+                Hit();
+            }
             else 
             {
                 // Ensures projectile is held in right hand for a more realistic look:

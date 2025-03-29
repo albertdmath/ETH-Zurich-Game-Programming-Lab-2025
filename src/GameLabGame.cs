@@ -130,12 +130,6 @@ namespace GameLab
         
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            // Update the projectiles
-            // this is done to avoid modifying the list while iterating over it
-            for (int i = Projectile.active.Count - 1; i >= 0; i--) 
-                Projectile.active[i].updateWrap(dt);
-            
-
             // Move players
             foreach (Player player in Player.active)
                 player.updateWrap(dt);
@@ -149,6 +143,11 @@ namespace GameLab
 
             // Update mob
             mob.Update(dt);
+
+            // Update the projectiles
+            // this is done to avoid modifying the list while iterating over it
+            for (int i = Projectile.active.Count - 1; i >= 0; i--) 
+                Projectile.active[i].updateWrap(dt);
 
             base.Update(gameTime);
         }
