@@ -49,19 +49,39 @@ struct VertexOutput {
 
 
 float ShadowCalc(float4 FragLightPosSpace){
+        float shadow = 1.0f;
+
     float2 projCoords = FragLightPosSpace.xy/FragLightPosSpace.w;
+    if (projCoords.x > -1.0 && projCoords.x<1.0 && projCoords.y>-1.0 && projCoords.y < 1.0){
+
+
     projCoords = mad(0.5f, projCoords, float2(0.5f,0.5f)); 
+
     projCoords.y = 1.0 - projCoords.y;
+
+
 
 
     float closestDepth = tex2D(ShadowSampler,projCoords.xy).r;
     float currentDepth = FragLightPosSpace.z/FragLightPosSpace.w;
 
    float bias = 0.005;
-    float shadow = (currentDepth - bias) < closestDepth  ? 1.0 : 0.0;  
+    float2 texel = 1.0f/2048.0f; 
+    for(int x = -1; x<=1; ++x){
+        for(int y=-1; y <= 1; ++y){
+            float pcfDepth = tex2D(ShadowSampler,projCoords.xy + float2(x,y) * texel).r;
+            shadow += currentDepth - bias < pcfDepth ? 1.0 : 0.0; 
+        }
+    }
+    shadow /= 9.0f;
 
+      
+     }
     return shadow;
 }
+
+
+
 
 VertexOutput VS(VertexInput input) {
     VertexOutput output; 

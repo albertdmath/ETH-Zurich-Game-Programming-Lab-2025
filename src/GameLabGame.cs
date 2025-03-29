@@ -46,6 +46,9 @@ namespace GameLab
 
         PhongShading lightingShader; 
         Shader shadowShader;
+        
+        private bool shadowsEnabled = true;
+        
         // Camera settings
         private Vector3 cameraPos = new Vector3(0f, 9, 7);
         private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 9, 7), new Vector3(0, 0, 0.7f), Vector3.Up);
