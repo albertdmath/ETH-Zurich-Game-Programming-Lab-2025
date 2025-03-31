@@ -30,8 +30,8 @@ namespace src.GameObjects
         {
             { ProjectileType.Frog, 0f },
             { ProjectileType.Swordfish, 1f },
-            { ProjectileType.Tomato, 0f },
-            { ProjectileType.Coconut, 0f }
+            { ProjectileType.Tomato, 1f },
+            { ProjectileType.Coconut, 1f }
         };
 
         // Constructor:

@@ -11,7 +11,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
-
+using Myra;
+using Myra.Graphics2D.UI;
 //local imports
 using src.GameObjects;
 
@@ -19,14 +20,15 @@ namespace GameLab
 {
     public class GameLabGame : Game
     {
+        private MyMenu _menu;
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private SpriteFont font;
-
+        private KeyboardState _previousKeyboardState;
         // Private fields:
         private Model arena;
         private List<Model> players = new List<Model>();
-        private List<Model> mobs = new List<Model>();
+        private List<Model> mobModels = new List<Model>();
 
         public static GameModel arenaModel;
         public static Dictionary<ProjectileType, Model> projectileModels = new Dictionary<ProjectileType, Model>();
@@ -35,7 +37,7 @@ namespace GameLab
         public const bool SOUND_ENABLED = true;
 
         // Player settings
-        public static int NUM_PLAYERS = 4;
+        public int NUM_PLAYERS = 4;
         private Color[] playerColors = {
             new Color(118, 254, 253), // Player 1 color (cyan)
             new Color(254, 144, 209), // Player 2 color (pink)
@@ -73,7 +75,9 @@ namespace GameLab
 
             base.Initialize();
         }
-
+        private void InitMob(){
+            mob = new Mob(mobModels);
+        }
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -86,8 +90,8 @@ namespace GameLab
             players.Add(Content.Load<Model>("player3"));
             players.Add(Content.Load<Model>("player4"));
 
-            mobs.Add(Content.Load<Model>("mob1"));
-            mobs.Add(Content.Load<Model>("mob2"));
+            mobModels.Add(Content.Load<Model>("mob1"));
+            mobModels.Add(Content.Load<Model>("mob2"));
 
 
             font = Content.Load<SpriteFont>("font");
@@ -97,27 +101,45 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Frog, Content.Load<Model>("frog"));
             projectileModels.Add(ProjectileType.Swordfish, Content.Load<Model>("swordfish"));
             projectileModels.Add(ProjectileType.Tomato, Content.Load<Model>("tomato"));
-            //this should be the coconut model
-            projectileModels.Add(ProjectileType.Coconut, Content.Load<Model>("tomato"));
+            projectileModels.Add(ProjectileType.Coconut, Content.Load<Model>("coconut"));
 
 
             // Initialize game models (they are only known at this point so they can't be in the initialize method)
             arenaModel = new GameModel(arena, 0.5f);
 
             // Initialize mob
-            mob = new Mob(mobs);
+            InitMob();
 
             // Initialize players
-            Player.Initialize(mob.Ellipse, players);
+            Player.Initialize(mob.Ellipse, players, NUM_PLAYERS);
+
+            _menu = new MyMenu(_graphics,this);
 
             // Load Sounds:
             MusicAndSoundEffects.loadSFX(Content, SOUND_ENABLED);
         }
+        public void ReLoad(){
+            //projectileModels.Clear();
+            hitProjectiles.Clear();
+            Projectile.active.Clear();
+            InitMob();
+            Player.Initialize(mob.Ellipse,players,NUM_PLAYERS);
+        }
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            KeyboardState keyboardState = Keyboard.GetState();
+
+            _menu.Update(gameTime,keyboardState,_previousKeyboardState);
+
+            if(_menu.menuisopen()){
+                
+                _previousKeyboardState = keyboardState;
+                base.Update(gameTime);
+                return;
+            }
+            //if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+                //Exit();
 
         
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -140,6 +162,8 @@ namespace GameLab
             // this is done to avoid modifying the list while iterating over it
             for (int i = Projectile.active.Count - 1; i >= 0; i--) 
                 Projectile.active[i].updateWrap(dt);
+
+            _previousKeyboardState = keyboardState;
 
             base.Update(gameTime);
         }
@@ -240,6 +264,9 @@ namespace GameLab
             DrawWin();
             _spriteBatch.End();
 
+            //MYRA===============
+            _menu.Draw();
+            //===================
             base.Draw(gameTime);
         }
     }

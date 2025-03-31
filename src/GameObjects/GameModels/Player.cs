@@ -54,7 +54,7 @@ namespace src.GameObjects
             this.Hitbox.BoundingBoxes.RemoveAt(this.Hitbox.BoundingBoxes.Count - 1);
         }
 
-        public static void Initialize(Ellipse ellipse, List<Model> models)
+        public static void Initialize(Ellipse ellipse, List<Model> models, int NUM_PLAYERS)
         {
             active.Clear();
             float[] playerStartPositions = { -1.5f, -0.5f, 0.5f, 1.5f };
@@ -64,11 +64,11 @@ namespace src.GameObjects
             active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, models[1], scaling));
             /*
             // TODO: fix player creation
-            for (int i = 0; i < GameLabGame.NUM_PLAYERS; i++)
+            for (int i = 1; i < NUM_PLAYERS; i++)
             {
-                PlayerIndex idx = (PlayerIndex)i;
+                PlayerIndex idx = (PlayerIndex)i-1;
                 if (GamePad.GetState(idx).IsConnected)
-                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new InputController(idx), i, ellipse, models[i], 0.5f));
+                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new Input(), i, ellipse, models[i], scaling));
             }
             */
         }
