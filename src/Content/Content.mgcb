@@ -50,6 +50,12 @@
 /processorParam:Quality=Best
 /build:Audio/hitSFX.wav
 
+#begin Audio/myMedievalBeat.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Audio/myMedievalBeat.mp3
+
 #begin Audio/swordfishSFX.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -61,12 +67,6 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Audio/tomatoSFX.wav
-
-#begin Audio/yoga-dogs-all-good-folks.wav
-/importer:WavImporter
-/processor:SongProcessor
-/processorParam:Quality=Best
-/build:Audio/yoga-dogs-all-good-folks.wav
 
 #begin font.spritefont
 /importer:FontDescriptionImporter

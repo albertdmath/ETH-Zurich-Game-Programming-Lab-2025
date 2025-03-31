@@ -27,7 +27,7 @@ public class MusicAndSoundEffects
     private static SoundEffectInstance angrymobInstance;
 
     public static void loadSFX(Microsoft.Xna.Framework.Content.ContentManager Content, bool SOUND_ENABLED) {
-        bgMusic = Content.Load<Song>("Audio/yoga-dogs-all-good-folks");
+        bgMusic = Content.Load<Song>("Audio/myMedievalBeat");
         MediaPlayer.Volume = 0.1f;
         MediaPlayer.IsRepeating = true;
         hitSFX = Content.Load<SoundEffect>("Audio/hitSFX");
@@ -40,6 +40,7 @@ public class MusicAndSoundEffects
         angrymobInstance.Volume = 0.1f;
 
         if(SOUND_ENABLED) {
+            MediaPlayer.Volume = 1.2f;
             MediaPlayer.Play(bgMusic);
             angrymobInstance.Play();
         }
