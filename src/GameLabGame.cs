@@ -37,6 +37,12 @@ namespace GameLab
 
         // Player settings
         public static int NUM_PLAYERS = 4;
+        private Color[] playerColors = {
+            new Color(118, 254, 253), // Player 1 color (cyan)
+            new Color(254, 144, 209), // Player 2 color (pink)
+            new Color(209, 255, 42), // Player 3 color (green)
+            new Color(254, 131, 22) // Player 4 color (orange)
+        };
         private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
 
         // Camera settings
@@ -170,25 +176,25 @@ namespace GameLab
             switch (Player.active.Count)
             {
                 case 4:
-                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[3].Stamina, new Vector2(1500, 950), Color.Yellow);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[3].Stamina, new Vector2(1500, 950), playerColors[3]);
                     for(int i = 0; i < Player.active[3].Life; i++) {
                         _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
                     }          
                     goto case 3;
                 case 3:
-                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[2].Stamina, new Vector2(10, 950), Color.Green);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[2].Stamina, new Vector2(10, 950), playerColors[2]);
                     for(int i = 0; i < Player.active[2].Life; i++) {
                         _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
                     }
                     goto case 2;
                 case 2:
-                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[1].Stamina, new Vector2(1500, 50), Color.Pink);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[1].Stamina, new Vector2(1500, 50), playerColors[1]);
                     for(int i = 0; i < Player.active[1].Life; i++) {
                         _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
                     }
                     goto case 1;
                 case 1:
-                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[0].Stamina, new Vector2(10, 50), Color.Blue);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[0].Stamina, new Vector2(10, 50), playerColors[0]);
                     for(int i = 0; i < Player.active[0].Life; i++) {
                         _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
                     }
@@ -225,7 +231,7 @@ namespace GameLab
                     (int)(textSize.Y + 100)
                 );
                 _spriteBatch.Draw(pixel, backgroundRect, Color.Black * 0.5f); // Semi-transparent black
-                _spriteBatch.DrawString(font, winMessage, textPosition, Color.Gold);
+                _spriteBatch.DrawString(font, winMessage, textPosition, playerColors[lastPlayer.Id]);
             }
         }
 
