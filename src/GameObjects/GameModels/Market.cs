@@ -12,7 +12,7 @@ namespace src.GameObjects
         public static Market[] active = new Market[4];
         public ProjectileType Type { get; private set; }
 
-        public Market(Vector3 position, ProjectileType type, Model model, float scaling) : base(model, scaling)
+        public Market(Vector3 position, ProjectileType type, DrawModel model, float scaling) : base(model, scaling)
         {
 
             this.Position = position;

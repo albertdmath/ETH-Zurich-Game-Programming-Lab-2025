@@ -19,7 +19,7 @@ namespace src.GameObjects
         private Vector3 origin;
 
         // Constructor:
-        public Frog(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling) {}
+        public Frog(ProjectileType type, Vector3 origin, Vector3 target,DrawModel model, float scaling) : base(type, origin, target, model, scaling) {}
 
         protected override void Move(float dt)
         {
@@ -50,7 +50,6 @@ namespace src.GameObjects
                 MusicAndSoundEffects.playProjectileSFX(ProjectileType.Frog);
                 active.Remove(this);
             }
-             
         }
 
         private void ThrownMove()

@@ -41,7 +41,7 @@ namespace src.GameObjects
 
         private Vector3 Inertia;
 
-        public Player(Vector3 position, Input input, int id, Ellipse ellipse, Model model,float scale) : base(model,scale)
+        public Player(Vector3 position, Input input, int id, Ellipse ellipse, DrawModel model,float scale) : base(model,scale)
         {
             Position = position;
             Orientation = new Vector3(0,0,1f);
@@ -54,7 +54,7 @@ namespace src.GameObjects
             this.Hitbox.BoundingBoxes.RemoveAt(this.Hitbox.BoundingBoxes.Count - 1);
         }
 
-        public static void Initialize(Ellipse ellipse, List<Model> models, int NUM_PLAYERS)
+        public static void Initialize(Ellipse ellipse, List<DrawModel> models, int NUM_PLAYERS)
         {
             active.Clear();
             float[] playerStartPositions = { -1.5f, -0.5f, 0.5f, 1.5f };
@@ -286,7 +286,7 @@ namespace src.GameObjects
             }
         }
 
-        public override void Draw(Matrix view, Matrix projection)
+        public override void Draw(Matrix view, Matrix projection, Shader shader, bool shadowDraw)
         {
             // Blink every 0.1 seconds when either stunDuration or immunity are active
             bool shouldDraw = true;
@@ -297,7 +297,7 @@ namespace src.GameObjects
                shouldDraw = (int)(immunity * 10) % 2 == 0;
 
             if (shouldDraw)
-                base.Draw(view, projection);
+                base.Draw(view, projection, shader, shadowDraw);
         }
     }
 }

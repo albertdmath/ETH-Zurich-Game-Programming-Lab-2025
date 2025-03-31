@@ -28,14 +28,14 @@ namespace src.GameObjects
         // Projectile spawn probabilities (can be adjusted via UI)
         public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
         {
-            { ProjectileType.Frog, 0f },
+            { ProjectileType.Frog, 1f },
             { ProjectileType.Swordfish, 1f },
             { ProjectileType.Tomato, 1f },
             { ProjectileType.Coconut, 1f }
         };
 
         // Constructor:
-        public Projectile(ProjectileType type, Vector3 origin, Vector3 target, Model model, float scaling) : base(model, scaling) 
+        public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(model, scaling) 
         {
             Type = type;
             this.Throw(origin,target);
@@ -57,7 +57,7 @@ namespace src.GameObjects
                     projectile = new Tomato(type, origin, target, GameLabGame.projectileModels[ProjectileType.Tomato], 1f);
                     break;
                 case ProjectileType.Coconut:
-                    projectile = new Coconut(type, origin, target, GameLabGame.projectileModels[ProjectileType.Coconut], 1f);
+                    projectile = new Coconut(type, origin, target, GameLabGame.projectileModels[ProjectileType.Coconut], 0.3f);
                     break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());

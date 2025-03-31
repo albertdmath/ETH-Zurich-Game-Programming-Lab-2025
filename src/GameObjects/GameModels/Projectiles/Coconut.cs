@@ -15,7 +15,7 @@ namespace src.GameObjects
         private int _bounces;
 
         // Constructor:
-        public Coconut(ProjectileType type, Vector3 origin, Vector3 target, Model model, float scaling) : base(type, origin, target, model, scaling) {}
+        public Coconut(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(type, origin, target, model, scaling) {}
 
         protected override void Move(float dt)
         {

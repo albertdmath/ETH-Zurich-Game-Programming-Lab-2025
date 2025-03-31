@@ -1,0 +1,25 @@
+
+
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+
+public class Light {
+
+    public Vector3 color {get; set;}
+
+    public Vector3 direction{get; set;}
+
+    public Matrix lightSpaceMatrix {get; set;}
+    public Light(Vector3 color, Vector3 direction){
+        this.color = color; 
+        this.direction = Vector3.Normalize(-direction); 
+
+        Vector3 lightPos = -direction;
+
+        Matrix lightProjection = Matrix.CreateOrthographic(20.0f, 20.0f, 0.1f, 20.0f);
+
+        Matrix lightView = Matrix.CreateLookAt(lightPos,new Vector3(0.0f,0.0f,0.0f), Vector3.Up);
+
+        this.lightSpaceMatrix = lightView * lightProjection; 
+    }
+}

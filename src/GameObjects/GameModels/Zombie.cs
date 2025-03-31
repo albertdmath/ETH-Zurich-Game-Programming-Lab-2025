@@ -23,7 +23,7 @@ namespace src.GameObjects
         private float timeSinceSpawn = 0f;
         private Random random = new Random();
         // Constructor: Only allow to assign position here,
-        public Zombie(Vector3 position, Ellipse ellipse, Model model, float scaling) : base(model, scaling)
+        public Zombie(Vector3 position, Ellipse ellipse, DrawModel model, float scaling) : base(model, scaling)
         {
             Position = position;
             this.ellipse = ellipse;
