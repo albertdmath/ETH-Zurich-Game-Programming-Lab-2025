@@ -86,7 +86,18 @@ namespace src.GameObjects{
 
             var spinButton = new SpinButton{
                 Width=100,
-                Nullable=true
+                Nullable=false,
+                Minimum=1,
+                Maximum=4,
+                Value=game.NUM_PLAYERS,
+                Integer=true
+            };
+
+            spinButton.ValueChanging += (c,a) => {
+                float? nullableFloat = a.NewValue;
+
+                game.NUM_PLAYERS = (int)(nullableFloat ?? 0);
+                game.ReLoad();
             };
             Grid.SetColumn(spinButton,2);
             Grid.SetRow(spinButton,2);

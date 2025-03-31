@@ -39,7 +39,7 @@ namespace GameLab
         public const bool SOUND_ENABLED = true;
 
         // Player settings
-        public static int NUM_PLAYERS = 4;
+        public int NUM_PLAYERS = 4;
         private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
 
         // Camera settings
@@ -55,7 +55,7 @@ namespace GameLab
         private Matrix arenaScaling = Matrix.CreateScale(new Vector3(0.5f));
 
         private Mob mob;
-        private int nAlivePlayers = NUM_PLAYERS;
+        private int nAlivePlayers;
         private Player lastPlayer;
 
         public GameLabGame()
@@ -63,6 +63,7 @@ namespace GameLab
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+            nAlivePlayers = NUM_PLAYERS;
         }
         protected override void Initialize()
         {
@@ -109,7 +110,7 @@ namespace GameLab
             InitMob(height,width);
 
             // Initialize players
-            Player.Initialize(mob.Ellipse, players);
+            Player.Initialize(mob.Ellipse, players, NUM_PLAYERS);
 
             // Load Sounds:
             MusicAndSoundEffects.bgMusic = Content.Load<Song>("Audio/yoga-dogs-all-good-folks");
@@ -136,7 +137,7 @@ namespace GameLab
             Projectile.active.Clear();
             nAlivePlayers = NUM_PLAYERS;
             InitMob(height:9f,width:15f);
-            Player.Initialize(mob.Ellipse,players);
+            Player.Initialize(mob.Ellipse,players,NUM_PLAYERS);
         }
 
         protected override void Update(GameTime gameTime)
