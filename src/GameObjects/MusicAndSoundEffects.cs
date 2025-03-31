@@ -45,11 +45,11 @@ public class MusicAndSoundEffects
         }
     }
 
-    public static void playHitSound() {
+    public static void playHitSFX() {
         hitSFX.Play(0.3f, 0.0f, 0.0f);
     }
 
-    public static void playProjectileSound(ProjectileType type) {
+    public static void playProjectileSFX(ProjectileType type) {
         // For anyone reading, "Play" function takes 3 parameters: volume, pitch, pan.
         switch(type)
         {

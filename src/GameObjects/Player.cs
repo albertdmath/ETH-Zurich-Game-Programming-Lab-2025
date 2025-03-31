@@ -117,8 +117,8 @@ namespace src.GameObjects
                     // Here the player speed is set for the movement with projectile in hand
                     playerSpeed = 0.9f;
 
-                    // Handle the equip sound effect.
-                    MusicAndSoundEffects.playProjectileSound(projectile.Type);
+                    // Handle the equip sound effect based on the projectile type:
+                    if(GameLabGame.SOUND_ENABLED) { MusicAndSoundEffects.playProjectileSFX(projectile.Type); }
                     return false;
                 } else // the player is hit by the projectile
                 {
@@ -131,10 +131,8 @@ namespace src.GameObjects
                         playerSpeed = 1f;
                     }
 
-                    // SFX handling:
-                    if(GameLabGame.SOUND_ENABLED) {
-                        MusicAndSoundEffects.playHitSound();
-                    }
+                    // Handle the hit sound effect:
+                    if(GameLabGame.SOUND_ENABLED) { MusicAndSoundEffects.playHitSFX(); }
                     return true;
                 }
             }
