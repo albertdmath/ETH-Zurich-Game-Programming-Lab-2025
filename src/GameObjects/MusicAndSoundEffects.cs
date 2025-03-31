@@ -17,7 +17,7 @@ using src.GameObjects;
 public class MusicAndSoundEffects
 {
     // Sound effects:
-    private static SoundEffect equipSFX;
+    private static SoundEffect hitSFX;
     private static SoundEffect swordfishSFX;
     private static SoundEffect frogSFX;
     private static SoundEffect tomatoSFX;
@@ -30,14 +30,14 @@ public class MusicAndSoundEffects
         bgMusic = Content.Load<Song>("Audio/yoga-dogs-all-good-folks");
         MediaPlayer.Volume = 0.1f;
         MediaPlayer.IsRepeating = true;
-        equipSFX = Content.Load<SoundEffect>("Audio/equipSFX");
+        hitSFX = Content.Load<SoundEffect>("Audio/hitSFX");
         frogSFX = Content.Load<SoundEffect>("Audio/frogSFX");
         swordfishSFX = Content.Load<SoundEffect>("Audio/swordfishSFX");
         tomatoSFX = Content.Load<SoundEffect>("Audio/tomatoSFX");
         angrymobSFX = Content.Load<SoundEffect>("Audio/angrymobSFX");
         angrymobInstance = angrymobSFX.CreateInstance();
         angrymobInstance.IsLooped = true;
-        angrymobInstance.Volume = 0.3f;
+        angrymobInstance.Volume = 0.1f;
 
         if(SOUND_ENABLED) {
             MediaPlayer.Play(bgMusic);
@@ -45,8 +45,8 @@ public class MusicAndSoundEffects
         }
     }
 
-    public static void playEquipSFX() {
-        equipSFX.Play(0.7f, 0.0f, 0.0f);
+    public static void playHitSound() {
+        hitSFX.Play(0.3f, 0.0f, 0.0f);
     }
 
     public static void playProjectileSound(ProjectileType type) {

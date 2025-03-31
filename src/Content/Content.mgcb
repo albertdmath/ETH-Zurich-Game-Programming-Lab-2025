@@ -38,17 +38,17 @@
 /processorParam:Quality=Best
 /build:Audio/angrymobSFX.wav
 
-#begin Audio/equipSFX.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Audio/equipSFX.wav
-
 #begin Audio/frogSFX.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Audio/frogSFX.wav
+
+#begin Audio/hitSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/hitSFX.wav
 
 #begin Audio/swordfishSFX.wav
 /importer:WavImporter

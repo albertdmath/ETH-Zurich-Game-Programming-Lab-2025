@@ -118,7 +118,7 @@ namespace src.GameObjects
                     playerSpeed = 0.9f;
 
                     // Handle the equip sound effect.
-                    MusicAndSoundEffects.playEquipSFX();
+                    MusicAndSoundEffects.playProjectileSound(projectile.Type);
                     return false;
                 } else // the player is hit by the projectile
                 {
@@ -133,7 +133,7 @@ namespace src.GameObjects
 
                     // SFX handling:
                     if(GameLabGame.SOUND_ENABLED) {
-                        MusicAndSoundEffects.playProjectileSound(projectile.Type);
+                        MusicAndSoundEffects.playHitSound();
                     }
                     return true;
                 }
