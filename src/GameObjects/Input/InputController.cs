@@ -55,5 +55,10 @@ namespace src.GameObjects
             if(vibrate<0f)
                 GamePad.SetVibration(p,0,0);
         }
+
+        public bool Emote()
+        {
+            return GamePad.GetState(p).Buttons.X == ButtonState.Pressed;
+        }
     }
 }

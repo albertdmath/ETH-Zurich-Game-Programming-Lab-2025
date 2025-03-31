@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Linq;
 
 namespace src.GameObjects;
 public class Swordfish : Projectile
@@ -11,9 +12,30 @@ public class Swordfish : Projectile
     // Constructor:
     public Swordfish(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling) {}
 
-    public override void Move(float dt)
+    protected override void Move(float dt)
     {
         Position += Velocity * Orientation * dt;
+    }
+
+    protected override void Hit()
+    {   
+        base.Hit();
+
+        //check intersection with players
+        bool hit = false;
+        foreach (Player player in Player.active.Where(p => p.Life > 0))
+        {
+            if(Hitbox.Intersects(player.Hitbox))
+                hit = player.GetHit(this);
+            
+        }
+
+        //if intersects, update
+        if(hit)
+        {
+            MusicAndSoundEffects.swordfishSFX.Play(0.8f, 0.0f, 0.0f);
+            active.Remove(this);
+        }
     }
 
     public override void Throw(float chargeUp)
@@ -25,6 +47,6 @@ public class Swordfish : Projectile
     public override void Throw(Vector3 origin, Vector3 target) 
     {
         base.Throw(origin, target);
-        Velocity = 4f;
+        Velocity = 2f;
     }
 }

@@ -5,8 +5,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 
 //using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -43,7 +42,6 @@ namespace GameLab
             new Color(209, 255, 42), // Player 3 color (green)
             new Color(254, 131, 22) // Player 4 color (orange)
         };
-        private Vector3 playerSpawnOrientation = new Vector3(0,0,-1);
 
         // Camera settings
         private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 9, 7), new Vector3(0, 0, 0.7f), Vector3.Up);
@@ -55,11 +53,10 @@ namespace GameLab
         );
 
         // Arena transformations
+        public const float ARENA_HEIGHT = 10f, ARENA_WIDTH = 17f;
         private Matrix arenaScaling = Matrix.CreateScale(new Vector3(0.5f));
 
         private Mob mob;
-        private int nAlivePlayers = NUM_PLAYERS;
-        private Player lastPlayer;
 
         public GameLabGame()
         {
@@ -100,14 +97,15 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Frog, Content.Load<Model>("frog"));
             projectileModels.Add(ProjectileType.Swordfish, Content.Load<Model>("swordfish"));
             projectileModels.Add(ProjectileType.Tomato, Content.Load<Model>("tomato"));
+            //this should be the coconut model
+            projectileModels.Add(ProjectileType.Coconut, Content.Load<Model>("tomato"));
 
 
             // Initialize game models (they are only known at this point so they can't be in the initialize method)
-            arenaModel = new GameModel(arena,0.5f);
+            arenaModel = new GameModel(arena, 0.5f);
 
             // Initialize mob
-            float height = 9f, width = 15f; //this should be the size of the arena
-            mob = new Mob(height, width, mobs);
+            mob = new Mob(mobs);
 
             // Initialize players
             Player.Initialize(mob.Ellipse, players);
@@ -124,49 +122,24 @@ namespace GameLab
         
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            // Move all the projectiles
-            foreach (Projectile projectile in Projectile.active)
-            {
-                projectile.updateWrap(dt);
-                if(projectile.Position.LengthSquared()>100f)
-                    hitProjectiles.AddLast(projectile);
-            }
-
             // Move players
             foreach (Player player in Player.active)
-            {
                 player.updateWrap(dt);
-            }
+            
 
+            // CAN THIS NOT BE MOVED INSIDE THE UPDATE OF PLAYERS
             // Players bumping into each other
             for(int i = 0; i<Player.active.Count; ++i)
                 for(int j = i+1; j<Player.active.Count; ++j)
                     Player.active[i].playerCollision(Player.active[j]);
 
-            // Check if players got hit / grabbed something
-            nAlivePlayers = 0;
-            foreach (Player player in Player.active)
-            {
-                if (player.Life > 0)
-                {
-                    nAlivePlayers++;
-                    lastPlayer = player;
-                    foreach (Projectile projectile in Projectile.active)
-                    {
-                        if (projectile.Free() && player.GrabOrHit(projectile))
-                            hitProjectiles.AddLast(projectile);
-                    }
-                }
-            }
-
-            // Remove projectiles that hit someone
-            foreach (Projectile projectile in hitProjectiles)
-                Projectile.active.Remove(projectile);
-
-            hitProjectiles = new LinkedList<Projectile>();
-
             // Update mob
             mob.Update(dt);
+
+            // Update the projectiles
+            // this is done to avoid modifying the list while iterating over it
+            for (int i = Projectile.active.Count - 1; i >= 0; i--) 
+                Projectile.active[i].updateWrap(dt);
 
             base.Update(gameTime);
         }
@@ -206,15 +179,16 @@ namespace GameLab
 
         private void DrawWin()
         {
-            if (nAlivePlayers == 1)
+            //this can be also used for the hit projectiles
+            var alivePlayers = Player.active.Where(p => p.Life > 0).ToList();
+            if (alivePlayers.Count() == 1)
             {
-                lastPlayer.notImportant = true;
                 Texture2D pixel;
                 pixel = new Texture2D(_graphics.GraphicsDevice, 1, 1);
                 pixel.SetData(new[] { Color.White });
 
                 // Define text
-                string winMessage = "Player " + (lastPlayer.Id+1) + " wins!";
+                string winMessage = "Player " + (alivePlayers[0].Id+1) + " wins!";
 
                 // Measure text size
                 Vector2 textSize = font.MeasureString(winMessage);
@@ -231,7 +205,7 @@ namespace GameLab
                     (int)(textSize.Y + 100)
                 );
                 _spriteBatch.Draw(pixel, backgroundRect, Color.Black * 0.5f); // Semi-transparent black
-                _spriteBatch.DrawString(font, winMessage, textPosition, playerColors[lastPlayer.Id]);
+                _spriteBatch.DrawString(font, winMessage, textPosition, Color.Gold);
             }
         }
 

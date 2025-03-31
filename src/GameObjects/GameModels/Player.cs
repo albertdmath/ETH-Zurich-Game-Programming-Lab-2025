@@ -10,6 +10,9 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
 using Accord.Collections;
+using System.Linq.Expressions;
+using System.ComponentModel;
+using System.Net;
 
 namespace src.GameObjects
 {
@@ -25,12 +28,13 @@ namespace src.GameObjects
         public float Stamina { get; set; } = 0f;
         public Projectile projectileHeld;
         private float dashTime = 0f;
-        private const float TIME_CATCH_THROW = 0.9f;
-        private float timeSinceThrow = 0f;
         private float actionPushedDuration;
         private float stunDuration = 0f;
         public bool notImportant = false;
         private bool mob = false;
+        private bool recentlyCaught = false;
+        private float immunity = 0f, throwImmunity = 0f;
+        private Projectile lastThrownProjectile = null; // Store last thrown projectile
 
         private Input input;
         private Ellipse ellipse;
@@ -53,19 +57,20 @@ namespace src.GameObjects
         public static void Initialize(Ellipse ellipse, List<Model> models)
         {
             active.Clear();
-            float[] playerStartPositions = { -0.75f, -0.25f, 0.25f, 0.75f };
+            float[] playerStartPositions = { -1.5f, -0.5f, 0.5f, 1.5f };
             float scaling = 0.5f;
             // Keyboard controls for debug:
             active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, ellipse, models[0], scaling));
             active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, models[1], scaling));
-
+            /*
             // TODO: fix player creation
             for (int i = 0; i < GameLabGame.NUM_PLAYERS; i++)
             {
                 PlayerIndex idx = (PlayerIndex)i;
                 if (GamePad.GetState(idx).IsConnected)
-                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new InputController(idx), i, ellipse, models[i], scaling));
+                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new InputController(idx), i, ellipse, models[i], 0.5f));
             }
+            */
         }
 
         // The player move method:
@@ -73,7 +78,7 @@ namespace src.GameObjects
         {
             Vector3 dir = input.Direction();
             //inertia to keep some movement from last update;
-            Inertia -=(9f*dt)* Inertia;
+            Inertia -= (9f*dt) * Inertia;
             if (stunDuration<=0f && dir.Length() > 0)
             {
                 dir = Vector3.Normalize(dir);
@@ -86,33 +91,27 @@ namespace src.GameObjects
             if (Inertia.Length() > 0)
             {
                 Orientation = Vector3.Normalize(Inertia);
-                
             }
             // Updating the position of the player
             Position += playerSpeed * Inertia * dt;
         }
 
-        // Simple method to move back after collision. Not used and outdated
-        public void MoveBack(float dt)
-        {
-            Position -= playerSpeed * Orientation * dt * 1f;
-        }
-
-
         // Method to test for a collision with a projectile and potentially grab it:
-        public bool GrabOrHit(Projectile projectile)
+        private bool Catch()
         {
-            if (projectile != projectileHeld && Hitbox.Intersects(projectile.Hitbox))
+            float cosTheta = MathF.Cos(MathHelper.ToRadians(30f)); // Precompute cos(30°)
+
+            foreach (Projectile projectile in Projectile.active)
             {
-                // case 1 no projectile held and action button pressed not to long ago -> catch it
-                if (stunDuration<=0f && input.Action()
-                    && projectileHeld == null
-                    && actionPushedDuration<0.7f
-                    )
+                Vector3 toProjectile = projectile.Position - Position;
+                if (toProjectile.LengthSquared() > 2) continue; // Outside radius
+
+                Vector3 directionToProjectile = Vector3.Normalize(toProjectile);
+                if (Vector3.Dot(Orientation, directionToProjectile) >= cosTheta) // Inside 60-degree cone
                 {
                     projectileHeld = projectile;
-                    timeSinceThrow = 0f;
                     projectile.Catch(this);
+                    /*
                     Console.WriteLine("Grabbing " + projectile.Type);
                     // Here the player speed is set for the movement with projectile in hand
                     playerSpeed = 0.9f;
@@ -130,46 +129,40 @@ namespace src.GameObjects
                         Position = Position - new Vector3(0, 0.2f, 0);
                         playerSpeed = 1f;
                     }
-
+                    */
                     // Handle the hit sound effect:
                     if(GameLabGame.SOUND_ENABLED) { MusicAndSoundEffects.playHitSFX(); }
+                    
                     return true;
                 }
             }
             return false;
         }
 
-        // Method to throw an object:
-        private void Throw(float dt)
+        public bool GetHit(Projectile projectile)
         {
-            if(timeSinceThrow == 0f)
+            // Saved by throw immunity (return false)
+            if (throwImmunity > 0 && projectile == lastThrownProjectile)
+                return false;
+            
+            // Otherwise check general immunity
+            if (immunity <= 0)
             {
-                if (input.Action() && actionPushedDuration == 0f) // Aiming
-                {
-                    playerSpeed = 0f;
-                }
-                else if (!input.Action() && actionPushedDuration > 0f && playerSpeed == 0f) // Releasing projectile
-                {
-                    if(projectileHeld.Type!= ProjectileType.Frog){
-                        actionPushedDuration = (actionPushedDuration < 4f) ? actionPushedDuration : 4f;
-                        float speedUp = 1f+ actionPushedDuration * actionPushedDuration * 2f;
-                        projectileHeld.Throw(speedUp);
-                        playerSpeed = 2f;
-                        timeSinceThrow += dt;
-                        Console.WriteLine("Throwing projectile with orientation: " + Orientation+ " and speedup: " +speedUp);
-                    }else{
-                        Projectile.active.Remove(projectileHeld);
-                        playerSpeed = 2f;
-                        Life++;
-                        timeSinceThrow += dt;
-                        Console.WriteLine("Eating frog. ");
-                    }
-                }
-            }else { // Immune to hit by thrwon projectile for 1s. Also blocks catchin a new projectile
-                if(timeSinceThrow > 1f)
-                    projectileHeld = null;
-                timeSinceThrow += dt;
+                Life--;
+                immunity = 1f;
             }
+            return true;
+        }
+
+        // Method to throw an object:
+        private void Throw()
+        { 
+            float speedUp = 1 + 2 * (float)Math.Pow(Math.Min(actionPushedDuration, 4f), 2f);
+            throwImmunity = 1f; 
+            lastThrownProjectile = projectileHeld;
+            projectileHeld.Throw(speedUp);
+            projectileHeld = null;
+            Console.WriteLine("Throwing projectile with orientation: " + Orientation+ " and speedup: " +speedUp);
         }
 
         // Method to dash. Current dash cost 30
@@ -192,19 +185,15 @@ namespace src.GameObjects
             }
         }
         // Spawning a projectile in hand when part of the mob. Currently only swordfish
-        private bool Spawn()
+        private void Spawn()
         {
             if(input.Action() && Stamina>40f && projectileHeld == null)
             {
                 projectileHeld = Projectile.CreateProjectile(ProjectileType.Swordfish,Position,Orientation);
                 projectileHeld.Catch(this);
-                playerSpeed = 0.9f;
-                timeSinceThrow = 0f;
-                playerSpeed = 0.3f;
                 Stamina -= 40f;
-                return false;
             }
-            return true;
+        
         }
 
         public void playerCollision(Player player){
@@ -229,52 +218,85 @@ namespace src.GameObjects
                 stunDuration = 1f;
             }
         }
+
+
         // Update function called each update
+        //this needs to be stilla adjusted for hitting yoursealf
         public override void Update(float dt)
         {
             Stamina += dt * 5f;
             Stamina = (Stamina > 100f) ? 100f : Stamina;
             input.EndVibrate(dt);
-            if (Life > 0f) // Behaviour when alive
+
+            if (Life > 0f || mob) // Behaviour when alive
             {   
                 stunDuration -= dt;
-                if (!Dash(dt))
+                immunity -= dt;
+                throwImmunity -= dt;
+
+                if(Dash(dt)) return;
+
+                Move(dt);
+
+                if(mob)
                 {
-                    Move(dt);
-                    if (stunDuration<=0f && projectileHeld != null)
-                    {
-                        Throw(dt);
-                    }
-                }
-            } else if(mob) // Behaviour when part of mob
-            {
-                if(Spawn())
-                {
-                    Move(dt);
-                    if (projectileHeld != null)
-                    {
-                        Throw(dt);
-                    }
                     while(ellipse.Inside(Position.X,Position.Z))
-                        Position += ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
+                    Position += ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
                 }
-            } else // Crawling
+
+                if (stunDuration>0f) return;
+
+                if (input.Action())
+                {
+                    //wait until the action is released to throw the projectile
+                    if (recentlyCaught) return;
+
+                    actionPushedDuration += dt;
+                    if(projectileHeld != null)
+                        playerSpeed = 0f; //Aim
+                    else 
+                    {
+                        if(actionPushedDuration<0.7f)
+                            recentlyCaught = Catch(); // Catch projectile
+                        else if (mob)
+                            Spawn(); // Spawn projectile
+                    }
+                }
+                else
+                {
+                    if (playerSpeed == 0f)
+                    {
+                        Throw(); // Throw projectile
+                        playerSpeed = 2f;
+                    }
+                    recentlyCaught = false;
+                    actionPushedDuration = 0;
+                } 
+            } 
+            else // Crawling
             {
                 Move(dt);
+                playerSpeed = 1f;
+
                 if (ellipse.Outside(Position.X,Position.Z))
                 {
-                    Position = Position + new Vector3(0, 0.2f, 0);
                     mob = true;
                     playerSpeed = 2f;
                 }
             }
-            //notImportant = notImportant || (input.Action() && input.Dash());
-            actionPushedDuration = (input.Action()) ? actionPushedDuration + dt : 0f;
         }
 
         public override void Draw(Matrix view, Matrix projection)
         {
-            if(stunDuration<=0f || ((int)(stunDuration*10f))%2==0)
+            // Blink every 0.1 seconds when either stunDuration or immunity are active
+            bool shouldDraw = true;
+            if(stunDuration > 0)
+               shouldDraw = (int)(stunDuration * 10) % 2 == 0;
+            
+            if(immunity > 0)
+               shouldDraw = (int)(immunity * 10) % 2 == 0;
+
+            if (shouldDraw)
                 base.Draw(view, projection);
         }
     }

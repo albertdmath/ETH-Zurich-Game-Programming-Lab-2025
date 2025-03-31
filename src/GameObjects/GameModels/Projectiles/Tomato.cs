@@ -1,7 +1,7 @@
 using System;
-using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Linq;
 
 namespace src.GameObjects
 {
@@ -11,6 +11,7 @@ namespace src.GameObjects
         private static readonly float angle = (float)Math.PI / 3; // angle of throw
         private static readonly float cos = (float)Math.Cos(angle), sin = (float)Math.Sin(angle);
         private static readonly float HALF_GRAVITY = 4.9f; // Gravity effect
+        private const float SQUARED_EXPLOSION_RADIUS = 0.8f; // Define the explosion radius
         private float timeAlive = 0f;
         private Vector3 origin;
 
@@ -26,7 +27,7 @@ namespace src.GameObjects
             return (float)Math.Sqrt((HALF_GRAVITY * distance) / (cos * sin));
         }
 
-        public override void Move(float dt)
+        protected override void Move(float dt)
         {
             timeAlive += dt;
             
@@ -34,6 +35,41 @@ namespace src.GameObjects
             Vector3 verticalMotion = new Vector3(0, Velocity * sin - HALF_GRAVITY * timeAlive, 0);
 
             Position = origin + (horizontalMotion + verticalMotion) * timeAlive;
+        }
+
+        protected override void Hit()
+        {
+            base.Hit();
+
+            // Check intersection with players
+            bool hit = false;
+            foreach (Player player in Player.active.Where(p => p.Life > 0))
+            {
+                if(Hitbox.Intersects(player.Hitbox))
+                    hit = player.GetHit(this);  
+            
+            }
+
+            // Check intersection with ground
+            if (Position.Y < 0f)
+                hit = true; 
+            
+            //if intersects, update
+            if(hit)
+            {
+                Explode();
+                MusicAndSoundEffects.tomatoSFX.Play(0.9f, 0.0f, 0.0f);
+                active.Remove(this);
+            }
+        }    
+
+        private void Explode()
+        {
+            foreach (Player player in Player.active.Where(p => p.Life > 0))
+            {
+                if (Vector3.DistanceSquared(this.Position, player.Position) <= SQUARED_EXPLOSION_RADIUS)
+                    player.GetHit(this);
+            }
         }
 
         public override void Throw(float chargeUp)

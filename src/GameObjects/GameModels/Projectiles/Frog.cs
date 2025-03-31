@@ -21,7 +21,7 @@ namespace src.GameObjects
         // Constructor:
         public Frog(ProjectileType type, Vector3 origin, Vector3 target,Model model, float scaling) : base(type, origin, target, model, scaling) {}
 
-        public override void Move(float dt)
+        protected override void Move(float dt)
         {
             timeAlive += dt;
 
@@ -30,6 +30,27 @@ namespace src.GameObjects
             else
                 HopMove(dt);
             
+        }
+
+        protected override void Hit()
+        {   
+            base.Hit();
+
+            //check intersection with players
+            bool hit = false;
+            foreach (Player player in Player.active.Where(p => p.Life > 0))
+            {
+                if(Hitbox.Intersects(player.Hitbox))
+                    hit = player.GetHit(this);
+            }
+
+            //if intersects, update
+            if(hit)
+            {
+                MusicAndSoundEffects.frogSFX.Play(0.5f, 0.0f, 0.0f);
+                active.Remove(this);
+            }
+             
         }
 
         private void ThrownMove()

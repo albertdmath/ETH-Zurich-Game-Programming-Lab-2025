@@ -10,14 +10,15 @@ namespace src.GameObjects
     {
         Frog,
         Swordfish,
-        Tomato
+        Tomato,
+        Coconut
     }
 
     /** Class for the projectiles **/
     public class Projectile : GameModel
     {
         // Static fields
-        public static LinkedList<Projectile> active = new LinkedList<Projectile>();
+        public static List<Projectile> active = new List<Projectile>();
 
         // Projectile properties
         public ProjectileType Type { get; private set; }
@@ -27,9 +28,10 @@ namespace src.GameObjects
         // Projectile spawn probabilities (can be adjusted via UI)
         public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
         {
-            { ProjectileType.Frog, 0.1f },
-            { ProjectileType.Swordfish, 0.45f },
-            { ProjectileType.Tomato, 0.45f }
+            { ProjectileType.Frog, 0f },
+            { ProjectileType.Swordfish, 1f },
+            { ProjectileType.Tomato, 0f },
+            { ProjectileType.Coconut, 0f }
         };
 
         // Constructor:
@@ -54,15 +56,29 @@ namespace src.GameObjects
                 case ProjectileType.Tomato:
                     projectile = new Tomato(type, origin, target, GameLabGame.projectileModels[ProjectileType.Tomato], 1f);
                     break;
+                case ProjectileType.Coconut:
+                    projectile = new Coconut(type, origin, target, GameLabGame.projectileModels[ProjectileType.Coconut], 1f);
+                    break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());
             }
-            active.AddLast(projectile);
+            active.Add(projectile);
             return projectile;
         }
 
         // Virtual methods for derived classes to override
-        public virtual void Move(float dt) { }
+        protected virtual void Move(float dt) { }
+
+        protected virtual void Hit() 
+        { 
+            // Check if projectile is out of bounds
+            if (MathF.Abs(Position.X) > GameLabGame.ARENA_HEIGHT * 0.5f || 
+                MathF.Abs(Position.Z) > GameLabGame.ARENA_WIDTH * 0.5f)
+            {
+                active.Remove(this);
+                return;
+            }
+        }
 
         public virtual void Throw(float chargeUp) {
             this.Position = Holder.Position + Holder.Orientation;
@@ -82,7 +98,10 @@ namespace src.GameObjects
         public override void Update(float dt)
         {
             if (Holder == null)
+            {
                 Move(dt);
+                Hit();
+            }
             else 
             {
                 // Ensures projectile is held in right hand for a more realistic look:
