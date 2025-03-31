@@ -47,7 +47,7 @@ namespace src.GameObjects
             //if intersects, update
             if(hit)
             {
-                MusicAndSoundEffects.frogSFX.Play(0.5f, 0.0f, 0.0f);
+                MusicAndSoundEffects.playProjectileSFX(ProjectileType.Frog);
                 active.Remove(this);
             }
              

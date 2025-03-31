@@ -58,7 +58,7 @@ namespace src.GameObjects
             if(hit)
             {
                 Explode();
-                MusicAndSoundEffects.tomatoSFX.Play(0.9f, 0.0f, 0.0f);
+                MusicAndSoundEffects.playProjectileSFX(ProjectileType.Tomato);
                 active.Remove(this);
             }
         }    
