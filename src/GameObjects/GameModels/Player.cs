@@ -106,7 +106,7 @@ namespace src.GameObjects
                     
                     */
                     // Handle the hit sound effect:
-                    MusicAndSoundEffects.playHitSFX();
+                    MusicAndSoundEffects.playProjectileSFX(projectile.Type);
                     
                     return true;
                 }
