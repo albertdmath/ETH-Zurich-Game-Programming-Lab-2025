@@ -37,23 +37,22 @@ namespace src.GameObjects
             Position = origin + (horizontalMotion + verticalMotion) * timeAlive;
         }
 
-        public override bool Hit()
+        public override void OnGroundHit()
         {
-            if(base.Hit())
-            {
-                Explode();
-                return true;
-            }
+            Explode();
+            base.OnGroundHit();
+        }
 
-            if(Position.Y < 0f)
-            {
-                Explode();
-                MusicAndSoundEffects.playProjectileSFX(ProjectileType.Tomato);
-                return true;
-            }
+        public override void OnMobHit()
+        {
+            base.OnMobHit();
+        }
 
-            return false;
-        }    
+        public override void OnPlayerHit(Player player)
+        {
+            Explode();
+            base.OnPlayerHit(player);
+        }
 
         private void Explode()
         {

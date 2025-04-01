@@ -1,9 +1,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Mail;
+using GameLab;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Myra.Graphics2D.UI;
 
 namespace src.GameObjects
 {
@@ -110,14 +113,43 @@ namespace src.GameObjects
             // Move the projectiles
             foreach(Projectile projectile in projectiles)
                 projectile.updateWrap(dt);
-            
 
-            for (int i = projectiles.Count - 1; i >= 0; i--) 
+                
+            // Check for projectile out of bounds and remove
+            foreach (Projectile projectile in projectiles)
             {
-         
-                if(projectiles[i].Holder == null && projectiles[i].Hit())
-                    projectiles.RemoveAt(i);
+                projectile.ToBeDeleted = MathF.Abs(projectile.Position.X) > GameLabGame.ARENA_HEIGHT  || MathF.Abs(projectile.Position.Z) > GameLabGame.ARENA_WIDTH;
             }
+
+            // Early delete projectiles for efficiency
+            projectiles.RemoveAll(x => x.ToBeDeleted);
+            
+            // Check for projectile-player intersections
+            foreach (Projectile projectile in projectiles.Where(x => x.Holder == null))
+            {
+                foreach (Player player in players.Where(p => p.Life > 0))
+                {   
+                    if (projectile.Hitbox.Intersects(player.Hitbox))
+                        projectile.OnPlayerHit(player);
+                }
+            }
+
+            // Check for projectile-mob intersection TODO
+            foreach (Projectile projectile in projectiles)
+            {
+                if(mob.Ellipse.Outside(projectile.Position.X, projectile.Position.Z))
+                    projectile.OnMobHit();
+            }
+
+            // Check for projectile-ground intersection
+            foreach (Projectile projectile in projectiles)
+            {
+                if(projectile.Position.Y <= 0f)
+                    projectile.OnGroundHit();
+            }
+
+            // Delete stuff again
+            projectiles.RemoveAll(x => x.ToBeDeleted);
         }
 
         public void DrawGame(Shader shadowShader, PhongShading lightingShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D shadowMap)

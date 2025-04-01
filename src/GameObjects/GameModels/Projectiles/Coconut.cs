@@ -23,27 +23,40 @@ namespace src.GameObjects
             Position += Velocity * Orientation * dt;
         }
 
-        public override bool Hit()
-        {
-            bool isHit = base.Hit();
-            
-            //if intersects, update
-            if (isHit)
+
+        public override void OnPlayerHit(Player player) 
+        {             
+            player.GetHit(this);
+            _bounces--;
+            // Delete if bounces are empty
+            if (_bounces <= 0)
             {
-                _bounces--;
-                // Return true for deletion if bounces are expended
-                if (_bounces <= 0)
-                {
-                    return true;
-                } else { // Otherwise bounce the coconut
-                    Velocity *= 0.9f;
-                    // Bounce effect, maybe change it depending on the surface hit
-                    Orientation = new Vector3(-Orientation.X, Orientation.Y, -Orientation.Z);
-                }
+                ToBeDeleted = true;
+            } else { // Otherwise bounce the coconut
+                Velocity *= 0.9f;
+                // Bounce effect, maybe change it depending on the surface hit
+                Orientation = new Vector3(-Orientation.X, Orientation.Y, -Orientation.Z);
             }
-            return false;
+        }
+
+        public override void OnMobHit()
+        {
+            _bounces--;
+            // Delete if bounces are empty
+            if (_bounces <= 0)
+            {
+                return;
+            } else { // Otherwise bounce the coconut
+                Velocity *= 0.9f;
+                // Bounce effect, maybe change it depending on the surface hit
+                Orientation = new Vector3(-Orientation.X, Orientation.Y, -Orientation.Z);
+            }
         }
         
+        public override void OnGroundHit()
+        {
+            base.OnGroundHit();
+        }
         public override void Throw(float chargeUp)
         {
             base.Throw(chargeUp);

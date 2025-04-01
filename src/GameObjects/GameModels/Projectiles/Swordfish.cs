@@ -17,10 +17,20 @@ public class Swordfish : Projectile
         Position += Velocity * Orientation * dt;
     }
 
-    public override bool Hit()
-    {   
-        return base.Hit();
-    }
+    public override void OnGroundHit()
+        {
+            base.OnGroundHit();
+        }
+
+        public override void OnMobHit()
+        {
+            base.OnMobHit();
+        }
+
+        public override void OnPlayerHit(Player player)
+        {
+            base.OnPlayerHit(player);
+        }
 
     public override void Throw(float chargeUp)
     {

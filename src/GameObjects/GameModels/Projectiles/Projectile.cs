@@ -23,6 +23,7 @@ namespace src.GameObjects
         protected float Velocity { get; set; }
         public GameModel Holder { get; set; }
         protected GameStateManager gameStateManager;
+        public bool ToBeDeleted { get; set; } = false;
 
 
         // Projectile spawn probabilities (can be adjusted via UI)
@@ -44,22 +45,19 @@ namespace src.GameObjects
         // Virtual methods for derived classes to override
         protected virtual void Move(float dt) { }
 
-        public virtual bool Hit() 
-        { 
-            // Check for player intersections
-            bool isHit = false;
-            foreach (Player player in gameStateManager.players.Where(p => p.Life > 0))
-            {   
-                if (Hitbox.Intersects(player.Hitbox))
-                    isHit = player.GetHit(this);
-            }
+        public virtual void OnPlayerHit(Player player) 
+        {             
+            ToBeDeleted = true;
+            player.GetHit(this);
+        }
 
-            // Play soundeffect if it's a hit
-            if(isHit)
-                MusicAndSoundEffects.playProjectileSFX(Type);
-            
-            // Return true if it's a hit or if projectile is out of bounds so the projectile gets deleted
-            return isHit || MathF.Abs(Position.X) > GameLabGame.ARENA_HEIGHT * 0.5f || MathF.Abs(Position.Z) > GameLabGame.ARENA_WIDTH * 0.5f;
+        public virtual void OnMobHit()
+        {
+            return;
+        }
+        public virtual void OnGroundHit()
+        {
+            ToBeDeleted = true;
         }
 
         public virtual void Throw(float chargeUp) {
