@@ -56,7 +56,7 @@ namespace src.GameObjects
 
             // Play soundeffect if it's a hit
             if(isHit)
-                MusicAndSoundEffects.playProjectileSFX(Type);
+                MusicAndSoundEffects.playHitSFX();
             
             // Return true if it's a hit or if projectile is out of bounds so the projectile gets deleted
             return isHit || MathF.Abs(Position.X) > GameLabGame.ARENA_HEIGHT * 0.5f || MathF.Abs(Position.Z) > GameLabGame.ARENA_WIDTH * 0.5f;
