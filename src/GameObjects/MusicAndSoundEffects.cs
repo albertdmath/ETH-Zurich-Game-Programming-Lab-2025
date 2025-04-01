@@ -26,7 +26,9 @@ public class MusicAndSoundEffects
     private static Song bgMusic;
     private static SoundEffectInstance angrymobInstance;
 
-    public static void loadSFX(Microsoft.Xna.Framework.Content.ContentManager Content, bool SOUND_ENABLED) {
+    private static MenuStateManager menuStateManager;
+
+    public static void loadSFX(Microsoft.Xna.Framework.Content.ContentManager Content) {
         bgMusic = Content.Load<Song>("Audio/myMedievalBeat");
         MediaPlayer.Volume = 0.1f;
         MediaPlayer.IsRepeating = true;
@@ -39,7 +41,9 @@ public class MusicAndSoundEffects
         angrymobInstance.IsLooped = true;
         angrymobInstance.Volume = 0.1f;
 
-        if(SOUND_ENABLED) {
+        menuStateManager = MenuStateManager.GetMenuStateManager();
+
+        if(menuStateManager.SOUND_ENABLED) {
             MediaPlayer.Volume = 1.2f;
             MediaPlayer.Play(bgMusic);
             angrymobInstance.Play();
@@ -47,24 +51,28 @@ public class MusicAndSoundEffects
     }
 
     public static void playHitSFX() {
-        hitSFX.Play(0.3f, 0.0f, 0.0f);
+        if(menuStateManager.SOUND_ENABLED)
+            hitSFX.Play(0.3f, 0.0f, 0.0f);
     }
 
     public static void playProjectileSFX(ProjectileType type) {
         // For anyone reading, "Play" function takes 3 parameters: volume, pitch, pan.
-        switch(type)
+        if(menuStateManager.SOUND_ENABLED)
         {
-            case ProjectileType.Frog:
-                frogSFX.Play(0.5f, 0.0f, 0.0f);
-                break;
-            case ProjectileType.Swordfish:
-                MusicAndSoundEffects.swordfishSFX.Play(0.8f, 0.0f, 0.0f);
-                break;
-            case ProjectileType.Tomato:
-                MusicAndSoundEffects.tomatoSFX.Play(0.9f, 0.0f, 0.0f);
-                break;
-            default:
-                break;
+            switch(type)
+            {
+                case ProjectileType.Frog:
+                    frogSFX.Play(0.5f, 0.0f, 0.0f);
+                    break;
+                case ProjectileType.Swordfish:
+                    MusicAndSoundEffects.swordfishSFX.Play(0.8f, 0.0f, 0.0f);
+                    break;
+                case ProjectileType.Tomato:
+                    MusicAndSoundEffects.tomatoSFX.Play(0.9f, 0.0f, 0.0f);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

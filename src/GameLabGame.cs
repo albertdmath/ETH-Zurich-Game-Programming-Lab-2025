@@ -26,21 +26,16 @@ namespace GameLab
         private SpriteFont font;
         private KeyboardState _previousKeyboardState;
         // Private fields:
-        private DrawModel arena;
-        private List<DrawModel> players = new List<DrawModel>();
+        private DrawModel arenaModel;
+        private List<DrawModel> playerModels = new List<DrawModel>();
         private List<DrawModel> mobModels = new List<DrawModel>();
-
-        public static GameModel arenaModel;
         public static Dictionary<ProjectileType, DrawModel> projectileModels = new Dictionary<ProjectileType, DrawModel>();
-        private LinkedList<Projectile> hitProjectiles = new LinkedList<Projectile>();
+
+        private GameStateManager gameStateManager;
+        private MenuStateManager menuStateManager;
+
+        // TODO remove this stuff with the HUD update (no hearts no stamina no playernames no wife maidenless actually)
         Texture2D playerHearts;
-        public const bool SOUND_ENABLED = true;
-
-        RenderTarget2D shadowMap;
-        private Light Sun; 
-
-        // Player settings
-        public int NUM_PLAYERS = 4;
         private Color[] playerColors = {
             new Color(118, 254, 253), // Player 1 color (cyan)
             new Color(254, 144, 209), // Player 2 color (pink)
@@ -48,13 +43,14 @@ namespace GameLab
             new Color(254, 131, 22) // Player 4 color (orange)
         };
 
+        // Shader variables for shading shadows
+        RenderTarget2D shadowMap;
+        private Light Sun; 
         PhongShading lightingShader; 
         Shader shadowShader;
-        
-        private bool shadowsEnabled = true;
-        
+
         // Camera settings
-        private Vector3 cameraPos = new Vector3(0f, 9, 7);
+        private Vector3 cameraPosition = new Vector3(0f, 9, 7);
         private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 9, 7), new Vector3(0, 0, 0.7f), Vector3.Up);
         private Matrix projection = Matrix.CreatePerspectiveFieldOfView(
             MathHelper.ToRadians(45f), // Field of view in radians (e.g., 45 degrees)
@@ -63,11 +59,8 @@ namespace GameLab
             1000f // Far clipping plane
         );
 
-        // Arena transformations
+        // Arena settings
         public const float ARENA_HEIGHT = 10f, ARENA_WIDTH = 17f;
-        private Matrix arenaScaling = Matrix.CreateScale(new Vector3(0.5f));
-
-        private Mob mob;
 
         public GameLabGame()
         {
@@ -82,117 +75,86 @@ namespace GameLab
             _graphics.IsFullScreen = false; // Enable full screen
             _graphics.ApplyChanges();
 
+            // Get Gamestatemanager instance yay and Menustatemanager too wahoo
+            gameStateManager = GameStateManager.GetGameStateManager();
+            menuStateManager = MenuStateManager.GetMenuStateManager();
+
             base.Initialize();
         }
-        private void InitMob(){
-            mob = new Mob(mobModels);
-        }
+
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            // Load the player/projectile models
-            // Textured arena model currently named test TODO change that and remove old arena model too
-            arena = new DrawModel(Content.Load<Model>("arena"));
 
-            players.Add(new DrawModel(Content.Load<Model>("player1")));
-            players.Add(new DrawModel(Content.Load<Model>("player2")));
-            players.Add(new DrawModel(Content.Load<Model>("player3")));
-            players.Add(new DrawModel(Content.Load<Model>("player4")));
+            // Load all of the models
+            arenaModel = new DrawModel(Content.Load<Model>("arena"));
+
+            playerModels.Add(new DrawModel(Content.Load<Model>("player1")));
+            playerModels.Add(new DrawModel(Content.Load<Model>("player2")));
+            playerModels.Add(new DrawModel(Content.Load<Model>("player3")));
+            playerModels.Add(new DrawModel(Content.Load<Model>("player4")));
 
             mobModels.Add(new DrawModel(Content.Load<Model>("mob1")));
             mobModels.Add(new DrawModel(Content.Load<Model>("mob2")));
-
-            Effect eff = Content.Load<Effect>("lightingWithShadow");
             
-            Effect eff2 = Content.Load<Effect>("shadowMap");
-            this.lightingShader = new PhongShading(eff);
-            this.shadowShader = new Shader(eff2);
-            this.Sun = new Light(new Vector3(0.99f,0.98f,0.82f), -new Vector3(3.0f,9.0f,7.0f));
-            shadowMap =new RenderTarget2D(_graphics.GraphicsDevice, 2048, 2048, false, SurfaceFormat.Single, DepthFormat.Depth24);
-
-            this.shadowShader.setLightSpaceMatrix(this.Sun.lightSpaceMatrix);
-
-            this.lightingShader.setLightSpaceMatrix(this.Sun.lightSpaceMatrix);
-
-            lightingShader.setCameraPosition(this.cameraPos);
-            lightingShader.setViewMatrix(this.view);
-            lightingShader.setProjectionMatrix(this.projection);
-            lightingShader.setLight(this.Sun);
-
-            font = Content.Load<SpriteFont>("font");
-            playerHearts = Content.Load<Texture2D>("player_heart");
-
-            // Load the projectile models
             projectileModels.Add(ProjectileType.Frog, new DrawModel(Content.Load<Model>("frog")));
             projectileModels.Add(ProjectileType.Swordfish, new DrawModel(Content.Load<Model>("swordfish")));
             projectileModels.Add(ProjectileType.Tomato, new DrawModel(Content.Load<Model>("tomato")));
             projectileModels.Add(ProjectileType.Coconut, new DrawModel(Content.Load<Model>("coconut")));
 
+            font = Content.Load<SpriteFont>("font");
+            playerHearts = Content.Load<Texture2D>("player_heart");
 
-            // Initialize game models (they are only known at this point so they can't be in the initialize method)
-            arenaModel = new GameModel(arena, 0.5f);
+            // Shader setup
+            lightingShader = new PhongShading(Content.Load<Effect>("lightingWithShadow"));
+            shadowShader = new Shader(Content.Load<Effect>("shadowMap"));
+            Sun = new Light(new Vector3(0.99f,0.98f,0.82f), -new Vector3(3.0f,9.0f,7.0f));
+            shadowMap = new RenderTarget2D(_graphics.GraphicsDevice, 2048, 2048, false, SurfaceFormat.Single, DepthFormat.Depth24);
 
-            // Initialize mob
-            InitMob();
+            shadowShader.setLightSpaceMatrix(Sun.lightSpaceMatrix);
+            lightingShader.setLightSpaceMatrix(Sun.lightSpaceMatrix);
+            lightingShader.setCameraPosition(cameraPosition);
+            lightingShader.setViewMatrix(view);
+            lightingShader.setProjectionMatrix(projection);
+            lightingShader.setLight(Sun);
 
-            // Initialize players
-            Player.Initialize(mob.Ellipse, players, NUM_PLAYERS);
+            // Initialize gamestate here:
+            gameStateManager.Initialize(arenaModel, playerModels, mobModels, projectileModels);
+
+      
+            gameStateManager.StartNewGame();
 
             _menu = new MyMenu(_graphics,this);
 
             // Load Sounds:
-            MusicAndSoundEffects.loadSFX(Content, SOUND_ENABLED);
+            MusicAndSoundEffects.loadSFX(Content);
         }
-        public void ReLoad(){
-            //projectileModels.Clear();
-            hitProjectiles.Clear();
-            Projectile.active.Clear();
-            InitMob();
-            Player.Initialize(mob.Ellipse,players,NUM_PLAYERS);
-        }
+    
 
         protected override void Update(GameTime gameTime)
         {
             KeyboardState keyboardState = Keyboard.GetState();
 
-            _menu.Update(gameTime,keyboardState,_previousKeyboardState);
+            _menu.Update(gameTime, keyboardState, _previousKeyboardState);
 
-            if(_menu.menuisopen()){
-                
+            if(_menu.menuisopen())
+            {
                 _previousKeyboardState = keyboardState;
                 base.Update(gameTime);
                 return;
             }
-            //if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                //Exit();
 
-        
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            // Move players
-            foreach (Player player in Player.active)
-                player.updateWrap(dt);
-            
-
-            // CAN THIS NOT BE MOVED INSIDE THE UPDATE OF PLAYERS
-            // Players bumping into each other
-            for(int i = 0; i<Player.active.Count; ++i)
-                for(int j = i+1; j<Player.active.Count; ++j)
-                    Player.active[i].playerCollision(Player.active[j]);
-
-            // Update mob
-            mob.Update(dt);
-
-            // Update the projectiles
-            // this is done to avoid modifying the list while iterating over it
-            for (int i = Projectile.active.Count - 1; i >= 0; i--) 
-                Projectile.active[i].updateWrap(dt);
+            gameStateManager.UpdateGame(dt);
 
             _previousKeyboardState = keyboardState;
 
             base.Update(gameTime);
         }
 
+
+        /*
         private void DrawHealthAndStamina()
         {
             switch (Player.active.Count)
@@ -200,32 +162,34 @@ namespace GameLab
                 case 4:
                     _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[3].Stamina, new Vector2(1500, 950), playerColors[3]);
                     for(int i = 0; i < Player.active[3].Life; i++) {
-                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
+                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, Spriteeffectects.None, 0f);
                     }          
                     goto case 3;
                 case 3:
                     _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[2].Stamina, new Vector2(10, 950), playerColors[2]);
                     for(int i = 0; i < Player.active[2].Life; i++) {
-                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
+                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, Spriteeffectects.None, 0f);
                     }
                     goto case 2;
                 case 2:
                     _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[1].Stamina, new Vector2(1500, 50), playerColors[1]);
                     for(int i = 0; i < Player.active[1].Life; i++) {
-                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
+                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, Spriteeffectects.None, 0f);
                     }
                     goto case 1;
                 case 1:
                     _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[0].Stamina, new Vector2(10, 50), playerColors[0]);
                     for(int i = 0; i < Player.active[0].Life; i++) {
-                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
+                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, Spriteeffectects.None, 0f);
                     }
                     goto default;
                 default:
                     break;
             }
         }
+        */
 
+        /*
         private void DrawWin()
         {
             //this can be also used for the hit projectiles
@@ -258,72 +222,21 @@ namespace GameLab
             }
         }
 
+        */
+
         protected override void Draw(GameTime gameTime)
         {
-            //SHADOW ZONE
-            GraphicsDevice.SetRenderTarget(shadowMap); 
-            GraphicsDevice.Clear(Color.Black);
-            GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;
-            arenaModel.Draw(view,projection,shadowShader,true);
-            //arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
-            // Draw all active projectiles:
-            foreach (Projectile projectile in Projectile.active)
-            {
-                projectile.Draw(view, projection,shadowShader,true);
-                //projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
-            }
-
-            // Draw all players
-            foreach (Player player in Player.active)
-            {
-                player.Draw(view, projection, shadowShader, true);
-                //player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
-            } 
-            mob.Draw(view, projection, shadowShader, true);
-
-            
-            lightingShader.setShadowTexture(this.shadowMap);
-
-            GraphicsDevice.SetRenderTarget(null);
-            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-            // _spriteBatch.Begin(0, BlendState.Opaque, SamplerState.AnisotropicClamp);
-            // _spriteBatch.Draw(shadowMap, new Rectangle(0, 0, 500, 500), Color.White);
-            // _spriteBatch.End();
-
-
-            GraphicsDevice.Clear(Color.DeepSkyBlue); // Background color
-       
-
-            arenaModel.Draw(view,projection,lightingShader,false);
-            //arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
-            // Draw all active projectiles:
-            foreach (Projectile projectile in Projectile.active)
-            {
-                projectile.Draw(view, projection,lightingShader,false);
-                //projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
-            }
-
-            // Draw all players
-            foreach (Player player in Player.active)
-            {
-                player.Draw(view, projection, lightingShader, false);
-                //player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
-            } 
-
-            // Draw mob and player statistics:
-            mob.Draw(view, projection, lightingShader, false);
+            gameStateManager.DrawGame(shadowShader, lightingShader, view, projection, GraphicsDevice, shadowMap);
 
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-            DrawHealthAndStamina();
-            DrawWin();
-             //MYRA===============
+            
+            // Draw menu
             _menu.Draw();
-            //===================
+
             _spriteBatch.End();
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.BlendState = BlendState.Opaque;
-
            
             base.Draw(gameTime);
         }

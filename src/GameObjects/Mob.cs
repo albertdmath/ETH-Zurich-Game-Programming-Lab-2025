@@ -29,6 +29,8 @@ namespace src.GameObjects
         private float closing = 0;
         private float timeUntilNextProjectile;
 
+        private GameStateManager gameStateManager;
+
         public Mob(List<DrawModel> models) {
             // Set the major and minor axes of the ellipse
             this.startMajorAxis = GameLabGame.ARENA_WIDTH * 0.5f; // Half the width of the plane
@@ -41,6 +43,8 @@ namespace src.GameObjects
 
             this.models = models;
             SpawnMob();
+
+            gameStateManager = GameStateManager.GetGameStateManager();
         }
 
         public Vector3 GetRandomPointInside()
@@ -133,7 +137,7 @@ namespace src.GameObjects
         }
         private void MobPlayerInteraction(){
 
-            foreach (Player player in Player.active)
+            foreach (Player player in gameStateManager.players)
             { 
                 int i = (int)Math.Round(player.Position.X)+11;
                 int j = (int)Math.Round(player.Position.Y)+11;
@@ -180,8 +184,8 @@ namespace src.GameObjects
                 Zombie throwingZombie = Mob.active[random.Next(0, Mob.active.Length)];
                 while(throwingZombie.projectileHeld != null) throwingZombie = Mob.active[random.Next(0, Mob.active.Length)];
 
-                Player targetPlayer = Player.active[random.Next(0, Player.active.Count)];
-                while(targetPlayer.Life <= 0) targetPlayer = Player.active[random.Next(0, Player.active.Count)];
+                Player targetPlayer = gameStateManager.players[random.Next(0, gameStateManager.players.Count)];
+                while(targetPlayer.Life <= 0) targetPlayer = gameStateManager.players[random.Next(0, gameStateManager.players.Count)];
 
                 throwingZombie.Spawn(entry.Key, targetPlayer);
             }

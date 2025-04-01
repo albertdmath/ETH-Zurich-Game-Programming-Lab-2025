@@ -17,9 +17,13 @@ namespace src.GameObjects{
         Button reloadbutton;
         private bool menuopen=false;
         private GraphicsDeviceManager graphics;
+
+        private GameStateManager gameStateManager;
+        private MenuStateManager menuStateManager;
         public MyMenu(GraphicsDeviceManager _graphics, GameLabGame game){
             MyraEnvironment.Game = game;
-
+            gameStateManager = GameStateManager.GetGameStateManager();
+            menuStateManager = MenuStateManager.GetMenuStateManager();
             var grid = new Grid{
                 RowSpacing = 8,
                 ColumnSpacing = 8
@@ -78,7 +82,7 @@ namespace src.GameObjects{
             Grid.SetColumn(reloadbutton,7);
             Grid.SetRow(reloadbutton,7);
             reloadbutton.Click += (s,a)=>{
-                game.ReLoad();//RELOADING
+                gameStateManager.StartNewGame();//RELOADING
                 this.menuopen=false;
             };
 
@@ -89,15 +93,15 @@ namespace src.GameObjects{
                 Nullable=false,
                 Minimum=1,
                 Maximum=4,
-                Value=game.NUM_PLAYERS,
+                Value=menuStateManager.NUM_PLAYERS,
                 Integer=true
             };
 
             spinButton.ValueChanging += (c,a) => {
                 float? nullableFloat = a.NewValue;
 
-                game.NUM_PLAYERS = (int)(nullableFloat ?? 0);
-                game.ReLoad();
+                menuStateManager.NUM_PLAYERS = (int)(nullableFloat ?? 0);
+                gameStateManager.StartNewGame();
             };
             Grid.SetColumn(spinButton,2);
             Grid.SetRow(spinButton,2);

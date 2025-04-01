@@ -14,6 +14,7 @@ namespace src.GameObjects
         // this is done to avoid the player to be hit multiple times
         private int _bounces;
 
+
         // Constructor:
         public Coconut(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(type, origin, target, model, scaling) {}
 
@@ -22,34 +23,25 @@ namespace src.GameObjects
             Position += Velocity * Orientation * dt;
         }
 
-        protected override void Hit()
+        public override bool Hit()
         {
-            base.Hit();
+            bool isHit = base.Hit();
             
-            // Check intersection with players
-            bool hit = false;
-            foreach (Player player in Player.active.Where(p => p.Life > 0))
-            {   
-                if (Hitbox.Intersects(player.Hitbox))
-                    hit = player.GetHit(this);
-            }
-
             //if intersects, update
-            if (hit)
+            if (isHit)
             {
                 _bounces--;
+                // Return true for deletion if bounces are expended
                 if (_bounces <= 0)
                 {
-                    active.Remove(this);
-                }
-                else
-                {
+                    return true;
+                } else { // Otherwise bounce the coconut
                     Velocity *= 0.9f;
                     // Bounce effect, maybe change it depending on the surface hit
-                    Orientation = new Vector3(-Orientation.X, Orientation.Y, -Orientation.Z); 
+                    Orientation = new Vector3(-Orientation.X, Orientation.Y, -Orientation.Z);
                 }
             }
-            
+            return false;
         }
         
         public override void Throw(float chargeUp)

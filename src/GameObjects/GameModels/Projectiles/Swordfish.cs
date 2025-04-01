@@ -17,25 +17,9 @@ public class Swordfish : Projectile
         Position += Velocity * Orientation * dt;
     }
 
-    protected override void Hit()
+    public override bool Hit()
     {   
-        base.Hit();
-
-        //check intersection with players
-        bool hit = false;
-        foreach (Player player in Player.active.Where(p => p.Life > 0))
-        {
-            if(Hitbox.Intersects(player.Hitbox))
-                hit = player.GetHit(this);
-            
-        }
-
-        //if intersects, update
-        if(hit)
-        {
-            MusicAndSoundEffects.playProjectileSFX(ProjectileType.Swordfish);
-            active.Remove(this);
-        }
+        return base.Hit();
     }
 
     public override void Throw(float chargeUp)

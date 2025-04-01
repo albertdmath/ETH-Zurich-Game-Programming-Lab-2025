@@ -37,35 +37,27 @@ namespace src.GameObjects
             Position = origin + (horizontalMotion + verticalMotion) * timeAlive;
         }
 
-        protected override void Hit()
+        public override bool Hit()
         {
-            base.Hit();
-
-            // Check intersection with players
-            bool hit = false;
-            foreach (Player player in Player.active.Where(p => p.Life > 0))
+            if(base.Hit())
             {
-                if(Hitbox.Intersects(player.Hitbox))
-                    hit = player.GetHit(this);  
-            
+                Explode();
+                return true;
             }
 
-            // Check intersection with ground
-            if (Position.Y < 0f)
-                hit = true; 
-            
-            //if intersects, update
-            if(hit)
+            if(Position.Y < 0f)
             {
                 Explode();
                 MusicAndSoundEffects.playProjectileSFX(ProjectileType.Tomato);
-                active.Remove(this);
+                return true;
             }
+
+            return false;
         }    
 
         private void Explode()
         {
-            foreach (Player player in Player.active.Where(p => p.Life > 0))
+            foreach (Player player in gameStateManager.players.Where(p => p.Life > 0))
             {
                 if (Vector3.DistanceSquared(this.Position, player.Position) <= SQUARED_EXPLOSION_RADIUS)
                     player.GetHit(this);

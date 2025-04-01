@@ -32,24 +32,9 @@ namespace src.GameObjects
             
         }
 
-        protected override void Hit()
+        public override bool Hit()
         {   
-            base.Hit();
-
-            //check intersection with players
-            bool hit = false;
-            foreach (Player player in Player.active.Where(p => p.Life > 0))
-            {
-                if(Hitbox.Intersects(player.Hitbox))
-                    hit = player.GetHit(this);
-            }
-
-            //if intersects, update
-            if(hit)
-            {
-                MusicAndSoundEffects.playProjectileSFX(ProjectileType.Frog);
-                active.Remove(this);
-            }
+            return base.Hit();
         }
 
         private void ThrownMove()
@@ -85,7 +70,7 @@ namespace src.GameObjects
 
         private void TurnToPlayer(float dt)
         {
-            Player nearestPlayer = Player.active
+            Player nearestPlayer = gameStateManager.players
                 .Where(player => player.Life > 0)
                 .OrderBy(player => Vector3.Distance(Position, player.Position))
                 .First();

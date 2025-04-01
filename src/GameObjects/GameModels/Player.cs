@@ -19,11 +19,9 @@ namespace src.GameObjects
     /** Anything regarding player characters, from movement to the actual Model files goes here. **/
     public class Player : GameModel
     {
-        public static List<Player> active = new List<Player>();
-
         public int Id { get; set; }
         // Private fields:
-        private float playerSpeed = 4;
+        private float playerSpeed = 2f;
         public int Life { get; set; } = 5;
         public float Stamina { get; set; } = 0f;
         public Projectile projectileHeld;
@@ -38,8 +36,9 @@ namespace src.GameObjects
 
         private Input input;
         private Ellipse ellipse;
-
         private Vector3 Inertia;
+
+        private GameStateManager gameStateManager;
 
         public Player(Vector3 position, Input input, int id, Ellipse ellipse, DrawModel model,float scale) : base(model,scale)
         {
@@ -52,25 +51,7 @@ namespace src.GameObjects
             Inertia = new Vector3(0,0,0);
             // Remove hat from hitbox; this is trashcode and needs to be removed / done better at some point
             this.Hitbox.BoundingBoxes.RemoveAt(this.Hitbox.BoundingBoxes.Count - 1);
-        }
-
-        public static void Initialize(Ellipse ellipse, List<DrawModel> models, int NUM_PLAYERS)
-        {
-            active.Clear();
-            float[] playerStartPositions = { -1.5f, -0.5f, 0.5f, 1.5f };
-            float scaling = 0.5f;
-            // Keyboard controls for debug:
-            active.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, ellipse, models[0], scaling));
-            active.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, ellipse, models[1], scaling));
-            /*
-            // TODO: fix player creation
-            for (int i = 1; i < NUM_PLAYERS; i++)
-            {
-                PlayerIndex idx = (PlayerIndex)i-1;
-                if (GamePad.GetState(idx).IsConnected)
-                    active.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), new Input(), i, ellipse, models[i], scaling));
-            }
-            */
+            gameStateManager = GameStateManager.GetGameStateManager();
         }
 
         // The player move method:
@@ -101,7 +82,7 @@ namespace src.GameObjects
         {
             float cosTheta = MathF.Cos(MathHelper.ToRadians(30f)); // Precompute cos(30°)
 
-            foreach (Projectile projectile in Projectile.active)
+            foreach (Projectile projectile in gameStateManager.projectiles)
             {
                 Vector3 toProjectile = projectile.Position - Position;
                 if (toProjectile.LengthSquared() > 2) continue; // Outside radius
@@ -122,16 +103,10 @@ namespace src.GameObjects
                 } else // the player is hit by the projectile
                 {
                     Life -= notImportant ? 0 : 1;
-                    input.Vibrate();
-                    if (Life == 0f)
-                    {
-                        // For now the player is moved down to indacet crawling. Later done with an animation
-                        Position = Position - new Vector3(0, 0.2f, 0);
-                        playerSpeed = 1f;
-                    }
+                    
                     */
                     // Handle the hit sound effect:
-                    if(GameLabGame.SOUND_ENABLED) { MusicAndSoundEffects.playHitSFX(); }
+                    MusicAndSoundEffects.playHitSFX();
                     
                     return true;
                 }
@@ -141,15 +116,26 @@ namespace src.GameObjects
 
         public bool GetHit(Projectile projectile)
         {
-            // Saved by throw immunity (return false)
+            // If last man standing return hit but don't subtract life
+            if (gameStateManager.livingPlayers.Count == 1)
+                return true;
+            // Check immunity
             if (throwImmunity > 0 && projectile == lastThrownProjectile)
                 return false;
             
             // Otherwise check general immunity
             if (immunity <= 0)
             {
+                input.Vibrate();
                 Life--;
                 immunity = 1f;
+                if (Life == 0f)
+                {
+                    // For now the player is moved down to indacet crawling. Later done with an animation
+                    Position = Position - new Vector3(0, 0.2f, 0);
+                    playerSpeed = 1f;
+                    gameStateManager.livingPlayers.Remove(this);
+                }
             }
             return true;
         }
@@ -187,9 +173,9 @@ namespace src.GameObjects
         // Spawning a projectile in hand when part of the mob. Currently only swordfish
         private void Spawn()
         {
-            if(input.Action() && Stamina>40f && projectileHeld == null)
+            if(input.Action())
             {
-                projectileHeld = Projectile.CreateProjectile(ProjectileType.Swordfish,Position,Orientation);
+                projectileHeld = gameStateManager.CreateProjectile(ProjectileType.Swordfish,Position,Orientation);
                 projectileHeld.Catch(this);
                 Stamina -= 40f;
             }
@@ -221,7 +207,7 @@ namespace src.GameObjects
 
 
         // Update function called each update
-        //this needs to be stilla adjusted for hitting yoursealf
+        //this needs to be stilla adjusted for hitting yourself
         public override void Update(float dt)
         {
             Stamina += dt * 5f;
@@ -281,6 +267,7 @@ namespace src.GameObjects
                 if (ellipse.Outside(Position.X,Position.Z))
                 {
                     mob = true;
+                    Position = Position + new Vector3(0, 0.2f, 0);
                     playerSpeed = 2f;
                 }
             }

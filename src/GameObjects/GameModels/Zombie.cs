@@ -22,11 +22,13 @@ namespace src.GameObjects
         public Projectile projectileHeld;
         private float timeSinceSpawn = 0f;
         private Random random = new Random();
+        private GameStateManager gameStateManager;
         // Constructor: Only allow to assign position here,
         public Zombie(Vector3 position, Ellipse ellipse, DrawModel model, float scaling) : base(model, scaling)
         {
             Position = position;
             this.ellipse = ellipse;
+            gameStateManager = GameStateManager.GetGameStateManager();
         }
 
         // The Zombie move method:
@@ -92,7 +94,7 @@ namespace src.GameObjects
             if(projectileHeld == null)
             {
                 targetThrow = target;
-                projectileHeld = Projectile.CreateProjectile(type, Position, Orientation);
+                projectileHeld = gameStateManager.CreateProjectile(type, Position, Orientation);
                 projectileHeld.Catch(this);
                 timeSinceSpawn = 0f;
                 return false;

@@ -11,7 +11,7 @@ public class OrientedBoundingBox
     public Vector3 Center { get; private set; }
     public Vector3 Extents { get; private set; }
     public Matrix Orientation { get; private set; }
-     public Vector3 CenterCentered { get; private set; }
+    public Vector3 CenterCentered { get; private set; }
     public Vector3 ExtentsCentered { get; private set; }
     public Matrix OrientationCentered { get; private set; }
     public OrientedBoundingBox(Vector3 center, Vector3 extents, Matrix orientation)
