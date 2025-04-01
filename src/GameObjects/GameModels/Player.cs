@@ -37,6 +37,7 @@ namespace src.GameObjects
         private Input input;
         private Ellipse ellipse;
         private Vector3 Inertia;
+        private Hand hand;
 
         private GameStateManager gameStateManager;
 
@@ -52,6 +53,7 @@ namespace src.GameObjects
             // Remove hat from hitbox; this is trashcode and needs to be removed / done better at some point
             this.Hitbox.BoundingBoxes.RemoveAt(this.Hitbox.BoundingBoxes.Count - 1);
             gameStateManager = GameStateManager.GetGameStateManager();
+            hand = new Hand(this,model,0.25f);
         }
 
         // The player move method:
@@ -78,53 +80,21 @@ namespace src.GameObjects
         }
 
         // Method to test for a collision with a projectile and potentially grab it:
-        private bool Catch()
+        /* private void Catch(Projectile projectile)
         {
-            float cosTheta = MathF.Cos(MathHelper.ToRadians(30f)); // Precompute cos(30°)
-
-            foreach (Projectile projectile in gameStateManager.projectiles)
-            {
-                Vector3 toProjectile = projectile.Position - Position;
-                if (toProjectile.LengthSquared() > 2) continue; // Outside radius
-
-                Vector3 directionToProjectile = Vector3.Normalize(toProjectile);
-                if (Vector3.Dot(Orientation, directionToProjectile) >= cosTheta) // Inside 60-degree cone
-                {
-                    projectileHeld = projectile;
-                    projectile.Catch(this);
-                    /*
-                    Console.WriteLine("Grabbing " + projectile.Type);
-                    // Here the player speed is set for the movement with projectile in hand
-                    playerSpeed = 0.9f;
-
-                    // Handle the equip sound effect based on the projectile type:
-                    if(GameLabGame.SOUND_ENABLED) { MusicAndSoundEffects.playProjectileSFX(projectile.Type); }
-                    return false;
-                } else // the player is hit by the projectile
-                {
-                    Life -= notImportant ? 0 : 1;
-                    
-                    */
-                    // Handle the hit sound effect:
-                    MusicAndSoundEffects.playProjectileSFX(projectile.Type);
-                    
-                    return true;
-                }
-            }
-            return false;
+            projectileHeld = projectile;
+            projectile.Catch(this);
+            MusicAndSoundEffects.playProjectileSFX(projectile.Type);
+        } */
+        private void Catch()
+        {
+            hand.IsCatching = true;
         }
 
-        public bool GetHit(Projectile projectile)
+        public void GetHit(Projectile projectile)
         {
-            // If last man standing return hit but don't subtract life
-            if (gameStateManager.livingPlayers.Count == 1)
-                return true;
-            // Check immunity
-            if (throwImmunity > 0 && projectile == lastThrownProjectile)
-                return false;
-            
             // Otherwise check general immunity
-            if (immunity <= 0)
+            if (immunity <= 0 && gameStateManager.livingPlayers.Count > 1 && projectile != lastThrownProjectile)
             {
                 input.Vibrate();
                 Life--;
@@ -137,7 +107,6 @@ namespace src.GameObjects
                     gameStateManager.livingPlayers.Remove(this);
                 }
             }
-            return true;
         }
 
         // Method to throw an object:
@@ -235,18 +204,12 @@ namespace src.GameObjects
                 if (input.Action())
                 {
                     //wait until the action is released to throw the projectile
-                    if (recentlyCaught) return;
 
                     actionPushedDuration += dt;
                     if(projectileHeld != null)
                         playerSpeed = 0f; //Aim
                     else 
-                    {
-                        if(actionPushedDuration<0.7f)
-                            recentlyCaught = Catch(); // Catch projectile
-                        else if (mob)
-                            Spawn(); // Spawn projectile
-                    }
+                        Catch(); // Catch projectile
                 }
                 else
                 {
@@ -271,6 +234,7 @@ namespace src.GameObjects
                     playerSpeed = 2f;
                 }
             }
+            hand.Update(dt);
         }
 
         public override void Draw(Matrix view, Matrix projection, Shader shader, bool shadowDraw)
@@ -285,6 +249,7 @@ namespace src.GameObjects
 
             if (shouldDraw)
                 base.Draw(view, projection, shader, shadowDraw);
+            hand.Draw(view,projection,shader,shadowDraw);
         }
     }
 }

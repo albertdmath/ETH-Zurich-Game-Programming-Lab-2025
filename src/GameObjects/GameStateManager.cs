@@ -144,7 +144,7 @@ namespace src.GameObjects
             // Check for projectile-ground intersection
             foreach (Projectile projectile in projectiles)
             {
-                if(projectile.Position.Y <= 0f)
+                if(projectile.Position.Y < 0f)
                     projectile.OnGroundHit();
             }
 
