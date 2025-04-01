@@ -11,6 +11,7 @@ namespace src.GameObjects
         // Private fields:
         private const float MAX_VELOCITY = 15;
         private const int MAX_BOUNCES = 3;
+        private Random random = new Random();
         // this is done to avoid the player to be hit multiple times
         private int _bounces;
 
@@ -35,10 +36,20 @@ namespace src.GameObjects
                 if (_bounces <= 0)
                 {
                     return true;
-                } else { // Otherwise bounce the coconut
-                    Velocity *= 0.9f;
-                    // Bounce effect, maybe change it depending on the surface hit
-                    Orientation = new Vector3(-Orientation.X, Orientation.Y, -Orientation.Z);
+                } 
+                else 
+                { // Otherwise bounce the coconut
+                    Velocity *= 0.9f; // Reduce speed after bounce
+
+                    // Generate a random angle between -30° and +30°
+                    float randomAngle = MathHelper.ToRadians(random.Next(130, 230));
+
+                    // Create a rotation matrix around the Y-axis
+                    Matrix rotationMatrix = Matrix.CreateRotationY(randomAngle);
+
+                    // Apply the rotation to the orientation vector
+                    Orientation = Vector3.Transform(Orientation, rotationMatrix);
+                    Orientation = Vector3.Normalize(Orientation); // Normalize to maintain direction
                 }
             }
             return false;
