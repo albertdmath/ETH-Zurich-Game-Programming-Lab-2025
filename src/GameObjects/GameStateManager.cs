@@ -123,17 +123,24 @@ namespace src.GameObjects
 
             // Early delete projectiles for efficiency
             projectiles.RemoveAll(x => x.ToBeDeleted);
-            
+            // Check for projectile-player hand intersections
+            foreach (Projectile projectile in projectiles)
+            {
+                foreach (Player player in players)
+                {   
+                    if (player.Hand.IsCatching && projectile.Hitbox.Intersects(player.Hand.Hitbox))
+                        player.Catch(projectile);
+                }
+            }
             // Check for projectile-player intersections
             foreach (Projectile projectile in projectiles.Where(x => x.Holder == null))
             {
-                foreach (Player player in players.Where(p => p.Life > 0))
+                foreach (Player player in players.Where(x => x.Life > 0))
                 {   
                     if (projectile.Hitbox.Intersects(player.Hitbox))
                         projectile.OnPlayerHit(player);
                 }
             }
-
             // Check for projectile-mob intersection TODO
             foreach (Projectile projectile in projectiles)
             {

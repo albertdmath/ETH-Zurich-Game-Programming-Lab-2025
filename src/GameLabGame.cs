@@ -154,46 +154,46 @@ namespace GameLab
         }
 
 
-        /*
+        
         private void DrawHealthAndStamina()
         {
-            switch (Player.active.Count)
+            switch (gameStateManager.players.Count)
             {
                 case 4:
-                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[3].Stamina, new Vector2(1500, 950), playerColors[3]);
-                    for(int i = 0; i < Player.active[3].Life; i++) {
-                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, Spriteeffectects.None, 0f);
+                    _spriteBatch.DrawString(font, "Player state " + (int)gameStateManager.players[3].Stamina, new Vector2(1500, 950), playerColors[3]);
+                    for(int i = 0; i < gameStateManager.players[3].Life; i++) {
+                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
                     }          
                     goto case 3;
                 case 3:
-                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[2].Stamina, new Vector2(10, 950), playerColors[2]);
-                    for(int i = 0; i < Player.active[2].Life; i++) {
-                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, Spriteeffectects.None, 0f);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)gameStateManager.players[2].Stamina, new Vector2(10, 950), playerColors[2]);
+                    for(int i = 0; i < gameStateManager.players[2].Life; i++) {
+                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
                     }
                     goto case 2;
                 case 2:
-                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[1].Stamina, new Vector2(1500, 50), playerColors[1]);
-                    for(int i = 0; i < Player.active[1].Life; i++) {
-                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, Spriteeffectects.None, 0f);
+                    _spriteBatch.DrawString(font, "Stamina: " + (int)gameStateManager.players[1].Stamina, new Vector2(1500, 50), playerColors[1]);
+                    for(int i = 0; i < gameStateManager.players[1].Life; i++) {
+                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
                     }
                     goto case 1;
                 case 1:
-                    _spriteBatch.DrawString(font, "Stamina: " + (int)Player.active[0].Stamina, new Vector2(10, 50), playerColors[0]);
-                    for(int i = 0; i < Player.active[0].Life; i++) {
-                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, Spriteeffectects.None, 0f);
+                    _spriteBatch.DrawString(font, "Player state  " + gameStateManager.players[0].playerState, new Vector2(10, 50), playerColors[0]);
+                    for(int i = 0; i < gameStateManager.players[0].Life; i++) {
+                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
                     }
                     goto default;
                 default:
                     break;
             }
         }
-        */
+       
 
         /*
         private void DrawWin()
         {
             //this can be also used for the hit projectiles
-            var alivePlayers = Player.active.Where(p => p.Life > 0).ToList();
+            var alivePlayers = gameStateManager.players.Where(p => p.Life > 0).ToList();
             if (alivePlayers.Count() == 1)
             {
                 Texture2D pixel;
@@ -230,7 +230,7 @@ namespace GameLab
 
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-            
+            DrawHealthAndStamina();
             // Draw menu
             _menu.Draw();
 

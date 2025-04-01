@@ -47,8 +47,8 @@ namespace src.GameObjects
 
         public virtual void OnPlayerHit(Player player) 
         {             
-            ToBeDeleted = true;
-            player.GetHit(this);
+            ToBeDeleted = player.GetHit(this);
+            
         }
 
         public virtual void OnMobHit()

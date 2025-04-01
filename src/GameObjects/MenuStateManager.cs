@@ -5,8 +5,8 @@ namespace src.GameObjects
      */
     public class MenuStateManager
     {
-        public bool SOUND_ENABLED { get ; set; } = true ;
-        public int NUM_PLAYERS { get ; set; } = 4;
+        public bool SOUND_ENABLED { get ; set; } = false ;
+        public int NUM_PLAYERS { get ; set; } = 2;
         public bool SHADOWS_ENABLED { get ; set; } = true;
 
         private MenuStateManager() 
