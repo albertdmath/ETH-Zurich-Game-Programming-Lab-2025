@@ -28,8 +28,8 @@ namespace src.GameObjects
         private float dashTime = 0f;
         private float actionPushedDuration;
         private float stunDuration = 0f;
-        public bool notImportant = false;
         private bool mob = false;
+
         private bool recentlyCaught = false;
         private float immunity = 0f, throwImmunity = 0f;
         private Projectile lastThrownProjectile = null; // Store last thrown projectile
@@ -130,22 +130,34 @@ namespace src.GameObjects
                 Life--;
                 immunity = 1f;
                 if (Life == 0f)
-                {
-                    // For now the player is moved down to indacet crawling. Later done with an animation
-                    Position = Position - new Vector3(0, 0.2f, 0);
-                    playerSpeed = 1f;
-                    gameStateManager.livingPlayers.Remove(this);
-                }
+                    StartCrawling();
             }
             return true;
+        }
+
+        private void StartCrawling()
+        {
+            // Remove projectile if any was hold
+            if (projectileHeld != null)
+            {
+                projectileHeld.Throw(1f);
+                projectileHeld = null;
+            }
+
+            // For now the player is moved down to indacet crawling. Later done with an animation
+            Position -= new Vector3(0, 0.2f, 0);
+            playerSpeed = 1f;
+            gameStateManager.livingPlayers.Remove(this);
         }
 
         // Method to throw an object:
         private void Throw()
         { 
-            float speedUp = 1 + 2 * (float)Math.Pow(Math.Min(actionPushedDuration, 4f), 2f);
+            // Dont let the player get hit by his own projectile
             throwImmunity = 1f; 
             lastThrownProjectile = projectileHeld;
+
+            float speedUp = 1 + 2 * (float)Math.Pow(Math.Min(actionPushedDuration, 4f), 2f);
             projectileHeld.Throw(speedUp);
             projectileHeld = null;
             Console.WriteLine("Throwing projectile with orientation: " + Orientation+ " and speedup: " +speedUp);
@@ -262,12 +274,11 @@ namespace src.GameObjects
             else // Crawling
             {
                 Move(dt);
-                playerSpeed = 1f;
 
                 if (ellipse.Outside(Position.X,Position.Z))
                 {
                     mob = true;
-                    Position = Position + new Vector3(0, 0.2f, 0);
+                    Position += new Vector3(0, 0.2f, 0);
                     playerSpeed = 2f;
                 }
             }
