@@ -8,7 +8,8 @@ namespace src.GameObjects
         Frog,
         Swordfish,
         Tomato,
-        Coconut
+        Coconut,
+        Banana
     }
 
     /** Class for the projectiles **/
@@ -25,10 +26,11 @@ namespace src.GameObjects
         // Projectile spawn probabilities (can be adjusted via UI)
         public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
         {
-            { ProjectileType.Frog, 1f },
-            { ProjectileType.Swordfish, 1f },
-            { ProjectileType.Tomato, 1f },
-            { ProjectileType.Coconut, 1f }
+            { ProjectileType.Frog, 0f },
+            { ProjectileType.Swordfish, 0f },
+            { ProjectileType.Tomato, 0f },
+            { ProjectileType.Coconut, 1f },
+            { ProjectileType.Banana, 0f }
         };
 
         public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(model, scaling) 
@@ -43,8 +45,7 @@ namespace src.GameObjects
 
         public virtual void OnPlayerHit(Player player) 
         {             
-            ToBeDeleted = player.GetHit(this);
-            
+            ToBeDeleted = player.GetHit(this);  
         }
 
         public virtual void OnMobHit()

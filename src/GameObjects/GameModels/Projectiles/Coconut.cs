@@ -1,15 +1,19 @@
 using System;
+using System.Threading.Channels;
 using Microsoft.Xna.Framework;
 
 namespace src.GameObjects
 {
     public class Coconut : Projectile
     {
-        // Private fields:
+        // constants
         private const float MAX_VELOCITY = 15;
         private const int MAX_BOUNCES = 3;
-        // this is done to avoid the player to be hit multiple times
+        private const float TIME_BETWEEN_BOUNCES = 0.5f;
+
+        private Random random = new Random();
         private int _bounces;
+        private float _timeSinceBounce;
 
 
         // Constructor:
@@ -17,43 +21,54 @@ namespace src.GameObjects
 
         protected override void Move(float dt)
         {
+            _timeSinceBounce -= dt;
             Position += Velocity * Orientation * dt;
         }
 
+        private void Bounce()
+        {
+            // Otherwise bounce the coconut
+            Velocity *= 0.9f;
+            // Generate a random angle between -30° and +30°
+            float randomAngle = MathHelper.ToRadians(random.Next(150, 210));
+
+            // Create a rotation matrix around the Y-axis
+            Matrix rotationMatrix = Matrix.CreateRotationY(randomAngle);
+
+            // Apply the rotation to the orientation vector
+            Orientation = Vector3.Transform(Orientation, rotationMatrix);
+        }
 
         public override void OnPlayerHit(Player player) 
         {             
             player.GetHit(this);
+            
+            if (_timeSinceBounce > 0) 
+                return;
+        
             _bounces--;
-            // Delete if bounces are empty
+            _timeSinceBounce = TIME_BETWEEN_BOUNCES;
+    
             if (_bounces <= 0)
-            {
                 ToBeDeleted = true;
-            } else { // Otherwise bounce the coconut
-                Velocity *= 0.9f;
-                // Bounce effect, maybe change it depending on the surface hit
-                Orientation = new Vector3(-Orientation.X, Orientation.Y, -Orientation.Z);
-            }
+            else 
+                Bounce();
         }
 
         public override void OnMobHit()
         {
-            _bounces--;
-            // Delete if bounces are empty
-            if (_bounces <= 0)
-            {
+            if (_timeSinceBounce > 0) 
                 return;
-            } else { // Otherwise bounce the coconut
-                Velocity *= 0.9f;
-                // Bounce effect, maybe change it depending on the surface hit
-                Orientation = new Vector3(-Orientation.X, Orientation.Y, -Orientation.Z);
-            }
-        }
         
-        public override void OnGroundHit()
-        {
-            base.OnGroundHit();
+            _bounces--;
+            _timeSinceBounce = TIME_BETWEEN_BOUNCES;
+
+            if (_bounces <= 0) 
+                return;
+
+            Bounce();
         }
+
         public override void Throw(float chargeUp)
         {
             base.Throw(chargeUp);

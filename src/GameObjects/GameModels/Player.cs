@@ -88,6 +88,7 @@ namespace src.GameObjects
             // Updating the position of the player
             Position += playerSpeed * inertia * dt;
         }
+
         public void Aim(float dt)
         {
             Vector3 dir = input.Direction();
@@ -119,6 +120,7 @@ namespace src.GameObjects
             playerState = PlayerState.HoldingProjectile;
             Console.WriteLine("Grabbing " + projectile.Type);
         }
+
         private void CanCatch()
         {
             if(input.Action()) 
@@ -139,6 +141,12 @@ namespace src.GameObjects
                 immunity = 1f;
                 if (Life == 0f)
                 {
+                    if (projectileHeld != null)
+                    {
+                        projectileHeld.Throw(1f);
+                        projectileHeld = null;
+                    }
+
                     // For now the player is moved down to indacet crawling. Later done with an animation
                     Position = Position - new Vector3(0, 0.2f, 0);
                     playerSpeed = 1f;
@@ -147,6 +155,7 @@ namespace src.GameObjects
                 }
             }
             // Projectile hits player that was no throwing the projectile recently
+            //
             return projectile != lastThrownProjectile;
         }
 

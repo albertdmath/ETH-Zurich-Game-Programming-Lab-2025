@@ -33,8 +33,8 @@ namespace GameLab
 
         // Shader variables for shading shadows
         RenderTarget2D shadowMap;
-        private Light Sun; 
-        PhongShading lightingShader; 
+        private Light Sun;
+        PhongShading lightingShader;
         Shader shadowShader;
 
         // Camera settings
@@ -84,11 +84,13 @@ namespace GameLab
 
             mobModels.Add(new DrawModel(Content.Load<Model>("mob1")));
             mobModels.Add(new DrawModel(Content.Load<Model>("mob2")));
-            
+
             projectileModels.Add(ProjectileType.Frog, new DrawModel(Content.Load<Model>("frog")));
             projectileModels.Add(ProjectileType.Swordfish, new DrawModel(Content.Load<Model>("swordfish")));
             projectileModels.Add(ProjectileType.Tomato, new DrawModel(Content.Load<Model>("tomato")));
             projectileModels.Add(ProjectileType.Coconut, new DrawModel(Content.Load<Model>("coconut")));
+            // This should be a banana
+            projectileModels.Add(ProjectileType.Banana, new DrawModel(Content.Load<Model>("coconut")));
 
             font = Content.Load<SpriteFont>("font");
             playerHearts = Content.Load<Texture2D>("player_heart");
@@ -96,7 +98,7 @@ namespace GameLab
             // Shader setup
             lightingShader = new PhongShading(Content.Load<Effect>("lightingWithShadow"));
             shadowShader = new Shader(Content.Load<Effect>("shadowMap"));
-            Sun = new Light(new Vector3(0.99f,0.98f,0.82f), -new Vector3(3.0f,9.0f,7.0f));
+            Sun = new Light(new Vector3(0.99f, 0.98f, 0.82f), -new Vector3(3.0f, 9.0f, 7.0f));
             shadowMap = new RenderTarget2D(_graphics.GraphicsDevice, 2048, 2048, false, SurfaceFormat.Single, DepthFormat.Depth24);
 
             shadowShader.setLightSpaceMatrix(Sun.lightSpaceMatrix);
@@ -109,15 +111,15 @@ namespace GameLab
             // Initialize gamestate here:
             gameStateManager.Initialize(arenaModel, playerModels, mobModels, projectileModels);
 
-      
+
             gameStateManager.StartNewGame();
 
-            _menu = new MyMenu(_graphics,this);
+            _menu = new MyMenu(_graphics, this);
 
             // Load Sounds:
             MusicAndSoundEffects.loadSFX(Content);
         }
-    
+
 
         protected override void Update(GameTime gameTime)
         {
@@ -125,7 +127,7 @@ namespace GameLab
 
             _menu.Update(gameTime, keyboardState, _previousKeyboardState);
 
-            if(_menu.menuisopen())
+            if (_menu.menuisopen())
             {
                 _previousKeyboardState = keyboardState;
                 base.Update(gameTime);
@@ -142,40 +144,44 @@ namespace GameLab
         }
 
 
-        
+
         private void DrawHealthAndStamina()
         {
             switch (gameStateManager.players.Count)
             {
                 case 4:
                     _spriteBatch.DrawString(font, "Player state " + (int)gameStateManager.players[3].Stamina, new Vector2(1500, 950), playerColors[3]);
-                    for(int i = 0; i < gameStateManager.players[3].Life; i++) {
-                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
-                    }          
+                    for (int i = 0; i < gameStateManager.players[3].Life; i++)
+                    {
+                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60 * i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
+                    }
                     goto case 3;
                 case 3:
                     _spriteBatch.DrawString(font, "Stamina: " + (int)gameStateManager.players[2].Stamina, new Vector2(10, 950), playerColors[2]);
-                    for(int i = 0; i < gameStateManager.players[2].Life; i++) {
-                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
+                    for (int i = 0; i < gameStateManager.players[2].Life; i++)
+                    {
+                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60 * i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
                     }
                     goto case 2;
                 case 2:
                     _spriteBatch.DrawString(font, "Stamina: " + (int)gameStateManager.players[1].Stamina, new Vector2(1500, 50), playerColors[1]);
-                    for(int i = 0; i < gameStateManager.players[1].Life; i++) {
-                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
+                    for (int i = 0; i < gameStateManager.players[1].Life; i++)
+                    {
+                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60 * i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
                     }
                     goto case 1;
                 case 1:
                     _spriteBatch.DrawString(font, "Player state  " + gameStateManager.players[0].playerState, new Vector2(10, 50), playerColors[0]);
-                    for(int i = 0; i < gameStateManager.players[0].Life; i++) {
-                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60*i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
+                    for (int i = 0; i < gameStateManager.players[0].Life; i++)
+                    {
+                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60 * i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
                     }
                     goto default;
                 default:
                     break;
             }
         }
-       
+
 
         /*
         private void DrawWin()
@@ -224,7 +230,7 @@ namespace GameLab
             _spriteBatch.End();
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.BlendState = BlendState.Opaque;
-           
+
             base.Draw(gameTime);
         }
     }

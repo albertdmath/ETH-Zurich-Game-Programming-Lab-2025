@@ -30,20 +30,6 @@ namespace src.GameObjects
             
         }
 
-        public override void OnGroundHit()
-        {
-            base.OnGroundHit();
-        }
-
-        public override void OnMobHit()
-        {
-            base.OnMobHit();
-        }
-
-        public override void OnPlayerHit(Player player)
-        {
-            base.OnPlayerHit(player);
-        }
         private void ThrownMove()
         {
             // Calculate horizontal and vertical motion
