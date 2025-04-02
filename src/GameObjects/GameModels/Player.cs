@@ -31,6 +31,7 @@ namespace src.GameObjects
         public bool notImportant = false;
         private float immunity = 0f;
         private float timeSinceStartOfCatch = 0f;
+        private float friction = 9f;
         private Projectile lastThrownProjectile = null; // Store last thrown projectile
 
         private Input input;
@@ -57,8 +58,10 @@ namespace src.GameObjects
             playerState = PlayerState.NormalMovement;
         }
 
-        // The player move method:
-        public void Move(float dt)
+        // ---------------------
+        //  Beginning functions for player movement
+        // ---------------------
+        private void Move(float dt)
         {
             Vector3 dir = input.Direction();
             //inertia to keep some movement from last update;
@@ -80,16 +83,16 @@ namespace src.GameObjects
             Position += playerSpeed * inertia * dt;
         }
 
-        public void Slide(float dt)
+        private void Slide(float dt)
         {
             // Inertia to keep some movement from last update;
-            inertia -= (9f*dt) * inertia;
+            inertia -= (friction*dt) * inertia;
 
             // Updating the position of the player
             Position += playerSpeed * inertia * dt;
         }
 
-        public void Aim(float dt)
+        private void Aim(float dt)
         {
             Vector3 dir = input.Direction();
             //inertia to keep some movement from last update;
@@ -109,18 +112,23 @@ namespace src.GameObjects
             }
             // Hand moves behind to indicate charge up...
         }
-
-        // Method to test for a collision with a projectile and potentially grab it:
-        public void Catch(Projectile projectile)
+        // Method to dash
+        private void Dash(float dt)
         {
-            Hand.StopCatching();
-            projectileHeld = projectile;
-            projectile.Catch(this);
-            MusicAndSoundEffects.playProjectileSFX(projectile.Type);
-            playerState = PlayerState.HoldingProjectile;
-            Console.WriteLine("Grabbing " + projectile.Type);
+            if (dashTime > 0f)
+            {
+                Position += 6 * playerSpeed * Orientation * dt;
+                dashTime -= dt;
+            }
+            else
+            {
+                playerState = playerStateBeforeDashing;
+            }
         }
-
+        // ---------------------
+        // End of functions for player movement
+        // Start of private functions to change state of player
+        // ---------------------
         private void CanCatch()
         {
             if(input.Action()) 
@@ -130,7 +138,41 @@ namespace src.GameObjects
                 timeSinceStartOfCatch = 0f;
             }
         }
-
+        private void CanDash()
+        {
+            if (input.Dash() && Stamina >= 3f)
+            {
+                playerStateBeforeDashing = playerState;
+                playerState = PlayerState.Dashing;
+                dashTime = 0.1f;
+                Stamina = 0f;
+            }
+        }
+        // Method to throw an object:
+        private void Throw()
+        { 
+            float speedUp = 1 + 2 * (float)Math.Pow(Math.Min(actionPushedDuration, 4f), 2f);
+            lastThrownProjectile = projectileHeld;
+            projectileHeld.Throw(speedUp);
+            projectileHeld = null;
+            Console.WriteLine("Throwing projectile with orientation: " + Orientation+ " and speedup: " +speedUp);
+        }
+        // Spawning a projectile in Hand when part of the mob. Currently only swordfish
+        private void Spawn()
+        {
+            if(input.Action() && projectileHeld==null)
+            {
+                projectileHeld = gameStateManager.CreateProjectile(ProjectileType.Swordfish,Position,Orientation);
+                projectileHeld.Catch(this);
+                Stamina -= 3f;
+                playerState = PlayerState.PartOfMobHoldingProjectile;
+            }
+        
+        }
+        // ---------------------
+        // End of private functions to change state of player
+        // Start of public functions to change state of player. Meant to be called by projectile, after a collision
+        // ---------------------
         public bool GetHit(Projectile projectile)
         {
             // Otherwise check general immunity
@@ -158,43 +200,19 @@ namespace src.GameObjects
             //
             return projectile != lastThrownProjectile;
         }
-
-        // Method to throw an object:
-        private void Throw()
-        { 
-            float speedUp = 1 + 2 * (float)Math.Pow(Math.Min(actionPushedDuration, 4f), 2f);
-            lastThrownProjectile = projectileHeld;
-            projectileHeld.Throw(speedUp);
-            projectileHeld = null;
-            Console.WriteLine("Throwing projectile with orientation: " + Orientation+ " and speedup: " +speedUp);
+        public void StunAndSlip(float stunDuration, float friction) // advised value for normal behaviour is friction = 9f
+        {
+            this.friction = friction;
+            this.stunDuration = stunDuration;
+            playerState = PlayerState.Stunned;
         }
 
-        // Method to dash
-        private void Dash(float dt)
-        {
-            if (dashTime > 0f)
-            {
-                Position += 6 * playerSpeed * Orientation * dt;
-                dashTime -= dt;
-            }
-            else
-            {
-                playerState = playerStateBeforeDashing;
-            }
-        }
-        // Spawning a projectile in Hand when part of the mob. Currently only swordfish
-        private void Spawn()
-        {
-            if(input.Action() && projectileHeld==null)
-            {
-                projectileHeld = gameStateManager.CreateProjectile(ProjectileType.Swordfish,Position,Orientation);
-                projectileHeld.Catch(this);
-                Stamina -= 3f;
-                playerState = PlayerState.PartOfMobHoldingProjectile;
-            }
         
-        }
-
+        
+        // ---------------------
+        // End of public functions to change state of player. Meant to be called by projectile, after a collision
+        // Start of public functions to change state of player. Meant to be called by GameStateManager. Handles mainly collisions
+        // ---------------------
         public void PlayerCollision(Player player){
             Vector3 dir = 0.02f * Vector3.Normalize(new Vector3(Position.X-player.Position.X,0f,Position.Z-player.Position.Z));
             while(Hitbox.Intersects(player.Hitbox)){
@@ -214,21 +232,21 @@ namespace src.GameObjects
                 }
                 Orientation = ellipse.Normal(Position.X,Position.Z);
                 inertia = 1.6f * Orientation;
-                stunDuration = 1f;
-                playerState = PlayerState.Stunned;
+                StunAndSlip(1f,9f);
             }
+        }
+        // Method to test for a collision with a projectile and potentially grab it:
+        public void Catch(Projectile projectile)
+        {
+            Hand.StopCatching();
+            projectileHeld = projectile;
+            projectile.Catch(this);
+            MusicAndSoundEffects.playProjectileSFX(projectile.Type);
+            playerState = PlayerState.HoldingProjectile;
+            Console.WriteLine("Grabbing " + projectile.Type);
         }
 
-        private void CanDash()
-        {
-            if (input.Dash() && Stamina >= 3f)
-            {
-                playerStateBeforeDashing = playerState;
-                playerState = PlayerState.Dashing;
-                dashTime = 0.1f;
-                Stamina = 0f;
-            }
-        }
+        
         // Update function called each update
         public override void Update(float dt)
         {
