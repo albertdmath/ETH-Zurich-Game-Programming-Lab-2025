@@ -1,8 +1,6 @@
 using System;
-using GameLab;
 using Microsoft.Xna.Framework;
 using System.Linq;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace src.GameObjects
 {

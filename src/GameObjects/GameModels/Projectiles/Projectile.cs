@@ -1,9 +1,5 @@
-using GameLab;
 using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
-using System.Linq;
 
 namespace src.GameObjects
 {

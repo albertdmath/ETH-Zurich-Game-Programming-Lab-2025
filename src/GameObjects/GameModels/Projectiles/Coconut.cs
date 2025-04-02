@@ -1,8 +1,5 @@
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System.Linq;
-using System.Collections.Generic;
 
 namespace src.GameObjects
 {
