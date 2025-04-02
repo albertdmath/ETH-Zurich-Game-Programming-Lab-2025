@@ -19,6 +19,7 @@ float4x4 Projection;
 float4x4 LightViewProjection;
 
 float3 CameraPosition;
+float OpacityVal;
 
 
 sampler2D ShadowSampler;
@@ -114,7 +115,7 @@ float4 PS(VertexOutput input) : SV_Target
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     float3 specular = 0.5 * spec * LightColor;  
 
-   float4 light = float4(texCol * (ambient + (shadow) *(diffuse + spec)),1);
+   float4 light = float4(texCol * (ambient + (shadow) *(diffuse + spec)),OpacityVal);
 
     return light;
     //return float4(shadow,shadow,shadow,1.0f);

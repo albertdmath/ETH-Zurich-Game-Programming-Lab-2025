@@ -122,6 +122,7 @@ namespace src.GameObjects
 
         public void DrawGame(Shader shadowShader, PhongShading lightingShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D shadowMap)
         {
+             
             graphicsDevice.SetRenderTarget(shadowMap); 
             graphicsDevice.Clear(Color.Black);
             graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
@@ -169,7 +170,12 @@ namespace src.GameObjects
             } 
 
             // Draw mob
+            graphicsDevice.BlendState = BlendState.NonPremultiplied;
+            lightingShader.setOpacityValue(0.7f);
             mob.Draw(view, projection, lightingShader, false);
+            graphicsDevice.BlendState = BlendState.Opaque;
+            lightingShader.setOpacityValue(1.0f);
+     
         }
 
         public void StartNewGame()
