@@ -31,8 +31,8 @@ namespace src.GameObjects
             { ProjectileType.Swordfish, 0f },
             { ProjectileType.Tomato, 0f },
             { ProjectileType.Coconut, 0f },
-            { ProjectileType.Banana, 1f },
-            { ProjectileType.Turtle, 0f }
+            { ProjectileType.Banana, 0f },
+            { ProjectileType.Turtle, 1f }
         };
 
         public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(model, scaling) 

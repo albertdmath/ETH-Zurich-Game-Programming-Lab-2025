@@ -91,6 +91,8 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Coconut, new DrawModel(Content.Load<Model>("coconut")));
             // This should be a banana
             projectileModels.Add(ProjectileType.Banana, new DrawModel(Content.Load<Model>("coconut")));
+            // This should be a turtle
+            projectileModels.Add(ProjectileType.Turtle, new DrawModel(Content.Load<Model>("frog")));
 
             font = Content.Load<SpriteFont>("font");
             playerHearts = Content.Load<Texture2D>("player_heart");

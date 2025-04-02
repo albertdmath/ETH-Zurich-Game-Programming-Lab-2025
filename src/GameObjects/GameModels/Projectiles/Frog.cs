@@ -64,9 +64,8 @@ namespace src.GameObjects
 
         private void TurnToPlayer(float dt)
         {
-            Player nearestPlayer = gameStateManager.players
-                .Where(player => player.Life > 0)
-                .OrderBy(player => Vector3.Distance(Position, player.Position))
+            Player nearestPlayer = gameStateManager.livingPlayers
+                .OrderBy(player => Vector3.DistanceSquared(Position, player.Position))
                 .First();
 
             // Desired direction toward the player

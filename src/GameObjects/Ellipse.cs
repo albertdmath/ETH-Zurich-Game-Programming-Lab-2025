@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System;
 
 namespace src.GameObjects
 {
@@ -29,12 +30,7 @@ namespace src.GameObjects
         }
         public bool Outside(float x, float y)
         {
-            // Translate the point relative to the ellipse's center
-            float translatedX = x - center.X;
-            float translatedY = y - center.Z; // Using Z for 2D Y-axis
-
-            // Check if the point is inside the ellipse
-            return (translatedX * translatedX) / (a * a) + (translatedY * translatedY) / (b * b) > 1f;
+            return !Inside(x, y);
         }
 
         // Method to set new major and minor axes
@@ -43,11 +39,6 @@ namespace src.GameObjects
             this.a = a;
             this.b = b;
             this.center = center;
-        }
-        public void Set(float a, float b)
-        {
-            this.a = a;
-            this.b = b;
         }
 
         // Method to calculate the tangent vector at a point (x, y) on the ellipse
@@ -86,6 +77,22 @@ namespace src.GameObjects
         {
             Vector3 tangent = Tangent(x, y);
             return Vector3.Dot(orientation, tangent) * tangent;
+        }
+
+        public Vector3 NearestPoint(float x, float y)
+        {
+            float tx = x - center.X, ty = y - center.Z;
+            float theta = (float)Math.Atan2(a * ty, b * tx); // Initial guess
+
+            // 1 refinement step (often good enough)
+            float c = (float)Math.Cos(theta), s = (float)Math.Sin(theta);
+            float fx = a * c * ty - b * s * tx;
+            float dfx = -a * s * ty - b * c * tx - a * b * (s * s + c * c);
+            theta -= fx / dfx;
+
+            float nx = center.X + a * (float)Math.Cos(theta);
+            float ny = center.Z + b * (float)Math.Sin(theta);
+            return new Vector3(nx, 0, ny);
         }
     }
 }
