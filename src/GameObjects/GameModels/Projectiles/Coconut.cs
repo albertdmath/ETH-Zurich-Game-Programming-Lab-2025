@@ -1,18 +1,19 @@
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System.Linq;
-using System.Collections.Generic;
 
 namespace src.GameObjects
 {
     public class Coconut : Projectile
     {
-        // Private fields:
+        // Constants
         private const float MAX_VELOCITY = 15;
         private const int MAX_BOUNCES = 3;
-        // this is done to avoid the player to be hit multiple times
+        private const float TIME_BETWEEN_BOUNCES = 0.5f;
+
+        // Fields
+        private readonly Random random = new();
         private int _bounces;
+        private float _timeSinceBounce;
 
 
         // Constructor:
@@ -20,30 +21,54 @@ namespace src.GameObjects
 
         protected override void Move(float dt)
         {
+            _timeSinceBounce -= dt;
             Position += Velocity * Orientation * dt;
         }
 
-        public override bool Hit()
+        private void Bounce()
         {
-            bool isHit = base.Hit();
-            
-            //if intersects, update
-            if (isHit)
-            {
-                _bounces--;
-                // Return true for deletion if bounces are expended
-                if (_bounces <= 0)
-                {
-                    return true;
-                } else { // Otherwise bounce the coconut
-                    Velocity *= 0.9f;
-                    // Bounce effect, maybe change it depending on the surface hit
-                    Orientation = new Vector3(-Orientation.X, Orientation.Y, -Orientation.Z);
-                }
-            }
-            return false;
+            // Otherwise bounce the coconut
+            Velocity *= 0.9f;
+            // Generate a random angle between -30° and +30°
+            float randomAngle = MathHelper.ToRadians(random.Next(150, 210));
+
+            // Create a rotation matrix around the Y-axis
+            Matrix rotationMatrix = Matrix.CreateRotationY(randomAngle);
+
+            // Apply the rotation to the orientation vector
+            Orientation = Vector3.Transform(Orientation, rotationMatrix);
         }
+
+        public override void OnPlayerHit(Player player) 
+        {             
+            player.GetHit(this);
+            
+            if (_timeSinceBounce > 0) 
+                return;
         
+            _bounces--;
+            _timeSinceBounce = TIME_BETWEEN_BOUNCES;
+    
+            if (_bounces <= 0)
+                ToBeDeleted = true;
+            else 
+                Bounce();
+        }
+
+        public override void OnMobHit()
+        {
+            if (_timeSinceBounce > 0) 
+                return;
+        
+            _bounces--;
+            _timeSinceBounce = TIME_BETWEEN_BOUNCES;
+
+            if (_bounces <= 0) 
+                return;
+
+            Bounce();
+        }
+
         public override void Throw(float chargeUp)
         {
             base.Throw(chargeUp);

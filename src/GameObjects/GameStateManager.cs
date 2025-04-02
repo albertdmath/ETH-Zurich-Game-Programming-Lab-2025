@@ -1,7 +1,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net.Mail;
+using System.Linq;
+using GameLab;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -12,11 +13,13 @@ namespace src.GameObjects
       */
     public class GameStateManager
     {
-        private readonly float ARENA_SCALE = 0.5f;
-        private readonly float TOMATO_SCALE = 1;
-        private readonly float SWORDFISH_SCALE = 0.9f;
-        private readonly float FROG_SCALE = 0.7f;
-        private readonly float COCONUT_SCALE = 0.3f;
+        private const float ARENA_SCALE = 0.5f;
+        private const float TOMATO_SCALE = 1;
+        private const float SWORDFISH_SCALE = 0.9f;
+        private const float FROG_SCALE = 0.7f;
+        private const float COCONUT_SCALE = 0.3f;
+        private const float BANANA_SCALE = 0.3f;
+        private const float TURTLE_SCALE = 0.3f;
 
 
         // Model references for initializing the instances
@@ -24,7 +27,7 @@ namespace src.GameObjects
         private List<DrawModel> playerModels;
         private List<DrawModel> mobModels;
         private Dictionary<ProjectileType, DrawModel> projectileModels;
-        private GameModel arena; 
+        private GameModel arena;
 
         // This is the mob that might or might not be angry
         private Mob mob;
@@ -34,7 +37,7 @@ namespace src.GameObjects
 
 
         // Singleton instancing
-        private GameStateManager() {}
+        private GameStateManager() { }
 
         private static readonly GameStateManager instance = new();
 
@@ -65,7 +68,7 @@ namespace src.GameObjects
             players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, mob.Ellipse, playerModels[0], scaling));
             players.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, mob.Ellipse, playerModels[1], scaling));
 
-            foreach(Player player in players)
+            foreach (Player player in players)
                 livingPlayers.Add(player);
         }
 
@@ -86,6 +89,12 @@ namespace src.GameObjects
                 case ProjectileType.Coconut:
                     projectile = new Coconut(type, origin, target, projectileModels[ProjectileType.Coconut], COCONUT_SCALE);
                     break;
+                case ProjectileType.Banana:
+                    projectile = new Banana(type, origin, target, projectileModels[ProjectileType.Banana], BANANA_SCALE);
+                    break;
+                case ProjectileType.Turtle:
+                    projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], TURTLE_SCALE);
+                    break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());
             }
@@ -98,32 +107,67 @@ namespace src.GameObjects
             // Move Players
             foreach (Player player in players)
                 player.updateWrap(dt);
-            
+
             // Players bumping into each other
-            for(int i = 0; i< players.Count; i++)
-                for(int j = i+1; j < players.Count; j++)
-                    players[i].playerCollision(players[j]);
+            for (int i = 0; i < players.Count; i++)
+                for (int j = i + 1; j < players.Count; j++)
+                    players[i].PlayerCollision(players[j]);
 
             // Update mob
             mob.Update(dt);
 
             // Move the projectiles
-            foreach(Projectile projectile in projectiles)
+            foreach (Projectile projectile in projectiles)
                 projectile.updateWrap(dt);
-            
 
-            for (int i = projectiles.Count - 1; i >= 0; i--) 
+
+            // Check for projectile out of bounds and remove
+            foreach (Projectile projectile in projectiles)
             {
-         
-                if(projectiles[i].Holder == null && projectiles[i].Hit())
-                    projectiles.RemoveAt(i);
+                projectile.ToBeDeleted = MathF.Abs(projectile.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(projectile.Position.Z) > GameLabGame.ARENA_WIDTH;
             }
+
+            // Early delete projectiles for efficiency
+            projectiles.RemoveAll(x => x.ToBeDeleted);
+            // Check for projectile-player hand intersections
+            foreach (Projectile projectile in projectiles)
+            {
+                foreach (Player player in players)
+                {
+                    if (player.Hand.IsCatching && projectile.Hitbox.Intersects(player.Hand.Hitbox))
+                        player.Catch(projectile);
+                }
+            }
+            // Check for projectile-player intersections
+            foreach (Projectile projectile in projectiles.Where(x => x.Holder == null))
+            {
+                foreach (Player player in players.Where(x => x.Life > 0))
+                {
+                    if (projectile.Hitbox.Intersects(player.Hitbox))
+                        projectile.OnPlayerHit(player);
+                }
+            }
+            // Check for projectile-mob intersection TODO
+            foreach (Projectile projectile in projectiles)
+            {
+                if (mob.Ellipse.Outside(projectile.Position.X, projectile.Position.Z))
+                    projectile.OnMobHit();
+            }
+
+            // Check for projectile-ground intersection
+            foreach (Projectile projectile in projectiles)
+            {
+                if (projectile.Position.Y < 0f)
+                    projectile.OnGroundHit();
+            }
+
+            // Delete stuff again
+            projectiles.RemoveAll(x => x.ToBeDeleted);
         }
 
         public void DrawGame(Shader shadowShader, PhongShading lightingShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D shadowMap)
         {
-             
-            graphicsDevice.SetRenderTarget(shadowMap); 
+            graphicsDevice.SetRenderTarget(shadowMap);
             graphicsDevice.Clear(Color.Black);
             graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
 
@@ -142,7 +186,7 @@ namespace src.GameObjects
             {
                 player.Draw(view, projection, shadowShader, true);
                 // player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
-            } 
+            }
             mob.Draw(view, projection, shadowShader, true);
 
             lightingShader.setShadowTexture(shadowMap);
@@ -150,7 +194,7 @@ namespace src.GameObjects
             graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
             // Set background color
-            graphicsDevice.Clear(Color.DeepSkyBlue); 
+            graphicsDevice.Clear(Color.DeepSkyBlue);
 
             arena.Draw(view, projection, lightingShader, false);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
@@ -167,7 +211,7 @@ namespace src.GameObjects
             {
                 player.Draw(view, projection, lightingShader, false);
                 // player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
-            } 
+            }
 
             // Draw mob
             graphicsDevice.BlendState = BlendState.NonPremultiplied;

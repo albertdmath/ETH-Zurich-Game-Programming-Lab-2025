@@ -1,10 +1,6 @@
-using GameLab;
 using Microsoft.Xna.Framework;
-using System.Runtime.CompilerServices;
 using System;
 using System.Collections.Generic;
-using Accord.Math.Distances;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace src.GameObjects
 {

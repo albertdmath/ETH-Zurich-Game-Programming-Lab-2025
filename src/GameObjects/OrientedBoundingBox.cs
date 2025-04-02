@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 using Matrix = Microsoft.Xna.Framework.Matrix;
 using Accord.Math.Decompositions;
-using System.Numerics;
 public class OrientedBoundingBox
 {
 

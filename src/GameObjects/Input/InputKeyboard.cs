@@ -1,9 +1,5 @@
-using GameLab;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using System.Runtime.CompilerServices;
-using System;
-using System.Collections.Generic;
 
 namespace src.GameObjects
 {

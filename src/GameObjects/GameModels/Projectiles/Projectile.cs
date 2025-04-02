@@ -1,9 +1,5 @@
-using GameLab;
 using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
-using System.Linq;
 
 namespace src.GameObjects
 {
@@ -12,7 +8,9 @@ namespace src.GameObjects
         Frog,
         Swordfish,
         Tomato,
-        Coconut
+        Coconut,
+        Banana,
+        Turtle
     }
 
     /** Class for the projectiles **/
@@ -23,15 +21,18 @@ namespace src.GameObjects
         protected float Velocity { get; set; }
         public GameModel Holder { get; set; }
         protected GameStateManager gameStateManager;
+        public bool ToBeDeleted { get; set; } = false;
 
 
         // Projectile spawn probabilities (can be adjusted via UI)
         public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
         {
-            { ProjectileType.Frog, 1f },
-            { ProjectileType.Swordfish, 1f },
-            { ProjectileType.Tomato, 1f },
-            { ProjectileType.Coconut, 1f }
+            { ProjectileType.Frog, 0f },
+            { ProjectileType.Swordfish, 0f },
+            { ProjectileType.Tomato, 0f },
+            { ProjectileType.Coconut, 0f },
+            { ProjectileType.Banana, 1f },
+            { ProjectileType.Turtle, 0f }
         };
 
         public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(model, scaling) 
@@ -44,22 +45,18 @@ namespace src.GameObjects
         // Virtual methods for derived classes to override
         protected virtual void Move(float dt) { }
 
-        public virtual bool Hit() 
-        { 
-            // Check for player intersections
-            bool isHit = false;
-            foreach (Player player in gameStateManager.players.Where(p => p.Life > 0))
-            {   
-                if (Hitbox.Intersects(player.Hitbox))
-                    isHit = player.GetHit(this);
-            }
+        public virtual void OnPlayerHit(Player player) 
+        {             
+            ToBeDeleted = player.GetHit(this);  
+        }
 
-            // Play soundeffect if it's a hit
-            if(isHit)
-                MusicAndSoundEffects.playHitSFX();
-            
-            // Return true if it's a hit or if projectile is out of bounds so the projectile gets deleted
-            return isHit || MathF.Abs(Position.X) > GameLabGame.ARENA_HEIGHT * 0.5f || MathF.Abs(Position.Z) > GameLabGame.ARENA_WIDTH * 0.5f;
+        public virtual void OnMobHit()
+        {
+            return;
+        }
+        public virtual void OnGroundHit()
+        {
+            ToBeDeleted = true;
         }
 
         public virtual void Throw(float chargeUp) {
