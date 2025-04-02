@@ -212,13 +212,20 @@ namespace src.GameObjects
             // Draw all Players
             foreach (Player player in players)
             {
+                if(player.Life == 0){
+                    graphicsDevice.BlendState = BlendState.NonPremultiplied;
+                    lightingShader.setOpacityValue(0.4f);
+                }else{
+                    graphicsDevice.BlendState = BlendState.Opaque;
+                    lightingShader.setOpacityValue(1.0f);
+                }
                 player.Draw(view, projection, lightingShader, false);
                 // player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
             }
 
             // Draw mob
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
-            lightingShader.setOpacityValue(0.7f);
+            lightingShader.setOpacityValue(0.4f);
             mob.Draw(view, projection, lightingShader, false);
             graphicsDevice.BlendState = BlendState.Opaque;
             lightingShader.setOpacityValue(1.0f);
