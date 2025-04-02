@@ -34,6 +34,7 @@ namespace src.GameObjects
         private float timeSinceStartOfCatch = 0f;
         private float friction = 9f;
         private Projectile lastThrownProjectile = null; // Store last thrown projectile
+        private bool armor = false; // Store if player has armor
 
         private Input input;
         private Ellipse ellipse;
@@ -157,7 +158,7 @@ namespace src.GameObjects
             lastProjectileImmunity = 1f;
             projectileHeld.Throw(speedUp);
             projectileHeld = null;
-            Console.WriteLine("Throwing projectile with orientation: " + Orientation + " and speedup: " + speedUp);
+            //Console.WriteLine("Throwing projectile with orientation: " + Orientation + " and speedup: " + speedUp);
         }
         // Spawning a projectile in Hand when part of the mob. Currently only swordfish
         private void Spawn()
@@ -185,7 +186,10 @@ namespace src.GameObjects
             if (gameStateManager.livingPlayers.Count != 1 && immunity <= 0)
             {
                 input.Vibrate();
-                Life--;
+                if(armor)
+                    armor = false;
+                else
+                    Life--;
                 immunity = 1f;
                 if (Life == 0f)
                 {
@@ -210,6 +214,10 @@ namespace src.GameObjects
             this.friction = friction;
             this.stunDuration = stunDuration;
             playerState = PlayerState.Stunned;
+        }
+        public void SetArmor(bool armor)
+        {
+            this.armor = armor;
         }
 
 
