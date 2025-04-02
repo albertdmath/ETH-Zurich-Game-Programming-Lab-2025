@@ -27,6 +27,7 @@ namespace src.GameObjects
         public Projectile projectileHeld;
         private float dashTime = 0f;
         private float actionPushedDuration;
+        private float jumpPushedDuration=0;
         private float stunDuration = 0f;
         public bool notImportant = false;
         private float immunity = 0f;
@@ -37,7 +38,8 @@ namespace src.GameObjects
 
         private Input input;
         private Ellipse ellipse;
-        private Vector3 inertia;
+        private Vector3 inertia,inertiaUp;
+        private Vector3 gravity = new Vector3(0,-0.1f,0);
         public Hand Hand { get; private set; }
         public PlayerState playerState, playerStateBeforeDashing;
 
@@ -52,6 +54,7 @@ namespace src.GameObjects
             projectileHeld = null;
             this.Id = id;
             inertia = new Vector3(0, 0, 0);
+            inertiaUp = new Vector3(0, 0, 0);
             // Remove hat from hitbox; this is trashcode and needs to be removed / done better at some point
             this.Hitbox.BoundingBoxes.RemoveAt(this.Hitbox.BoundingBoxes.Count - 1);
             gameStateManager = GameStateManager.GetGameStateManager();
@@ -67,6 +70,7 @@ namespace src.GameObjects
             Vector3 dir = input.Direction();
             //inertia to keep some movement from last update;
             inertia -= (9f * dt) * inertia;
+            inertiaUp += gravity;
             if (dir.Length() > 0)
             {
                 dir = Vector3.Normalize(dir);
@@ -81,7 +85,12 @@ namespace src.GameObjects
                 Orientation = Vector3.Normalize(inertia);
             }
             // Updating the position of the player
-            Position += playerSpeed * inertia * dt;
+            Position += playerSpeed * inertia * dt + inertiaUp * dt;
+            if(Position.Y<=0)
+            {
+                inertiaUp = new Vector3(0, 0, 0);
+                Position = new Vector3(Position.X, 0, Position.Z);
+            }
         }
 
         private void Slide(float dt)
@@ -147,6 +156,13 @@ namespace src.GameObjects
                 playerState = PlayerState.Dashing;
                 dashTime = 0.1f;
                 Stamina = 0f;
+            }
+        }
+        private void CanJump()
+        {
+            if (input.Jump() && jumpPushedDuration == 0f)
+            {
+                inertiaUp += new Vector3(0f,5f,0f);
             }
         }
         // Method to throw an object:
@@ -268,15 +284,18 @@ namespace src.GameObjects
                     Move(dt);
                     CanCatch();
                     CanDash();
+                    CanJump();
                     break;
                 case PlayerState.Catching:
                     timeSinceStartOfCatch += dt;
                     Move(dt);
+                    CanJump();
                     if (timeSinceStartOfCatch > 2f)
                         playerState = PlayerState.NormalMovement;
                     break;
                 case PlayerState.HoldingProjectile:
                     Move(dt);
+                    CanJump();
                     if (input.Action() && actionPushedDuration == 0f)
                         playerState = PlayerState.Aiming;
                     else
@@ -329,6 +348,7 @@ namespace src.GameObjects
                     break;
             }
             actionPushedDuration = input.Action() ? actionPushedDuration + dt : 0f;
+            jumpPushedDuration = input.Jump() ? jumpPushedDuration + dt : 0f;
             immunity -= dt;
             lastProjectileImmunity -= dt;
             Hand.updateWrap(dt);
