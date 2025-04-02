@@ -109,6 +109,7 @@ namespace GameLab
             lightingShader.setViewMatrix(view);
             lightingShader.setProjectionMatrix(projection);
             lightingShader.setLight(Sun);
+            lightingShader.setOpacityValue(0.5f);
 
             // Initialize gamestate here:
             gameStateManager.Initialize(arenaModel, playerModels, mobModels, projectileModels);

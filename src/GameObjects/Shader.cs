@@ -47,6 +47,11 @@ public class PhongShading : Shader {
 
     }
 
+
+    public void setOpacityValue(float opacity){
+      effect.Parameters["OpacityVal"].SetValue(opacity);
+    }
+
     public void setCameraPosition(Vector3 CameraPos){
         effect.Parameters["CameraPosition"].SetValue(CameraPos);
     }
