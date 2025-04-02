@@ -1,18 +1,20 @@
 using System;
-using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 
 namespace src.GameObjects
 {
     public class Banana : Projectile
     {
-        // Private fields:
-        private bool onGround = false;
+        // Constants
+        private const float HALF_GRAVITY = 4.9f;
+        private const float SLIP_DURATION = 1.0f;
+        private const float PLAYER_INERTIA = 1.0f;
         private static readonly float angle = (float)Math.PI / 3; // angle of throw
         private static readonly float cos = (float)Math.Cos(angle), sin = (float)Math.Sin(angle);
-        private const float HALF_GRAVITY = 4.9f; // Gravity effect
-        private const float SLIP_DURATION = 1.0f; // Slip duration
-        private float timeAlive = 0f;
+
+        // Fields
+        private bool onGround = false;
+        private float timeAlive;
         private Vector3 origin;
         
 
@@ -43,7 +45,7 @@ namespace src.GameObjects
         public override void OnPlayerHit(Player player)
         {
             base.OnPlayerHit(player);
-            if(onGround) player.Slip(SLIP_DURATION);
+            if(onGround) player.StunAndSlip(SLIP_DURATION, PLAYER_INERTIA);
         }
 
         public override void OnGroundHit()

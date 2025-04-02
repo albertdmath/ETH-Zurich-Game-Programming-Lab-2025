@@ -3,13 +3,13 @@ using Microsoft.Xna.Framework;
 
 
 namespace src.GameObjects;
-public class Swordfish : Projectile
+public class Turtle : Projectile
 {
     // Constants
     private const float MAX_VELOCITY = 20;
 
     // Constructor:
-    public Swordfish(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(type, origin, target, model, scaling) {}
+    public Turtle(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(type, origin, target, model, scaling) {}
 
     protected override void Move(float dt)
     {

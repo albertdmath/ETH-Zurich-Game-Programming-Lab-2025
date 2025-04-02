@@ -1,18 +1,19 @@
 using System;
 using Microsoft.Xna.Framework;
 using System.Linq;
-using Accord.Math.Geometry;
 
 namespace src.GameObjects
 {
     public class Tomato : Projectile
     {
-        // Private fields:
+        // Constants
+        private const float HALF_GRAVITY = 4.9f; // Gravity effect
+        private const float SQUARED_EXPLOSION_RADIUS = 0.8f; // Define the explosion radius
         private static readonly float angle = (float)Math.PI / 3; // angle of throw
         private static readonly float cos = (float)Math.Cos(angle), sin = (float)Math.Sin(angle);
-        private static readonly float HALF_GRAVITY = 4.9f; // Gravity effect
-        private const float SQUARED_EXPLOSION_RADIUS = 0.8f; // Define the explosion radius
-        private float timeAlive = 0f;
+
+        // Fields
+        private float timeAlive;
         private Vector3 origin;
 
         // Constructor:

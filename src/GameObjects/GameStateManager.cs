@@ -19,6 +19,7 @@ namespace src.GameObjects
         private const float FROG_SCALE = 0.7f;
         private const float COCONUT_SCALE = 0.3f;
         private const float BANANA_SCALE = 0.3f;
+        private const float TURTLE_SCALE = 0.3f;
 
 
         // Model references for initializing the instances
@@ -90,6 +91,9 @@ namespace src.GameObjects
                     break;
                 case ProjectileType.Banana:
                     projectile = new Banana(type, origin, target, projectileModels[ProjectileType.Banana], BANANA_SCALE);
+                    break;
+                case ProjectileType.Turtle:
+                    projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], TURTLE_SCALE);
                     break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());

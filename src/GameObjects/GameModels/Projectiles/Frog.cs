@@ -7,12 +7,13 @@ namespace src.GameObjects
     public class Frog : Projectile
     {
         // Constants
-        private const float HOP_TIME = 1.0f; // 1 second hop time
-        private const float ROTATION_SPEED = 3.0f; // Adjust for smoother turning
-        private const float THROW_ANGLE = (float)Math.PI / 3; // Angle of throw
-        private const float HALF_GRAVITY = 4.9f; // Gravity effect (adjust as needed)
+        private const float HOP_TIME = 1.0f;
+        private const float ROTATION_SPEED = 3.0f;
+        private const float THROW_ANGLE = (float)Math.PI / 3;
+        private const float HALF_GRAVITY = 4.9f;
+
         // Fields
-        private float timeAlive = 0f;
+        private float timeAlive;
         private bool beingThrown = false;
         private Vector3 origin;
 

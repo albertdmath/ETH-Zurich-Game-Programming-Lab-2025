@@ -1,17 +1,17 @@
 using System;
-using System.Threading.Channels;
 using Microsoft.Xna.Framework;
 
 namespace src.GameObjects
 {
     public class Coconut : Projectile
     {
-        // constants
+        // Constants
         private const float MAX_VELOCITY = 15;
         private const int MAX_BOUNCES = 3;
         private const float TIME_BETWEEN_BOUNCES = 0.5f;
 
-        private Random random = new Random();
+        // Fields
+        private readonly Random random = new();
         private int _bounces;
         private float _timeSinceBounce;
 
