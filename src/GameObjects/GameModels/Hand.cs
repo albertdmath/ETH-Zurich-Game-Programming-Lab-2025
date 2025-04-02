@@ -36,14 +36,14 @@ namespace src.GameObjects
         {
             timeSpentCatching += dt;
             Vector3 orthogonalHolderOrientation = new Vector3(-player.Orientation.Z, player.Orientation.Y, player.Orientation.X);
-            Position = new Vector3(0f,0.2f,0f)+player.Position + Vector3.Transform(new Vector3(0.8f,0,0f),Matrix.CreateRotationY((float)Math.Atan2(-1f*Orientation.X,-1f*Orientation.Z)+(float)Math.PI/CATCH_DURATION*timeSpentCatching));
+            Position = new Vector3(0f,0.1f,0f)+player.Position + Vector3.Transform(new Vector3(0.8f,0,0f),Matrix.CreateRotationY((float)Math.Atan2(-1f*Orientation.X,-1f*Orientation.Z)+(float)Math.PI/CATCH_DURATION*timeSpentCatching));
             Orientation = player.Orientation;
         }
         // Places the hand next to the body
         private void OnBody()
         {
             Vector3 orthogonalHolderOrientation = new Vector3(-player.Orientation.Z, player.Orientation.Y, player.Orientation.X);
-            Position = new Vector3(0f,0.2f,0f)+ player.Position + orthogonalHolderOrientation * 0.2f;
+            Position = new Vector3(0f,0.1f,0f)+ player.Position + orthogonalHolderOrientation * 0.2f;
             Orientation = player.Orientation;
         }
        

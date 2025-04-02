@@ -150,10 +150,10 @@ namespace src.GameObjects
                     foreach (Zombie zombie in sortedZombies[i+j*24+jNeighbour]) zombie.ForceByPlayer(player);
                     foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour+jNeighbour]) zombie.ForceByPlayer(player);
                 }else{
-                    foreach (Zombie zombie in sortedZombies[i+j*24]) player.mobCollision(zombie);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour]) player.mobCollision(zombie);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+jNeighbour]) player.mobCollision(zombie);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour+jNeighbour]) player.mobCollision(zombie);
+                    foreach (Zombie zombie in sortedZombies[i+j*24]) player.MobCollision(zombie);
+                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour]) player.MobCollision(zombie);
+                    foreach (Zombie zombie in sortedZombies[i+j*24+jNeighbour]) player.MobCollision(zombie);
+                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour+jNeighbour]) player.MobCollision(zombie);
                 }
             }
             for(int j = 0; j<23;j++)

@@ -92,6 +92,15 @@ namespace src.GameObjects
             // Updating the position of the player
             Position += playerSpeed * inertia * dt;
         }
+
+        public void Slide(float dt)
+        {
+            // Inertia to keep some movement from last update;
+            inertia -= (9f*dt) * inertia;
+
+            // Updating the position of the player
+            Position += playerSpeed * inertia * dt;
+        }
         public void Aim(float dt)
         {
             Vector3 dir = input.Direction();
@@ -123,11 +132,14 @@ namespace src.GameObjects
             playerState = PlayerState.HoldingProjectile;
             Console.WriteLine("Grabbing " + projectile.Type);
         }
-        private void Catch()
+        private void CanCatch()
         {
-            Hand.IsCatching = true;
-            playerState = PlayerState.Catching;
-            timeSinceStartOfCatch = 0f;
+            if(input.Action()) 
+            {
+                Hand.IsCatching = true;
+                playerState = PlayerState.Catching;
+                timeSinceStartOfCatch = 0f;
+            }
         }
 
         public bool GetHit(Projectile projectile)
@@ -187,7 +199,7 @@ namespace src.GameObjects
         
         }
 
-        public void playerCollision(Player player){
+        public void PlayerCollision(Player player){
             Vector3 dir = 0.02f * Vector3.Normalize(new Vector3(Position.X-player.Position.X,0f,Position.Z-player.Position.Z));
             while(Hitbox.Intersects(player.Hitbox)){
                 Position += dir;
@@ -196,7 +208,7 @@ namespace src.GameObjects
                 player.updateHitbox();
             }
         }
-        public void mobCollision(Zombie zombie){
+        public void MobCollision(Zombie zombie){
             Vector3 dir = 0.02f * Vector3.Normalize(new Vector3(Position.X-zombie.Position.X,0f,Position.Z-zombie.Position.Z));
             if(Hitbox.Intersects(zombie.Hitbox))
             {
@@ -207,10 +219,11 @@ namespace src.GameObjects
                 Orientation = ellipse.Normal(Position.X,Position.Z);
                 inertia = 1.6f * Orientation;
                 stunDuration = 1f;
+                playerState = PlayerState.Stunned;
             }
         }
 
-        private void StartDashing()
+        private void CanDash()
         {
             if (input.Dash() && Stamina >= 3f)
             {
@@ -231,9 +244,8 @@ namespace src.GameObjects
             {
                 case PlayerState.NormalMovement:
                     Move(dt);
-                    if(input.Action())
-                        Catch();
-                    StartDashing();
+                    CanCatch();
+                    CanDash();
                     break;
                 case PlayerState.Catching:
                     timeSinceStartOfCatch += dt;
@@ -246,7 +258,7 @@ namespace src.GameObjects
                     if (input.Action() && actionPushedDuration == 0f)
                         playerState = PlayerState.Aiming;
                     else
-                        StartDashing();
+                        CanDash();
                     break;
                 case PlayerState.Dashing:
                     Dash(dt);
@@ -263,6 +275,7 @@ namespace src.GameObjects
                     }
                     break;
                 case PlayerState.Stunned:
+                    Slide(dt);
                     stunDuration -= dt;
                     if (stunDuration<0f)
                         playerState = (projectileHeld == null) ? PlayerState.NormalMovement : PlayerState.HoldingProjectile;
@@ -271,7 +284,7 @@ namespace src.GameObjects
                     Move(dt);
                     while(ellipse.Inside(Position.X,Position.Z))
                         Position += ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
-                    StartDashing();
+                    CanDash();
                     Spawn();
                     break;
                 case PlayerState.PartOfMobHoldingProjectile:
@@ -281,7 +294,7 @@ namespace src.GameObjects
                     if (input.Action() && actionPushedDuration == 0f)
                         playerState = PlayerState.Aiming;
                     else
-                        StartDashing();
+                        CanDash();
                     break;
                 case PlayerState.Crawling:
                     Move(dt);
@@ -295,7 +308,7 @@ namespace src.GameObjects
             }
             actionPushedDuration = input.Action() ? actionPushedDuration + dt : 0f;
             immunity -= dt;
-            Hand.Update(dt);
+            Hand.updateWrap(dt);
         }
 
         public override void Draw(Matrix view, Matrix projection, Shader shader, bool shadowDraw)

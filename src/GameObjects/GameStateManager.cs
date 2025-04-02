@@ -105,7 +105,7 @@ namespace src.GameObjects
             // Players bumping into each other
             for(int i = 0; i< players.Count; i++)
                 for(int j = i+1; j < players.Count; j++)
-                    players[i].playerCollision(players[j]);
+                    players[i].PlayerCollision(players[j]);
 
             // Update mob
             mob.Update(dt);

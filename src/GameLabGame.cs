@@ -227,7 +227,6 @@ namespace GameLab
         protected override void Draw(GameTime gameTime)
         {
             gameStateManager.DrawGame(shadowShader, lightingShader, view, projection, GraphicsDevice, shadowMap);
-
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
             DrawHealthAndStamina();
