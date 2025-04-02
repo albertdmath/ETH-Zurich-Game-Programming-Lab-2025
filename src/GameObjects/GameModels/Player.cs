@@ -348,5 +348,8 @@ namespace src.GameObjects
                 base.Draw(view, projection, shader, shadowDraw);
             Hand.Draw(view, projection, shader, shadowDraw);
         }
+        public void Slip(float t){
+            return;
+        }
     }
 }

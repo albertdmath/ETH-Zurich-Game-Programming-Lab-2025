@@ -64,8 +64,9 @@ namespace GameLab
             _graphics.ApplyChanges();
 
             // Get Gamestatemanager instance yay and Menustatemanager too wahoo
-            gameStateManager = GameStateManager.GetGameStateManager();
             menuStateManager = MenuStateManager.GetMenuStateManager();
+            gameStateManager = GameStateManager.GetGameStateManager();
+           
 
             base.Initialize();
         }
@@ -117,7 +118,7 @@ namespace GameLab
 
             gameStateManager.StartNewGame();
 
-            _menu = new MyMenu(_graphics, this);
+            _menu = new MyMenu(this);
 
             // Load Sounds:
             MusicAndSoundEffects.loadSFX(Content);

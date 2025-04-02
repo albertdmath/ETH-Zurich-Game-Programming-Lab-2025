@@ -14,16 +14,16 @@ namespace src.GameObjects
         {
             Vector3 dir = new Vector3(0, 0, 0);
             KeyboardState newState = Keyboard.GetState();
-            if (newState.IsKeyDown(Keys.Left))
+            if (newState.IsKeyDown(Keys.A))
                 dir.X -= 1;
 
-            if (newState.IsKeyDown(Keys.Right))
+            if (newState.IsKeyDown(Keys.D))
                 dir.X += 1;
 
-            if (newState.IsKeyDown(Keys.Up))
+            if (newState.IsKeyDown(Keys.W))
                 dir.Z -= 1;
 
-            if (newState.IsKeyDown(Keys.Down))
+            if (newState.IsKeyDown(Keys.S))
                 dir.Z += 1;
 
             if (dir.Length() > 0)
@@ -37,12 +37,12 @@ namespace src.GameObjects
         // Method returns true if action button is pressed
         public override bool Action()
         {
-            return Keyboard.GetState().IsKeyDown(Keys.P);
+            return Keyboard.GetState().IsKeyDown(Keys.E);
         }
         // Method to dash:
         public override bool Dash()
         {
-            return Keyboard.GetState().IsKeyDown(Keys.L);
+            return Keyboard.GetState().IsKeyDown(Keys.Space);
         }
     }
 }

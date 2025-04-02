@@ -8,32 +8,45 @@ using Microsoft.Xna.Framework.Media;
 using Myra;
 using Myra.Graphics2D.UI;
 using GameLab;
+using System.Collections.Generic;
 //CLASS NOT USED
 namespace src.GameObjects{
     public class MyMenu{
-
+        int CENTER_BUTTON_HEIGHT = 40;
+        int CENTER_BUTTON_WIDTH = 250;
         private Desktop desktop;
-        Button closebutton;
-        Button reloadbutton;
+        LinkedList<Button> buttons;
         private bool menuopen=false;
-        private GraphicsDeviceManager graphics;
 
         private GameStateManager gameStateManager;
         private MenuStateManager menuStateManager;
-        public MyMenu(GraphicsDeviceManager _graphics, GameLabGame game){
+        public MyMenu(GameLabGame game){
+            buttons = new LinkedList<Button>();
             MyraEnvironment.Game = game;
             gameStateManager = GameStateManager.GetGameStateManager();
             menuStateManager = MenuStateManager.GetMenuStateManager();
-            var grid = new Grid{
-                RowSpacing = 8,
-                ColumnSpacing = 8
+            
+
+            //WINDOW
+            Window gridWindow = new Window
+            {
+                Title = "Pause Menu",
+                Width = 300,
+                Height = 250,
+            };
+            Grid grid = new Grid
+            {
+                RowSpacing = 5,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                ShowGridLines=true
             };
 
             grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
             grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
             grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
             grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-
+            /*
             var helloworld = new Label{
                 Id="label",
                 Text = "hello world!"
@@ -49,10 +62,10 @@ namespace src.GameObjects{
             combo.Widgets.Add(new Label{Text = "Blue", TextColor = Color.Blue});
 
             grid.Widgets.Add(combo);
-
-            closebutton = new Button{//CLOSES THE GAME
-                Width = 100,
-                Height = 30,
+            */
+            Button closebutton = new Button{//CLOSES THE GAME
+                Width = CENTER_BUTTON_WIDTH,
+                Height = CENTER_BUTTON_HEIGHT,
                 Content = new Label
                 {
                     HorizontalAlignment = HorizontalAlignment.Center,
@@ -60,8 +73,8 @@ namespace src.GameObjects{
                     Text = "Close Game"
                 }
             };
-            Grid.SetColumn(closebutton,8);
-            Grid.SetRow(closebutton,8);
+            Grid.SetColumn(closebutton,0);
+            Grid.SetRow(closebutton,3);
             closebutton.Click += (s,a)=>{
                 //var messageBox = Dialog.CreateMessageBox("Error", "Cant resume yet");
                 //messageBox.ShowModal(desktop);
@@ -69,27 +82,46 @@ namespace src.GameObjects{
             };
 
             grid.Widgets.Add(closebutton);
+            buttons.AddLast(closebutton);
 
-            reloadbutton = new Button{//RELOADS THE GAME
-                Width = 100,
-                Height = 30,
+            Button reloadbutton = new Button{//RELOADS THE GAME
+                Width = CENTER_BUTTON_WIDTH,
+                Height = CENTER_BUTTON_HEIGHT,
                 Content = new Label{
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center,
                     Text = "Reload"
                 }
             };
-            Grid.SetColumn(reloadbutton,7);
-            Grid.SetRow(reloadbutton,7);
+            Grid.SetColumn(reloadbutton,0);
+            Grid.SetRow(reloadbutton,2);
             reloadbutton.Click += (s,a)=>{
                 gameStateManager.StartNewGame();//RELOADING
                 this.menuopen=false;
             };
 
             grid.Widgets.Add(reloadbutton);
+            buttons.AddLast(reloadbutton);
+
+            Button resumebutton = new Button{
+                Width = CENTER_BUTTON_WIDTH,
+                Height = CENTER_BUTTON_HEIGHT,
+                Content = new Label{
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Text = "Resume"
+                }
+            };
+            Grid.SetColumn(resumebutton,0);
+            Grid.SetRow(resumebutton,0);
+            resumebutton.Click += (s,a) => {
+                this.menuopen=!menuopen;
+            };
+            grid.Widgets.Add(resumebutton);
+            buttons.AddLast(resumebutton);
 
             var spinButton = new SpinButton{
-                Width=100,
+                Width=CENTER_BUTTON_WIDTH,
                 Nullable=false,
                 Minimum=1,
                 Maximum=4,
@@ -100,11 +132,11 @@ namespace src.GameObjects{
             spinButton.ValueChanging += (c,a) => {
                 float? nullableFloat = a.NewValue;
 
-                menuStateManager.NUM_PLAYERS = (int)(nullableFloat ?? 0);
+                menuStateManager.NUM_PLAYERS = (int)(nullableFloat ?? 1);
                 gameStateManager.StartNewGame();
             };
-            Grid.SetColumn(spinButton,2);
-            Grid.SetRow(spinButton,2);
+            Grid.SetColumn(spinButton,0);
+            Grid.SetRow(spinButton,1);
 
             grid.Widgets.Add(spinButton);
 
