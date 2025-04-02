@@ -64,9 +64,12 @@ namespace src.GameObjects
             livingPlayers.Clear();
             float[] playerStartPositions = { -1.5f, -0.5f, 0.5f, 1.5f };
             float scaling = 0.5f;
-
-            players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new Input(), 0, mob.Ellipse, playerModels[0], scaling));
-            players.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, mob.Ellipse, playerModels[1], scaling));
+            Input[] inputs = { new InputDual(new Input(),new InputController(PlayerIndex.One)), 
+                new InputDual(new InputKeyboard(),new InputController(PlayerIndex.Two)), 
+                new InputController(PlayerIndex.Three), new InputController(PlayerIndex.Four)};
+            for(int i = 0; i<MenuStateManager.GetMenuStateManager().NUM_PLAYERS; ++i)
+                players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), inputs[i], 0, mob.Ellipse, playerModels[i], scaling));
+            
 
             foreach (Player player in players)
                 livingPlayers.Add(player);
