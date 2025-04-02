@@ -6,7 +6,7 @@ namespace src.GameObjects;
 public class Turtle : Projectile
 {
     // Constants
-    private const float MAX_VELOCITY = 20;
+    private const float TIME_TO_EAT = 5;
 
     // Constructor:
     public Turtle(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(type, origin, target, model, scaling) {}
@@ -18,8 +18,11 @@ public class Turtle : Projectile
 
     public override void Throw(float chargeUp)
     {
-        base.Throw(chargeUp);
-        Velocity = Math.Min(Velocity + chargeUp, MAX_VELOCITY);
+        if(chargeUp > TIME_TO_EAT)
+        {
+            this.Holder = null;
+            //Holder.WearTurtle();
+        }
     }
 
     public override void Throw(Vector3 origin, Vector3 target) 
