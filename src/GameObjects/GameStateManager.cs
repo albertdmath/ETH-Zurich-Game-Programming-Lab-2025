@@ -234,6 +234,8 @@ namespace src.GameObjects
             // Draw mob
             // graphicsDevice.BlendState = BlendState.NonPremultiplied;
             // lightingShader.setOpacityValue(0.7f);
+            lightingShader.setRoughness(0.3f);
+            lightingShader.setMetallic(0.0f);
              mob.Draw(view, projection, lightingShader, false);
             // graphicsDevice.BlendState = BlendState.Opaque;
             // lightingShader.setOpacityValue(1.0f);

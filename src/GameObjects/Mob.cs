@@ -191,7 +191,15 @@ namespace src.GameObjects
             timeUntilNextProjectile = 0f;
         }
 
-
+        
+        // public void Draw(Matrix view, Matrix projection, PBR shader, bool shadowDraw) {
+        //     foreach (Zombie zombie in active){
+        //         shader.setRoughness(zombie.DrawModel.roughness);
+        //         shader.setMetallic(zombie.DrawModel.metallic);
+        //         zombie.Draw(view, projection, shader, shadowDraw);
+        //     }
+        // }
+        
         public void Draw(Matrix view, Matrix projection, Shader shader, bool shadowDraw) {
             foreach (Zombie zombie in active)
                 zombie.Draw(view, projection, shader, shadowDraw);

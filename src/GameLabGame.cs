@@ -78,10 +78,10 @@ namespace GameLab
             // Load all of the models
             arenaModel = new DrawModel(Content.Load<Model>("arena"),0.0f,1.0f);
 
-            playerModels.Add(new DrawModel(Content.Load<Model>("player1"),0.0f,0.7f));
-            playerModels.Add(new DrawModel(Content.Load<Model>("player2"),0.0f,0.7f));
-            playerModels.Add(new DrawModel(Content.Load<Model>("player3"),0.0f,0.7f));
-            playerModels.Add(new DrawModel(Content.Load<Model>("player4"),0.0f,0.7f));
+            playerModels.Add(new DrawModel(Content.Load<Model>("player1"),0.0f,0.3f));
+            playerModels.Add(new DrawModel(Content.Load<Model>("player2"),0.0f,0.3f));
+            playerModels.Add(new DrawModel(Content.Load<Model>("player3"),0.0f,0.3f));
+            playerModels.Add(new DrawModel(Content.Load<Model>("player4"),0.0f,0.3f));
 
             mobModels.Add(new DrawModel(Content.Load<Model>("mob1"),0.0f,0.7f));
             mobModels.Add(new DrawModel(Content.Load<Model>("mob2"),0.0f,0.7f));
@@ -102,7 +102,7 @@ namespace GameLab
             //lightingShader = new PhongShading(Content.Load<Effect>("lightingWithShadow"));
             lightingShader = new PBR(Content.Load<Effect>("pbrShading"));
             shadowShader = new Shader(Content.Load<Effect>("shadowMap"));
-            Sun = new Light(new Vector3(0.99f, 0.98f, 0.82f)*7.0f, -new Vector3(3.0f, 9.0f, 7.0f));
+            Sun = new Light(new Vector3(0.99f, 0.98f, 0.82f)*4.5f, -new Vector3(3.0f, 9.0f, 7.0f));
             shadowMap = new RenderTarget2D(_graphics.GraphicsDevice, 2048, 2048, false, SurfaceFormat.Single, DepthFormat.Depth24);
 
             shadowShader.setLightSpaceMatrix(Sun.lightSpaceMatrix);

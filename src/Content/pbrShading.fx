@@ -150,22 +150,23 @@ VertexOutput VS(VertexInput input) {
 float4 PS(VertexOutput input) : SV_Target
 {   
 
-    float3 texCol = ModelTexture.Sample(TextureSampler,input.TexCoord.xy);
+    float3 Normal = normalize(input.Normal);
+    float3 albedo = pow(ModelTexture.Sample(TextureSampler,input.TexCoord.xy).rgb,2.2f);
     float3 F0 = float3(0.04f,0.04f,0.04f); 
-    F0 = lerp(F0,texCol,metallic); 
+    F0 = lerp(F0,albedo,metallic); 
     float3 wi = normalize(LightDirection);
     float3 viewDir = normalize(CameraPosition - input.WorldPos); 
 
     float3 halfWay = normalize(viewDir + wi); 
-    float cosTheta = max(dot(input.Normal,viewDir),0.0); 
+    float cosTheta = max(dot(Normal,viewDir),0.0); 
     float3 radiance = LightColor; 
 
-    float NDF = DistributionGGX(input.Normal, halfWay, roughness); 
-    float G = GeometrySmith(input.Normal,viewDir, wi,roughness); 
+    float NDF = DistributionGGX(Normal, halfWay, roughness); 
+    float G = GeometrySmith(Normal,viewDir, wi,roughness); 
     float3 F = fresnelSchlick(max(dot(halfWay,viewDir),0.0f),F0);
 
     float3 numerator = NDF * G * F; 
-    float deniminator = 4.0f * cosTheta * max(dot(input.Normal,wi),0.0f) + 0.0001;
+    float deniminator = 4.0f * cosTheta * max(dot(Normal,wi),0.0f) + 0.0001;
     float3 specular = numerator / deniminator; 
 
     float3 kS = F; 
@@ -173,13 +174,13 @@ float4 PS(VertexOutput input) : SV_Target
 
     kD *= 1.0 - metallic; 
 
-    float NdotL = max(dot(input.Normal, wi), 0.0);        
+    float NdotL = max(dot(Normal, wi), 0.0);        
     float shadow = ShadowCalc(input.FragLightPosSpace); 
-    float3 Lo =  (kD * (texCol / PI) + specular) * radiance * NdotL * shadow;
+    float3 Lo =  (kD * albedo / PI + specular) * radiance * NdotL * shadow;
 
-    float3 ambient = float3(0.03f,0.03f,0.03f) * texCol;
+    float3 ambient = float3(0.03f,0.03f,0.03f) * albedo;
     float3 color   = ambient + Lo;
-     color = color / (color + float3(1.0f,1.0f,1.0f));
+    color = color / (color + float3(1.0f,1.0f,1.0f));
     float HDRnormalizer = 1.0f/2.2f; 
     color = pow(color, float3(HDRnormalizer,HDRnormalizer,HDRnormalizer)); 
 

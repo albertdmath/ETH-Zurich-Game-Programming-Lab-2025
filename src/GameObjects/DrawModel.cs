@@ -15,6 +15,8 @@ public class DrawModel {
     public DrawModel(Model model, float metallic, float roughness){
         this.model = model;
         this.textures = new List<Texture2D>();
+        this.metallic = metallic;
+        this.roughness = roughness;
         extractTextures();
     }
 
