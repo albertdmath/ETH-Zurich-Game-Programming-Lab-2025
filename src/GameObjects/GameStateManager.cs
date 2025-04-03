@@ -19,7 +19,7 @@ namespace src.GameObjects
         private const float SWORDFISH_SCALE = 0.9f;
         private const float FROG_SCALE = 0.7f;
         private const float COCONUT_SCALE = 0.3f;
-        private const float BANANA_SCALE = 0.3f;
+        private const float BANANA_SCALE = 0.8f;
         private const float TURTLE_SCALE = 0.8f;
 
 
