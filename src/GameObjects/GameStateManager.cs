@@ -121,15 +121,16 @@ namespace src.GameObjects
 
 
             // Check for projectile out of bounds and remove
-            for(int i = projectiles.Count-1; i >= 0; i--)
+            foreach (Projectile projectile in projectiles)
             {
-                Projectile projectile = projectiles[i];
                 // Check if the projectile is out of bounds
                 if (MathF.Abs(projectile.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(projectile.Position.Z) > GameLabGame.ARENA_WIDTH)
-                    projectiles.RemoveAt(i);
+                    projectile.ToBeDeleted = true;
+                    
             }
             
-
+            projectiles.RemoveAll(x => x.ToBeDeleted);
+            
             // Check for projectile-player hand intersections
             foreach (Projectile projectile in projectiles)
             {

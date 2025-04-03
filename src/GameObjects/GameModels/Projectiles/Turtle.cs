@@ -8,7 +8,7 @@ namespace src.GameObjects;
 public class Turtle : Projectile
 {
     // Constants
-    private const float TIME_TO_WEAR = 5f; //the time it takes the player to to wear the turtle
+    private const float TIME_TO_WEAR = 0.5f; //the time it takes the player to to wear the turtle
     private const float ROTATION_SPEED = 1.5f;
     private const float WALKING_VELOCITY = 0.7f;
     private const float THROW_VELOCITY = 2.0f;
@@ -91,7 +91,7 @@ public class Turtle : Projectile
 
     public override void Throw(float chargeUp)
     {
-        //if (chargeUp < TIME_TO_WEAR) return;
+        if (chargeUp < TIME_TO_WEAR) return;
         
         ToBeDeleted = true;
         (Holder as Player).SetArmor(true);
