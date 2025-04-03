@@ -91,7 +91,7 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Tomato, new DrawModel(Content.Load<Model>("tomato")));
             projectileModels.Add(ProjectileType.Coconut, new DrawModel(Content.Load<Model>("coconut")));
             // This should be a banana
-            projectileModels.Add(ProjectileType.Banana, new DrawModel(Content.Load<Model>("coconut")));
+            projectileModels.Add(ProjectileType.Banana, new DrawModel(Content.Load<Model>("bananapeel")));
             // This should be a turtle
             projectileModels.Add(ProjectileType.Turtle, new DrawModel(Content.Load<Model>("frog")));
 
