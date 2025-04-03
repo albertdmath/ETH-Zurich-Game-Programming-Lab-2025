@@ -3,12 +3,10 @@ using Microsoft.Xna.Framework.Input;
 
 namespace src.GameObjects
 {
-    /** Anything regarding player characters, from movement to the actual Model files goes here. **/
     public class InputControllerKeyboard : Input
     {
         PlayerIndex p;
         float vibrate =0f;
-        // Constructor: Only allow to assign position here, lifes stamina and so on are a global property and need to be the same for
         public InputControllerKeyboard(PlayerIndex p){
             this.p = p;
          }
