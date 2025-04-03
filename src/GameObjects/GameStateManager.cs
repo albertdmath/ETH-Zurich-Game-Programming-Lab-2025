@@ -176,7 +176,7 @@ namespace src.GameObjects
             projectiles.RemoveAll(x => x.ToBeDeleted);
         }
 
-        public void DrawGame(Shader shadowShader, PhongShading lightingShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D shadowMap)
+        public void DrawGame(Shader shadowShader, PBR lightingShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D shadowMap)
         {
             graphicsDevice.SetRenderTarget(shadowMap);
             graphicsDevice.Clear(Color.Black);
@@ -206,13 +206,17 @@ namespace src.GameObjects
 
             // Set background color
             graphicsDevice.Clear(Color.DeepSkyBlue);
-
+            
+            lightingShader.setMetallic(arena.DrawModel.metallic);
+            lightingShader.setRoughness(arena.DrawModel.roughness);
             arena.Draw(view, projection, lightingShader, false);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
 
             // Draw all active projectiles:
             foreach (Projectile projectile in projectiles)
             {
+                lightingShader.setMetallic(projectile.DrawModel.metallic);
+                lightingShader.setRoughness(projectile.DrawModel.roughness);
                 projectile.Draw(view, projection, lightingShader, false);
                 // projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             }
@@ -220,16 +224,19 @@ namespace src.GameObjects
             // Draw all Players
             foreach (Player player in players)
             {
+
+                lightingShader.setMetallic(player.DrawModel.metallic);
+                lightingShader.setRoughness(player.DrawModel.roughness);
                 player.Draw(view, projection, lightingShader, false);
                 // player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
             }
 
             // Draw mob
-            graphicsDevice.BlendState = BlendState.NonPremultiplied;
-            lightingShader.setOpacityValue(0.7f);
-            mob.Draw(view, projection, lightingShader, false);
-            graphicsDevice.BlendState = BlendState.Opaque;
-            lightingShader.setOpacityValue(1.0f);
+            // graphicsDevice.BlendState = BlendState.NonPremultiplied;
+            // lightingShader.setOpacityValue(0.7f);
+             mob.Draw(view, projection, lightingShader, false);
+            // graphicsDevice.BlendState = BlendState.Opaque;
+            // lightingShader.setOpacityValue(1.0f);
      
         }
 

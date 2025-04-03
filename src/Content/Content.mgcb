@@ -29,7 +29,7 @@
 /processorParam:RotationZ=0
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
-/processorParam:TextureFormat=Compressed
+/processorParam:TextureFormat=Color
 /build:arena.dae
 
 #begin Audio/angrymobSFX.wav
@@ -162,6 +162,12 @@
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
 /build:mob2.dae
+
+#begin pbrShading.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:pbrShading.fx
 
 #begin player_heart.png
 /importer:TextureImporter

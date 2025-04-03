@@ -34,7 +34,7 @@ namespace GameLab
         // Shader variables for shading shadows
         RenderTarget2D shadowMap;
         private Light Sun;
-        PhongShading lightingShader;
+        PBR lightingShader;
         Shader shadowShader;
 
         // Camera settings
@@ -76,32 +76,33 @@ namespace GameLab
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Load all of the models
-            arenaModel = new DrawModel(Content.Load<Model>("arena"));
+            arenaModel = new DrawModel(Content.Load<Model>("arena"),0.0f,1.0f);
 
-            playerModels.Add(new DrawModel(Content.Load<Model>("player1")));
-            playerModels.Add(new DrawModel(Content.Load<Model>("player2")));
-            playerModels.Add(new DrawModel(Content.Load<Model>("player3")));
-            playerModels.Add(new DrawModel(Content.Load<Model>("player4")));
+            playerModels.Add(new DrawModel(Content.Load<Model>("player1"),0.0f,0.7f));
+            playerModels.Add(new DrawModel(Content.Load<Model>("player2"),0.0f,0.7f));
+            playerModels.Add(new DrawModel(Content.Load<Model>("player3"),0.0f,0.7f));
+            playerModels.Add(new DrawModel(Content.Load<Model>("player4"),0.0f,0.7f));
 
-            mobModels.Add(new DrawModel(Content.Load<Model>("mob1")));
-            mobModels.Add(new DrawModel(Content.Load<Model>("mob2")));
+            mobModels.Add(new DrawModel(Content.Load<Model>("mob1"),0.0f,0.7f));
+            mobModels.Add(new DrawModel(Content.Load<Model>("mob2"),0.0f,0.7f));
 
-            projectileModels.Add(ProjectileType.Frog, new DrawModel(Content.Load<Model>("frog")));
-            projectileModels.Add(ProjectileType.Swordfish, new DrawModel(Content.Load<Model>("swordfish")));
-            projectileModels.Add(ProjectileType.Tomato, new DrawModel(Content.Load<Model>("tomato")));
-            projectileModels.Add(ProjectileType.Coconut, new DrawModel(Content.Load<Model>("coconut")));
+            projectileModels.Add(ProjectileType.Frog, new DrawModel(Content.Load<Model>("frog"),0.0f,0.4f));
+            projectileModels.Add(ProjectileType.Swordfish, new DrawModel(Content.Load<Model>("swordfish"),0.0f,0.5f));
+            projectileModels.Add(ProjectileType.Tomato, new DrawModel(Content.Load<Model>("tomato"),0.0f,0.6f));
+            projectileModels.Add(ProjectileType.Coconut, new DrawModel(Content.Load<Model>("coconut"),0.0f,0.9f));
             // This should be a banana
-            projectileModels.Add(ProjectileType.Banana, new DrawModel(Content.Load<Model>("coconut")));
+            projectileModels.Add(ProjectileType.Banana, new DrawModel(Content.Load<Model>("coconut"),0.0f,0.9f));
             // This should be a turtle
-            projectileModels.Add(ProjectileType.Turtle, new DrawModel(Content.Load<Model>("frog")));
+            projectileModels.Add(ProjectileType.Turtle, new DrawModel(Content.Load<Model>("frog"),0.0f,0.4f));
 
             font = Content.Load<SpriteFont>("font");
             playerHearts = Content.Load<Texture2D>("player_heart");
 
             // Shader setup
-            lightingShader = new PhongShading(Content.Load<Effect>("lightingWithShadow"));
+            //lightingShader = new PhongShading(Content.Load<Effect>("lightingWithShadow"));
+            lightingShader = new PBR(Content.Load<Effect>("pbrShading"));
             shadowShader = new Shader(Content.Load<Effect>("shadowMap"));
-            Sun = new Light(new Vector3(0.99f, 0.98f, 0.82f), -new Vector3(3.0f, 9.0f, 7.0f));
+            Sun = new Light(new Vector3(0.99f, 0.98f, 0.82f)*7.0f, -new Vector3(3.0f, 9.0f, 7.0f));
             shadowMap = new RenderTarget2D(_graphics.GraphicsDevice, 2048, 2048, false, SurfaceFormat.Single, DepthFormat.Depth24);
 
             shadowShader.setLightSpaceMatrix(Sun.lightSpaceMatrix);
@@ -110,7 +111,7 @@ namespace GameLab
             lightingShader.setViewMatrix(view);
             lightingShader.setProjectionMatrix(projection);
             lightingShader.setLight(Sun);
-            lightingShader.setOpacityValue(0.5f);
+            lightingShader.setOpacityValue(1.0f);
 
             // Initialize gamestate here:
             gameStateManager.Initialize(arenaModel, playerModels, mobModels, projectileModels);
