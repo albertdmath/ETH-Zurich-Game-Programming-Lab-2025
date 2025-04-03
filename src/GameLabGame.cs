@@ -85,6 +85,7 @@ namespace GameLab
 
             mobModels.Add(new DrawModel(Content.Load<Model>("mob1")));
             mobModels.Add(new DrawModel(Content.Load<Model>("mob2")));
+            mobModels.Add(new DrawModel(Content.Load<Model>("mob3")));
 
             projectileModels.Add(ProjectileType.Frog, new DrawModel(Content.Load<Model>("frog")));
             projectileModels.Add(ProjectileType.Swordfish, new DrawModel(Content.Load<Model>("swordfish")));
