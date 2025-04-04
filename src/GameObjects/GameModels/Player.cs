@@ -208,13 +208,7 @@ namespace src.GameObjects
         // End of private functions to change state of player
         // Start of public functions to change state of player. Meant to be called by projectile, after a collision
         // ---------------------
-        public bool GetHit(Projectile projectile)
-        {
-            // Check for the thrown immunity
-            if (lastProjectileImmunity > 0 && projectile == lastThrownProjectile || projectile == projectileHeld)
-                return false;
-
-            // check for general immunity
+        public void loseLife(){
             if (gameStateManager.livingPlayers.Count != 1 && immunity <= 0)
             {
                 input.Vibrate();
@@ -224,7 +218,7 @@ namespace src.GameObjects
                 {
                     if (projectileHeld != null)
                     {
-                        projectileHeld.Throw(1f);
+                        Drop();
                         projectileHeld = null;
                     }
 
@@ -235,7 +229,15 @@ namespace src.GameObjects
                     playerState = PlayerState.Crawling;
                 }
             }
+        }
+        public bool GetHit(Projectile projectile)
+        {
+            // Check for the thrown immunity
+            if (lastProjectileImmunity > 0 && projectile == lastThrownProjectile || projectile == projectileHeld)
+                return false;
 
+            // check for general immunity
+            loseLife();
             return true;
         }
         public void StunAndSlip(float stunDuration, float friction) // advised value for normal behaviour is friction = 9f
