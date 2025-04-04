@@ -18,18 +18,15 @@ namespace GameLab
         private List<DrawModel> playerModels = new List<DrawModel>();
         private List<DrawModel> mobModels = new List<DrawModel>();
         public static Dictionary<ProjectileType, DrawModel> projectileModels = new Dictionary<ProjectileType, DrawModel>();
+        private List<Texture2D> playerHP = new List<Texture2D>();
+        private List<Texture2D> playerHats = new List<Texture2D>();
+        private Texture2D hudBackground;
+        private Texture2D winMessage;
 
         private GameStateManager gameStateManager;
         private MenuStateManager menuStateManager;
 
-        // TODO remove this stuff with the HUD update (no hearts no stamina no playernames no wife maidenless actually)
-        Texture2D playerHearts;
-        private Color[] playerColors = {
-            new Color(118, 254, 253), // Player 1 color (cyan)
-            new Color(254, 144, 209), // Player 2 color (pink)
-            new Color(209, 255, 42), // Player 3 color (green)
-            new Color(254, 131, 22) // Player 4 color (orange)
-        };
+        private HUD hud;
 
         // Shader variables for shading shadows
         RenderTarget2D shadowMap;
@@ -96,7 +93,19 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Turtle, new DrawModel(Content.Load<Model>("frog")));
 
             font = Content.Load<SpriteFont>("font");
-            playerHearts = Content.Load<Texture2D>("player_heart");
+          
+            playerHP.Add(Content.Load<Texture2D>("HUD/blue_heart"));
+            playerHP.Add(Content.Load<Texture2D>("HUD/pink_heart"));
+            playerHP.Add(Content.Load<Texture2D>("HUD/green_heart"));
+            playerHP.Add(Content.Load<Texture2D>("HUD/yellow_heart"));
+
+            playerHats.Add(Content.Load<Texture2D>("HUD/hat1"));
+            playerHats.Add(Content.Load<Texture2D>("HUD/hat2"));
+            playerHats.Add(Content.Load<Texture2D>("HUD/hat3"));
+            playerHats.Add(Content.Load<Texture2D>("HUD/hat4"));
+
+            hudBackground = Content.Load<Texture2D>("HUD/HUD_background");
+            winMessage = Content.Load<Texture2D>("HUD/win_message");
 
             // Shader setup
             lightingShader = new PhongShading(Content.Load<Effect>("lightingWithShadow"));
@@ -114,11 +123,11 @@ namespace GameLab
 
             // Initialize gamestate here:
             gameStateManager.Initialize(arenaModel, playerModels, mobModels, projectileModels);
-
-
             gameStateManager.StartNewGame();
 
             _menu = new MyMenu(this);
+
+            hud = new HUD(playerHP, playerHats, hudBackground, winMessage, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
 
             // Load Sounds:
             MusicAndSoundEffects.loadSFX(Content);
@@ -147,87 +156,13 @@ namespace GameLab
             base.Update(gameTime);
         }
 
-
-
-        private void DrawHealthAndStamina()
-        {
-            switch (gameStateManager.players.Count)
-            {
-                case 4:
-                    _spriteBatch.DrawString(font, "Player state " + (int)gameStateManager.players[3].Stamina, new Vector2(1500, 950), playerColors[3]);
-                    for (int i = 0; i < gameStateManager.players[3].Life; i++)
-                    {
-                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60 * i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
-                    }
-                    goto case 3;
-                case 3:
-                    _spriteBatch.DrawString(font, "Stamina: " + (int)gameStateManager.players[2].Stamina, new Vector2(10, 950), playerColors[2]);
-                    for (int i = 0; i < gameStateManager.players[2].Life; i++)
-                    {
-                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60 * i, 910), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
-                    }
-                    goto case 2;
-                case 2:
-                    _spriteBatch.DrawString(font, "Stamina: " + (int)gameStateManager.players[1].Stamina, new Vector2(1500, 50), playerColors[1]);
-                    for (int i = 0; i < gameStateManager.players[1].Life; i++)
-                    {
-                        _spriteBatch.Draw(playerHearts, new Vector2(1500 + 60 * i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
-                    }
-                    goto case 1;
-                case 1:
-                    _spriteBatch.DrawString(font, "Player state  " + gameStateManager.players[0].playerState, new Vector2(10, 50), playerColors[0]);
-                    for (int i = 0; i < gameStateManager.players[0].Life; i++)
-                    {
-                        _spriteBatch.Draw(playerHearts, new Vector2(10 + 60 * i, 10), null, Color.White, 0f, Vector2.Zero, 0.15f, SpriteEffects.None, 0f);
-                    }
-                    goto default;
-                default:
-                    break;
-            }
-        }
-
-
-        /*
-        private void DrawWin()
-        {
-            //this can be also used for the hit projectiles
-            var alivePlayers = gameStateManager.players.Where(p => p.Life > 0).ToList();
-            if (alivePlayers.Count() == 1)
-            {
-                Texture2D pixel;
-                pixel = new Texture2D(_graphics.GraphicsDevice, 1, 1);
-                pixel.SetData(new[] { Color.White });
-
-                // Define text
-                string winMessage = "Player " + (alivePlayers[0].Id+1) + " wins!";
-
-                // Measure text size
-                Vector2 textSize = font.MeasureString(winMessage);
-                Vector2 textPosition = 
-                    new Vector2(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width/2 - 100, 
-                                GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height/2 - 50);
-
-                // Define background rectangle position and size
-                Vector2 padding = new Vector2(20, 10); // Add some padding around text
-                Rectangle backgroundRect = new Rectangle(
-                    (int)(0),
-                    (int)(textPosition.Y - 50),
-                    (int)(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width),
-                    (int)(textSize.Y + 100)
-                );
-                _spriteBatch.Draw(pixel, backgroundRect, Color.Black * 0.5f); // Semi-transparent black
-                _spriteBatch.DrawString(font, winMessage, textPosition, Color.Gold);
-            }
-        }
-
-        */
-
         protected override void Draw(GameTime gameTime)
         {
             gameStateManager.DrawGame(shadowShader, lightingShader, view, projection, GraphicsDevice, shadowMap);
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-            DrawHealthAndStamina();
+            hud.DrawPlayerHud(_spriteBatch);
+            hud.DrawWin(_spriteBatch, GraphicsDevice);
             // Draw menu
             _menu.Draw();
 

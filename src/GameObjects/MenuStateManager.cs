@@ -11,10 +11,11 @@ namespace src.GameObjects
         public const int MIN_NUM_PLAYER = 1;
         public bool SHADOWS_ENABLED { get ; set; } = true;
 
-        private MenuStateManager() 
-        {
+        public float HUD_SCALE { get; set; } = 0.15f;
 
-        }
+        public bool ENABLE_DEBUG_OUTPUT = true;
+
+        private MenuStateManager(){}
 
         private static readonly MenuStateManager instance = new();
 

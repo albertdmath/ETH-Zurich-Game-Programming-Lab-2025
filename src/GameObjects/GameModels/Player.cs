@@ -22,7 +22,7 @@ namespace src.GameObjects
         public int Id { get; set; }
         // Private fields:
         private float playerSpeed = 2f;
-        public int Life { get; set; } = 5;
+        public int Life { get; set; } = 3;
         public float Stamina { get; set; } = 3f;
         public Projectile projectileHeld;
         private float dashTime = 0f;
@@ -39,6 +39,8 @@ namespace src.GameObjects
         private Ellipse ellipse;
         private Vector3 inertia;
         public Hand Hand { get; private set; }
+
+        public JesterHat jesterHat;
         public PlayerState playerState, playerStateBeforeDashing;
 
         private GameStateManager gameStateManager;

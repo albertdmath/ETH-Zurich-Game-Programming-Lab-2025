@@ -28,11 +28,11 @@ namespace src.GameObjects
         public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
         {
             { ProjectileType.Frog, 0.1f },
-            { ProjectileType.Swordfish, 0.1f },
-            { ProjectileType.Tomato, 0.1f },
-            { ProjectileType.Coconut, 0.1f },
-            { ProjectileType.Banana, 0.1f },
-            { ProjectileType.Turtle, 0.5f }
+            { ProjectileType.Swordfish, 0.5f },
+            { ProjectileType.Tomato, 0.4f },
+            { ProjectileType.Coconut, 0.4f },
+            { ProjectileType.Banana, 0.4f },
+            { ProjectileType.Turtle, 0.1f }
         };
 
         public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(model, scaling) 
