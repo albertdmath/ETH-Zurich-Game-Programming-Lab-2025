@@ -68,10 +68,11 @@ public class Turtle : Projectile
     /*
     public override void OnMobHit()
     {
-        This should be calle only while going oustide the ellipse
+        //maybe a check of the orientation is not bad
         BounceAfterHit();
     }
     */
+    
 
     protected override void Move(float dt)
     {
