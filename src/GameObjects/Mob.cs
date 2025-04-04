@@ -68,7 +68,7 @@ namespace src.GameObjects
                 active[i] = new Zombie(
                     new Vector3(startMajorAxis*(float)Math.Sin(angle), 0, startMinorAxis*(float)Math.Cos(angle)) * 1.3f, 
                     Ellipse, 
-                    models[i%2], 0.7f
+                    models[i%models.Count], 0.7f
                 );
             }
         }

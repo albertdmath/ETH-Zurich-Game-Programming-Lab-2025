@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Input;
 
 namespace src.GameObjects
 {
-    /** Anything regarding player characters, from movement to the actual Model files goes here. **/
     public class InputDual : Input
     {
         Input input1,input2;
