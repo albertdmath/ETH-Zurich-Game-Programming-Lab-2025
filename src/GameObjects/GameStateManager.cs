@@ -104,7 +104,7 @@ namespace src.GameObjects
                     projectile = new Banana(type, origin, target, projectileModels[ProjectileType.Banana], BANANA_SCALE);
                     break;
                 case ProjectileType.Turtle:
-                    projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], TURTLE_SCALE);
+                    projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], projectileModels[ProjectileType.Banana], TURTLE_SCALE);
                     break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());

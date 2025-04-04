@@ -14,11 +14,13 @@ public class Turtle : Projectile
 
     // Fields
     private float _bounceBackTime = 0f; // Time to transform from throwing to walking
-
+    private DrawModel walkingModel;
     // Fields
 
     // Constructor:
-    public Turtle(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(type, origin, target, model, scaling) {}
+    public Turtle(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, DrawModel walkingModel, float scaling) : base(type, origin, target, model, scaling) {
+        this.walkingModel = walkingModel;
+    }
 
     private void RotateAway(float dt)
     {
@@ -59,6 +61,7 @@ public class Turtle : Projectile
             player.GetHit(this);  
             BounceAfterHit();
         }
+        this.DrawModel = this.walkingModel;
     }
 
     /*
