@@ -15,7 +15,8 @@ namespace GameLab
         private KeyboardState _previousKeyboardState;
         // Private fields:
         private DrawModel arenaModel;
-        private List<DrawModel> playerModels = new List<DrawModel>();
+        private DrawModel playerModel;
+        private List<DrawModel> playerHatModels = new List<DrawModel>();
         private List<DrawModel> mobModels = new List<DrawModel>();
         public static Dictionary<ProjectileType, DrawModel> projectileModels = new Dictionary<ProjectileType, DrawModel>();
         private List<Texture2D> playerHP = new List<Texture2D>();
@@ -74,11 +75,12 @@ namespace GameLab
 
             // Load all of the models
             arenaModel = new DrawModel(Content.Load<Model>("arena"));
+            playerModel = new DrawModel(Content.Load<Model>("Player/player_body"));
 
-            playerModels.Add(new DrawModel(Content.Load<Model>("player1")));
-            playerModels.Add(new DrawModel(Content.Load<Model>("player2")));
-            playerModels.Add(new DrawModel(Content.Load<Model>("player3")));
-            playerModels.Add(new DrawModel(Content.Load<Model>("player4")));
+            playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player1_hat")));
+            playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player2_hat")));
+            playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player3_hat")));
+            playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player4_hat")));
 
             mobModels.Add(new DrawModel(Content.Load<Model>("mob1")));
             mobModels.Add(new DrawModel(Content.Load<Model>("mob2")));
@@ -94,7 +96,7 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Turtle, new DrawModel(Content.Load<Model>("frog")));
 
             font = Content.Load<SpriteFont>("font");
-          
+            
             playerHP.Add(Content.Load<Texture2D>("HUD/blue_heart"));
             playerHP.Add(Content.Load<Texture2D>("HUD/pink_heart"));
             playerHP.Add(Content.Load<Texture2D>("HUD/green_heart"));
@@ -123,7 +125,7 @@ namespace GameLab
             lightingShader.setOpacityValue(0.5f);
 
             // Initialize gamestate here:
-            gameStateManager.Initialize(arenaModel, playerModels, mobModels, projectileModels);
+            gameStateManager.Initialize(arenaModel, playerHatModels, playerModel, mobModels, projectileModels);
             gameStateManager.StartNewGame();
 
             _menu = new MyMenu(this);

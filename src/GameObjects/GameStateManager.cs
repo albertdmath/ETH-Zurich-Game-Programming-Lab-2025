@@ -19,13 +19,15 @@ namespace src.GameObjects
         private const float SWORDFISH_SCALE = 0.9f;
         private const float FROG_SCALE = 0.7f;
         private const float COCONUT_SCALE = 0.3f;
-        private const float BANANA_SCALE = 0.8f;
+        private const float BANANA_SCALE = 1f;
         private const float TURTLE_SCALE = 0.8f;
 
 
         // Model references for initializing the instances
         private DrawModel arenaModel;
-        private List<DrawModel> playerModels;
+        private List<DrawModel> playerHatModels;
+        private DrawModel playerModel;
+
         private List<DrawModel> mobModels;
         private Dictionary<ProjectileType, DrawModel> projectileModels;
         private GameModel arena;
@@ -47,11 +49,12 @@ namespace src.GameObjects
             return instance;
         }
 
-        public void Initialize(DrawModel arenaModel, List<DrawModel> playerModels, List<DrawModel> mobModels, Dictionary<ProjectileType, DrawModel> projectileModels)
+        public void Initialize(DrawModel arenaModel, List<DrawModel> playerHatModels, DrawModel playerModel, List<DrawModel> mobModels, Dictionary<ProjectileType, DrawModel> projectileModels)
         {
             this.menuStateManager = MenuStateManager.GetMenuStateManager();
             this.arenaModel = arenaModel;
-            this.playerModels = playerModels;
+            this.playerHatModels = playerHatModels;
+            this.playerModel = playerModel;
             this.mobModels = mobModels;
             this.projectileModels = projectileModels;
 
@@ -73,10 +76,10 @@ namespace src.GameObjects
             for(int i = 0; i<MenuStateManager.GetMenuStateManager().NUM_PLAYERS; ++i)
                 players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), inputs[i], 0, mob.Ellipse, playerModels[i], scaling));
             SRY BOUT THAT*/
-            players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, mob.Ellipse, playerModels[0], scaling));
+            players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, mob.Ellipse, playerModel, playerHatModels[0], scaling));
             //players.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, mob.Ellipse, playerModels[1], scaling));
             for(int i=1;i<menuStateManager.NUM_PLAYERS;++i){
-                    players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(),i,mob.Ellipse,playerModels[i],scaling));
+                    players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(),i,mob.Ellipse,playerModel, playerHatModels[i], scaling));
             }
 
             foreach (Player player in players)

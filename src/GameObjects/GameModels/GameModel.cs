@@ -39,17 +39,17 @@ public class GameModel {
         CalculateTransform();
         int i = 0; 
         foreach (ModelMesh mesh in DrawModel.model.Meshes)
-            {
-               foreach(ModelMeshPart part in mesh.MeshParts){
-                    part.Effect = shader.effect; 
-                    shader.setWorldMatrix(Transform);
-                    
-                    if(!shadowDraw){
-                    shader.setTexture(this.DrawModel.textures[i]);
-                    }
-               }
-               i++;
-            mesh.Draw();
+        {
+            foreach(ModelMeshPart part in mesh.MeshParts){
+                part.Effect = shader.effect; 
+                shader.setWorldMatrix(Transform);
+                
+                if(!shadowDraw){
+                shader.setTexture(this.DrawModel.textures[i]);
+                }
             }
+            i++;
+            mesh.Draw();
+        }
     }
 }

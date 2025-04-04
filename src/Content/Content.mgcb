@@ -321,7 +321,7 @@
 /processorParam:TextureFormat=Compressed
 /build:mob3.dae
 
-#begin player.dae
+#begin Player/player_body.dae
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -338,9 +338,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:player.dae
+/build:Player/player_body.dae
 
-#begin player1.dae
+#begin Player/player1_hat.dae
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -357,9 +357,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:player1.dae
+/build:Player/player1_hat.dae
 
-#begin player2.dae
+#begin Player/player2_hat.dae
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -376,9 +376,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:player2.dae
+/build:Player/player2_hat.dae
 
-#begin player3.dae
+#begin Player/player3_hat.dae
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -395,9 +395,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:player3.dae
+/build:Player/player3_hat.dae
 
-#begin player4.dae
+#begin Player/player4_hat.dae
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -414,7 +414,7 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:player4.dae
+/build:Player/player4_hat.dae
 
 #begin shadowMap.fx
 /importer:EffectImporter

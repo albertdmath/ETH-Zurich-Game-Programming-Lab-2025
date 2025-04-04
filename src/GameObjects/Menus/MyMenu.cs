@@ -183,14 +183,7 @@ namespace src.GameObjects{
                     }
                 }
             }
-            
-            
 
-            
-
-
-            
-            
             _prevGamePadState = gamePadState;
         }
         public bool menuisopen(){

@@ -45,17 +45,16 @@ namespace src.GameObjects
 
         private GameStateManager gameStateManager;
 
-        public Player(Vector3 position, Input input, int id, Ellipse ellipse, DrawModel model, float scale) : base(model, scale)
+        public Player(Vector3 position, Input input, int id, Ellipse ellipse, DrawModel model, DrawModel hatModel, float scale) : base(model, scale)
         {
             Position = position;
             Orientation = new Vector3(0, 0, 1f);
             this.input = input;
             this.ellipse = ellipse;
             projectileHeld = null;
+            this.jesterHat = new JesterHat(this, hatModel, scale);
             this.Id = id;
             inertia = new Vector3(0, 0, 0);
-            // Remove hat from hitbox; this is trashcode and needs to be removed / done better at some point
-            this.Hitbox.BoundingBoxes.RemoveAt(this.Hitbox.BoundingBoxes.Count - 1);
             gameStateManager = GameStateManager.GetGameStateManager();
             Hand = new Hand(this, model, 0.25f);
             playerState = PlayerState.NormalMovement;
@@ -334,6 +333,7 @@ namespace src.GameObjects
             immunity -= dt;
             lastProjectileImmunity -= dt;
             Hand.updateWrap(dt);
+            jesterHat.updateWrap(dt);
         }
 
         public override void Draw(Matrix view, Matrix projection, Shader shader, bool shadowDraw)
@@ -349,6 +349,7 @@ namespace src.GameObjects
             if (shouldDraw)
                 base.Draw(view, projection, shader, shadowDraw);
             Hand.Draw(view, projection, shader, shadowDraw);
+            jesterHat.Draw(view, projection, shader, shadowDraw);
         }
     }
 }

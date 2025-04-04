@@ -27,12 +27,12 @@ namespace src.GameObjects
         // Projectile spawn probabilities (can be adjusted via UI)
         public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
         {
-            { ProjectileType.Frog, 0.1f },
+            { ProjectileType.Frog, 0.2f },
             { ProjectileType.Swordfish, 0.5f },
             { ProjectileType.Tomato, 0.4f },
             { ProjectileType.Coconut, 0.4f },
             { ProjectileType.Banana, 0.4f },
-            { ProjectileType.Turtle, 0.1f }
+            { ProjectileType.Turtle, 0.2f }
         };
 
         public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(model, scaling) 
