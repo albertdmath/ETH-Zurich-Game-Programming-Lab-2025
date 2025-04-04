@@ -17,6 +17,7 @@ namespace GameLab
         private DrawModel arenaModel;
         private List<DrawModel> playerModels = new List<DrawModel>();
         private List<DrawModel> mobModels = new List<DrawModel>();
+        private List<DrawModel> areaDamageModels = new List<DrawModel>();
         public static Dictionary<ProjectileType, DrawModel> projectileModels = new Dictionary<ProjectileType, DrawModel>();
 
         private GameStateManager gameStateManager;
@@ -85,6 +86,9 @@ namespace GameLab
             mobModels.Add(new DrawModel(Content.Load<Model>("mob1")));
             mobModels.Add(new DrawModel(Content.Load<Model>("mob2")));
 
+            areaDamageModels.Add(new DrawModel(Content.Load<Model>("hammer_aoe")));
+            areaDamageModels.Add(new DrawModel(Content.Load<Model>("tomato_aoe")));
+
             projectileModels.Add(ProjectileType.Frog, new DrawModel(Content.Load<Model>("frog")));
             projectileModels.Add(ProjectileType.Swordfish, new DrawModel(Content.Load<Model>("swordfish")));
             projectileModels.Add(ProjectileType.Tomato, new DrawModel(Content.Load<Model>("tomato")));
@@ -112,7 +116,7 @@ namespace GameLab
             lightingShader.setOpacityValue(0.5f);
 
             // Initialize gamestate here:
-            gameStateManager.Initialize(arenaModel, playerModels, mobModels, projectileModels);
+            gameStateManager.Initialize(arenaModel, playerModels, mobModels, areaDamageModels, projectileModels);
 
 
             gameStateManager.StartNewGame();
