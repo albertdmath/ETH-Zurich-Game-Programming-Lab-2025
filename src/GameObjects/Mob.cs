@@ -148,10 +148,18 @@ namespace src.GameObjects
                     foreach (Zombie zombie in sortedZombies[i+j*24+jNeighbour]) zombie.ForceByPlayer(player);
                     foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour+jNeighbour]) zombie.ForceByPlayer(player);
                 }else{
-                    foreach (Zombie zombie in sortedZombies[i+j*24]) player.MobCollision(zombie);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour]) player.MobCollision(zombie);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+jNeighbour]) player.MobCollision(zombie);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour+jNeighbour]) player.MobCollision(zombie);
+                    foreach (Zombie zombie in sortedZombies[i+j*24]) 
+                        if((player.Position-endCenter).LengthSquared()<(zombie.Position-endCenter).LengthSquared())
+                            player.MobCollision(zombie);
+                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour]) 
+                        if((player.Position-endCenter).LengthSquared()<(zombie.Position-endCenter).LengthSquared())
+                            player.MobCollision(zombie);
+                    foreach (Zombie zombie in sortedZombies[i+j*24+jNeighbour])  
+                        if((player.Position-endCenter).LengthSquared()<(zombie.Position-endCenter).LengthSquared())
+                            player.MobCollision(zombie);
+                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour+jNeighbour])  
+                        if((player.Position-endCenter).LengthSquared()<(zombie.Position-endCenter).LengthSquared())
+                            player.MobCollision(zombie);
                 }
             }
             for(int j = 0; j<23;j++)

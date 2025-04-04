@@ -10,7 +10,9 @@ namespace src.GameObjects
         Tomato,
         Coconut,
         Banana,
-        Turtle
+        Turtle,
+        Spear,
+        Mjoelnir
     }
 
     /** Class for the projectiles **/
@@ -22,17 +24,18 @@ namespace src.GameObjects
         public GameModel Holder { get; set; }
         protected GameStateManager gameStateManager;
         public bool ToBeDeleted { get; set; } = false;
-
-
+        public bool DestroysOtherProjectiles { get; set; } = false;
         // Projectile spawn probabilities (can be adjusted via UI)
         public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
         {
-            { ProjectileType.Frog, 0.1f },
-            { ProjectileType.Swordfish, 1f },
-            { ProjectileType.Tomato, 0.5f },
-            { ProjectileType.Coconut, 0.1f },
+            { ProjectileType.Frog, 0.0f },
+            { ProjectileType.Swordfish, 0f },
+            { ProjectileType.Tomato, 0.0f },
+            { ProjectileType.Coconut, 0.0f },
             { ProjectileType.Banana, 0f },
-            { ProjectileType.Turtle, 0f }
+            { ProjectileType.Turtle, 0f },
+            { ProjectileType.Spear, 1f },
+            { ProjectileType.Mjoelnir, 1f }
         };
 
         public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(model, scaling) 
@@ -47,7 +50,7 @@ namespace src.GameObjects
 
         public virtual void OnPlayerHit(Player player) 
         {             
-            ToBeDeleted = player.GetHit(this);  
+            ToBeDeleted = ToBeDeleted || player.GetHit(this);  
         }
 
         public virtual void OnMobHit()
@@ -92,6 +95,11 @@ namespace src.GameObjects
         // Catch the projectile
         public void Catch(GameModel player) { Holder = player; }
 
-        public bool Free() { return Holder == null; }
+        public bool Free() { return Holder == null; } 
+        public virtual bool Action(float chargeUp) {
+            Throw(chargeUp);
+            // If it is thrown return true.
+            return true;
+        }
     }
 }

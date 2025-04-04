@@ -26,6 +26,7 @@ namespace src.GameObjects
         private DrawModel arenaModel;
         private List<DrawModel> playerModels;
         private List<DrawModel> mobModels;
+        private List<DrawModel> areaDamageModels;
         private Dictionary<ProjectileType, DrawModel> projectileModels;
         private GameModel arena;
 
@@ -34,6 +35,7 @@ namespace src.GameObjects
         public readonly List<Player> players = new List<Player>();
         public readonly List<Player> livingPlayers = new List<Player>();
         public readonly List<Projectile> projectiles = new List<Projectile>();
+        private readonly List<AreaDamage> areaDamages = new List<AreaDamage>();
 
 
         // Singleton instancing
@@ -98,11 +100,21 @@ namespace src.GameObjects
                 case ProjectileType.Turtle:
                     projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], TURTLE_SCALE);
                     break;
+                case ProjectileType.Spear:
+                    projectile = new Spear(type, origin, target, projectileModels[ProjectileType.Swordfish], SWORDFISH_SCALE);
+                    break;
+                case ProjectileType.Mjoelnir:
+                    projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Frog], FROG_SCALE);
+                    break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());
             }
             projectiles.Add(projectile);
             return projectile;
+        }
+        public void CreateAreaDamage(Vector3 position, float scale,Player player)
+        {
+            areaDamages.Add(new AreaDamage(position,player,projectileModels[ProjectileType.Tomato],scale));
         }
 
         public void UpdateGame(float dt)
@@ -119,6 +131,11 @@ namespace src.GameObjects
             // Update mob
             mob.Update(dt);
 
+            // Update area damage
+            foreach(AreaDamage areaDamage in areaDamages)
+                areaDamage.updateWrap(dt);
+            areaDamages.RemoveAll(x => x.ToBeDeleted);
+
             // Move the projectiles
             foreach (Projectile projectile in projectiles)
                 projectile.updateWrap(dt);
@@ -127,8 +144,15 @@ namespace src.GameObjects
             // Check for projectile out of bounds and remove
             foreach (Projectile projectile in projectiles)
             {
-                projectile.ToBeDeleted = MathF.Abs(projectile.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(projectile.Position.Z) > GameLabGame.ARENA_WIDTH;
+                projectile.ToBeDeleted = projectile.ToBeDeleted || MathF.Abs(projectile.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(projectile.Position.Z) > GameLabGame.ARENA_WIDTH;
             }
+            for (int i = 0; i < projectiles.Count; i++)
+                for (int j = i + 1; j < projectiles.Count; j++)
+                    if(projectiles[i].Hitbox.Intersects(projectiles[j].Hitbox))
+                    {
+                        projectiles[i].ToBeDeleted = projectiles[j].DestroysOtherProjectiles;
+                        projectiles[j].ToBeDeleted = projectiles[i].DestroysOtherProjectiles;
+                    }
 
             // Early delete projectiles for efficiency
             projectiles.RemoveAll(x => x.ToBeDeleted);
@@ -142,7 +166,7 @@ namespace src.GameObjects
                 }
             }
             // Check for projectile-player intersections
-            foreach (Projectile projectile in projectiles.Where(x => x.Holder == null))
+            foreach (Projectile projectile in projectiles.Where(x => x.Holder == null || x.DestroysOtherProjectiles))
             {
                 foreach (Player player in players.Where(x => x.Life > 0))
                 {
@@ -227,6 +251,10 @@ namespace src.GameObjects
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
             lightingShader.setOpacityValue(0.4f);
             mob.Draw(view, projection, lightingShader, false);
+            graphicsDevice.BlendState = BlendState.NonPremultiplied;
+            lightingShader.setOpacityValue(0.2f);
+            foreach(AreaDamage areaDamage in areaDamages)
+                areaDamage.Draw(view, projection, lightingShader, false);
             graphicsDevice.BlendState = BlendState.Opaque;
             lightingShader.setOpacityValue(1.0f);
      
