@@ -7,7 +7,7 @@ namespace src.GameObjects
     public class AreaDamage : GameModel
     {
         // Private fields:
-        private float timeSinceCreation = 0f;
+        public float timeSinceCreation = 0f;
         private float scaleSquared = 0f;
         public bool ToBeDeleted { get; set; } = false;
         private Player player = null;

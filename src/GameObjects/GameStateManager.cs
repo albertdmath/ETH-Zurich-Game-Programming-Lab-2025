@@ -174,6 +174,15 @@ namespace src.GameObjects
                         projectile.OnPlayerHit(player);
                 }
             }
+            // Check for areaDamage-player intersections
+            foreach (AreaDamage areaDamage in areaDamages.Where(x => x.timeSinceCreation == 0f))
+            {
+                foreach (Player player in players.Where(x => x.Life > 0))
+                {
+                    if (areaDamage.Intersects(player))
+                        player.loseLife();
+                }
+            }
             // Check for projectile-mob intersection TODO
             foreach (Projectile projectile in projectiles)
             {
