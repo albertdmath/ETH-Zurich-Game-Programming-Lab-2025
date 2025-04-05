@@ -27,6 +27,8 @@ namespace src.GameObjects
         private DrawModel arenaModel;
         private List<DrawModel> playerHatModels;
         private DrawModel playerModel;
+        private DrawModel playerHandModel;
+
 
         private List<DrawModel> mobModels;
         private Dictionary<ProjectileType, DrawModel> projectileModels;
@@ -49,12 +51,13 @@ namespace src.GameObjects
             return instance;
         }
 
-        public void Initialize(DrawModel arenaModel, List<DrawModel> playerHatModels, DrawModel playerModel, List<DrawModel> mobModels, Dictionary<ProjectileType, DrawModel> projectileModels)
+        public void Initialize(DrawModel arenaModel, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerHandModel, List<DrawModel> mobModels, Dictionary<ProjectileType, DrawModel> projectileModels)
         {
             this.menuStateManager = MenuStateManager.GetMenuStateManager();
             this.arenaModel = arenaModel;
             this.playerHatModels = playerHatModels;
             this.playerModel = playerModel;
+            this.playerHandModel = playerHandModel;
             this.mobModels = mobModels;
             this.projectileModels = projectileModels;
 
@@ -76,10 +79,10 @@ namespace src.GameObjects
             for(int i = 0; i<MenuStateManager.GetMenuStateManager().NUM_PLAYERS; ++i)
                 players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), inputs[i], 0, mob.Ellipse, playerModels[i], scaling));
             SRY BOUT THAT*/
-            players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, mob.Ellipse, playerModel, playerHatModels[0], scaling));
+            players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, mob.Ellipse, playerModel, playerHandModel, playerHatModels[0], scaling));
             //players.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, mob.Ellipse, playerModels[1], scaling));
             for(int i=1;i<menuStateManager.NUM_PLAYERS;++i){
-                    players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(),i,mob.Ellipse,playerModel, playerHatModels[i], scaling));
+                    players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(),i,mob.Ellipse,playerModel, playerHandModel, playerHatModels[i], scaling));
             }
 
             foreach (Player player in players)
@@ -199,7 +202,7 @@ namespace src.GameObjects
             foreach (Player player in players)
             {
                 player.Draw(view, projection, shadowShader, true);
-                // player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
+                //player.Hitbox.DebugDraw(graphicsDevice, view, projection);
             }
             mob.Draw(view, projection, shadowShader, true);
 
@@ -224,7 +227,7 @@ namespace src.GameObjects
             foreach (Player player in players)
             {
                 player.Draw(view, projection, lightingShader, false);
-                // player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
+                player.Hitbox.DebugDraw(graphicsDevice, view, projection);
             }
 
             // Draw mob

@@ -35,6 +35,7 @@ namespace src.GameObjects
         private float friction = 9f;
         private Projectile lastThrownProjectile = null; // Store last thrown projectile
 
+        private float CATCH_COOLDOWN = 1.0f;
         private Input input;
         private Ellipse ellipse;
         private Vector3 inertia;
@@ -45,7 +46,7 @@ namespace src.GameObjects
 
         private GameStateManager gameStateManager;
 
-        public Player(Vector3 position, Input input, int id, Ellipse ellipse, DrawModel model, DrawModel hatModel, float scale) : base(model, scale)
+        public Player(Vector3 position, Input input, int id, Ellipse ellipse, DrawModel model, DrawModel playerHandModel, DrawModel hatModel, float scale) : base(model, scale)
         {
             Position = position;
             Orientation = new Vector3(0, 0, 1f);
@@ -56,7 +57,7 @@ namespace src.GameObjects
             this.Id = id;
             inertia = new Vector3(0, 0, 0);
             gameStateManager = GameStateManager.GetGameStateManager();
-            Hand = new Hand(this, model, 0.25f);
+            Hand = new Hand(this, playerHandModel, 0.7f);
             playerState = PlayerState.NormalMovement;
         }
 
@@ -273,7 +274,7 @@ namespace src.GameObjects
                 case PlayerState.Catching:
                     timeSinceStartOfCatch += dt;
                     Move(dt);
-                    if (timeSinceStartOfCatch > 2f)
+                    if (timeSinceStartOfCatch > CATCH_COOLDOWN)
                         playerState = PlayerState.NormalMovement;
                     break;
                 case PlayerState.HoldingProjectile:

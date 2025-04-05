@@ -16,6 +16,8 @@ namespace GameLab
         // Private fields:
         private DrawModel arenaModel;
         private DrawModel playerModel;
+        private DrawModel playerHandModel;
+
         private List<DrawModel> playerHatModels = new List<DrawModel>();
         private List<DrawModel> mobModels = new List<DrawModel>();
         public static Dictionary<ProjectileType, DrawModel> projectileModels = new Dictionary<ProjectileType, DrawModel>();
@@ -76,6 +78,7 @@ namespace GameLab
             // Load all of the models
             arenaModel = new DrawModel(Content.Load<Model>("arena"));
             playerModel = new DrawModel(Content.Load<Model>("Player/player_body"));
+            playerHandModel = new DrawModel(Content.Load<Model>("Player/hand"));
 
             playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player1_hat")));
             playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player2_hat")));
@@ -125,7 +128,7 @@ namespace GameLab
             lightingShader.setOpacityValue(0.5f);
 
             // Initialize gamestate here:
-            gameStateManager.Initialize(arenaModel, playerHatModels, playerModel, mobModels, projectileModels);
+            gameStateManager.Initialize(arenaModel, playerHatModels, playerModel, playerHandModel, mobModels, projectileModels);
             gameStateManager.StartNewGame();
 
             _menu = new MyMenu(this);
