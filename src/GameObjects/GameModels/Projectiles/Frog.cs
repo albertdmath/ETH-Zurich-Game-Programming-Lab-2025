@@ -79,10 +79,11 @@ public class Frog : Projectile
     private void Hop(float dt)
     {
         float jumpProgress = (timeAlive - HOP_TIME) / HOP_TIME;
+        float position_y = (float)Math.Max(0, Math.Sin(jumpProgress * Math.PI));
 
         // Update the position of the frog
         Position += Velocity * Orientation * dt;
-        Position = new Vector3(Position.X, (float)Math.Sin(jumpProgress * Math.PI), Position.Z);
+        Position = new Vector3(Position.X, position_y, Position.Z);
     }
 
     public override void Throw(float chargeUp)
