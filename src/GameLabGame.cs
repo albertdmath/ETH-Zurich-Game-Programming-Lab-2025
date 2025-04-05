@@ -96,7 +96,9 @@ namespace GameLab
             // This should be a banana
             projectileModels.Add(ProjectileType.Banana, new DrawModel(Content.Load<Model>("bananapeel")));
             // This should be a turtle
-            projectileModels.Add(ProjectileType.Turtle, new DrawModel(Content.Load<Model>("frog")));
+            projectileModels.Add(ProjectileType.Turtle, new DrawModel(Content.Load<Model>("turtle_shell")));
+            projectileModels.Add(ProjectileType.TurtleWalking, new DrawModel(Content.Load<Model>("turtle")));
+
 
             font = Content.Load<SpriteFont>("font");
             

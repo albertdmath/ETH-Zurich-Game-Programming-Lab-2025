@@ -10,7 +10,8 @@ namespace src.GameObjects
         Tomato,
         Coconut,
         Banana,
-        Turtle
+        Turtle,
+        TurtleWalking
     }
 
     /** Class for the projectiles **/
@@ -32,7 +33,7 @@ namespace src.GameObjects
             { ProjectileType.Tomato, 0.4f },
             { ProjectileType.Coconut, 0.4f },
             { ProjectileType.Banana, 0.4f },
-            { ProjectileType.Turtle, 0.2f }
+            { ProjectileType.Turtle, 0.5f }
         };
 
         public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(model, scaling) 
