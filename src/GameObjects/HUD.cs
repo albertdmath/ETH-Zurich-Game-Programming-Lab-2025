@@ -53,10 +53,10 @@ public class HUD
 
 
     // Draws the winning screen, can be improved in design for sure and also it doesn't scale with screensize but I dont feel like it rn
-    public void DrawWin(SpriteBatch spriteBatch, GraphicsDevice graphics)
+    public bool DrawWin(SpriteBatch spriteBatch, GraphicsDevice graphics)
     {
 
-        if (gameStateManager.livingPlayers.Count() == 1)
+        if (gameStateManager.livingPlayers.Count() == 1 && !(menuStateManager.NUM_PLAYERS==1))
         {
             // Get a random ass texture so we use it as background for the backdrop
             Texture2D pixel = new Texture2D(graphics, 1, 1);
@@ -64,7 +64,7 @@ public class HUD
 
             Rectangle backgroundRectangle = new Rectangle(
                 0,
-                screenHeight/2-250,
+                screenHeight/3-250,
                 screenWidth,
                 400
             );
@@ -72,10 +72,12 @@ public class HUD
             // Black transparent backdrop
             spriteBatch.Draw(pixel, backgroundRectangle, Color.Black * 0.5f);
             // Winning message, just did a png cause it's easier to design this way
-            spriteBatch.Draw(winMessage, new Vector2(screenWidth/2 - 750, screenHeight/2 - 300), Color.White); 
+            spriteBatch.Draw(winMessage, new Vector2(screenWidth/2 - 750, screenHeight/3 - 300), Color.White); 
             // Draw player hat of the correct color so people know *who* won
-            spriteBatch.Draw(playerHats[gameStateManager.livingPlayers[0].Id],  new Vector2(screenWidth/2 + 150, screenHeight/2 - 265), null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE*3, SpriteEffects.None, 0f);
-            spriteBatch.Draw(playerHats[gameStateManager.livingPlayers[0].Id],  new Vector2(screenWidth/2 - 1050, screenHeight/2 - 265), null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE*3, SpriteEffects.None, 0f);
+            spriteBatch.Draw(playerHats[gameStateManager.livingPlayers[0].Id],  new Vector2(screenWidth/2 + 150, screenHeight/3 - 265), null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE*3, SpriteEffects.None, 0f);
+            spriteBatch.Draw(playerHats[gameStateManager.livingPlayers[0].Id],  new Vector2(screenWidth/2 - 1050, screenHeight/3 - 265), null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE*3, SpriteEffects.None, 0f);
+            return true;
         }
+        return false;
     }
 }

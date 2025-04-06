@@ -12,6 +12,8 @@ using Myra.Graphics2D.TextureAtlases;
 using GameLab;
 using System.Collections.Generic;
 using System;
+using Myra.Graphics2D.UI.Styles;
+using Myra.Graphics2D.UI;
 //CLASS NOT USED
 namespace src.GameObjects{
     public class MyMenu{
@@ -202,7 +204,7 @@ namespace src.GameObjects{
             controllerselectedbutton=0;
             menuopen=false;
         }
-        private void OpenMenu(){
+        public void OpenMenu(){
             Highlight(controllerselectedbutton);
             menuopen=true;
         }
@@ -212,13 +214,17 @@ namespace src.GameObjects{
             }
         }
         private void Highlight(int index)
+        
         {
             for(int i=0;i<buttons.Length;++i)
             {
-                Type t = buttons[i].GetType();
+                
                 if(i==index){
+                    Type t = buttons[i].GetType();
                     if(t.Equals(typeof(Button))){
+                        //((Button)buttons[i]).SetStyle(Stylesheet.LoadFromSource,"red");
                     ((Button)buttons[i]).Width=100;
+                    //((Button)buttons[i]).SetStyle("blue");
                 }else if(t.Equals(typeof(SpinButton))){
                     ((SpinButton)buttons[i]).Width=100;
                 }
@@ -226,10 +232,12 @@ namespace src.GameObjects{
                 //i.Background = i == index ? Color.DarkGray : Color.Transparent;
             }
         }
+        
         private void UnHighlight(int index){
             Type t = buttons[index].GetType();
             if(t.Equals(typeof(Button))){
                 ((Button)buttons[index]).Width=CENTER_BUTTON_WIDTH;
+                //((Button)buttons[index]).SetStyle("");
             }else if(t.Equals(typeof(SpinButton))){
                 ((SpinButton)buttons[index]).Width=CENTER_BUTTON_WIDTH;
             }

@@ -163,11 +163,14 @@ namespace GameLab
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
             hud.DrawPlayerHud(_spriteBatch);
-            hud.DrawWin(_spriteBatch, GraphicsDevice);
+            if(hud.DrawWin(_spriteBatch, GraphicsDevice)){
+                _menu.OpenMenu();
+            }
             // Draw menu
-            _menu.Draw();
+            
 
             _spriteBatch.End();
+            _menu.Draw();
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.BlendState = BlendState.Opaque;
 
