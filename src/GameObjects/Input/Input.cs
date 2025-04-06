@@ -44,6 +44,10 @@ namespace src.GameObjects
         {
             return Keyboard.GetState().IsKeyDown(Keys.G);
         }
+        public virtual bool Jump()
+        {
+            return Keyboard.GetState().IsKeyDown(Keys.Space);
+        }
         public virtual void Vibrate(){}
         public virtual void EndVibrate(float dt){}
     }

@@ -99,7 +99,10 @@ public class Turtle : Projectile
     public override void Catch(GameModel player)
     {
         base.Catch(player);
-        this.DrawModel = this.shellModel;
+        if(player is Player)
+        {
+            this.DrawModel = this.walkingModel;
+        }
     }
 
     public override void Throw(float chargeUp)

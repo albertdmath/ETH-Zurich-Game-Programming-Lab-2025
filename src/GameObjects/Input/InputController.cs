@@ -42,6 +42,10 @@ namespace src.GameObjects
         {
             return GamePad.GetState(p).Buttons.B == ButtonState.Pressed;
         }
+        public override bool Jump()
+        {
+            return false;
+        }
         public override void Vibrate(){
             GamePad.SetVibration(p,1,1);
             vibrate = .2f;
