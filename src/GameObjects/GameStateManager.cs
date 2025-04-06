@@ -51,7 +51,7 @@ namespace src.GameObjects
             return instance;
         }
 
-        public void Initialize(DrawModel arenaModel, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerHandModel, List<DrawModel> mobModels, Dictionary<ProjectileType, DrawModel> projectileModels)
+        public void Initialize(DrawModel arenaModel, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerHandModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels)
         {
             this.menuStateManager = MenuStateManager.GetMenuStateManager();
             this.arenaModel = arenaModel;
@@ -59,6 +59,7 @@ namespace src.GameObjects
             this.playerModel = playerModel;
             this.playerHandModel = playerHandModel;
             this.mobModels = mobModels;
+            this.areaDamageModels = areaDamageModels;
             this.projectileModels = projectileModels;
 
             arena = new GameModel(arenaModel, ARENA_SCALE);
@@ -124,9 +125,12 @@ namespace src.GameObjects
             projectiles.Add(projectile);
             return projectile;
         }
-        public void CreateAreaDamage(Vector3 position, float scale,Player player)
+        public void CreateAreaDamage(Vector3 position, float scale,Player player,ProjectileType type)
         {
-            areaDamages.Add(new AreaDamage(position,player,projectileModels[ProjectileType.Tomato],scale));
+            if(type == ProjectileType.Mjoelnir)
+                areaDamages.Add(new AreaDamage(position,player,areaDamageModels[0],scale));
+            else
+                areaDamages.Add(new AreaDamage(position,player,areaDamageModels[1],scale));
         }
 
         public void UpdateGame(float dt)

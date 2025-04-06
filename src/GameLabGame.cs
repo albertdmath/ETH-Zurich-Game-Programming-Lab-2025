@@ -20,6 +20,7 @@ namespace GameLab
 
         private List<DrawModel> playerHatModels = new List<DrawModel>();
         private List<DrawModel> mobModels = new List<DrawModel>();
+        private List<DrawModel> areaDamageModels = new List<DrawModel>();
         public static Dictionary<ProjectileType, DrawModel> projectileModels = new Dictionary<ProjectileType, DrawModel>();
         private List<Texture2D> playerHP = new List<Texture2D>();
         private List<Texture2D> playerHats = new List<Texture2D>();
@@ -99,9 +100,9 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Banana, new DrawModel(Content.Load<Model>("bananapeel"),0.0f,0.9f));
             projectileModels.Add(ProjectileType.Turtle, new DrawModel(Content.Load<Model>("turtle_shell"),0.0f,0.9f));
             projectileModels.Add(ProjectileType.TurtleWalking, new DrawModel(Content.Load<Model>("turtle"),0.0f,0.9f));
+            areaDamageModels.Add(new DrawModel(Content.Load<Model>("hammer_aoe"),0.0f,0.9f));
+            areaDamageModels.Add(new DrawModel(Content.Load<Model>("tomato_aoe"),0.0f,0.9f));
 
-            font = Content.Load<SpriteFont>("font");
-            
             playerHP.Add(Content.Load<Texture2D>("HUD/blue_heart"));
             playerHP.Add(Content.Load<Texture2D>("HUD/pink_heart"));
             playerHP.Add(Content.Load<Texture2D>("HUD/green_heart"));
@@ -131,7 +132,7 @@ namespace GameLab
             lightingShader.setOpacityValue(1.0f);
 
             // Initialize gamestate here:
-            gameStateManager.Initialize(arenaModel, playerHatModels, playerModel, playerHandModel, mobModels, projectileModels);
+            gameStateManager.Initialize(arenaModel, playerHatModels, playerModel, playerHandModel, mobModels, areaDamageModels, projectileModels);
             gameStateManager.StartNewGame();
 
             _menu = new MyMenu(this);

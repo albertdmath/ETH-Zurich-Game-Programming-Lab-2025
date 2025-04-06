@@ -16,7 +16,7 @@ namespace src.GameObjects
         {
             this.player = player;
             this.Position = position;
-            scaleSquared = scale * scale;
+            scaleSquared = scale * scale*0.25f;
         }
 
         // Checks if the player should receive damage

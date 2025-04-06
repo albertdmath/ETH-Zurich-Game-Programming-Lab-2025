@@ -412,7 +412,7 @@ namespace src.GameObjects
                         inertiaUp = new Vector3(0, 0, 0);
                         Position = new Vector3(Position.X, 0, Position.Z);
                         Drop();
-                        gameStateManager.CreateAreaDamage(Position,3f,this);
+                        gameStateManager.CreateAreaDamage(Position,2f,this,ProjectileType.Mjoelnir);
                         playerState = PlayerState.NormalMovement;
                     }
                     break;
