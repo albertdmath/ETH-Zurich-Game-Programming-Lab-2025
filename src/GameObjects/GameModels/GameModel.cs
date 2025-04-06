@@ -8,7 +8,7 @@ namespace src.GameObjects;
 public class GameModel {
     public Vector3 Position { get; set; }
     public Vector3 Orientation { get; set; }
-    protected DrawModel DrawModel { get; set; }
+    public DrawModel DrawModel { get; set; }
     public Hitbox Hitbox { get; set; }
     public Matrix Transform { get; set; }
     protected Matrix Scaling;

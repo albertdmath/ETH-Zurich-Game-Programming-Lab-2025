@@ -34,7 +34,7 @@ namespace GameLab
         // Shader variables for shading shadows
         RenderTarget2D shadowMap;
         private Light Sun;
-        PhongShading lightingShader;
+        PBR lightingShader;
         Shader shadowShader;
 
         // Camera settings
@@ -76,29 +76,29 @@ namespace GameLab
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Load all of the models
-            arenaModel = new DrawModel(Content.Load<Model>("arena"));
-            playerModel = new DrawModel(Content.Load<Model>("Player/player_body"));
-            playerHandModel = new DrawModel(Content.Load<Model>("Player/hand"));
+            arenaModel = new DrawModel(Content.Load<Model>("arena"),0.0f,1.0f);
+            playerModel = new DrawModel(Content.Load<Model>("Player/player_body"),0.0f,0.3f);
+            playerHandModel = new DrawModel(Content.Load<Model>("Player/hand"),0.0f,0.3f);
 
-            playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player1_hat")));
-            playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player2_hat")));
-            playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player3_hat")));
-            playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player4_hat")));
+            playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player1_hat"),0.0f,0.3f));
+            playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player2_hat"),0.0f,0.3f));
+            playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player3_hat"),0.0f,0.3f));
+            playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player4_hat"),0.0f,0.3f));
 
-            mobModels.Add(new DrawModel(Content.Load<Model>("mob1")));
-            mobModels.Add(new DrawModel(Content.Load<Model>("mob2")));
-            mobModels.Add(new DrawModel(Content.Load<Model>("mob3")));
+            mobModels.Add(new DrawModel(Content.Load<Model>("mob1"),0.0f,0.3f));
+            mobModels.Add(new DrawModel(Content.Load<Model>("mob2"),0.0f,0.3f));
+            mobModels.Add(new DrawModel(Content.Load<Model>("mob3"),0.0f,0.3f));
+       
+            mobModels.Add(new DrawModel(Content.Load<Model>("mob1"),0.0f,0.7f));
+            mobModels.Add(new DrawModel(Content.Load<Model>("mob2"),0.0f,0.7f));
 
-            projectileModels.Add(ProjectileType.Frog, new DrawModel(Content.Load<Model>("frog")));
-            projectileModels.Add(ProjectileType.Swordfish, new DrawModel(Content.Load<Model>("swordfish")));
-            projectileModels.Add(ProjectileType.Tomato, new DrawModel(Content.Load<Model>("tomato")));
-            projectileModels.Add(ProjectileType.Coconut, new DrawModel(Content.Load<Model>("coconut")));
-            // This should be a banana
-            projectileModels.Add(ProjectileType.Banana, new DrawModel(Content.Load<Model>("bananapeel")));
-            // This should be a turtle
-            projectileModels.Add(ProjectileType.Turtle, new DrawModel(Content.Load<Model>("turtle_shell")));
-            projectileModels.Add(ProjectileType.TurtleWalking, new DrawModel(Content.Load<Model>("turtle")));
-
+            projectileModels.Add(ProjectileType.Frog, new DrawModel(Content.Load<Model>("frog"),0.0f,0.4f));
+            projectileModels.Add(ProjectileType.Swordfish, new DrawModel(Content.Load<Model>("swordfish"),0.0f,0.5f));
+            projectileModels.Add(ProjectileType.Tomato, new DrawModel(Content.Load<Model>("tomato"),0.0f,0.6f));
+            projectileModels.Add(ProjectileType.Coconut, new DrawModel(Content.Load<Model>("coconut"),0.0f,0.9f));
+            projectileModels.Add(ProjectileType.Banana, new DrawModel(Content.Load<Model>("bananapeel"),0.0f,0.9f));
+            projectileModels.Add(ProjectileType.Turtle, new DrawModel(Content.Load<Model>("turtle_shell"),0.0f,0.9f));
+            projectileModels.Add(ProjectileType.TurtleWalking, new DrawModel(Content.Load<Model>("turtle"),0.0f,0.9f));
 
             font = Content.Load<SpriteFont>("font");
             
@@ -116,9 +116,10 @@ namespace GameLab
             winMessage = Content.Load<Texture2D>("HUD/win_message");
 
             // Shader setup
-            lightingShader = new PhongShading(Content.Load<Effect>("lightingWithShadow"));
+            //lightingShader = new PhongShading(Content.Load<Effect>("lightingWithShadow"));
+            lightingShader = new PBR(Content.Load<Effect>("pbrShading"));
             shadowShader = new Shader(Content.Load<Effect>("shadowMap"));
-            Sun = new Light(new Vector3(0.99f, 0.98f, 0.82f), -new Vector3(3.0f, 9.0f, 7.0f));
+            Sun = new Light(new Vector3(1.2f, 1.2f, 0.82f)*4.5f, -new Vector3(3.0f, 9.0f, 7.0f));
             shadowMap = new RenderTarget2D(_graphics.GraphicsDevice, 2048, 2048, false, SurfaceFormat.Single, DepthFormat.Depth24);
 
             shadowShader.setLightSpaceMatrix(Sun.lightSpaceMatrix);
@@ -127,7 +128,7 @@ namespace GameLab
             lightingShader.setViewMatrix(view);
             lightingShader.setProjectionMatrix(projection);
             lightingShader.setLight(Sun);
-            lightingShader.setOpacityValue(0.5f);
+            lightingShader.setOpacityValue(1.0f);
 
             // Initialize gamestate here:
             gameStateManager.Initialize(arenaModel, playerHatModels, playerModel, playerHandModel, mobModels, projectileModels);
