@@ -1,97 +1,105 @@
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
-namespace src.GameObjects
+namespace src.GameObjects;
+public enum ProjectileType
 {
-    public enum ProjectileType
+    Frog,
+    Swordfish,
+    Tomato,
+    Coconut,
+    Banana,
+    Turtle,
+    TurtleWalking,
+    Spear,
+    Mjoelnir
+}
+
+/** Class for the projectiles **/
+public class Projectile : GameModel
+{
+    // Projectile properties
+    public ProjectileType Type { get; private set; }
+    protected float Velocity { get; set; }
+    public GameModel Holder { get; set; }
+    protected GameStateManager gameStateManager;
+    public bool ToBeDeleted { get; set; } = false;
+    public bool DestroysOtherProjectiles { get; set; } = false;
+    // Projectile spawn probabilities (can be adjusted via UI)
+    public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
     {
-        Frog,
-        Swordfish,
-        Tomato,
-        Coconut,
-        Banana,
-        Turtle
+        { ProjectileType.Frog, 0.2f },
+        { ProjectileType.Swordfish, 0.2f },
+        { ProjectileType.Tomato, 0.2f },
+        { ProjectileType.Coconut, 0.2f },
+        { ProjectileType.Banana, 0.2f },
+        { ProjectileType.Turtle, 0.2f },
+        { ProjectileType.Spear, 0.2f },
+        { ProjectileType.Mjoelnir, 0.2f }
+    };
+
+    public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(model, scaling) 
+    {
+        Type = type;
+        gameStateManager = GameStateManager.GetGameStateManager();
+        Throw(origin,target);
     }
 
-    /** Class for the projectiles **/
-    public class Projectile : GameModel
+    // Virtual methods for derived classes to override
+    protected virtual void Move(float dt) { }
+
+    public virtual void OnPlayerHit(Player player) 
+    {             
+        ToBeDeleted = ToBeDeleted || player.GetHit(this);  
+    }
+
+    public virtual void OnMobHit()
     {
-        // Projectile properties
-        public ProjectileType Type { get; private set; }
-        protected float Velocity { get; set; }
-        public GameModel Holder { get; set; }
-        protected GameStateManager gameStateManager;
-        public bool ToBeDeleted { get; set; } = false;
+        return;
+    }
+    public virtual void OnGroundHit()
+    {
+        ToBeDeleted = true;
+    }
 
+    public virtual void Throw(float chargeUp) {
+        this.Position = Holder.Position + Holder.Orientation;
+        this.Orientation = Holder.Orientation;
+        this.Holder = null;
+        //Console.WriteLine("Projectile thrown with orientation: " + Orientation + " and speedup: " + chargeUp);
+    }
 
-        // Projectile spawn probabilities (can be adjusted via UI)
-        public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
+    public virtual void Throw(Vector3 origin, Vector3 target) 
+    {
+        this.Holder = null;
+        Position = origin;
+        Orientation = Vector3.Normalize(target - origin);
+    }
+
+    // Update the projectile's state
+    public override void Update(float dt)
+    {
+        if (Holder == null)
         {
-            { ProjectileType.Frog, 0.1f },
-            { ProjectileType.Swordfish, 0.5f },
-            { ProjectileType.Tomato, 0.4f },
-            { ProjectileType.Coconut, 0.4f },
-            { ProjectileType.Banana, 0.4f },
-            { ProjectileType.Turtle, 0.1f }
-        };
-
-        public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(model, scaling) 
+            Move(dt);
+        }
+        else 
         {
-            Type = type;
-            gameStateManager = GameStateManager.GetGameStateManager();
-            Throw(origin,target);
+            // Ensures projectile is held in right hand for a more realistic look:
+            Vector3 orthogonalHolderOrientation = new Vector3(-Holder.Orientation.Z, Holder.Orientation.Y, Holder.Orientation.X);
+            Position = Holder.Position + orthogonalHolderOrientation * 0.2f;
+            Orientation = Holder.Orientation;
         }
+    }
 
-        // Virtual methods for derived classes to override
-        protected virtual void Move(float dt) { }
+    // Catch the projectile
+    public virtual void Catch(GameModel player) { Holder = player; }
 
-        public virtual void OnPlayerHit(Player player) 
-        {             
-            ToBeDeleted = player.GetHit(this);  
-        }
-
-        public virtual void OnMobHit()
-        {
-            return;
-        }
-        public virtual void OnGroundHit()
-        {
-            ToBeDeleted = true;
-        }
-
-        public virtual void Throw(float chargeUp) {
-            this.Position = Holder.Position + Holder.Orientation;
-            this.Orientation = Holder.Orientation;
-            this.Holder = null;
-            //Console.WriteLine("Projectile thrown with orientation: " + Orientation + " and speedup: " + chargeUp);
-        }
-
-        public virtual void Throw(Vector3 origin, Vector3 target) 
-        {
-            this.Holder = null;
-            Position = origin;
-            Orientation = Vector3.Normalize(target - origin);
-        }
-
-        // Update the projectile's state
-        public override void Update(float dt)
-        {
-            if (Holder == null)
-            {
-                Move(dt);
-            }
-            else 
-            {
-                // Ensures projectile is held in right hand for a more realistic look:
-                Vector3 orthogonalHolderOrientation = new Vector3(-Holder.Orientation.Z, Holder.Orientation.Y, Holder.Orientation.X);
-                Position = Holder.Position + orthogonalHolderOrientation * 0.2f;
-                Orientation = Holder.Orientation;
-            }
-        }
-
-        // Catch the projectile
-        public void Catch(GameModel player) { Holder = player; }
-
-        public bool Free() { return Holder == null; }
+    public bool Free() { return Holder == null; } 
+    public virtual bool Action(float chargeUp) {
+        Throw(chargeUp);
+        // If it is thrown return true.
+        return true;
     }
 }
+

@@ -28,6 +28,10 @@ namespace src.GameObjects
         {
             return input1.Dash() || input1.Dash();
         }
+        public override bool Jump()
+        {
+            return input1.Jump() || input2.Jump();
+        }
         public override void Vibrate(){
             input1.Vibrate();
             input2.Vibrate();

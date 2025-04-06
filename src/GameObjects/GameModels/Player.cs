@@ -17,7 +17,8 @@ namespace src.GameObjects
             PartOfMob,
             PartOfMobHoldingProjectile,
             Crawling,
-            TestDashing
+            JumpingWithTheMightyHammerOfTheThousandThunders,
+            DroppingThenNormalMovement
         }
         public int Id { get; set; }
         // Private fields:
@@ -25,8 +26,9 @@ namespace src.GameObjects
         public int Life { get; set; } = 3;
         public float Stamina { get; set; } = 3f;
         public Projectile projectileHeld;
-        private float dashTime = 0f;
+        private float dashTime = 0f,dashSpeed = 12f, flySpeed = 0f;
         private float actionPushedDuration;
+        private float jumpPushedDuration=0;
         private float stunDuration = 0f;
         public bool notImportant = false;
         private float immunity = 0f;
@@ -34,30 +36,35 @@ namespace src.GameObjects
         private float timeSinceStartOfCatch = 0f;
         private float friction = 9f;
         private Projectile lastThrownProjectile = null; // Store last thrown projectile
+        private bool armor = false; // Store if player has armor
 
+        private float CATCH_COOLDOWN = 1.0f;
         private Input input;
         private Ellipse ellipse;
-        private Vector3 inertia;
+        private Vector3 inertia,inertiaUp;
+        private Vector3 gravity = new Vector3(0,-30f,0);
         public Hand Hand { get; private set; }
 
         public JesterHat jesterHat;
+        public AimIndicator aimIndicator { get; private set; }
         public PlayerState playerState, playerStateBeforeDashing;
 
         private GameStateManager gameStateManager;
 
-        public Player(Vector3 position, Input input, int id, Ellipse ellipse, DrawModel model, float scale) : base(model, scale)
+        public Player(Vector3 position, Input input, int id, Ellipse ellipse, DrawModel model, DrawModel playerHandModel, DrawModel hatModel, float scale) : base(model, scale)
         {
             Position = position;
             Orientation = new Vector3(0, 0, 1f);
             this.input = input;
             this.ellipse = ellipse;
             projectileHeld = null;
+            this.jesterHat = new JesterHat(this, hatModel, scale);
             this.Id = id;
             inertia = new Vector3(0, 0, 0);
-            // Remove hat from hitbox; this is trashcode and needs to be removed / done better at some point
-            this.Hitbox.BoundingBoxes.RemoveAt(this.Hitbox.BoundingBoxes.Count - 1);
             gameStateManager = GameStateManager.GetGameStateManager();
-            Hand = new Hand(this, model, 0.25f);
+            Hand = new Hand(this, playerHandModel, 0.7f);
+            inertiaUp = new Vector3(0, 0, 0);
+            aimIndicator = new AimIndicator(this, playerHandModel, 0.25f);
             playerState = PlayerState.NormalMovement;
         }
 
@@ -69,6 +76,7 @@ namespace src.GameObjects
             Vector3 dir = input.Direction();
             //inertia to keep some movement from last update;
             inertia -= (9f * dt) * inertia;
+            inertiaUp += gravity*dt;
             if (dir.Length() > 0)
             {
                 dir = Vector3.Normalize(dir);
@@ -83,7 +91,12 @@ namespace src.GameObjects
                 Orientation = Vector3.Normalize(inertia);
             }
             // Updating the position of the player
-            Position += playerSpeed * inertia * dt;
+            Position += playerSpeed * inertia * dt + inertiaUp * dt;
+            if(Position.Y<=0)
+            {
+                inertiaUp = new Vector3(0, 0, 0);
+                Position = new Vector3(Position.X, 0, Position.Z);
+            }
         }
 
         private void Slide(float dt)
@@ -93,6 +106,13 @@ namespace src.GameObjects
 
             // Updating the position of the player
             Position += playerSpeed * inertia * dt;
+        }
+        private void InAir(float dt)
+        {
+            // Inertia to keep some movement from last update;
+            inertiaUp += gravity*dt;
+            // Updating the position of the player
+            Position += flySpeed *Orientation * dt + inertiaUp * dt;
         }
 
         private void Aim(float dt)
@@ -120,8 +140,9 @@ namespace src.GameObjects
         {
             if (dashTime > 0f)
             {
-                Position += 6 * playerSpeed * Orientation * dt;
+                Position += dashSpeed * Orientation * dt;
                 dashTime -= dt;
+                //Console.WriteLine("Dashing in dash with projectile for: " + dashTime + " and speed: " + dashSpeed);
             }
             else
             {
@@ -149,17 +170,30 @@ namespace src.GameObjects
                 playerState = PlayerState.Dashing;
                 dashTime = 0.1f;
                 Stamina = 0f;
+                dashSpeed = 12f;
+            }
+        }
+        private void CanJump()
+        {
+            if (input.Jump() && jumpPushedDuration == 0f)
+            {
+                inertiaUp += new Vector3(0f,15f,0f);
             }
         }
         // Method to throw an object:
         private void Throw()
         {
-            float speedUp = 1 + 2 * (float)Math.Pow(Math.Min(actionPushedDuration, 4f), 2f);
             lastThrownProjectile = projectileHeld;
             lastProjectileImmunity = 1f;
-            projectileHeld.Throw(speedUp);
             projectileHeld = null;
+            playerState = Life > 0 ? PlayerState.NormalMovement : PlayerState.PartOfMob;
+        }
+        private void DoActionWithProjectile()
+        {
+            float speedUp = 1 + 2 * (float)Math.Pow(actionPushedDuration, 2f);
             Console.WriteLine("Throwing projectile with orientation: " + Orientation + " and speedup: " + speedUp);
+            if (projectileHeld.Action(speedUp))
+                Throw();
         }
         // Spawning a projectile in Hand when part of the mob. Currently only swordfish
         private void Spawn()
@@ -177,23 +211,20 @@ namespace src.GameObjects
         // End of private functions to change state of player
         // Start of public functions to change state of player. Meant to be called by projectile, after a collision
         // ---------------------
-        public bool GetHit(Projectile projectile)
-        {
-            // Check for the thrown immunity
-            if (lastProjectileImmunity > 0 && projectile == lastThrownProjectile)
-                return false;
-
-            // check for general immunity
+        public void LoseLife(){
             if (gameStateManager.livingPlayers.Count != 1 && immunity <= 0)
             {
                 input.Vibrate();
-                Life--;
+                if(armor)
+                    armor = false;
+                else
+                    Life--;
                 immunity = 1f;
                 if (Life == 0f)
                 {
                     if (projectileHeld != null)
                     {
-                        projectileHeld.Throw(1f);
+                        Drop();
                         projectileHeld = null;
                     }
 
@@ -204,14 +235,43 @@ namespace src.GameObjects
                     playerState = PlayerState.Crawling;
                 }
             }
+        }
+        public bool GetHit(Projectile projectile)
+        {
+            // Check for the thrown immunity
+            if (lastProjectileImmunity > 0 && projectile == lastThrownProjectile || projectile == projectileHeld)
+                return false;
 
+            // check for general immunity
+            LoseLife();
             return true;
         }
         public void StunAndSlip(float stunDuration, float friction) // advised value for normal behaviour is friction = 9f
         {
+            Drop();
             this.friction = friction;
             this.stunDuration = stunDuration;
             playerState = PlayerState.Stunned;
+        }
+        public void SetArmor(bool armor)
+        {
+            this.armor = armor;
+        }
+        public void StartDashingWithProjectileInHand(float speed)
+        {
+            dashSpeed = speed;
+            dashTime = actionPushedDuration * 1f / speed;
+            Console.WriteLine("Dashing with projectile for: " + dashTime + " and speed: " + speed);
+            playerState = PlayerState.Dashing;
+            playerStateBeforeDashing = PlayerState.DroppingThenNormalMovement;
+
+        }
+        public void JumpAndStrike()
+        {
+            flySpeed = actionPushedDuration * 1f / (15f/30f*2f);
+            inertiaUp += new Vector3(0f,15f,0f);
+            playerState = PlayerState.JumpingWithTheMightyHammerOfTheThousandThunders;
+            
         }
 
 
@@ -255,6 +315,18 @@ namespace src.GameObjects
             playerState = PlayerState.HoldingProjectile;
             Console.WriteLine("Grabbing " + projectile.Type);
         }
+        // Method to tdrop the current projectile
+        public void Drop()
+        {
+            if(projectileHeld != null)
+            {
+                projectileHeld.ToBeDeleted = true;
+                 Console.WriteLine("Dropping " + projectileHeld.Type);
+            }
+            projectileHeld = null;
+            playerState = PlayerState.NormalMovement;
+            
+        }
 
 
         // Update function called each update
@@ -270,15 +342,17 @@ namespace src.GameObjects
                     Move(dt);
                     CanCatch();
                     CanDash();
+                    CanJump();
                     break;
                 case PlayerState.Catching:
                     timeSinceStartOfCatch += dt;
                     Move(dt);
-                    if (timeSinceStartOfCatch > 2f)
+                    if (timeSinceStartOfCatch > CATCH_COOLDOWN)
                         playerState = PlayerState.NormalMovement;
                     break;
                 case PlayerState.HoldingProjectile:
                     Move(dt);
+                    CanJump();
                     if (input.Action() && actionPushedDuration == 0f)
                         playerState = PlayerState.Aiming;
                     else
@@ -289,13 +363,15 @@ namespace src.GameObjects
                     break;
                 case PlayerState.Aiming:
                     Aim(dt);
+                    actionPushedDuration = actionPushedDuration > 4f ? 4f : actionPushedDuration;
                     if (input.Action())
+                    {
                         actionPushedDuration += dt;
+                        aimIndicator.PlaceIndicator(actionPushedDuration,1f);
+                    }
                     else
                     {
-                        Throw();
-                        playerSpeed = 2f;
-                        playerState = Life > 0 ? PlayerState.NormalMovement : PlayerState.PartOfMob;
+                        DoActionWithProjectile();
                     }
                     break;
                 case PlayerState.Stunned:
@@ -329,11 +405,28 @@ namespace src.GameObjects
                         playerState = PlayerState.PartOfMob;
                     }
                     break;
+                case PlayerState.JumpingWithTheMightyHammerOfTheThousandThunders:
+                    InAir(dt);
+                    if(Position.Y<=0)
+                    {
+                        inertiaUp = new Vector3(0, 0, 0);
+                        Position = new Vector3(Position.X, 0, Position.Z);
+                        Drop();
+                        gameStateManager.CreateAreaDamage(Position,2f,this,ProjectileType.Mjoelnir);
+                        playerState = PlayerState.NormalMovement;
+                    }
+                    break;
+                case PlayerState.DroppingThenNormalMovement:
+                    Drop();
+                    playerState = PlayerState.NormalMovement;
+                    goto case PlayerState.NormalMovement;
             }
             actionPushedDuration = input.Action() ? actionPushedDuration + dt : 0f;
+            jumpPushedDuration = input.Jump() ? jumpPushedDuration + dt : 0f;
             immunity -= dt;
             lastProjectileImmunity -= dt;
             Hand.updateWrap(dt);
+            jesterHat.updateWrap(dt);
         }
 
         public override void Draw(Matrix view, Matrix projection, Shader shader, bool shadowDraw)
@@ -349,6 +442,9 @@ namespace src.GameObjects
             if (shouldDraw)
                 base.Draw(view, projection, shader, shadowDraw);
             Hand.Draw(view, projection, shader, shadowDraw);
+            jesterHat.Draw(view, projection, shader, shadowDraw);
+            if(playerState == PlayerState.Aiming)
+                aimIndicator.Draw(view, projection, shader, shadowDraw);
         }
     }
 }

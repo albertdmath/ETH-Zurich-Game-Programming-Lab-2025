@@ -7,11 +7,16 @@ public class DrawModel {
 
     public List<Texture2D> textures {get;}
 
+    public float metallic {get; set;}
+    public float roughness {get; set;}
 
 
-    public DrawModel(Model model){
+
+    public DrawModel(Model model, float metallic, float roughness){
         this.model = model;
         this.textures = new List<Texture2D>();
+        this.metallic = metallic;
+        this.roughness = roughness;
         extractTextures();
     }
 

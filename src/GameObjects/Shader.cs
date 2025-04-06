@@ -56,3 +56,20 @@ public class PhongShading : Shader {
         effect.Parameters["CameraPosition"].SetValue(CameraPos);
     }
 }
+
+public class PBR:PhongShading {
+  
+  public PBR(Effect effect) : base(effect) {
+
+  } 
+
+  public void setRoughness(float roughness){
+    effect.Parameters["roughness"].SetValue(roughness);
+  }
+
+
+  
+  public void setMetallic(float metallic){
+    effect.Parameters["metallic"].SetValue(metallic);
+  }
+}

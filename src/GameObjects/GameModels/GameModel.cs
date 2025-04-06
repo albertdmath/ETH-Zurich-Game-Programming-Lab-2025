@@ -8,7 +8,7 @@ namespace src.GameObjects;
 public class GameModel {
     public Vector3 Position { get; set; }
     public Vector3 Orientation { get; set; }
-    protected DrawModel DrawModel { get; set; }
+    public DrawModel DrawModel { get; set; }
     public Hitbox Hitbox { get; set; }
     public Matrix Transform { get; set; }
     protected Matrix Scaling;
@@ -39,17 +39,17 @@ public class GameModel {
         CalculateTransform();
         int i = 0; 
         foreach (ModelMesh mesh in DrawModel.model.Meshes)
-            {
-               foreach(ModelMeshPart part in mesh.MeshParts){
-                    part.Effect = shader.effect; 
-                    shader.setWorldMatrix(Transform);
-                    
-                    if(!shadowDraw){
-                    shader.setTexture(this.DrawModel.textures[i]);
-                    }
-               }
-               i++;
-            mesh.Draw();
+        {
+            foreach(ModelMeshPart part in mesh.MeshParts){
+                part.Effect = shader.effect; 
+                shader.setWorldMatrix(Transform);
+                
+                if(!shadowDraw){
+                shader.setTexture(this.DrawModel.textures[i]);
+                }
             }
+            i++;
+            mesh.Draw();
+        }
     }
 }

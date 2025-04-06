@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,14 +18,19 @@ namespace src.GameObjects
         private const float SWORDFISH_SCALE = 0.9f;
         private const float FROG_SCALE = 0.7f;
         private const float COCONUT_SCALE = 0.3f;
-        private const float BANANA_SCALE = 0.8f;
-        private const float TURTLE_SCALE = 0.8f;
+        private const float BANANA_SCALE = 1f;
+        private const float TURTLE_SCALE = 0.3f;
 
 
         // Model references for initializing the instances
         private DrawModel arenaModel;
-        private List<DrawModel> playerModels;
+        private List<DrawModel> playerHatModels;
+        private DrawModel playerModel;
+        private DrawModel playerHandModel;
+
+
         private List<DrawModel> mobModels;
+        private List<DrawModel> areaDamageModels;
         private Dictionary<ProjectileType, DrawModel> projectileModels;
         private GameModel arena;
 
@@ -36,7 +40,7 @@ namespace src.GameObjects
         public readonly List<Player> livingPlayers = new List<Player>();
         public readonly List<Projectile> projectiles = new List<Projectile>();
         private MenuStateManager menuStateManager;
-
+        private readonly List<AreaDamage> areaDamages = new List<AreaDamage>();
         // Singleton instancing
         private GameStateManager() { }
 
@@ -47,12 +51,15 @@ namespace src.GameObjects
             return instance;
         }
 
-        public void Initialize(DrawModel arenaModel, List<DrawModel> playerModels, List<DrawModel> mobModels, Dictionary<ProjectileType, DrawModel> projectileModels)
+        public void Initialize(DrawModel arenaModel, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerHandModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels)
         {
             this.menuStateManager = MenuStateManager.GetMenuStateManager();
             this.arenaModel = arenaModel;
-            this.playerModels = playerModels;
+            this.playerHatModels = playerHatModels;
+            this.playerModel = playerModel;
+            this.playerHandModel = playerHandModel;
             this.mobModels = mobModels;
+            this.areaDamageModels = areaDamageModels;
             this.projectileModels = projectileModels;
 
             arena = new GameModel(arenaModel, ARENA_SCALE);
@@ -73,10 +80,10 @@ namespace src.GameObjects
             for(int i = 0; i<MenuStateManager.GetMenuStateManager().NUM_PLAYERS; ++i)
                 players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), inputs[i], 0, mob.Ellipse, playerModels[i], scaling));
             SRY BOUT THAT*/
-            players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, mob.Ellipse, playerModels[0], scaling));
+            players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, mob.Ellipse, playerModel, playerHandModel, playerHatModels[0], scaling));
             //players.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, mob.Ellipse, playerModels[1], scaling));
             for(int i=1;i<menuStateManager.NUM_PLAYERS;++i){
-                    players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(),i,mob.Ellipse,playerModels[i],scaling));
+                    players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(),i,mob.Ellipse,playerModel, playerHandModel, playerHatModels[i], scaling));
             }
 
             foreach (Player player in players)
@@ -104,13 +111,26 @@ namespace src.GameObjects
                     projectile = new Banana(type, origin, target, projectileModels[ProjectileType.Banana], BANANA_SCALE);
                     break;
                 case ProjectileType.Turtle:
-                    projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], projectileModels[ProjectileType.Banana], TURTLE_SCALE);
+                    projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], projectileModels[ProjectileType.TurtleWalking], TURTLE_SCALE);
+                    break;
+                case ProjectileType.Spear:
+                    projectile = new Spear(type, origin, target, projectileModels[ProjectileType.Swordfish], SWORDFISH_SCALE);
+                    break;
+                case ProjectileType.Mjoelnir:
+                    projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Frog], FROG_SCALE);
                     break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());
             }
             projectiles.Add(projectile);
             return projectile;
+        }
+        public void CreateAreaDamage(Vector3 position, float scale,Player player,ProjectileType type)
+        {
+            if(type == ProjectileType.Mjoelnir)
+                areaDamages.Add(new AreaDamage(position,player,areaDamageModels[0],scale));
+            else
+                areaDamages.Add(new AreaDamage(position,player,areaDamageModels[1],scale));
         }
 
         public void UpdateGame(float dt)
@@ -127,6 +147,11 @@ namespace src.GameObjects
             // Update mob
             mob.Update(dt);
 
+            // Update area damage
+            foreach(AreaDamage areaDamage in areaDamages)
+                areaDamage.updateWrap(dt);
+            areaDamages.RemoveAll(x => x.ToBeDeleted);
+
             // Move the projectiles
             foreach (Projectile projectile in projectiles)
                 projectile.updateWrap(dt);
@@ -135,11 +160,23 @@ namespace src.GameObjects
             // Check for projectile out of bounds and remove
             foreach (Projectile projectile in projectiles)
             {
-                projectile.ToBeDeleted = MathF.Abs(projectile.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(projectile.Position.Z) > GameLabGame.ARENA_WIDTH;
+                projectile.ToBeDeleted = projectile.ToBeDeleted || MathF.Abs(projectile.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(projectile.Position.Z) > GameLabGame.ARENA_WIDTH;
+            }
+            for (int i = 0; i < projectiles.Count; i++)
+            {
+                for (int j = i + 1; j < projectiles.Count; j++)
+                {
+                    if(projectiles[i].Hitbox.Intersects(projectiles[j].Hitbox))
+                    {
+                        projectiles[i].ToBeDeleted = projectiles[j].DestroysOtherProjectiles;
+                        projectiles[j].ToBeDeleted = projectiles[i].DestroysOtherProjectiles;
+                    }
+                }
             }
 
             // Early delete projectiles for efficiency
             projectiles.RemoveAll(x => x.ToBeDeleted);
+            
             // Check for projectile-player hand intersections
             foreach (Projectile projectile in projectiles)
             {
@@ -150,12 +187,21 @@ namespace src.GameObjects
                 }
             }
             // Check for projectile-player intersections
-            foreach (Projectile projectile in projectiles.Where(x => x.Holder == null))
+            foreach (Projectile projectile in projectiles.Where(x => x.Holder == null || x.DestroysOtherProjectiles))
             {
                 foreach (Player player in players.Where(x => x.Life > 0))
                 {
                     if (projectile.Hitbox.Intersects(player.Hitbox))
                         projectile.OnPlayerHit(player);
+                }
+            }
+            // Check for areaDamage-player intersections
+            foreach (AreaDamage areaDamage in areaDamages.Where(x => x.timeSinceCreation == 0f))
+            {
+                foreach (Player player in players.Where(x => x.Life > 0))
+                {
+                    if (areaDamage.Intersects(player))
+                        player.LoseLife();
                 }
             }
             // Check for projectile-mob intersection TODO
@@ -176,7 +222,7 @@ namespace src.GameObjects
             projectiles.RemoveAll(x => x.ToBeDeleted);
         }
 
-        public void DrawGame(Shader shadowShader, PhongShading lightingShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D shadowMap)
+        public void DrawGame(Shader shadowShader, PBR lightingShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D shadowMap)
         {
             graphicsDevice.SetRenderTarget(shadowMap);
             graphicsDevice.Clear(Color.Black);
@@ -196,7 +242,7 @@ namespace src.GameObjects
             foreach (Player player in players)
             {
                 player.Draw(view, projection, shadowShader, true);
-                // player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
+                //player.Hitbox.DebugDraw(graphicsDevice, view, projection);
             }
             mob.Draw(view, projection, shadowShader, true);
 
@@ -206,13 +252,17 @@ namespace src.GameObjects
 
             // Set background color
             graphicsDevice.Clear(Color.DeepSkyBlue);
-
+            
+            lightingShader.setMetallic(arena.DrawModel.metallic);
+            lightingShader.setRoughness(arena.DrawModel.roughness);
             arena.Draw(view, projection, lightingShader, false);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
 
             // Draw all active projectiles:
             foreach (Projectile projectile in projectiles)
             {
+                lightingShader.setMetallic(projectile.DrawModel.metallic);
+                lightingShader.setRoughness(projectile.DrawModel.roughness);
                 projectile.Draw(view, projection, lightingShader, false);
                 // projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             }
@@ -220,16 +270,36 @@ namespace src.GameObjects
             // Draw all Players
             foreach (Player player in players)
             {
+                if(player.playerState == Player.PlayerState.Crawling){
+                    graphicsDevice.BlendState = BlendState.NonPremultiplied;
+                    lightingShader.setOpacityValue(0.4f);
+                }else{
+                    graphicsDevice.BlendState = BlendState.Opaque;
+                    lightingShader.setOpacityValue(1.0f);
+                }
+
+                lightingShader.setMetallic(player.DrawModel.metallic);
+                lightingShader.setRoughness(player.DrawModel.roughness);
                 player.Draw(view, projection, lightingShader, false);
-                // player.Hitbox.DebugDraw(GraphicsDevice, view, projection);
+                player.Hitbox.DebugDraw(graphicsDevice, view, projection);
             }
 
             // Draw mob
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
             lightingShader.setOpacityValue(1.0f);
             mob.Draw(view, projection, lightingShader, false);
+            graphicsDevice.BlendState = BlendState.NonPremultiplied;
+            lightingShader.setOpacityValue(0.2f);
+            foreach(AreaDamage areaDamage in areaDamages)
+                areaDamage.Draw(view, projection, lightingShader, false);
             graphicsDevice.BlendState = BlendState.Opaque;
             lightingShader.setOpacityValue(1.0f);
+            // graphicsDevice.BlendState = BlendState.NonPremultiplied;
+            // lightingShader.setOpacityValue(0.7f);
+            lightingShader.setRoughness(0.3f);
+            lightingShader.setMetallic(0.0f);
+            // graphicsDevice.BlendState = BlendState.Opaque;
+            // lightingShader.setOpacityValue(1.0f);
      
         }
 

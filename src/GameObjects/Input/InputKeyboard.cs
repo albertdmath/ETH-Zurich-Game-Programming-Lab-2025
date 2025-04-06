@@ -44,5 +44,9 @@ namespace src.GameObjects
         {
             return Keyboard.GetState().IsKeyDown(Keys.L);
         }
+        public override bool Jump()
+        {
+            return Keyboard.GetState().IsKeyDown(Keys.Enter);
+        }
     }
 }
