@@ -24,14 +24,14 @@ namespace src.GameObjects
         private const float SPEAR_SCALE = 0.9f;
 
 
-        private const float TOMATO_HEIGHT = 1;
-        private const float SWORDFISH_HEIGHT = 0.9f;
-        private const float FROG_HEIGHT = 0.7f;
-        private const float COCONUT_HEIGHT = 0.3f;
-        private const float BANANA_HEIGHT = 1f;
-        private const float TURTLE_HEIGHT = 0.3f;
-        private const float MJOELNIR_HEIGHT = 1f;
-        private const float SPEAR_HEIGHT = 0.3f;
+        private const float TOMATO_HEIGHT = 0f;
+        private const float SWORDFISH_HEIGHT = 0f;
+        private const float FROG_HEIGHT = 0f;
+        private const float COCONUT_HEIGHT = 0f;
+        private const float BANANA_HEIGHT = 0f;
+        private const float TURTLE_HEIGHT = 0f;
+        private const float MJOELNIR_HEIGHT = 0f;
+        private const float SPEAR_HEIGHT = 0f;
 
 
         // Model references for initializing the instances
@@ -126,10 +126,10 @@ namespace src.GameObjects
                     projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], projectileModels[ProjectileType.TurtleWalking], TURTLE_SCALE, TURTLE_HEIGHT);
                     break;
                 case ProjectileType.Spear:
-                    projectile = new Spear(type, origin, target, projectileModels[ProjectileType.Spear], SWORDFISH_SCALE, SPEAR_HEIGHT);
+                    projectile = new Spear(type, origin, target, projectileModels[ProjectileType.Spear], SPEAR_SCALE, SPEAR_HEIGHT);
                     break;
                 case ProjectileType.Mjoelnir:
-                    projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Mjoelnir], FROG_SCALE, MJOELNIR_HEIGHT);
+                    projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Mjoelnir], MJOELNIR_SCALE, MJOELNIR_HEIGHT);
                     break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());
