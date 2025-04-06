@@ -20,6 +20,18 @@ namespace src.GameObjects
         private const float COCONUT_SCALE = 0.3f;
         private const float BANANA_SCALE = 1f;
         private const float TURTLE_SCALE = 0.3f;
+        private const float MJOELNIR_SCALE = 1f;
+        private const float SPEAR_SCALE = 0.3f;
+
+
+        private const float TOMATO_HEIGHT = 1;
+        private const float SWORDFISH_HEIGHT = 0.9f;
+        private const float FROG_HEIGHT = 0.7f;
+        private const float COCONUT_HEIGHT = 0.3f;
+        private const float BANANA_HEIGHT = 1f;
+        private const float TURTLE_HEIGHT = 0.3f;
+        private const float MJOELNIR_HEIGHT = 1f;
+        private const float SPEAR_HEIGHT = 0.3f;
 
 
         // Model references for initializing the instances
@@ -96,28 +108,28 @@ namespace src.GameObjects
             switch (type)
             {
                 case ProjectileType.Frog:
-                    projectile = new Frog(type, origin, target, projectileModels[ProjectileType.Frog], FROG_SCALE);
+                    projectile = new Frog(type, origin, target, projectileModels[ProjectileType.Frog], FROG_SCALE, FROG_HEIGHT);
                     break;
                 case ProjectileType.Swordfish:
-                    projectile = new Swordfish(type, origin, target, projectileModels[ProjectileType.Swordfish], SWORDFISH_SCALE);
+                    projectile = new Swordfish(type, origin, target, projectileModels[ProjectileType.Swordfish], SWORDFISH_SCALE, SWORDFISH_HEIGHT);
                     break;
                 case ProjectileType.Tomato:
-                    projectile = new Tomato(type, origin, target, projectileModels[ProjectileType.Tomato], TOMATO_SCALE);
+                    projectile = new Tomato(type, origin, target, projectileModels[ProjectileType.Tomato], TOMATO_SCALE, TOMATO_HEIGHT);
                     break;
                 case ProjectileType.Coconut:
-                    projectile = new Coconut(type, origin, target, projectileModels[ProjectileType.Coconut], COCONUT_SCALE);
+                    projectile = new Coconut(type, origin, target, projectileModels[ProjectileType.Coconut], COCONUT_SCALE, COCONUT_HEIGHT);
                     break;
                 case ProjectileType.Banana:
-                    projectile = new Banana(type, origin, target, projectileModels[ProjectileType.Banana], BANANA_SCALE);
+                    projectile = new Banana(type, origin, target, projectileModels[ProjectileType.Banana], BANANA_SCALE, BANANA_HEIGHT);
                     break;
                 case ProjectileType.Turtle:
-                    projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], projectileModels[ProjectileType.TurtleWalking], TURTLE_SCALE);
+                    projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], projectileModels[ProjectileType.TurtleWalking], TURTLE_SCALE, TURTLE_HEIGHT);
                     break;
                 case ProjectileType.Spear:
-                    projectile = new Spear(type, origin, target, projectileModels[ProjectileType.Swordfish], SWORDFISH_SCALE);
+                    projectile = new Spear(type, origin, target, projectileModels[ProjectileType.Swordfish], SWORDFISH_SCALE, SPEAR_HEIGHT);
                     break;
                 case ProjectileType.Mjoelnir:
-                    projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Frog], FROG_SCALE);
+                    projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Frog], FROG_SCALE, MJOELNIR_HEIGHT);
                     break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());

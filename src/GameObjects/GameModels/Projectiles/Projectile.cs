@@ -25,6 +25,7 @@ public class Projectile : GameModel
     protected GameStateManager gameStateManager;
     public bool ToBeDeleted { get; set; } = false;
     public bool DestroysOtherProjectiles { get; set; } = false;
+    public float Height {get; private set;}
     // Projectile spawn probabilities (can be adjusted via UI)
     public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
     {
@@ -38,8 +39,9 @@ public class Projectile : GameModel
         { ProjectileType.Mjoelnir, 0.2f }
     };
 
-    public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(model, scaling) 
+    public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(model, scaling) 
     {
+        Height = height;
         Type = type;
         gameStateManager = GameStateManager.GetGameStateManager();
         Throw(origin,target);
