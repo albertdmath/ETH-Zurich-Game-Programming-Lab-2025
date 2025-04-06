@@ -236,6 +236,10 @@ namespace src.GameObjects
                 }
             }
         }
+        public void GainLife()
+        {
+            Life += Life == 3 ? 0 : 1;
+        }
         public bool GetHit(Projectile projectile)
         {
             // Check for the thrown immunity
@@ -324,7 +328,7 @@ namespace src.GameObjects
                  Console.WriteLine("Dropping " + projectileHeld.Type);
             }
             projectileHeld = null;
-            playerState = PlayerState.NormalMovement;
+            playerState = Life > 0 ? PlayerState.NormalMovement : PlayerState.PartOfMob;
             
         }
 
@@ -411,8 +415,8 @@ namespace src.GameObjects
                     {
                         inertiaUp = new Vector3(0, 0, 0);
                         Position = new Vector3(Position.X, 0, Position.Z);
+                        gameStateManager.CreateAreaDamage(projectileHeld.Position,2f,this,ProjectileType.Mjoelnir);
                         Drop();
-                        gameStateManager.CreateAreaDamage(Position,2f,this,ProjectileType.Mjoelnir);
                         playerState = PlayerState.NormalMovement;
                     }
                     break;

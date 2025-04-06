@@ -53,11 +53,12 @@ public class Tomato : Projectile
 
     private void Explode()
     {
-        foreach (Player player in gameStateManager.players.Where(p => p.Life > 0))
+        /* foreach (Player player in gameStateManager.players.Where(p => p.Life > 0))
         {
             if (Vector3.DistanceSquared(this.Position, player.Position) <= SQUARED_EXPLOSION_RADIUS)
                 player.GetHit(this);
-        }
+        } */
+        gameStateManager.CreateAreaDamage(Position,1f,null,ProjectileType.Tomato);
     }
 
     public override void Throw(float chargeUp)

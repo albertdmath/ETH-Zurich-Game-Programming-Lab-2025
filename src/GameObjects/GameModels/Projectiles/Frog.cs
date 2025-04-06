@@ -113,4 +113,10 @@ public class Frog : Projectile
         // Calculate the initial velocity using the simplified formula
         return (float)Math.Sqrt((HALF_GRAVITY * distance) / (Math.Cos(THROW_ANGLE) * Math.Sin(THROW_ANGLE)));
     }
+    public override bool Action(float chargeUp)
+    {
+        (Holder as Player).GainLife();
+        (Holder as Player).Drop();
+        return false;
+    }
 }
