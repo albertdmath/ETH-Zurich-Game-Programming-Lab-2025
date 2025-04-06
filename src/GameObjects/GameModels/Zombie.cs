@@ -105,7 +105,7 @@ namespace src.GameObjects
                 return;
             }
             //float speedUp = 1f;
-            projectileHeld.Throw(Position+Orientation, new Vector3(targetThrow.Position.X, 0.1f,targetThrow.Position.Z) + targetThrow.Orientation * (float)random.NextDouble());
+            projectileHeld.Throw(new Vector3(Position.X, 0.2f+ projectileHeld.Height,Position.Z)+Orientation , new Vector3(targetThrow.Position.X, 0.2f+ projectileHeld.Height,targetThrow.Position.Z) + targetThrow.Orientation * (float)random.NextDouble());
             projectileHeld = null;
             //Console.WriteLine("Mob throwing projectile with orientation: " + Orientation+ " and speedup: " + speedUp);
         }
