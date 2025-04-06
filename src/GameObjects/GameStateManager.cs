@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -141,11 +140,14 @@ namespace src.GameObjects
             // Check for projectile out of bounds and remove
             foreach (Projectile projectile in projectiles)
             {
-                projectile.ToBeDeleted = MathF.Abs(projectile.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(projectile.Position.Z) > GameLabGame.ARENA_WIDTH;
+                // Check if the projectile is out of bounds
+                if (MathF.Abs(projectile.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(projectile.Position.Z) > GameLabGame.ARENA_WIDTH)
+                    projectile.ToBeDeleted = true;
+                    
             }
-
-            // Early delete projectiles for efficiency
+            
             projectiles.RemoveAll(x => x.ToBeDeleted);
+            
             // Check for projectile-player hand intersections
             foreach (Projectile projectile in projectiles)
             {
