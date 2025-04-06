@@ -13,13 +13,15 @@ namespace src.GameObjects
       */
     public class GameStateManager
     {
-        private const float ARENA_SCALE = 0.5f;
+        private const float ARENA_SCALE = 5f;
         private const float TOMATO_SCALE = 1;
         private const float SWORDFISH_SCALE = 0.9f;
         private const float FROG_SCALE = 0.7f;
         private const float COCONUT_SCALE = 0.3f;
         private const float BANANA_SCALE = 1f;
         private const float TURTLE_SCALE = 0.3f;
+        private const float MJOELNIR_SCALE = 1.5f;
+
 
 
         // Model references for initializing the instances
@@ -114,10 +116,10 @@ namespace src.GameObjects
                     projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], projectileModels[ProjectileType.TurtleWalking], TURTLE_SCALE);
                     break;
                 case ProjectileType.Spear:
-                    projectile = new Spear(type, origin, target, projectileModels[ProjectileType.Swordfish], SWORDFISH_SCALE);
+                    projectile = new Spear(type, origin, target, projectileModels[ProjectileType.Spear], SWORDFISH_SCALE);
                     break;
                 case ProjectileType.Mjoelnir:
-                    projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Frog], FROG_SCALE);
+                    projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Mjoelnir], MJOELNIR_SCALE);
                     break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());

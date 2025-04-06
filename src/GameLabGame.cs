@@ -77,7 +77,7 @@ namespace GameLab
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Load all of the models
-            arenaModel = new DrawModel(Content.Load<Model>("arena"),0.0f,1.0f);
+            arenaModel = new DrawModel(Content.Load<Model>("marketplace"),0.0f,1.0f);
             playerModel = new DrawModel(Content.Load<Model>("Player/player_body"),0.0f,0.3f);
             playerHandModel = new DrawModel(Content.Load<Model>("Player/hand"),0.0f,0.3f);
 
@@ -89,9 +89,6 @@ namespace GameLab
             mobModels.Add(new DrawModel(Content.Load<Model>("mob1"),0.0f,0.3f));
             mobModels.Add(new DrawModel(Content.Load<Model>("mob2"),0.0f,0.3f));
             mobModels.Add(new DrawModel(Content.Load<Model>("mob3"),0.0f,0.3f));
-       
-            mobModels.Add(new DrawModel(Content.Load<Model>("mob1"),0.0f,0.7f));
-            mobModels.Add(new DrawModel(Content.Load<Model>("mob2"),0.0f,0.7f));
 
             projectileModels.Add(ProjectileType.Frog, new DrawModel(Content.Load<Model>("frog"),0.0f,0.4f));
             projectileModels.Add(ProjectileType.Swordfish, new DrawModel(Content.Load<Model>("swordfish"),0.0f,0.5f));
@@ -100,6 +97,9 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Banana, new DrawModel(Content.Load<Model>("bananapeel"),0.0f,0.9f));
             projectileModels.Add(ProjectileType.Turtle, new DrawModel(Content.Load<Model>("turtle_shell"),0.0f,0.9f));
             projectileModels.Add(ProjectileType.TurtleWalking, new DrawModel(Content.Load<Model>("turtle"),0.0f,0.9f));
+            projectileModels.Add(ProjectileType.Mjoelnir, new DrawModel(Content.Load<Model>("mjoelnir"),0.0f,0.9f));
+            projectileModels.Add(ProjectileType.Spear, new DrawModel(Content.Load<Model>("trident"),0.0f,0.9f));
+
             areaDamageModels.Add(new DrawModel(Content.Load<Model>("hammer_aoe"),0.0f,0.9f));
             areaDamageModels.Add(new DrawModel(Content.Load<Model>("tomato_aoe"),0.0f,0.9f));
 

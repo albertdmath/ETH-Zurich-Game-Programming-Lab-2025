@@ -342,7 +342,6 @@ namespace src.GameObjects
                     Move(dt);
                     CanCatch();
                     CanDash();
-                    CanJump();
                     break;
                 case PlayerState.Catching:
                     timeSinceStartOfCatch += dt;
@@ -352,7 +351,6 @@ namespace src.GameObjects
                     break;
                 case PlayerState.HoldingProjectile:
                     Move(dt);
-                    CanJump();
                     if (input.Action() && actionPushedDuration == 0f)
                         playerState = PlayerState.Aiming;
                     else
