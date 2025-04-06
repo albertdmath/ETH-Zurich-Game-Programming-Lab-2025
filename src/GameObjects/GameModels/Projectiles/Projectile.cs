@@ -9,7 +9,8 @@ public enum ProjectileType
     Tomato,
     Coconut,
     Banana,
-    Turtle
+    Turtle,
+    TurtleWalking
 }
 
 /** Class for the projectiles **/
