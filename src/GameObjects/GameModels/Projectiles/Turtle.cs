@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using System.Linq;
-using System.Threading.Tasks.Dataflow;
+using System.Linq.Expressions;
 
 namespace src.GameObjects;
 
@@ -15,12 +15,16 @@ public class Turtle : Projectile
     private const float BOUNCE_BACK_TIME = 0.3f;
 
     // Fields
-    private float _bounceBackTime = 0f; // Time to transform from throwing to walking
+    private float _bounceBackTime = 0f; // Time to transform from throwing to 
+    private DrawModel catchModel;
 
     // Fields
 
     // Constructor:
-    public Turtle(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(type, origin, target, model, scaling) {}
+    public Turtle(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(type, origin, target, model, scaling) 
+    {
+        catchModel = DrawModel;
+    }
 
     private void RotateAway(float dt)
     {
@@ -46,6 +50,7 @@ public class Turtle : Projectile
         Velocity = WALKING_VELOCITY;
         _bounceBackTime = BOUNCE_BACK_TIME;
         Orientation *= -1;
+        //this.DrawModel = this.walkingModel;
     }
 
     public override void OnPlayerHit(Player player) 
@@ -88,6 +93,12 @@ public class Turtle : Projectile
         
             Position += Velocity * Orientation * dt;
         }
+    }
+
+    public override void Catch(GameModel player)
+    {
+        base.Catch(player);
+        this.DrawModel = this.catchModel;
     }
 
     public override void Throw(float chargeUp)

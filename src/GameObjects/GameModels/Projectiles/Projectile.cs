@@ -88,7 +88,7 @@ public class Projectile : GameModel
     }
 
     // Catch the projectile
-    public void Catch(GameModel player) { Holder = player; }
+    public virtual void Catch(GameModel player) { Holder = player; }
 
     public bool Free() { return Holder == null; }
 }
