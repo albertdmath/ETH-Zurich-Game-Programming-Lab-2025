@@ -36,7 +36,7 @@ public class Spear : Projectile
     {
         if (DestroysOtherProjectiles) 
         {
-            Position = Holder.Position + Holder.Orientation * 0.3f;
+            Position = Holder.Position + Holder.Orientation * 0.3f + new Vector3(0,0.2f,0);
             Orientation = Holder.Orientation;
         }else{
             base.Update(dt);

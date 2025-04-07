@@ -44,13 +44,13 @@ public class Banana : Projectile
 
     public override void OnPlayerHit(Player player)
     {
-        base.OnPlayerHit(player);
+        ToBeDeleted = ToBeDeleted || player.GetAffected(this);
         if(onGround) player.StunAndSlip(SLIP_DURATION, PLAYER_INERTIA);
     }
 
     public override void OnGroundHit()
     {
-        Position = new Vector3(Position.X, 0, Position.Z);
+        Position = new Vector3(Position.X, 0.1f, Position.Z);
         onGround = true;
     }
 

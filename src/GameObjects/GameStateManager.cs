@@ -30,7 +30,7 @@ namespace src.GameObjects
         private const float COCONUT_HEIGHT = 0f;
         private const float BANANA_HEIGHT = 0f;
         private const float TURTLE_HEIGHT = 0f;
-        private const float MJOELNIR_HEIGHT = 0f;
+        private const float MJOELNIR_HEIGHT = 0.2f;
         private const float SPEAR_HEIGHT = 0f;
 
 
@@ -38,8 +38,9 @@ namespace src.GameObjects
         private DrawModel arenaModel;
         private List<DrawModel> playerHatModels;
         private DrawModel playerModel;
+        private DrawModel playerModelShell;
         private DrawModel playerHandModel;
-
+        private DrawModel indicatorModel;
 
         private List<DrawModel> mobModels;
         private List<DrawModel> areaDamageModels;
@@ -63,7 +64,7 @@ namespace src.GameObjects
             return instance;
         }
 
-        public void Initialize(DrawModel arenaModel, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerHandModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels)
+        public void Initialize(DrawModel arenaModel, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels)
         {
             this.menuStateManager = MenuStateManager.GetMenuStateManager();
             this.arenaModel = arenaModel;
@@ -73,6 +74,8 @@ namespace src.GameObjects
             this.mobModels = mobModels;
             this.areaDamageModels = areaDamageModels;
             this.projectileModels = projectileModels;
+            this.indicatorModel = indicatorModel;
+            this.playerModelShell = playerModelShell;
 
             arena = new GameModel(arenaModel, ARENA_SCALE);
         }
@@ -92,10 +95,10 @@ namespace src.GameObjects
             for(int i = 0; i<MenuStateManager.GetMenuStateManager().NUM_PLAYERS; ++i)
                 players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), inputs[i], 0, mob.Ellipse, playerModels[i], scaling));
             SRY BOUT THAT*/
-            players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, mob.Ellipse, playerModel, playerHandModel, playerHatModels[0], scaling));
+            players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, mob.Ellipse, playerModel, playerModelShell, playerHandModel, playerHatModels[0], indicatorModel, scaling));
             //players.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, mob.Ellipse, playerModels[1], scaling));
             for(int i=1;i<menuStateManager.NUM_PLAYERS;++i){
-                    players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(),i,mob.Ellipse,playerModel, playerHandModel, playerHatModels[i], scaling));
+                    players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(),i,mob.Ellipse,playerModel, playerModelShell, playerHandModel, playerHatModels[i], indicatorModel, scaling));
             }
 
             foreach (Player player in players)
@@ -147,6 +150,12 @@ namespace src.GameObjects
 
         public void UpdateGame(float dt)
         {
+
+            // Update area damage
+            foreach(AreaDamage areaDamage in areaDamages)
+                areaDamage.updateWrap(dt);
+                areaDamages.RemoveAll(x => x.ToBeDeleted);
+
             // Move Players
             foreach (Player player in players)
                 player.updateWrap(dt);
@@ -159,11 +168,7 @@ namespace src.GameObjects
             // Update mob
             mob.Update(dt);
 
-            // Update area damage
-            foreach(AreaDamage areaDamage in areaDamages)
-                areaDamage.updateWrap(dt);
-            areaDamages.RemoveAll(x => x.ToBeDeleted);
-
+   
             // Move the projectiles
             foreach (Projectile projectile in projectiles)
                 projectile.updateWrap(dt);
