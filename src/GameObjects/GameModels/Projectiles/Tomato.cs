@@ -17,7 +17,7 @@ public class Tomato : Projectile
     private Vector3 origin;
 
     // Constructor:
-    public Tomato(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(type, origin, target, model, scaling) { }
+    public Tomato(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) { }
 
     private float CalculateVelocity(Vector3 origin, Vector3 target)
     {
@@ -53,11 +53,12 @@ public class Tomato : Projectile
 
     private void Explode()
     {
-        foreach (Player player in gameStateManager.players.Where(p => p.Life > 0))
+        /* foreach (Player player in gameStateManager.players.Where(p => p.Life > 0))
         {
             if (Vector3.DistanceSquared(this.Position, player.Position) <= SQUARED_EXPLOSION_RADIUS)
                 player.GetHit(this);
-        }
+        } */
+        gameStateManager.CreateAreaDamage(Position,1f,null,ProjectileType.Tomato);
     }
 
     public override void Throw(float chargeUp)

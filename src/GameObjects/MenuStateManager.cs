@@ -5,7 +5,7 @@ namespace src.GameObjects
      */
     public class MenuStateManager
     {
-        public bool SOUND_ENABLED { get ; set; } = false ;
+        public bool SOUND_ENABLED { get ; set; } = true;
         public int NUM_PLAYERS { get ; set; } = 2;
         public const int MAX_NUM_PLAYER = 4;
         public const int MIN_NUM_PLAYER = 1;

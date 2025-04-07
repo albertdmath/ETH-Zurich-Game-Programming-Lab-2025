@@ -17,7 +17,7 @@ public class Coconut : Projectile
 
 
     // Constructor:
-    public Coconut(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(type, origin, target, model, scaling) {}
+    public Coconut(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) {}
 
     protected override void Move(float dt)
     {

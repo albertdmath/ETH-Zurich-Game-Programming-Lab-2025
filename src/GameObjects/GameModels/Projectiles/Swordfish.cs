@@ -9,7 +9,7 @@ public class Swordfish : Projectile
     private const float MAX_VELOCITY = 20;
 
     // Constructor:
-    public Swordfish(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(type, origin, target, model, scaling) {}
+    public Swordfish(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) {}
 
     protected override void Move(float dt)
     {
@@ -25,6 +25,6 @@ public class Swordfish : Projectile
     public override void Throw(Vector3 origin, Vector3 target) 
     {
         base.Throw(origin, target);
-        Velocity = 2f;
+        Velocity = 2.5f;
     }
 }

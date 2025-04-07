@@ -13,21 +13,34 @@ namespace src.GameObjects
       */
     public class GameStateManager
     {
-        private const float ARENA_SCALE = 0.5f;
+        private const float ARENA_SCALE = 5f;
         private const float TOMATO_SCALE = 1;
         private const float SWORDFISH_SCALE = 0.9f;
         private const float FROG_SCALE = 0.7f;
         private const float COCONUT_SCALE = 0.3f;
         private const float BANANA_SCALE = 1f;
         private const float TURTLE_SCALE = 0.3f;
+        private const float MJOELNIR_SCALE = 1.5f;
+        private const float SPEAR_SCALE = 0.9f;
+
+
+        private const float TOMATO_HEIGHT = 0f;
+        private const float SWORDFISH_HEIGHT = 0f;
+        private const float FROG_HEIGHT = 0f;
+        private const float COCONUT_HEIGHT = 0f;
+        private const float BANANA_HEIGHT = 0f;
+        private const float TURTLE_HEIGHT = 0f;
+        private const float MJOELNIR_HEIGHT = 0.2f;
+        private const float SPEAR_HEIGHT = 0f;
 
 
         // Model references for initializing the instances
         private DrawModel arenaModel;
         private List<DrawModel> playerHatModels;
         private DrawModel playerModel;
+        private DrawModel playerModelShell;
         private DrawModel playerHandModel;
-
+        private DrawModel indicatorModel;
 
         private List<DrawModel> mobModels;
         private List<DrawModel> areaDamageModels;
@@ -51,7 +64,7 @@ namespace src.GameObjects
             return instance;
         }
 
-        public void Initialize(DrawModel arenaModel, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerHandModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels)
+        public void Initialize(DrawModel arenaModel, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels)
         {
             this.menuStateManager = MenuStateManager.GetMenuStateManager();
             this.arenaModel = arenaModel;
@@ -61,6 +74,8 @@ namespace src.GameObjects
             this.mobModels = mobModels;
             this.areaDamageModels = areaDamageModels;
             this.projectileModels = projectileModels;
+            this.indicatorModel = indicatorModel;
+            this.playerModelShell = playerModelShell;
 
             arena = new GameModel(arenaModel, ARENA_SCALE);
         }
@@ -80,10 +95,10 @@ namespace src.GameObjects
             for(int i = 0; i<MenuStateManager.GetMenuStateManager().NUM_PLAYERS; ++i)
                 players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), inputs[i], 0, mob.Ellipse, playerModels[i], scaling));
             SRY BOUT THAT*/
-            players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, mob.Ellipse, playerModel, playerHandModel, playerHatModels[0], scaling));
+            players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, mob.Ellipse, playerModel, playerModelShell, playerHandModel, playerHatModels[0], indicatorModel, scaling));
             //players.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, mob.Ellipse, playerModels[1], scaling));
             for(int i=1;i<menuStateManager.NUM_PLAYERS;++i){
-                    players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(),i,mob.Ellipse,playerModel, playerHandModel, playerHatModels[i], scaling));
+                    players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(),i,mob.Ellipse,playerModel, playerModelShell, playerHandModel, playerHatModels[i], indicatorModel, scaling));
             }
 
             foreach (Player player in players)
@@ -96,28 +111,28 @@ namespace src.GameObjects
             switch (type)
             {
                 case ProjectileType.Frog:
-                    projectile = new Frog(type, origin, target, projectileModels[ProjectileType.Frog], FROG_SCALE);
+                    projectile = new Frog(type, origin, target, projectileModels[ProjectileType.Frog], FROG_SCALE, FROG_HEIGHT);
                     break;
                 case ProjectileType.Swordfish:
-                    projectile = new Swordfish(type, origin, target, projectileModels[ProjectileType.Swordfish], SWORDFISH_SCALE);
+                    projectile = new Swordfish(type, origin, target, projectileModels[ProjectileType.Swordfish], SWORDFISH_SCALE, SWORDFISH_HEIGHT);
                     break;
                 case ProjectileType.Tomato:
-                    projectile = new Tomato(type, origin, target, projectileModels[ProjectileType.Tomato], TOMATO_SCALE);
+                    projectile = new Tomato(type, origin, target, projectileModels[ProjectileType.Tomato], TOMATO_SCALE, TOMATO_HEIGHT);
                     break;
                 case ProjectileType.Coconut:
-                    projectile = new Coconut(type, origin, target, projectileModels[ProjectileType.Coconut], COCONUT_SCALE);
+                    projectile = new Coconut(type, origin, target, projectileModels[ProjectileType.Coconut], COCONUT_SCALE, COCONUT_HEIGHT);
                     break;
                 case ProjectileType.Banana:
-                    projectile = new Banana(type, origin, target, projectileModels[ProjectileType.Banana], BANANA_SCALE);
+                    projectile = new Banana(type, origin, target, projectileModels[ProjectileType.Banana], BANANA_SCALE, BANANA_HEIGHT);
                     break;
                 case ProjectileType.Turtle:
-                    projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], projectileModels[ProjectileType.TurtleWalking], TURTLE_SCALE);
+                    projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], projectileModels[ProjectileType.TurtleWalking], TURTLE_SCALE, TURTLE_HEIGHT);
                     break;
                 case ProjectileType.Spear:
-                    projectile = new Spear(type, origin, target, projectileModels[ProjectileType.Swordfish], SWORDFISH_SCALE);
+                    projectile = new Spear(type, origin, target, projectileModels[ProjectileType.Spear], SPEAR_SCALE, SPEAR_HEIGHT);
                     break;
                 case ProjectileType.Mjoelnir:
-                    projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Frog], FROG_SCALE);
+                    projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Mjoelnir], MJOELNIR_SCALE, MJOELNIR_HEIGHT);
                     break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());
@@ -135,6 +150,12 @@ namespace src.GameObjects
 
         public void UpdateGame(float dt)
         {
+
+            // Update area damage
+            foreach(AreaDamage areaDamage in areaDamages)
+                areaDamage.updateWrap(dt);
+                areaDamages.RemoveAll(x => x.ToBeDeleted);
+
             // Move Players
             foreach (Player player in players)
                 player.updateWrap(dt);
@@ -147,11 +168,7 @@ namespace src.GameObjects
             // Update mob
             mob.Update(dt);
 
-            // Update area damage
-            foreach(AreaDamage areaDamage in areaDamages)
-                areaDamage.updateWrap(dt);
-            areaDamages.RemoveAll(x => x.ToBeDeleted);
-
+   
             // Move the projectiles
             foreach (Projectile projectile in projectiles)
                 projectile.updateWrap(dt);
@@ -196,7 +213,7 @@ namespace src.GameObjects
                 }
             }
             // Check for areaDamage-player intersections
-            foreach (AreaDamage areaDamage in areaDamages.Where(x => x.timeSinceCreation == 0f))
+            foreach (AreaDamage areaDamage in areaDamages.Where(x => x.timeSinceCreation <= 0.1f))
             {
                 foreach (Player player in players.Where(x => x.Life > 0))
                 {
@@ -281,7 +298,7 @@ namespace src.GameObjects
                 lightingShader.setMetallic(player.DrawModel.metallic);
                 lightingShader.setRoughness(player.DrawModel.roughness);
                 player.Draw(view, projection, lightingShader, false);
-                player.Hitbox.DebugDraw(graphicsDevice, view, projection);
+                //player.Hitbox.DebugDraw(graphicsDevice, view, projection);
             }
 
             // Draw mob
@@ -290,8 +307,11 @@ namespace src.GameObjects
             mob.Draw(view, projection, lightingShader, false);
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
             lightingShader.setOpacityValue(0.2f);
-            foreach(AreaDamage areaDamage in areaDamages)
+            foreach(AreaDamage areaDamage in areaDamages) 
+            {
                 areaDamage.Draw(view, projection, lightingShader, false);
+            }
+            
             graphicsDevice.BlendState = BlendState.Opaque;
             lightingShader.setOpacityValue(1.0f);
             // graphicsDevice.BlendState = BlendState.NonPremultiplied;

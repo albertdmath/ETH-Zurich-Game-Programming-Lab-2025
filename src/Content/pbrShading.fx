@@ -99,34 +99,43 @@ float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
 
 
 float ShadowCalc(float4 FragLightPosSpace){
-        float shadow = 1.0f;
-
+    
+    float shadow = 1.0f;
     float2 projCoords = FragLightPosSpace.xy/FragLightPosSpace.w;
     if (projCoords.x > -1.0 && projCoords.x<1.0 && projCoords.y>-1.0 && projCoords.y < 1.0){
-
-
+        
     projCoords = mad(0.5f, projCoords, float2(0.5f,0.5f)); 
 
     projCoords.y = 1.0 - projCoords.y;
 
-
-
-
     float closestDepth = tex2D(ShadowSampler,projCoords.xy).r;
     float currentDepth = FragLightPosSpace.z/FragLightPosSpace.w;
-
-   float bias = 0.005;
+    int samples = 0;
+    float bias = 0.005;
     float2 texel = 1.0f/2048.0f; 
-    for(int x = -1; x<=1; ++x){
-        for(int y=-1; y <= 1; ++y){
-            float pcfDepth = tex2D(ShadowSampler,projCoords.xy + float2(x,y) * texel).r;
-            shadow += currentDepth - bias < pcfDepth ? 1.0 : 0.0; 
+    for (int x = -1; x <= 1; ++x) {
+        for (int y = -1; y <= 1; ++y) {
+            float2 offset = float2(x, y) * texel;
+            float2 sampleUV = projCoords + offset;
+
+            if (sampleUV.x >= 0 && sampleUV.x <= 1 &&
+                sampleUV.y >= 0 && sampleUV.y <= 1) {
+
+                float pcfDepth = tex2D(ShadowSampler, sampleUV).r;
+                shadow += (currentDepth - bias < pcfDepth) ? 1.0 : 0.0;
+                samples += 1;
+            }
         }
     }
-    shadow /= 9.0f;
 
-      
-     }
+    if (samples > 0) {
+        shadow /= samples;
+    }
+    else
+    {
+        shadow = 1.0; // Default to fully lit if nothing sampled
+    }
+    }
     return shadow;
 }
 

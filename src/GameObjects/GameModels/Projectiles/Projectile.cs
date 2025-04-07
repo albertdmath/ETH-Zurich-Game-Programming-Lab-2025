@@ -25,21 +25,23 @@ public class Projectile : GameModel
     protected GameStateManager gameStateManager;
     public bool ToBeDeleted { get; set; } = false;
     public bool DestroysOtherProjectiles { get; set; } = false;
+    public float Height {get; private set;}
     // Projectile spawn probabilities (can be adjusted via UI)
     public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
     {
-        { ProjectileType.Frog, 0.2f },
-        { ProjectileType.Swordfish, 0.2f },
-        { ProjectileType.Tomato, 0.2f },
-        { ProjectileType.Coconut, 0.2f },
-        { ProjectileType.Banana, 0.2f },
-        { ProjectileType.Turtle, 0.2f },
+        { ProjectileType.Frog, 0.1f },
+        { ProjectileType.Swordfish, 0.3f },
+        { ProjectileType.Tomato, 0.3f },
+        { ProjectileType.Coconut, 0.1f },
+        { ProjectileType.Banana, 0.1f },
+        { ProjectileType.Turtle, 0.1f },
         { ProjectileType.Spear, 0.2f },
         { ProjectileType.Mjoelnir, 0.2f }
     };
 
-    public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(model, scaling) 
+    public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(model, scaling) 
     {
+        Height = height;
         Type = type;
         gameStateManager = GameStateManager.GetGameStateManager();
         Throw(origin,target);
@@ -87,7 +89,7 @@ public class Projectile : GameModel
         {
             // Ensures projectile is held in right hand for a more realistic look:
             Vector3 orthogonalHolderOrientation = new Vector3(-Holder.Orientation.Z, Holder.Orientation.Y, Holder.Orientation.X);
-            Position = Holder.Position + orthogonalHolderOrientation * 0.2f;
+            Position = Holder.Position + orthogonalHolderOrientation * 0.2f + new Vector3(0,0.2f,0);
             Orientation = Holder.Orientation;
         }
     }

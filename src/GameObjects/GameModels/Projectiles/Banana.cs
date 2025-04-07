@@ -19,7 +19,7 @@ public class Banana : Projectile
     
 
     // Constructor:
-    public Banana(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(type, origin, target, model, scaling) {}
+    public Banana(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) {}
 
     private float CalculateVelocity(Vector3 origin, Vector3 target)
     {
@@ -44,13 +44,13 @@ public class Banana : Projectile
 
     public override void OnPlayerHit(Player player)
     {
-        base.OnPlayerHit(player);
+        ToBeDeleted = ToBeDeleted || player.GetAffected(this);
         if(onGround) player.StunAndSlip(SLIP_DURATION, PLAYER_INERTIA);
     }
 
     public override void OnGroundHit()
     {
-        Position = new Vector3(Position.X, 0, Position.Z);
+        Position = new Vector3(Position.X, 0.1f, Position.Z);
         onGround = true;
     }
 

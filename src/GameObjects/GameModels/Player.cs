@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 
 namespace src.GameObjects
@@ -35,9 +36,10 @@ namespace src.GameObjects
         private float lastProjectileImmunity = 0f;
         private float timeSinceStartOfCatch = 0f;
         private float friction = 9f;
-        private Projectile lastThrownProjectile = null; // Store last thrown projectile
+        public Projectile lastThrownProjectile = null; // Store last thrown projectile
         private bool armor = false; // Store if player has armor
-
+        private DrawModel playerModel;
+        private DrawModel playerModelShell;
         private float CATCH_COOLDOWN = 1.0f;
         private Input input;
         private Ellipse ellipse;
@@ -51,7 +53,7 @@ namespace src.GameObjects
 
         private GameStateManager gameStateManager;
 
-        public Player(Vector3 position, Input input, int id, Ellipse ellipse, DrawModel model, DrawModel playerHandModel, DrawModel hatModel, float scale) : base(model, scale)
+        public Player(Vector3 position, Input input, int id, Ellipse ellipse, DrawModel model, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel hatModel, DrawModel indicatorModel, float scale) : base(model, scale)
         {
             Position = position;
             Orientation = new Vector3(0, 0, 1f);
@@ -64,8 +66,10 @@ namespace src.GameObjects
             gameStateManager = GameStateManager.GetGameStateManager();
             Hand = new Hand(this, playerHandModel, 0.7f);
             inertiaUp = new Vector3(0, 0, 0);
-            aimIndicator = new AimIndicator(this, playerHandModel, 0.25f);
+            aimIndicator = new AimIndicator(this, indicatorModel, 1f);
             playerState = PlayerState.NormalMovement;
+            playerModel = model;
+            this.playerModelShell = playerModelShell;
         }
 
         // ---------------------
@@ -216,7 +220,10 @@ namespace src.GameObjects
             {
                 input.Vibrate();
                 if(armor)
+                {
                     armor = false;
+                    this.DrawModel = playerModel;
+                }
                 else
                     Life--;
                 immunity = 1f;
@@ -236,6 +243,10 @@ namespace src.GameObjects
                 }
             }
         }
+        public void GainLife()
+        {
+            Life += Life == 3 ? 0 : 1;
+        }
         public bool GetHit(Projectile projectile)
         {
             // Check for the thrown immunity
@@ -244,6 +255,16 @@ namespace src.GameObjects
 
             // check for general immunity
             LoseLife();
+            return true;
+        }
+
+        public bool GetAffected(Projectile projectile)
+        {
+            // Check for the thrown immunity
+            if (lastProjectileImmunity > 0 && projectile == lastThrownProjectile || projectile == projectileHeld)
+                return false;
+
+            // check for general immunity
             return true;
         }
         public void StunAndSlip(float stunDuration, float friction) // advised value for normal behaviour is friction = 9f
@@ -256,6 +277,7 @@ namespace src.GameObjects
         public void SetArmor(bool armor)
         {
             this.armor = armor;
+            this.DrawModel = playerModelShell;
         }
         public void StartDashingWithProjectileInHand(float speed)
         {
@@ -324,7 +346,7 @@ namespace src.GameObjects
                  Console.WriteLine("Dropping " + projectileHeld.Type);
             }
             projectileHeld = null;
-            playerState = PlayerState.NormalMovement;
+            playerState = Life > 0 ? PlayerState.NormalMovement : PlayerState.PartOfMob;
             
         }
 
@@ -342,7 +364,6 @@ namespace src.GameObjects
                     Move(dt);
                     CanCatch();
                     CanDash();
-                    CanJump();
                     break;
                 case PlayerState.Catching:
                     timeSinceStartOfCatch += dt;
@@ -352,7 +373,6 @@ namespace src.GameObjects
                     break;
                 case PlayerState.HoldingProjectile:
                     Move(dt);
-                    CanJump();
                     if (input.Action() && actionPushedDuration == 0f)
                         playerState = PlayerState.Aiming;
                     else
@@ -411,8 +431,8 @@ namespace src.GameObjects
                     {
                         inertiaUp = new Vector3(0, 0, 0);
                         Position = new Vector3(Position.X, 0, Position.Z);
+                        gameStateManager.CreateAreaDamage(projectileHeld.Position,3f,this,ProjectileType.Mjoelnir);
                         Drop();
-                        gameStateManager.CreateAreaDamage(Position,2f,this,ProjectileType.Mjoelnir);
                         playerState = PlayerState.NormalMovement;
                     }
                     break;
