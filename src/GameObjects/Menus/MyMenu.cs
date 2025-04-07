@@ -14,6 +14,8 @@ using System.Collections.Generic;
 using System;
 using Myra.Graphics2D.UI.Styles;
 using Myra.Graphics2D.UI;
+using Myra.Graphics2D;
+using Myra.Graphics2D.Brushes;
 //CLASS NOT USED
 namespace src.GameObjects{
     public class MyMenu{
@@ -28,8 +30,40 @@ namespace src.GameObjects{
         private GameStateManager gameStateManager;
         private MenuStateManager menuStateManager;
         public MyMenu(GameLabGame game){
+            SpinButtonStyle ControllerSpinbuttonStyle = new SpinButtonStyle{
+                Background = new SolidBrush(Color.Black),
+                OverBackground = new SolidBrush(Color.Gray),
+                DisabledBackground = new SolidBrush(Color.Gray),
+                Width = CENTER_BUTTON_WIDTH
+            };
+            SpinButtonStyle DefaultSpinbuttonStyle = new SpinButtonStyle{
+                Background = new SolidBrush(Color.DarkSlateGray),
+                Width = CENTER_BUTTON_WIDTH
+            };
+            ButtonStyle ControllerButtonStyle = new ButtonStyle{
+                Background = new SolidBrush(Color.Black),
+                OverBackground = new SolidBrush(Color.Gray),
+                PressedBackground = new SolidBrush(Color.Blue),
+                DisabledBackground = new SolidBrush(Color.Gray),
+                LabelStyle = new LabelStyle{
+                    TextColor = Color.White
+                },
+                Height = CENTER_BUTTON_HEIGHT,
+                Width = CENTER_BUTTON_WIDTH
+            };
+            ButtonStyle DefaultButtonStyle = new ButtonStyle{
+                Background = new SolidBrush(Color.DarkSlateGray),
+                Height = CENTER_BUTTON_HEIGHT,
+                Width = CENTER_BUTTON_WIDTH
+            };
             controllerselectedbutton=0;
             MyraEnvironment.Game = game;
+            //Stylesheet.Current.LabelStyle.TextColor = Color.YellowGreen;
+            Stylesheet.Current.SpinButtonStyles["controller"] = ControllerSpinbuttonStyle;
+            Stylesheet.Current.SpinButtonStyles["default"] = DefaultSpinbuttonStyle;
+            Stylesheet.Current.ButtonStyles["controller"] = ControllerButtonStyle;
+            Stylesheet.Current.ButtonStyles["default"] = DefaultButtonStyle;
+
             gameStateManager = GameStateManager.GetGameStateManager();
             menuStateManager = MenuStateManager.GetMenuStateManager();
             
@@ -87,6 +121,8 @@ namespace src.GameObjects{
                 //messageBox.ShowModal(desktop);
                 game.Exit();//CLOSING
             };
+            //closebutton.PressedBackground = new SolidBrush(Color.Red);
+            closebutton.SetStyle("default");
 
             grid.Widgets.Add(closebutton);
             //RELOADBUTTON
@@ -105,7 +141,7 @@ namespace src.GameObjects{
                 gameStateManager.StartNewGame();//RELOADING
                 CloseMenu();
             };
-
+            reloadbutton.SetStyle("default");
             grid.Widgets.Add(reloadbutton);
             //RESUMEBUTTON
             Button resumebutton = new Button{
@@ -132,14 +168,13 @@ namespace src.GameObjects{
                 Value=menuStateManager.NUM_PLAYERS,
                 Integer=true,
             };
-
             spinButton.ValueChanging += (c,a) => {
                 float? nullableFloat = a.NewValue;
                 SpinChangesValue(nullableFloat);
             };
             Grid.SetColumn(spinButton,0);
             Grid.SetRow(spinButton,1);
-
+            spinButton.SetStyle("default");
             grid.Widgets.Add(spinButton);
 
             desktop = new Desktop();
@@ -215,11 +250,13 @@ namespace src.GameObjects{
                 if(i==index){
                     Type t = buttons[i].GetType();
                     if(t.Equals(typeof(Button))){
-                        //((Button)buttons[i]).SetStyle(Stylesheet.LoadFromSource,"red");
-                    ((Button)buttons[i]).Width=100;
-                    //((Button)buttons[i]).SetStyle("blue");
+                    ((Button)buttons[i]).SetStyle("controller");
+                        //Stylesheet.Current.ButtonStyles.Add("key",new ButtonStyle());
+                    //((Button)buttons[i]).Width=100;
+                    //((Button)buttons[i]).SetStyle("custom");
                 }else if(t.Equals(typeof(SpinButton))){
-                    ((SpinButton)buttons[i]).Width=100;
+                    //((SpinButton)buttons[i]).Width=100;
+                ((SpinButton)buttons[index]).SetStyle("controller");
                 }
                 }
                 //i.Background = i == index ? Color.DarkGray : Color.Transparent;
@@ -229,10 +266,11 @@ namespace src.GameObjects{
         private void UnHighlight(int index){
             Type t = buttons[index].GetType();
             if(t.Equals(typeof(Button))){
-                ((Button)buttons[index]).Width=CENTER_BUTTON_WIDTH;
-                //((Button)buttons[index]).SetStyle("");
+                //((Button)buttons[index]).Width=CENTER_BUTTON_WIDTH;
+                ((Button)buttons[index]).SetStyle("default");
             }else if(t.Equals(typeof(SpinButton))){
-                ((SpinButton)buttons[index]).Width=CENTER_BUTTON_WIDTH;
+                //((SpinButton)buttons[index]).Width=CENTER_BUTTON_WIDTH;
+                ((SpinButton)buttons[index]).SetStyle("default");
             }
         }
         private void PressHighlighted(int index){

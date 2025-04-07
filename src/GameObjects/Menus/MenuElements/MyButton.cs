@@ -6,6 +6,7 @@ using GameLab;
 using System;
 using Myra.Attributes;
 using Myra.Graphics2D.TextureAtlases;
+using Myra.Graphics2D.UI.Styles;
 
 namespace src.GameObjects{
     public class MyButton : MyMenuElement{
@@ -44,7 +45,7 @@ namespace src.GameObjects{
             button.Click += new EventHandler(CLICK);
         }
         public override void Highlight(){
-
+            
         }
 
         public override void UnHighlight()
