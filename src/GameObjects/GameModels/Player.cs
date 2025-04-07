@@ -195,18 +195,7 @@ namespace src.GameObjects
             if (projectileHeld.Action(speedUp))
                 Throw();
         }
-        // Spawning a projectile in Hand when part of the mob. Currently only swordfish
-        private void Spawn()
-        {
-            if (input.Action() && projectileHeld == null)
-            {
-                projectileHeld = gameStateManager.CreateProjectile(ProjectileType.Swordfish, Position, Orientation);
-                projectileHeld.Catch(this);
-                Stamina -= 3f;
-                playerState = PlayerState.PartOfMobHoldingProjectile;
-            }
-
-        }
+        
         // ---------------------
         // End of private functions to change state of player
         // Start of public functions to change state of player. Meant to be called by projectile, after a collision
@@ -385,7 +374,6 @@ namespace src.GameObjects
                     while (ellipse.Inside(Position.X, Position.Z))
                         Position += ellipse.Normal(Position.X, Position.Z) * dt * -0.1f;
                     CanDash();
-                    Spawn();
                     break;
                 case PlayerState.PartOfMobHoldingProjectile:
                     Move(dt);

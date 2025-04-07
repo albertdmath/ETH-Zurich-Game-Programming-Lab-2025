@@ -39,6 +39,8 @@ namespace src.GameObjects
         public readonly List<Player> players = new List<Player>();
         public readonly List<Player> livingPlayers = new List<Player>();
         public readonly List<Projectile> projectiles = new List<Projectile>();
+        public readonly List<Market> markets = new List<Market>();
+
         private MenuStateManager menuStateManager;
         private readonly List<AreaDamage> areaDamages = new List<AreaDamage>();
         // Singleton instancing
@@ -68,8 +70,6 @@ namespace src.GameObjects
 
         public void InitializePlayers()
         {
-            players.Clear();
-            livingPlayers.Clear();
             float[] playerStartPositions = { -1.5f, -0.5f, 0.5f, 1.5f };
             float scaling = 0.5f;
             /*
@@ -87,6 +87,47 @@ namespace src.GameObjects
 
             foreach (Player player in players)
                 livingPlayers.Add(player);
+        }
+
+        private void InitializeMarkets()
+        {
+            // Market positions (corners)
+            Vector3[] positions = new Vector3[]
+            {
+                new Vector3(-6f, 0, 4f),
+                new Vector3(-6f, 0, -4f),
+                new Vector3(6f, 0, 4f),
+                new Vector3(6f, 0, -4f)
+            };
+
+            // Random projectile type selection logic
+            //this should check for throwable
+            List<ProjectileType> availableTypes = new List<ProjectileType>(Projectile.ProjectileProbability.Keys);
+            Random rng = new Random();
+            float totalWeight = availableTypes.Sum(type => Projectile.ProjectileProbability[type]);
+
+            for (int i = 0; i < 4; i++)
+            {
+                // Refill if empty
+                if (!availableTypes.Any()) 
+                    availableTypes = new List<ProjectileType>(Projectile.ProjectileProbability.Keys);
+                
+                float randomValue = (float)rng.NextDouble() * totalWeight;
+                ProjectileType selectedType = default;
+
+                foreach (var type in availableTypes)
+                {
+                    randomValue -= Projectile.ProjectileProbability[type];
+                    if (randomValue > 0) continue;
+                    
+                    selectedType = type;
+                    availableTypes.Remove(type);
+                    totalWeight -= Projectile.ProjectileProbability[type];
+                    break;
+                }
+                // Create market with selected type
+                markets.Add(new Market(positions[i], selectedType, GameLabGame.projectileModels[selectedType], 0.8f));
+            }
         }
 
         public Projectile CreateProjectile(ProjectileType type, Vector3 origin, Vector3 target)
@@ -174,14 +215,25 @@ namespace src.GameObjects
             projectiles.RemoveAll(x => x.ToBeDeleted);
             
             // Check for projectile-player hand intersections
-            foreach (Projectile projectile in projectiles)
+            //now it doesnt break when you catch one projectile
+            foreach (Player player in players.Where(p => p.Hand.IsCatching))
             {
-                foreach (Player player in players)
+                foreach (Projectile projectile in projectiles)
                 {
-                    if (player.Hand.IsCatching && projectile.Hitbox.Intersects(player.Hand.Hitbox))
+                    if (projectile.Hitbox.Intersects(player.Hand.Hitbox))
                         player.Catch(projectile);
                 }
+
+                foreach (Market market in markets)
+                {
+                    if (market.Hitbox.Intersects(player.Hand.Hitbox))
+                    {
+                        Projectile projectile = CreateProjectile(market.Type, player.Position, player.Position);
+                        player.Catch(projectile);
+                    }
+                }
             }
+            
             // Check for projectile-player intersections
             foreach (Projectile projectile in projectiles.Where(x => x.Holder == null || x.DestroysOtherProjectiles))
             {
@@ -226,6 +278,10 @@ namespace src.GameObjects
 
             arena.Draw(view, projection, shadowShader, true);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+            foreach (Market market in markets)
+            {
+                market.Draw(view, projection, shadowShader, true);
+            }
 
             // Draw all active projectiles
             foreach (Projectile projectile in projectiles)
@@ -253,6 +309,15 @@ namespace src.GameObjects
             lightingShader.setRoughness(arena.DrawModel.roughness);
             arena.Draw(view, projection, lightingShader, false);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+            
+            //draw all markets
+            foreach (Market market in markets)
+            {
+                lightingShader.setMetallic(market.DrawModel.metallic);
+                lightingShader.setRoughness(market.DrawModel.roughness);
+                market.Draw(view, projection, lightingShader, false);
+                market.Hitbox.DebugDraw(graphicsDevice,view,projection);
+            }
 
             // Draw all active projectiles:
             foreach (Projectile projectile in projectiles)
@@ -303,8 +368,11 @@ namespace src.GameObjects
         {
             players.Clear();
             projectiles.Clear();
+            markets.Clear();
+            livingPlayers.Clear();
 
             InitializeMob();
+            InitializeMarkets();
             InitializePlayers();
         }
     }

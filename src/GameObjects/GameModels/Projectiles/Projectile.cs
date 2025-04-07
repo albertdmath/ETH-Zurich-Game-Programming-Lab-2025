@@ -25,17 +25,19 @@ public class Projectile : GameModel
     protected GameStateManager gameStateManager;
     public bool ToBeDeleted { get; set; } = false;
     public bool DestroysOtherProjectiles { get; set; } = false;
+    public bool IsThrowable { get; set; } = true;
+
     // Projectile spawn probabilities (can be adjusted via UI)
     public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
     {
-        { ProjectileType.Frog, 0.2f },
-        { ProjectileType.Swordfish, 0.2f },
-        { ProjectileType.Tomato, 0.2f },
-        { ProjectileType.Coconut, 0.2f },
-        { ProjectileType.Banana, 0.2f },
-        { ProjectileType.Turtle, 0.2f },
-        { ProjectileType.Spear, 0.2f },
-        { ProjectileType.Mjoelnir, 0.2f }
+        { ProjectileType.Frog, 0.1f },
+        { ProjectileType.Swordfish, 0.1f },
+        { ProjectileType.Tomato, 0.1f },
+        { ProjectileType.Coconut, 0.1f },
+        { ProjectileType.Banana, 0.1f },
+        { ProjectileType.Turtle, 0.0f },
+        { ProjectileType.Spear, 0.0f },
+        { ProjectileType.Mjoelnir, 0.0f }
     };
 
     public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(model, scaling) 
