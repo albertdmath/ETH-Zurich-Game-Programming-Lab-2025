@@ -17,7 +17,7 @@ public class MusicAndSoundEffects
     private static MenuStateManager menuStateManager;
 
     public static void loadSFX(Microsoft.Xna.Framework.Content.ContentManager Content) {
-        bgMusic = Content.Load<Song>("Audio/myMedievalBeat");
+        bgMusic = Content.Load<Song>("Audio/EpicMedievalVibes");
         MediaPlayer.Volume = 0.1f;
         MediaPlayer.IsRepeating = true;
         hitSFX = Content.Load<SoundEffect>("Audio/hitSFX");
@@ -32,7 +32,7 @@ public class MusicAndSoundEffects
         menuStateManager = MenuStateManager.GetMenuStateManager();
 
         if(menuStateManager.SOUND_ENABLED) {
-            MediaPlayer.Volume = 1.2f;
+            MediaPlayer.Volume = 0.5f;
             MediaPlayer.Play(bgMusic);
             angrymobInstance.Play();
         }
