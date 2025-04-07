@@ -30,13 +30,13 @@ public class Projectile : GameModel
     public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
     {
         { ProjectileType.Frog, 0.1f },
-        { ProjectileType.Swordfish, 0.1f },
-        { ProjectileType.Tomato, 0.1f },
+        { ProjectileType.Swordfish, 0.3f },
+        { ProjectileType.Tomato, 0.3f },
         { ProjectileType.Coconut, 0.1f },
         { ProjectileType.Banana, 0.1f },
         { ProjectileType.Turtle, 0.1f },
-        { ProjectileType.Spear, 0.1f },
-        { ProjectileType.Mjoelnir, 0.1f }
+        { ProjectileType.Spear, 0.2f },
+        { ProjectileType.Mjoelnir, 0.2f }
     };
 
     public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(model, scaling) 
