@@ -26,7 +26,7 @@ public class Projectile : GameModel
     public bool ToBeDeleted { get; set; } = false;
     public bool DestroysOtherProjectiles { get; set; } = false;
     public bool IsThrowable { get; set; } = true;
-
+    public float Height {get; private set;}
     // Projectile spawn probabilities (can be adjusted via UI)
     public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
     {
@@ -40,8 +40,9 @@ public class Projectile : GameModel
         { ProjectileType.Mjoelnir, 0.0f }
     };
 
-    public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling) : base(model, scaling) 
+    public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(model, scaling) 
     {
+        Height = height;
         Type = type;
         gameStateManager = GameStateManager.GetGameStateManager();
         Throw(origin,target);
@@ -89,7 +90,7 @@ public class Projectile : GameModel
         {
             // Ensures projectile is held in right hand for a more realistic look:
             Vector3 orthogonalHolderOrientation = new Vector3(-Holder.Orientation.Z, Holder.Orientation.Y, Holder.Orientation.X);
-            Position = Holder.Position + orthogonalHolderOrientation * 0.2f;
+            Position = Holder.Position + orthogonalHolderOrientation * 0.2f + new Vector3(0,0.2f,0);
             Orientation = Holder.Orientation;
         }
     }

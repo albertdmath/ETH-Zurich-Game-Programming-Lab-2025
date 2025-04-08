@@ -21,11 +21,13 @@ public class Turtle : Projectile
     // Fields
 
     // Constructor:
-    public Turtle(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, DrawModel walkingModel, float scaling) : base(type, origin, target, model, scaling) {
+    public Turtle(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, DrawModel walkingModel, float scaling, float height) : base(type, origin, target, model, scaling, height) 
+    {
         IsThrowable = false;
         this.shellModel = model;
         this.walkingModel = walkingModel;
     }
+
 
     private void RotateAway(float dt)
     {

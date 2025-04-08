@@ -116,7 +116,7 @@ namespace src.GameObjects
             for(int i = 0;i<24*24;i++)
                 sortedZombies[i] = new List<Zombie>();
             foreach (Zombie zombie in active) 
-                sortedZombies[(int)Math.Round(zombie.Position.X)+11+((int)Math.Round(zombie.Position.Z)+11)*24].Add(zombie);
+                sortedZombies[(int)Math.Round(zombie.Position.X*0.2f)+11+((int)Math.Round(zombie.Position.Z*0.2f)+11)*24].Add(zombie);
             // Update force for all zombies(mob)
             for(int j = 0; j<23;j++)
             {
@@ -137,10 +137,10 @@ namespace src.GameObjects
 
             foreach (Player player in gameStateManager.players)
             { 
-                int i = (int)Math.Round(player.Position.X)+11;
-                int j = (int)Math.Round(player.Position.Z)+11;
-                int iNeighbour = (player.Position.X-(float)i) < 0.5f ? -1 : 1;
-                int jNeighbour = (player.Position.Z-(float)j) < 0.5f ? -24 : 24;
+                int i = (int)Math.Round(player.Position.X*0.2f)+11;
+                int j = (int)Math.Round(player.Position.Z*0.2f)+11;
+                int iNeighbour = (player.Position.X*0.2f-(float)i) < 0.5f ? -1 : 1;
+                int jNeighbour = (player.Position.Z*0.2f-(float)j) < 0.5f ? -24 : 24;
                 if(player.Life<=0)
                 {
                     foreach (Zombie zombie in sortedZombies[i+j*24]) zombie.ForceByPlayer(player);
@@ -160,20 +160,6 @@ namespace src.GameObjects
                     foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour+jNeighbour])  
                         if((player.Position-endCenter).LengthSquared()<(zombie.Position-endCenter).LengthSquared())
                             player.MobCollision(zombie);
-                }
-            }
-            for(int j = 0; j<23;j++)
-            {
-                for(int i = 0; i<23;i++)
-                {
-                    List<Zombie> tempList = sortedZombies[i+j*24];
-                    for(int k=0; k<tempList.Count;++k)
-                    {
-                        tempList[k].Force(tempList,k);
-                        tempList[k].Force(sortedZombies[i+j*24+1],-1);
-                        tempList[k].Force(sortedZombies[i+j*24+24],-1);
-                        tempList[k].Force(sortedZombies[i+j*24+25],-1);
-                    }
                 }
             }
         }
