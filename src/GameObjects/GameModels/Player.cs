@@ -219,6 +219,7 @@ namespace src.GameObjects
             if (gameStateManager.livingPlayers.Count != 1 && immunity <= 0)
             {
                 input.Vibrate();
+                MusicAndSoundEffects.playHitSFX();
                 if(armor)
                 {
                     armor = false;

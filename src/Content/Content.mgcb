@@ -38,6 +38,18 @@
 /processorParam:Quality=Best
 /build:Audio/angrymobSFX.wav
 
+#begin Audio/bananaSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/bananaSFX.wav
+
+#begin Audio/coconutSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/coconutSFX.wav
+
 #begin Audio/EpicMedievalVibes.wav
 /importer:WavImporter
 /processor:SongProcessor
@@ -56,6 +68,18 @@
 /processorParam:Quality=Best
 /build:Audio/hitSFX.wav
 
+#begin Audio/mjoelnirSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/mjoelnirSFX.wav
+
+#begin Audio/spearSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/spearSFX.wav
+
 #begin Audio/swordfishSFX.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -67,6 +91,12 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Audio/tomatoSFX.wav
+
+#begin Audio/turtleSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/turtleSFX.wav
 
 #begin bananapeel.dae
 /importer:FbxImporter
