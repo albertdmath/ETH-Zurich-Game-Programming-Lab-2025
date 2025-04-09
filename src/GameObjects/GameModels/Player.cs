@@ -333,6 +333,11 @@ namespace src.GameObjects
         {
             Hand.StopCatching();
             projectileHeld = projectile;
+            if(projectile.Holder != null) 
+            {
+                (projectile.Holder as Player).projectileHeld = null;
+                (projectile.Holder as Player).playerState = PlayerState.NormalMovement;
+            }
             projectile.Catch(this);
             MusicAndSoundEffects.playProjectileSFX(projectile.Type);
             playerState = PlayerState.HoldingProjectile;
