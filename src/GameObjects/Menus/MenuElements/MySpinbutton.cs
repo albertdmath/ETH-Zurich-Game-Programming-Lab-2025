@@ -22,7 +22,6 @@ namespace src.GameObjects{
         private int ROW;
         private Grid GRID;
         private SpinButton spinbutton;
-        private MenuStateManager menuStateManager;
         public bool controllerselected {get;set;}=false;
         EventHandler<Myra.Events.ValueChangingEventArgs<float?>> Valuechanging;
 
@@ -53,8 +52,8 @@ namespace src.GameObjects{
 
             Grid.SetColumn(spinbutton,COLUMN);
             Grid.SetRow(spinbutton,ROW);
-            GRID.Widgets.Add(spinbutton);
             spinbutton.SetStyle("default");
+            GRID.Widgets.Add(spinbutton);
         }
         public override void Highlight()
         {
@@ -70,7 +69,7 @@ namespace src.GameObjects{
             //float? oldValue = spinbutton.Value;
             if(sign+spinbutton.Value<=MAXIMUM && sign+spinbutton.Value>=MINIMUM){
                 Valuechanging.Invoke(spinbutton,new ValueChangingEventArgs<float?>(spinbutton.Value,spinbutton.Value+sign));
-                //spinbutton.Value+=sign;
+                spinbutton.Value+=sign;//IDK WHY BUT WE NEED THIS
             }
         }
         public override bool Click()
@@ -79,10 +78,11 @@ namespace src.GameObjects{
          spinbutton.SetStyle("controllerpressed");
          return true;   
         }
-        public override void LeaveButton()
+        public override bool LeaveButton()
         {
             controllerselected=false;
             spinbutton.SetStyle("controller");
+            return true;
         }
     }
 }

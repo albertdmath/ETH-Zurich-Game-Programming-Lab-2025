@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Myra;
 using src.GameObjects;
 
 namespace GameLab
@@ -13,6 +14,7 @@ namespace GameLab
         private SpriteBatch _spriteBatch;
         private SpriteFont font;
         private KeyboardState _previousKeyboardState;
+        private GamePadState _previousGamePadState;
         // Private fields:
         private DrawModel arenaModel;
         private DrawModel playerModel;
@@ -70,6 +72,8 @@ namespace GameLab
             // Get Gamestatemanager instance yay and Menustatemanager too wahoo
             menuStateManager = MenuStateManager.GetMenuStateManager();
             gameStateManager = GameStateManager.GetGameStateManager();
+            MyraEnvironment.Game = this;
+
            
 
             base.Initialize();
@@ -152,12 +156,14 @@ namespace GameLab
         protected override void Update(GameTime gameTime)
         {
             KeyboardState keyboardState = Keyboard.GetState();
+            GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
 
-            _menu.Update(gameTime, keyboardState, _previousKeyboardState);
+            _menu.Update(gameTime, keyboardState, _previousKeyboardState, gamePadState, _previousGamePadState);
 
             if (_menu.menuisopen())
             {
                 _previousKeyboardState = keyboardState;
+                _previousGamePadState = gamePadState;
                 base.Update(gameTime);
                 return;
             }
@@ -167,6 +173,7 @@ namespace GameLab
             gameStateManager.UpdateGame(dt);
 
             _previousKeyboardState = keyboardState;
+            _previousGamePadState = gamePadState;
 
             base.Update(gameTime);
         }

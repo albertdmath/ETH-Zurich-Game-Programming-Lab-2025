@@ -7,8 +7,8 @@ namespace src.GameObjects
     {
         public bool SOUND_ENABLED { get ; set; } = true;
         public int NUM_PLAYERS { get ; set; } = 2;
-        public const int MAX_NUM_PLAYER = 4;
-        public const int MIN_NUM_PLAYER = 1;
+        public int MAX_NUM_PLAYER {get;} = 4;
+        public int MIN_NUM_PLAYER {get;} = 1;
         public bool SHADOWS_ENABLED { get ; set; } = true;
 
         public float HUD_SCALE { get; set; } = 0.15f;

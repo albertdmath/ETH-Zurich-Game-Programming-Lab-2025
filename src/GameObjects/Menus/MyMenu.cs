@@ -23,13 +23,13 @@ namespace src.GameObjects{
         private int CENTER_BUTTON_HEIGHT = 40;
         private int CENTER_BUTTON_WIDTH = 250;
         private Desktop desktop;
-        private Object[] buttons;
+        private MyMenuElement[] menuElements;
         private bool menuopen=false;
-        private bool inspinbutton=false;
-        private GamePadState _prevGamePadState;
+        private bool insubElement=false;
         private GameStateManager gameStateManager;
         private MenuStateManager menuStateManager;
         public MyMenu(GameLabGame game, int DisplayWidth, int DisplayHeight){
+            //DEFINE CUSTOM STYLES
             SpinButtonStyle ControllerSpinbuttonStyle = new SpinButtonStyle{
                 Background = new SolidBrush(Color.Black),
                 OverBackground = new SolidBrush(Color.Gray),
@@ -64,23 +64,22 @@ namespace src.GameObjects{
                 Height = CENTER_BUTTON_HEIGHT,
                 Width = CENTER_BUTTON_WIDTH
             };
-            controllerselectedbutton=0;
-            MyraEnvironment.Game = game;
-            //Stylesheet.Current.LabelStyle.TextColor = Color.YellowGreen;
+            //ADD CUSTOM STYLES
             Stylesheet.Current.SpinButtonStyles["controller"] = ControllerSpinbuttonStyle;
             Stylesheet.Current.SpinButtonStyles["default"] = DefaultSpinbuttonStyle;
             Stylesheet.Current.SpinButtonStyles["controllerpressed"] = ControllerPressedSpinbuttonStyle;
 
             Stylesheet.Current.ButtonStyles["controller"] = ControllerButtonStyle;
             Stylesheet.Current.ButtonStyles["default"] = DefaultButtonStyle;
+            
             gameStateManager = GameStateManager.GetGameStateManager();
             menuStateManager = MenuStateManager.GetMenuStateManager();
             
+            controllerselectedbutton=0;
 
             //WINDOW
             Window gridWindow = new Window
             {
-                Title = "Pause Menu",
                 Width = 500,
                 Height = 250,
             };
@@ -98,7 +97,7 @@ namespace src.GameObjects{
             grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
             grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
             grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-            /*
+            /*MYRA REFERENCE CODE
             var helloworld = new Label{
                 Id="label",
                 Text = "hello world!"
@@ -115,88 +114,50 @@ namespace src.GameObjects{
 
             grid.Widgets.Add(combo);
             */
-            Button closebutton = new Button{//CLOSES THE GAME
-                Width = CENTER_BUTTON_WIDTH,
-                Height = CENTER_BUTTON_HEIGHT,
-                Content = new Label
-                {
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Text = "Close Game"
-                }
-            };
-            Grid.SetColumn(closebutton,0);
-            Grid.SetRow(closebutton,3);
-            closebutton.Click += (s,a)=>{
-                //var messageBox = Dialog.CreateMessageBox("Error", "Cant resume yet");
-                //messageBox.ShowModal(desktop);
-                game.Exit();//CLOSING
-            };
-            //closebutton.PressedBackground = new SolidBrush(Color.Red);
-            closebutton.SetStyle("default");
-
-            grid.Widgets.Add(closebutton);
+            //CLOSEBUTTON
+            MyButton closebutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit","ExitButton",0,3,(s,a)=>{
+                game.Exit();//HARDCORE CLOSING
+            },grid);
+            
             //RELOADBUTTON
-            Button reloadbutton = new Button{//RELOADS THE GAME
-                Width = CENTER_BUTTON_WIDTH,
-                Height = CENTER_BUTTON_HEIGHT,
-                Content = new Label{
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Text = "Reload",
-                }
-            };
-            Grid.SetColumn(reloadbutton,0);
-            Grid.SetRow(reloadbutton,2);
-            reloadbutton.Click += (s,a)=>{
+            MyButton reloadbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"New Game","ReloadButton",0,2,(s,a)=>{
                 gameStateManager.StartNewGame();//RELOADING
                 CloseMenu();
-            };
-            reloadbutton.SetStyle("default");
-            grid.Widgets.Add(reloadbutton);
+            },grid);
+            
             //RESUMEBUTTON
-            Button resumebutton = new Button{
-                Width = CENTER_BUTTON_WIDTH,
-                Height = CENTER_BUTTON_HEIGHT,
-                Content = new Label{
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Text = "Resume"
-                }
-            };
-            Grid.SetColumn(resumebutton,0);
-            Grid.SetRow(resumebutton,0);
-            resumebutton.Click += (s,a) => {
+            MyButton resumebutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Resume","ResumeButton",0,0,(s,a) => {
                 CloseMenu();
-            };
-            grid.Widgets.Add(resumebutton);
+            },grid);
 
-            SpinButton spinButton = new SpinButton{
-                Width=CENTER_BUTTON_WIDTH,
-                Nullable=false,
-                Minimum=1,
-                Maximum=4,
-                Value=menuStateManager.NUM_PLAYERS,
-                Integer=true,
-            };
-            spinButton.ValueChanging += (c,a) => {
+            MySpinbutton NumPlayerSpinButton = new MySpinbutton(menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"NumPlayerSpinButton",0,1,grid,(c,a) => {
                 float? nullableFloat = a.NewValue;
-                SpinChangesValue(nullableFloat);
-            };
-            Grid.SetColumn(spinButton,0);
-            Grid.SetRow(spinButton,1);
-            spinButton.SetStyle("default");
-            grid.Widgets.Add(spinButton);
+                menuStateManager.NUM_PLAYERS = (int)(nullableFloat ?? 1);
+                gameStateManager.StartNewGame();
+            });
 
+            
+            
+            //TEST IN PROGRESS
+            /*
+            CheckButton checkBox = new CheckButton
+                {
+                    IsChecked = true
+                };
+
+                // Optional: handle toggle events
+                checkBox.EnabledChanged += (s, e) =>
+                {
+                    Console.WriteLine("Checked: " + checkBox.IsChecked);
+                };
+            */
             desktop = new Desktop();
             desktop.Root = grid;
-
-            //SUSSY OBJECT/BUTTON ARRAY
-            buttons = new Object[]{resumebutton,spinButton,reloadbutton,closebutton};
+            //ELEMENTÄRÄI
+            menuElements = new MyMenuElement[]{resumebutton,NumPlayerSpinButton,reloadbutton,closebutton};
         }
-        public void Update(GameTime gameTime, KeyboardState keyboardState, KeyboardState previousKeyboardState){
-            GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
-            if(keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape) || (gamePadState.Buttons.Start == ButtonState.Pressed && _prevGamePadState.Buttons.Start == ButtonState.Released)){
+        public void Update(GameTime gameTime, KeyboardState keyboardState, KeyboardState previousKeyboardState, GamePadState gamePadState, GamePadState previousGamePadState){
+            if(keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape) || (gamePadState.Buttons.Start == ButtonState.Pressed && previousGamePadState.Buttons.Start == ButtonState.Released)){
                 if(menuopen){
                     CloseMenu();
                 }else{
@@ -204,47 +165,52 @@ namespace src.GameObjects{
                 }
             }
             if(menuopen){
-                if(!inspinbutton){
-                    if (gamePadState.DPad.Down == ButtonState.Pressed && _prevGamePadState.DPad.Down == ButtonState.Released)
+                if(!insubElement){
+                    //EXTRA EXIT WITH B PER REQUEST
+                    if(gamePadState.Buttons.B == ButtonState.Pressed && previousGamePadState.Buttons.B == ButtonState.Released){
+                        CloseMenu();
+                    }
+
+                    //CONTROLLER NAVIGATION
+                    if (gamePadState.DPad.Down == ButtonState.Pressed && previousGamePadState.DPad.Down == ButtonState.Released)
                     {
-                        UnHighlight(controllerselectedbutton);
-                        controllerselectedbutton = mod(controllerselectedbutton + 1,buttons.Length);
-                        Highlight(controllerselectedbutton);
+                        menuElements[controllerselectedbutton].UnHighlight();
+                        controllerselectedbutton = mod(controllerselectedbutton + 1,menuElements.Length);
+                        menuElements[controllerselectedbutton].Highlight();
                     }
-                    if(gamePadState.DPad.Up == ButtonState.Pressed && _prevGamePadState.DPad.Up == ButtonState.Released){
-                        UnHighlight(controllerselectedbutton);
-                        controllerselectedbutton = mod(controllerselectedbutton - 1,buttons.Length);
-                        Highlight(controllerselectedbutton);
+                    if(gamePadState.DPad.Up == ButtonState.Pressed && previousGamePadState.DPad.Up == ButtonState.Released){
+                        menuElements[controllerselectedbutton].UnHighlight();
+                        controllerselectedbutton = mod(controllerselectedbutton - 1,menuElements.Length);
+                        menuElements[controllerselectedbutton].Highlight();
                     }
-                    if(gamePadState.Buttons.A == ButtonState.Pressed && _prevGamePadState.Buttons.A == ButtonState.Released){
-                        PressHighlighted(controllerselectedbutton);
+                    if(gamePadState.Buttons.A == ButtonState.Pressed && previousGamePadState.Buttons.A == ButtonState.Released){
+                        insubElement = menuElements[controllerselectedbutton].Click();
                     }
-                }else{//IN SPINBUTTON
-                    if(gamePadState.Buttons.B == ButtonState.Pressed && _prevGamePadState.Buttons.B == ButtonState.Released){
-                        LeaveButton(controllerselectedbutton);
+                }else{//IN SUBELEMENT LOGIC currently spinbutton only, NEED subelements with own navigation
+                    if(gamePadState.Buttons.B == ButtonState.Pressed && previousGamePadState.Buttons.B == ButtonState.Released){
+                        insubElement = !menuElements[controllerselectedbutton].LeaveButton();
                     }
-                    if (gamePadState.DPad.Down == ButtonState.Pressed && _prevGamePadState.DPad.Down == ButtonState.Released){
-                        Changespinbutton(-1,controllerselectedbutton);
+                    if (gamePadState.DPad.Down == ButtonState.Pressed && previousGamePadState.DPad.Down == ButtonState.Released){
+                        menuElements[controllerselectedbutton].ControllerValueChange(-1);
                     }
-                    if (gamePadState.DPad.Up == ButtonState.Pressed && _prevGamePadState.DPad.Up == ButtonState.Released){
-                        Changespinbutton(1,controllerselectedbutton);
+                    if (gamePadState.DPad.Up == ButtonState.Pressed && previousGamePadState.DPad.Up == ButtonState.Released){
+                        menuElements[controllerselectedbutton].ControllerValueChange(1);
                     }
                 }
             }
 
-            _prevGamePadState = gamePadState;
         }
         public bool menuisopen(){
             return menuopen;
         }
         private void CloseMenu(){
-            UnHighlight(controllerselectedbutton);
-            LeaveButton(controllerselectedbutton);
+            menuElements[controllerselectedbutton].LeaveButton();
+            menuElements[controllerselectedbutton].UnHighlight();
             controllerselectedbutton=0;
             menuopen=false;
         }
         public void OpenMenu(){
-            Highlight(controllerselectedbutton);
+            //menuElements[controllerselectedbutton].Highlight(); //SHOULD FIRST BUTTON BE HIGHLIGHTED IF WE OPEN THE MENU??? I SAY NO
             menuopen=true;
         }
         public void Draw(){
@@ -252,68 +218,12 @@ namespace src.GameObjects{
                 desktop.Render();
             }
         }
-        private void Highlight(int index)
         
-        {
-            for(int i=0;i<buttons.Length;++i)
-            {
-                
-                if(i==index){
-                    Type t = buttons[i].GetType();
-                    if(t.Equals(typeof(Button))){
-                    ((Button)buttons[i]).SetStyle("controller");
-                        //Stylesheet.Current.ButtonStyles.Add("key",new ButtonStyle());
-                    //((Button)buttons[i]).Width=100;
-                    //((Button)buttons[i]).SetStyle("custom");
-                }else if(t.Equals(typeof(SpinButton))){
-                    //((SpinButton)buttons[i]).Width=100;
-                ((SpinButton)buttons[index]).SetStyle("controller");
-                }
-                }
-                //i.Background = i == index ? Color.DarkGray : Color.Transparent;
-            }
-        }
         
-        private void UnHighlight(int index){
-            Type t = buttons[index].GetType();
-            if(t.Equals(typeof(Button))){
-                //((Button)buttons[index]).Width=CENTER_BUTTON_WIDTH;
-                ((Button)buttons[index]).SetStyle("default");
-            }else if(t.Equals(typeof(SpinButton))){
-                //((SpinButton)buttons[index]).Width=CENTER_BUTTON_WIDTH;
-                ((SpinButton)buttons[index]).SetStyle("default");
-            }
-        }
-        private void PressHighlighted(int index){
-            Type t = buttons[index].GetType();
-            if(t.Equals(typeof(Button))){
-                ((Button)buttons[index]).DoClick();
-            }else if(t.Equals(typeof(SpinButton))){
-                if(!inspinbutton){
-                    inspinbutton=true;
-                    ((SpinButton)buttons[index]).Opacity=0.5f;                   
-                }
-            }
-        }
-        private void LeaveButton(int index){
-            Type t = buttons[index].GetType();
-            if(t.Equals(typeof(SpinButton)) && inspinbutton){
-                inspinbutton=false;
-                ((SpinButton)buttons[index]).Opacity=1f;
-            }
-        }
-        private void Changespinbutton(int sign, int index){
-            Type t = buttons[index].GetType();
-            if(t.Equals(typeof(SpinButton)) && inspinbutton && sign+menuStateManager.NUM_PLAYERS>0 && sign+menuStateManager.NUM_PLAYERS<5){
-                /*float? v =((SpinButton)buttons[index]).Value;
-                float v_int = v ?? 1;
-                ((SpinButton)buttons[index]).Value = (float) v_int + sign;*/
-                ((SpinButton)buttons[index]).Value += sign;
-                SpinChangesValue(((SpinButton)buttons[index]).Value);
-                //((SpinButton)buttons[index]).ValueChanging.Invoke(spinbutton,new ValueChangingEventArgs<float?>(spinbutton.Value,spinbutton.Value+sign));
-
-            }
-        }
+        
+        
+        
+        
         private int mod(int k, int n) {  return ((k %= n) < 0) ? k+n : k;  }
         private void SpinChangesValue(float? nullableFloat){
             menuStateManager.NUM_PLAYERS = (int)(nullableFloat ?? 1);

@@ -8,6 +8,7 @@ using Myra.Attributes;
 using Myra.Graphics2D.TextureAtlases;
 using Myra.Graphics2D.UI.Styles;
 using System.Reflection.Metadata;
+using Accord;
 
 namespace src.GameObjects{
     public class MyButton : MyMenuElement{
@@ -44,6 +45,7 @@ namespace src.GameObjects{
             Grid.SetRow(button,ROW);
             button.Click += new EventHandler(CLICK);
             button.SetStyle("default");
+            GRID.Widgets.Add(button);
         }
         public override void Highlight(){
             button.SetStyle("controller");
@@ -58,8 +60,9 @@ namespace src.GameObjects{
             button.DoClick();
             return false;
         }
-        public override void LeaveButton()
+        public override bool LeaveButton()
         {//does nothing
+            return false;
         }
         public override void ControllerValueChange(int sign)
         {//does nothing
