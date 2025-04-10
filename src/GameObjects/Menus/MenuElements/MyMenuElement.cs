@@ -9,7 +9,7 @@ using Myra.Attributes;
 public abstract class MyMenuElement{
     public abstract void Highlight();
     public abstract void UnHighlight();
-    public abstract void Press();
+    public abstract bool Click();
     public abstract void LeaveButton();
-    public abstract void ChangeValue();
+    public abstract void ControllerValueChange(int sign);
 }

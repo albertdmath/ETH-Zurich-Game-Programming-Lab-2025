@@ -29,21 +29,27 @@ namespace src.GameObjects{
         private GamePadState _prevGamePadState;
         private GameStateManager gameStateManager;
         private MenuStateManager menuStateManager;
-        public MyMenu(GameLabGame game){
+        public MyMenu(GameLabGame game, int DisplayWidth, int DisplayHeight){
             SpinButtonStyle ControllerSpinbuttonStyle = new SpinButtonStyle{
                 Background = new SolidBrush(Color.Black),
                 OverBackground = new SolidBrush(Color.Gray),
-                DisabledBackground = new SolidBrush(Color.Gray),
+                DisabledBackground = new SolidBrush(Color.DarkGray),
                 Width = CENTER_BUTTON_WIDTH
             };
             SpinButtonStyle DefaultSpinbuttonStyle = new SpinButtonStyle{
                 Background = new SolidBrush(Color.DarkSlateGray),
+                Width = CENTER_BUTTON_WIDTH,
+                OverBackground = new SolidBrush(Color.Gray),
+                DisabledBackground = new SolidBrush(Color.DarkGray)
+            };
+            SpinButtonStyle ControllerPressedSpinbuttonStyle = new SpinButtonStyle{
+                Background = new SolidBrush(Color.LightGray),
                 Width = CENTER_BUTTON_WIDTH
             };
             ButtonStyle ControllerButtonStyle = new ButtonStyle{
                 Background = new SolidBrush(Color.Black),
                 OverBackground = new SolidBrush(Color.Gray),
-                PressedBackground = new SolidBrush(Color.Blue),
+                PressedBackground = new SolidBrush(Color.SeaGreen),
                 DisabledBackground = new SolidBrush(Color.Gray),
                 LabelStyle = new LabelStyle{
                     TextColor = Color.White
@@ -53,6 +59,8 @@ namespace src.GameObjects{
             };
             ButtonStyle DefaultButtonStyle = new ButtonStyle{
                 Background = new SolidBrush(Color.DarkSlateGray),
+                OverBackground = new SolidBrush(Color.DarkSlateBlue),
+                PressedBackground = new SolidBrush(Color.BlueViolet),
                 Height = CENTER_BUTTON_HEIGHT,
                 Width = CENTER_BUTTON_WIDTH
             };
@@ -61,9 +69,10 @@ namespace src.GameObjects{
             //Stylesheet.Current.LabelStyle.TextColor = Color.YellowGreen;
             Stylesheet.Current.SpinButtonStyles["controller"] = ControllerSpinbuttonStyle;
             Stylesheet.Current.SpinButtonStyles["default"] = DefaultSpinbuttonStyle;
+            Stylesheet.Current.SpinButtonStyles["controllerpressed"] = ControllerPressedSpinbuttonStyle;
+
             Stylesheet.Current.ButtonStyles["controller"] = ControllerButtonStyle;
             Stylesheet.Current.ButtonStyles["default"] = DefaultButtonStyle;
-
             gameStateManager = GameStateManager.GetGameStateManager();
             menuStateManager = MenuStateManager.GetMenuStateManager();
             
@@ -72,7 +81,7 @@ namespace src.GameObjects{
             Window gridWindow = new Window
             {
                 Title = "Pause Menu",
-                Width = 300,
+                Width = 500,
                 Height = 250,
             };
             Grid grid = new Grid
@@ -80,7 +89,9 @@ namespace src.GameObjects{
                 RowSpacing = 5,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                ShowGridLines=true
+                ShowGridLines=true,
+                //Height=DisplayHeight/2,
+                //Width=DisplayWidth/3
             };
 
             grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
@@ -299,6 +310,8 @@ namespace src.GameObjects{
                 ((SpinButton)buttons[index]).Value = (float) v_int + sign;*/
                 ((SpinButton)buttons[index]).Value += sign;
                 SpinChangesValue(((SpinButton)buttons[index]).Value);
+                //((SpinButton)buttons[index]).ValueChanging.Invoke(spinbutton,new ValueChangingEventArgs<float?>(spinbutton.Value,spinbutton.Value+sign));
+
             }
         }
         private int mod(int k, int n) {  return ((k %= n) < 0) ? k+n : k;  }

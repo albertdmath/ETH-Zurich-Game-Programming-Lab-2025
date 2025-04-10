@@ -7,6 +7,7 @@ using System;
 using Myra.Attributes;
 using Myra.Graphics2D.TextureAtlases;
 using Myra.Graphics2D.UI.Styles;
+using System.Reflection.Metadata;
 
 namespace src.GameObjects{
     public class MyButton : MyMenuElement{
@@ -19,7 +20,6 @@ namespace src.GameObjects{
         private Action<object?,EventArgs> CLICK;
         private Grid GRID;
         private Button button;
-        private TextureRegion HighlightedBackground;
 
         public MyButton(int width, int height, string text, string id, int column, int row, Action<object?,EventArgs> Click, Grid grid){
             WIDTH=width;
@@ -43,23 +43,25 @@ namespace src.GameObjects{
             Grid.SetColumn(button,COLUMN);
             Grid.SetRow(button,ROW);
             button.Click += new EventHandler(CLICK);
+            button.SetStyle("default");
         }
         public override void Highlight(){
-            
+            button.SetStyle("controller");
         }
 
         public override void UnHighlight()
         {
-            throw new NotImplementedException();
+            button.SetStyle("default");
         }
-        public override void Press()
+        public override bool Click()
         {
-            throw new NotImplementedException();
+            button.DoClick();
+            return false;
         }
         public override void LeaveButton()
         {//does nothing
         }
-        public override void ChangeValue()
+        public override void ControllerValueChange(int sign)
         {//does nothing
         }
     }
