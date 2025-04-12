@@ -13,7 +13,6 @@ using GameLab;
 using System.Collections.Generic;
 using System;
 using Myra.Graphics2D.UI.Styles;
-using Myra.Graphics2D.UI;
 using Myra.Graphics2D;
 using Myra.Graphics2D.Brushes;
 //CLASS NOT USED
@@ -139,18 +138,53 @@ namespace src.GameObjects{
             
             
             //TEST IN PROGRESS
-            /*
+            
             CheckButton checkBox = new CheckButton
                 {
-                    IsChecked = true
+                    IsChecked = true,
+                    Content = new Label{
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Text = " THIS IS A CHECKBOX"
+                    }
                 };
 
                 // Optional: handle toggle events
-                checkBox.EnabledChanged += (s, e) =>
-                {
-                    Console.WriteLine("Checked: " + checkBox.IsChecked);
-                };
-            */
+            checkBox.EnabledChanged += (s, e) =>
+            {
+                menuStateManager.SOUND_ENABLED=!menuStateManager.SOUND_ENABLED;
+            };
+            Grid.SetColumn(checkBox,3);
+            Grid.SetRow(checkBox,0);
+            grid.Widgets.Add(checkBox);
+            
+            HorizontalSlider sl = new HorizontalSlider{
+                Width = CENTER_BUTTON_WIDTH,
+                Minimum=0,
+                Maximum=1,
+                Value=1,
+                
+            };
+            sl.ValueChanged += (s,e) => {
+                MediaPlayer.Volume = e.NewValue;
+            };
+            Grid.SetColumn(sl,3);
+            Grid.SetRow(sl,2);
+            grid.Widgets.Add(sl);
+
+            HorizontalSlider slsfx = new HorizontalSlider{
+                Width = CENTER_BUTTON_WIDTH,
+                Minimum = 0,
+                Maximum = 1,
+                Value = 1
+            };
+            slsfx.ValueChanged += (s,e) => {
+                MusicAndSoundEffects.VOLUME=slsfx.Value;
+            };
+            Grid.SetColumn(slsfx,3);
+            Grid.SetRow(slsfx,3);
+            grid.Widgets.Add(slsfx);
+
             desktop = new Desktop();
             desktop.Root = grid;
             //ELEMENTÄRÄI

@@ -4,6 +4,7 @@ using src.GameObjects;
 
 public class MusicAndSoundEffects
 {
+    public static float VOLUME {get;set;} = 1f;
     // Sound effects:
     private static SoundEffect hitSFX;
     private static SoundEffect swordfishSFX;
@@ -50,13 +51,13 @@ public class MusicAndSoundEffects
             switch(type)
             {
                 case ProjectileType.Frog:
-                    frogSFX.Play(0.5f, 0.0f, 0.0f);
+                    frogSFX.Play(0.5f*VOLUME, 0.0f, 0.0f);
                     break;
                 case ProjectileType.Swordfish:
-                    MusicAndSoundEffects.swordfishSFX.Play(0.8f, 0.0f, 0.0f);
+                    MusicAndSoundEffects.swordfishSFX.Play(0.8f*VOLUME, 0.0f, 0.0f);
                     break;
                 case ProjectileType.Tomato:
-                    MusicAndSoundEffects.tomatoSFX.Play(0.9f, 0.0f, 0.0f);
+                    MusicAndSoundEffects.tomatoSFX.Play(0.9f*VOLUME, 0.0f, 0.0f);
                     break;
                 default:
                     break;
