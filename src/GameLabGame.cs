@@ -80,33 +80,33 @@ namespace GameLab
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Load all of the models
-            arenaModel = new DrawModel(Content.Load<Model>("marketplace"),0.0f,1.0f);
-            playerModel = new DrawModel(Content.Load<Model>("Player/player_body"),0.0f,0.3f);
-            playerModelShell = new DrawModel(Content.Load<Model>("Player/player_body_shell"),0.0f,0.3f);
+            arenaModel = new DrawModel("",Content.Load<Model>("marketplace"),0.0f,1.0f,GraphicsDevice);
+            playerModel = new DrawModel("",Content.Load<Model>("Player/player_body"),0.0f,0.3f,GraphicsDevice);
+            playerModelShell = new DrawModel("", Content.Load<Model>("Player/player_body_shell"),0.0f,0.3f,GraphicsDevice);
 
-            playerHandModel = new DrawModel(Content.Load<Model>("Player/hand"),0.0f,0.3f);
-            indicatorModel = new DrawModel(Content.Load<Model>("indicator"),0.0f,0.3f);
-            playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player1_hat"),0.0f,0.3f));
-            playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player2_hat"),0.0f,0.3f));
-            playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player3_hat"),0.0f,0.3f));
-            playerHatModels.Add(new DrawModel(Content.Load<Model>("Player/player4_hat"),0.0f,0.3f));
+            playerHandModel = new DrawModel("", Content.Load<Model>("Player/hand"),0.0f,0.3f,GraphicsDevice);
+            indicatorModel = new DrawModel("", Content.Load<Model>("indicator"),0.0f,0.3f,GraphicsDevice);
+            playerHatModels.Add(new DrawModel("", Content.Load<Model>("Player/player1_hat"),0.0f,0.3f,GraphicsDevice));
+            playerHatModels.Add(new DrawModel("", Content.Load<Model>("Player/player2_hat"),0.0f,0.3f,GraphicsDevice));
+            playerHatModels.Add(new DrawModel("", Content.Load<Model>("Player/player3_hat"),0.0f,0.3f,GraphicsDevice));
+            playerHatModels.Add(new DrawModel("",Content.Load<Model>("Player/player4_hat"),0.0f,0.3f,GraphicsDevice));
 
-            mobModels.Add(new DrawModel(Content.Load<Model>("mob1"),0.0f,0.3f));
-            mobModels.Add(new DrawModel(Content.Load<Model>("mob2"),0.0f,0.3f));
-            mobModels.Add(new DrawModel(Content.Load<Model>("mob3"),0.0f,0.3f));
+            mobModels.Add(new DrawModel("",Content.Load<Model>("mob1"),0.0f,0.3f,GraphicsDevice));
+            mobModels.Add(new DrawModel("",Content.Load<Model>("mob2"),0.0f,0.3f,GraphicsDevice));
+            mobModels.Add(new DrawModel("",Content.Load<Model>("mob3"),0.0f,0.3f,GraphicsDevice));
 
-            projectileModels.Add(ProjectileType.Frog, new DrawModel(Content.Load<Model>("frog"),0.0f,0.4f));
-            projectileModels.Add(ProjectileType.Swordfish, new DrawModel(Content.Load<Model>("swordfish"),0.0f,0.5f));
-            projectileModels.Add(ProjectileType.Tomato, new DrawModel(Content.Load<Model>("tomato"),0.0f,0.6f));
-            projectileModels.Add(ProjectileType.Coconut, new DrawModel(Content.Load<Model>("coconut"),0.0f,0.9f));
-            projectileModels.Add(ProjectileType.Banana, new DrawModel(Content.Load<Model>("bananapeel"),0.0f,0.9f));
-            projectileModels.Add(ProjectileType.Turtle, new DrawModel(Content.Load<Model>("turtle_shell"),0.0f,0.9f));
-            projectileModels.Add(ProjectileType.TurtleWalking, new DrawModel(Content.Load<Model>("turtle"),0.0f,0.9f));
-            projectileModels.Add(ProjectileType.Mjoelnir, new DrawModel(Content.Load<Model>("mjoelnir"),0.0f,0.9f));
-            projectileModels.Add(ProjectileType.Spear, new DrawModel(Content.Load<Model>("trident"),0.0f,0.9f));
+            projectileModels.Add(ProjectileType.Frog, new DrawModel("",Content.Load<Model>("frog"),0.0f,0.4f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.Swordfish, new DrawModel("",Content.Load<Model>("swordfish"),0.0f,0.5f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.Tomato, new DrawModel("",Content.Load<Model>("tomato"),0.0f,0.6f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.Coconut, new DrawModel("",Content.Load<Model>("coconut"),0.0f,0.9f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.Banana, new DrawModel("",Content.Load<Model>("bananapeel"),0.0f,0.9f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.Turtle, new DrawModel("",Content.Load<Model>("turtle_shell"),0.0f,0.9f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.TurtleWalking, new DrawModel("",Content.Load<Model>("turtle"),0.0f,0.9f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.Mjoelnir, new DrawModel("",Content.Load<Model>("mjoelnir"),0.0f,0.9f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.Spear, new DrawModel("",Content.Load<Model>("trident"),0.0f,0.9f,GraphicsDevice));
 
-            areaDamageModels.Add(new DrawModel(Content.Load<Model>("hammer_aoe"),0.0f,0.9f));
-            areaDamageModels.Add(new DrawModel(Content.Load<Model>("tomato_aoe"),0.0f,0.9f));
+            areaDamageModels.Add(new DrawModel("",Content.Load<Model>("hammer_aoe"),0.0f,0.9f,GraphicsDevice));
+            areaDamageModels.Add(new DrawModel("",Content.Load<Model>("tomato_aoe"),0.0f,0.9f,GraphicsDevice));
 
             playerHP.Add(Content.Load<Texture2D>("HUD/blue_heart"));
             playerHP.Add(Content.Load<Texture2D>("HUD/pink_heart"));
