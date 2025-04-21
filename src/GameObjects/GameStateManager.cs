@@ -55,6 +55,10 @@ namespace src.GameObjects
         private MenuStateManager menuStateManager;
         private readonly List<AreaDamage> areaDamages = new List<AreaDamage>();
         // Singleton instancing
+
+        private RasterizerState renderingRasterizer;
+
+        private RasterizerState shadowRasterizer;
         private GameStateManager() { }
 
         private static readonly GameStateManager instance = new();
@@ -64,7 +68,7 @@ namespace src.GameObjects
             return instance;
         }
 
-        public void Initialize(DrawModel arenaModel, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels)
+        public void Initialize(DrawModel arenaModel, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel, List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels)
         {
             this.menuStateManager = MenuStateManager.GetMenuStateManager();
             this.arenaModel = arenaModel;
@@ -76,6 +80,17 @@ namespace src.GameObjects
             this.projectileModels = projectileModels;
             this.indicatorModel = indicatorModel;
             this.playerModelShell = playerModelShell;
+
+            this.renderingRasterizer = new RasterizerState()
+            {
+                CullMode = CullMode.CullCounterClockwiseFace,
+                MultiSampleAntiAlias = true
+            };
+            this.shadowRasterizer = new RasterizerState()
+            {
+                CullMode = CullMode.CullClockwiseFace,
+                MultiSampleAntiAlias = false
+            };
 
             arena = new GameModel(arenaModel, ARENA_SCALE);
         }
@@ -97,8 +112,9 @@ namespace src.GameObjects
             SRY BOUT THAT*/
             players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, mob.Ellipse, playerModel, playerModelShell, playerHandModel, playerHatModels[0], indicatorModel, scaling));
             //players.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, mob.Ellipse, playerModels[1], scaling));
-            for(int i=1;i<menuStateManager.NUM_PLAYERS;++i){
-                    players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(),i,mob.Ellipse,playerModel, playerModelShell, playerHandModel, playerHatModels[i], indicatorModel, scaling));
+            for (int i = 1; i < menuStateManager.NUM_PLAYERS; ++i)
+            {
+                players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(), i, mob.Ellipse, playerModel, playerModelShell, playerHandModel, playerHatModels[i], indicatorModel, scaling));
             }
 
             foreach (Player player in players)
@@ -140,21 +156,21 @@ namespace src.GameObjects
             projectiles.Add(projectile);
             return projectile;
         }
-        public void CreateAreaDamage(Vector3 position, float scale,Player player,ProjectileType type)
+        public void CreateAreaDamage(Vector3 position, float scale, Player player, ProjectileType type)
         {
-            if(type == ProjectileType.Mjoelnir)
-                areaDamages.Add(new AreaDamage(position,player,areaDamageModels[0],scale));
+            if (type == ProjectileType.Mjoelnir)
+                areaDamages.Add(new AreaDamage(position, player, areaDamageModels[0], scale));
             else
-                areaDamages.Add(new AreaDamage(position,player,areaDamageModels[1],scale));
+                areaDamages.Add(new AreaDamage(position, player, areaDamageModels[1], scale));
         }
 
         public void UpdateGame(float dt)
         {
 
             // Update area damage
-            foreach(AreaDamage areaDamage in areaDamages)
+            foreach (AreaDamage areaDamage in areaDamages)
                 areaDamage.updateWrap(dt);
-                areaDamages.RemoveAll(x => x.ToBeDeleted);
+            areaDamages.RemoveAll(x => x.ToBeDeleted);
 
             // Move Players
             foreach (Player player in players)
@@ -168,7 +184,7 @@ namespace src.GameObjects
             // Update mob
             mob.Update(dt);
 
-   
+
             // Move the projectiles
             foreach (Projectile projectile in projectiles)
                 projectile.updateWrap(dt);
@@ -183,7 +199,7 @@ namespace src.GameObjects
             {
                 for (int j = i + 1; j < projectiles.Count; j++)
                 {
-                    if(projectiles[i].Hitbox.Intersects(projectiles[j].Hitbox))
+                    if (projectiles[i].Hitbox.Intersects(projectiles[j].Hitbox))
                     {
                         projectiles[i].ToBeDeleted = projectiles[j].DestroysOtherProjectiles;
                         projectiles[j].ToBeDeleted = projectiles[i].DestroysOtherProjectiles;
@@ -193,7 +209,7 @@ namespace src.GameObjects
 
             // Early delete projectiles for efficiency
             projectiles.RemoveAll(x => x.ToBeDeleted);
-            
+
             // Check for projectile-player hand intersections
             foreach (Projectile projectile in projectiles)
             {
@@ -254,7 +270,8 @@ namespace src.GameObjects
         {
             graphicsDevice.SetRenderTarget(shadowMap);
             graphicsDevice.Clear(Color.Black);
-            graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
+             graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
+            // graphicsDevice.RasterizerState = this.shadowRasterizer;
 
             arena.Draw(view, projection, shadowShader, graphicsDevice, true);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
@@ -269,7 +286,7 @@ namespace src.GameObjects
             // Draw all players
             foreach (Player player in players)
             {
-                player.Draw(view, projection, shadowShader,graphicsDevice,  true);
+                player.Draw(view, projection, shadowShader, graphicsDevice, true);
                 //player.Hitbox.DebugDraw(graphicsDevice, view, projection);
             }
             mob.Draw(view, projection, shadowShader, graphicsDevice, true);
@@ -277,10 +294,11 @@ namespace src.GameObjects
             lightingShader.setShadowTexture(shadowMap);
             graphicsDevice.SetRenderTarget(null);
             graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            // graphicsDevice.RasterizerState = this.renderingRasterizer;
 
             // Set background color
             graphicsDevice.Clear(Color.DeepSkyBlue);
-            
+
             lightingShader.setMetallic(arena.DrawModel.metallic);
             lightingShader.setRoughness(arena.DrawModel.roughness);
             arena.Draw(view, projection, lightingShader, graphicsDevice, false);
@@ -298,10 +316,13 @@ namespace src.GameObjects
             // Draw all Players
             foreach (Player player in players)
             {
-                if(player.playerState == Player.PlayerState.Crawling){
+                if (player.playerState == Player.PlayerState.Crawling)
+                {
                     graphicsDevice.BlendState = BlendState.NonPremultiplied;
                     lightingShader.setOpacityValue(0.4f);
-                }else{
+                }
+                else
+                {
                     graphicsDevice.BlendState = BlendState.Opaque;
                     lightingShader.setOpacityValue(1.0f);
                 }
@@ -318,11 +339,11 @@ namespace src.GameObjects
             mob.Draw(view, projection, lightingShader, graphicsDevice, false);
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
             lightingShader.setOpacityValue(0.2f);
-            foreach(AreaDamage areaDamage in areaDamages) 
+            foreach (AreaDamage areaDamage in areaDamages)
             {
                 areaDamage.Draw(view, projection, lightingShader, graphicsDevice, false);
             }
-            
+
             graphicsDevice.BlendState = BlendState.Opaque;
             lightingShader.setOpacityValue(1.0f);
             // graphicsDevice.BlendState = BlendState.NonPremultiplied;
@@ -331,7 +352,7 @@ namespace src.GameObjects
             lightingShader.setMetallic(0.0f);
             // graphicsDevice.BlendState = BlendState.Opaque;
             // lightingShader.setOpacityValue(1.0f);
-     
+
         }
 
         public void StartNewGame()

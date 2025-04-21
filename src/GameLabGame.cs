@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -67,7 +68,10 @@ namespace GameLab
             _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             _graphics.IsFullScreen = false; // Enable full screen
+            // _graphics.PreferMultiSampling = true; // Enable MSAA
+            // _graphics.GraphicsProfile = GraphicsProfile.HiDef; // Needed for MSAA > 0
             _graphics.ApplyChanges();
+            Console.WriteLine("MultiSampling supported: " + GraphicsDevice.PresentationParameters.MultiSampleCount);
 
             // Get Gamestatemanager instance yay and Menustatemanager too wahoo
             menuStateManager = MenuStateManager.GetMenuStateManager();
@@ -183,16 +187,16 @@ namespace GameLab
         {
             // gameStateManager.ShaderTest(testShader,view,projection,GraphicsDevice);
             gameStateManager.DrawGame(shadowShader, lightingShader, view, projection, GraphicsDevice, shadowMap);
-            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-            GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-            hud.DrawPlayerHud(_spriteBatch);
-            hud.DrawWin(_spriteBatch, GraphicsDevice);
-            // Draw menu
-            _menu.Draw();
+            // _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            // GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+            // hud.DrawPlayerHud(_spriteBatch);
+            // hud.DrawWin(_spriteBatch, GraphicsDevice);
+            // // Draw menu
+            // _menu.Draw();
 
-            _spriteBatch.End();
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.BlendState = BlendState.Opaque;
+            // _spriteBatch.End();
+            // GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            // GraphicsDevice.BlendState = BlendState.Opaque;
 
             base.Draw(gameTime);
         }

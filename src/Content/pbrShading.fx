@@ -111,7 +111,7 @@ float ShadowCalc(float4 FragLightPosSpace){
     float closestDepth = tex2D(ShadowSampler,projCoords.xy).r;
     float currentDepth = FragLightPosSpace.z/FragLightPosSpace.w;
     int samples = 0;
-    float bias = 0.005;
+    float bias = 0.001;
     float2 texel = 1.0f/2048.0f; 
     for (int x = -1; x <= 1; ++x) {
         for (int y = -1; y <= 1; ++y) {
