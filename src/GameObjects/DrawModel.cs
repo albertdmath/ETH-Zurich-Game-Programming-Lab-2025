@@ -6,18 +6,68 @@ using Microsoft.Xna.Framework;
 using Assimp.Configs;
 using System.Linq;
 using System.IO;
+using System.Runtime.InteropServices;
+using src.GameObjects;
 
-public struct ModelVertex
+[StructLayout(LayoutKind.Sequential)]
+public struct GameModelVertex : IVertexType
 {
-    public Vector3 position;
-    public Vector3 normal;
-    public Vector2 UV;
+
+    private Vector3 position;
+    private Vector3 normal;
+    private Vector2 texCoord;   
+
+    public GameModelVertex(Vector3 pos, Vector3 norm, Vector2 texCoord)
+    {
+        position = pos;
+        normal = norm;
+        this.texCoord = texCoord;
+    }
+
+    
+    public Vector3 Position
+{
+    get { return position; }
+    set { position = value; }
+}
+
+
+    public Vector3 Normal
+{
+    get { return normal; }
+    set { normal = value; }
+}
+
+public Vector2 TexCoord
+{
+    get { return texCoord; }
+    set { texCoord = value; }
+}
+
+     // Tell MonoGame what this struct looks like
+    public static readonly VertexDeclaration vertexDecl = new VertexDeclaration
+    (
+        new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
+        new VertexElement(sizeof(float) * 3, VertexElementFormat.Vector3, VertexElementUsage.Normal, 0),
+        new VertexElement(sizeof(float) * 6, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0)
+    );
+
+   
+
+     VertexDeclaration IVertexType.VertexDeclaration
+{
+    get { return vertexDecl; }
+}
+
 };
 
 public class GameMesh
 {
-    public List<ModelVertex> vertices { get; set; }
+    public List<GameModelVertex> vertices { get; set; }
     public List<int> indices { get; set; }
+
+    public VertexBuffer vertexBuffer; 
+    public IndexBuffer indexBuffer;
 
     public Texture2D diffuse { get; set; }
     public Texture2D normal { get; set; }
@@ -44,7 +94,14 @@ public class DrawModel
     private AssimpContext context;
 
     private string modelFilePath;
+     public static readonly VertexDeclaration VertexDeclaration =
+        new VertexDeclaration(
+            new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
+            new VertexElement(12, VertexElementFormat.Vector3, VertexElementUsage.Normal, 0),
+            new VertexElement(24, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0)
+        );
 
+   
 
 
     public DrawModel(string path, Model model, float metallic, float roughness, GraphicsDevice graphicsDevice)
@@ -61,56 +118,65 @@ public class DrawModel
 
     private void AssimpSetup(string path, GraphicsDevice graphicsDevice)
     {
-        var scene = context.ImportFile("../../../Content/arena.dae", PostProcessSteps.Triangulate | PostProcessSteps.GenerateNormals | PostProcessSteps.JoinIdenticalVertices | PostProcessSteps.CalculateTangentSpace);
+        Console.WriteLine("Assimp Importing File: " + path);
+        var scene = context.ImportFile(path, PostProcessSteps.Triangulate |
+PostProcessSteps.GenerateNormals |
+PostProcessSteps.JoinIdenticalVertices |
+PostProcessSteps.CalculateTangentSpace |
+PostProcessSteps.FlipWindingOrder);
+    
         int num_meshes = scene.MeshCount;
         this.meshes = new List<GameMesh>();
         for (int i = 0; i < num_meshes; i++)
         {
             Mesh currMesh = scene.Meshes[i];
             GameMesh gameMesh = new GameMesh();
-            gameMesh.vertices = new List<ModelVertex>();
+            gameMesh.vertices = new List<GameModelVertex>();
             for (int j = 0; j < currMesh.VertexCount; j++)
             {
-                ModelVertex vertex = new ModelVertex();
-                vertex.position = new Vector3();
-                vertex.normal = new Vector3();
-                vertex.UV = new Vector2();
-                vertex.position.X = currMesh.Vertices[i].X;
-                vertex.position.Y = currMesh.Vertices[i].Y;
-                vertex.position.Z = currMesh.Vertices[i].Z;
+                GameModelVertex vertex = new GameModelVertex();
+                Vector3 vec = new Vector3(currMesh.Vertices[j].X, currMesh.Vertices[j].Y, currMesh.Vertices[j].Z);
+                vertex.Position = vec;
 
                 if (currMesh.HasNormals)
                 {
-                    vertex.normal.X = currMesh.Normals[i].X;
-                    vertex.normal.Y = currMesh.Normals[i].Y;
-                    vertex.normal.Z = currMesh.Normals[i].Z;
+                    Vector3 normal = new Vector3(currMesh.Normals[j].X, currMesh.Normals[j].Y, currMesh.Normals[j].Z);
+                    vertex.Normal = normal;
                 }
                 else
                 {
-                    vertex.normal.X = 0.0f;
-                    vertex.normal.Y = 0.0f;
-                    vertex.normal.Z = 0.0f;
+                    vertex.Normal = Vector3.Zero;
                 }
 
                 if (currMesh.HasTextureCoords(0))
-                {
-                    vertex.UV.X = currMesh.TextureCoordinateChannels[0][i].X;
-                    vertex.UV.Y = currMesh.TextureCoordinateChannels[0][i].Y;
+                {   
+                    Vector2 texCoord = new Vector2(currMesh.TextureCoordinateChannels[0][j].X,
+                    1.0f-currMesh.TextureCoordinateChannels[0][j].Y);
+                    vertex.TexCoord = texCoord;
                 }
                 else
                 {
-                    vertex.UV.X = 0.0f;
-                    vertex.UV.Y = 0.0f;
+                    vertex.TexCoord = Vector2.Zero;
                 }
                 gameMesh.vertices.Add(vertex);
             }
             gameMesh.indices = currMesh.GetIndices().ToList();
             Material material = scene.Materials[currMesh.MaterialIndex];
             extractTextures(material,gameMesh,scene,graphicsDevice);
+            setupBuffers(gameMesh, graphicsDevice);
             this.meshes.Add(gameMesh);
 
         }
+       
+    }
 
+    private void setupBuffers(GameMesh gameMesh, GraphicsDevice graphicsDevice)
+    {
+        gameMesh.vertexBuffer = new VertexBuffer(graphicsDevice, typeof(GameModelVertex), gameMesh.vertices.Count, BufferUsage.WriteOnly);
+        gameMesh.indexBuffer = new IndexBuffer(graphicsDevice, IndexElementSize.ThirtyTwoBits, gameMesh.indices.Count, BufferUsage.WriteOnly);
+
+        gameMesh.vertexBuffer.SetData(gameMesh.vertices.ToArray());
+        gameMesh.indexBuffer.SetData(gameMesh.indices.ToArray());
     }
 
     private void extractTextures(Material material, GameMesh gameMesh, Scene scene, GraphicsDevice graphicsDevice)
@@ -136,6 +202,8 @@ public class DrawModel
 
     private void loadTexture(GameMesh gameMesh, TextureSlot texSlot, Scene scene, GraphicsDevice graphicsDevice, TextureType type){
          string filePath = texSlot.FilePath;
+
+         Console.WriteLine("Loading Texture: " + filePath + " of Type " + type.ToString());
             //This means the texture is baked in
             if (filePath.StartsWith("*"))
             {
@@ -174,7 +242,7 @@ public class DrawModel
         {
             string MODELFILEPATH = "../../../Content/arena.dae";
             //TODO: CHANGE THIS THIS IS CURSED AND JUST FOR TESTING 
-            string modelDir = Path.GetDirectoryName(MODELFILEPATH);
+            string modelDir = Path.GetDirectoryName(this.modelFilePath);
             filePath = Path.Combine(modelDir, filePath);
         }
 

@@ -39,6 +39,8 @@ namespace GameLab
         RenderTarget2D shadowMap;
         private Light Sun;
         PBR lightingShader;
+
+        PhongShading testShader;
         Shader shadowShader;
 
         // Camera settings
@@ -64,7 +66,7 @@ namespace GameLab
         {
             _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-            _graphics.IsFullScreen = true; // Enable full screen
+            _graphics.IsFullScreen = false; // Enable full screen
             _graphics.ApplyChanges();
 
             // Get Gamestatemanager instance yay and Menustatemanager too wahoo
@@ -80,33 +82,33 @@ namespace GameLab
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Load all of the models
-            arenaModel = new DrawModel("",Content.Load<Model>("marketplace"),0.0f,1.0f,GraphicsDevice);
-            playerModel = new DrawModel("",Content.Load<Model>("Player/player_body"),0.0f,0.3f,GraphicsDevice);
-            playerModelShell = new DrawModel("", Content.Load<Model>("Player/player_body_shell"),0.0f,0.3f,GraphicsDevice);
+            arenaModel = new DrawModel("../../../Content/marketplace.dae",Content.Load<Model>("marketplace"),0.0f,1.0f,GraphicsDevice);
+            playerModel = new DrawModel("../../../Content/Player/player_body.dae",Content.Load<Model>("Player/player_body"),0.0f,0.3f,GraphicsDevice);
+            playerModelShell = new DrawModel("../../../Content/Player/player_body_shell.dae", Content.Load<Model>("Player/player_body_shell"),0.0f,0.3f,GraphicsDevice);
 
-            playerHandModel = new DrawModel("", Content.Load<Model>("Player/hand"),0.0f,0.3f,GraphicsDevice);
-            indicatorModel = new DrawModel("", Content.Load<Model>("indicator"),0.0f,0.3f,GraphicsDevice);
-            playerHatModels.Add(new DrawModel("", Content.Load<Model>("Player/player1_hat"),0.0f,0.3f,GraphicsDevice));
-            playerHatModels.Add(new DrawModel("", Content.Load<Model>("Player/player2_hat"),0.0f,0.3f,GraphicsDevice));
-            playerHatModels.Add(new DrawModel("", Content.Load<Model>("Player/player3_hat"),0.0f,0.3f,GraphicsDevice));
-            playerHatModels.Add(new DrawModel("",Content.Load<Model>("Player/player4_hat"),0.0f,0.3f,GraphicsDevice));
+            playerHandModel = new DrawModel("../../../Content/Player/hand.dae", Content.Load<Model>("Player/hand"),0.0f,0.3f,GraphicsDevice);
+            indicatorModel = new DrawModel("../../../Content/indicator.dae", Content.Load<Model>("indicator"),0.0f,0.3f,GraphicsDevice);
+            playerHatModels.Add(new DrawModel("../../../Content/Player/player1_hat.dae", Content.Load<Model>("Player/player1_hat"),0.0f,0.3f,GraphicsDevice));
+            playerHatModels.Add(new DrawModel("../../../Content/Player/player2_hat.dae", Content.Load<Model>("Player/player2_hat"),0.0f,0.3f,GraphicsDevice));
+            playerHatModels.Add(new DrawModel("../../../Content/Player/player3_hat.dae", Content.Load<Model>("Player/player3_hat"),0.0f,0.3f,GraphicsDevice));
+            playerHatModels.Add(new DrawModel("../../../Content/Player/player4_hat.dae",Content.Load<Model>("Player/player4_hat"),0.0f,0.3f,GraphicsDevice));
 
-            mobModels.Add(new DrawModel("",Content.Load<Model>("mob1"),0.0f,0.3f,GraphicsDevice));
-            mobModels.Add(new DrawModel("",Content.Load<Model>("mob2"),0.0f,0.3f,GraphicsDevice));
-            mobModels.Add(new DrawModel("",Content.Load<Model>("mob3"),0.0f,0.3f,GraphicsDevice));
+            mobModels.Add(new DrawModel("../../../Content/mob1.dae",Content.Load<Model>("mob1"),0.0f,0.3f,GraphicsDevice));
+            mobModels.Add(new DrawModel("../../../Content/mob2.dae",Content.Load<Model>("mob2"),0.0f,0.3f,GraphicsDevice));
+            mobModels.Add(new DrawModel("../../../Content/mob3.dae",Content.Load<Model>("mob3"),0.0f,0.3f,GraphicsDevice));
 
-            projectileModels.Add(ProjectileType.Frog, new DrawModel("",Content.Load<Model>("frog"),0.0f,0.4f,GraphicsDevice));
-            projectileModels.Add(ProjectileType.Swordfish, new DrawModel("",Content.Load<Model>("swordfish"),0.0f,0.5f,GraphicsDevice));
-            projectileModels.Add(ProjectileType.Tomato, new DrawModel("",Content.Load<Model>("tomato"),0.0f,0.6f,GraphicsDevice));
-            projectileModels.Add(ProjectileType.Coconut, new DrawModel("",Content.Load<Model>("coconut"),0.0f,0.9f,GraphicsDevice));
-            projectileModels.Add(ProjectileType.Banana, new DrawModel("",Content.Load<Model>("bananapeel"),0.0f,0.9f,GraphicsDevice));
-            projectileModels.Add(ProjectileType.Turtle, new DrawModel("",Content.Load<Model>("turtle_shell"),0.0f,0.9f,GraphicsDevice));
-            projectileModels.Add(ProjectileType.TurtleWalking, new DrawModel("",Content.Load<Model>("turtle"),0.0f,0.9f,GraphicsDevice));
-            projectileModels.Add(ProjectileType.Mjoelnir, new DrawModel("",Content.Load<Model>("mjoelnir"),0.0f,0.9f,GraphicsDevice));
-            projectileModels.Add(ProjectileType.Spear, new DrawModel("",Content.Load<Model>("trident"),0.0f,0.9f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.Frog, new DrawModel("../../../Content/frog.dae",Content.Load<Model>("frog"),0.0f,0.4f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.Swordfish, new DrawModel("../../../Content/swordfish.dae",Content.Load<Model>("swordfish"),0.0f,0.5f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.Tomato, new DrawModel("../../../Content/tomato.dae",Content.Load<Model>("tomato"),0.0f,0.6f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.Coconut, new DrawModel("../../../Content/coconut.dae",Content.Load<Model>("coconut"),0.0f,0.9f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.Banana, new DrawModel("../../../Content/bananapeel.dae",Content.Load<Model>("bananapeel"),0.0f,0.9f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.Turtle, new DrawModel("../../../Content/turtle_shell.dae",Content.Load<Model>("turtle_shell"),0.0f,0.9f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.TurtleWalking, new DrawModel("../../../Content/turtle.dae",Content.Load<Model>("turtle"),0.0f,0.9f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.Mjoelnir, new DrawModel("../../../Content/mjoelnir.dae",Content.Load<Model>("mjoelnir"),0.0f,0.9f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.Spear, new DrawModel("../../../Content/trident.dae",Content.Load<Model>("trident"),0.0f,0.9f,GraphicsDevice));
 
-            areaDamageModels.Add(new DrawModel("",Content.Load<Model>("hammer_aoe"),0.0f,0.9f,GraphicsDevice));
-            areaDamageModels.Add(new DrawModel("",Content.Load<Model>("tomato_aoe"),0.0f,0.9f,GraphicsDevice));
+            areaDamageModels.Add(new DrawModel("../../../Content/hammer_aoe.dae",Content.Load<Model>("hammer_aoe"),0.0f,0.9f,GraphicsDevice));
+            areaDamageModels.Add(new DrawModel("../../../Content/tomato_aoe.dae",Content.Load<Model>("tomato_aoe"),0.0f,0.9f,GraphicsDevice));
 
             playerHP.Add(Content.Load<Texture2D>("HUD/blue_heart"));
             playerHP.Add(Content.Load<Texture2D>("HUD/pink_heart"));
@@ -123,6 +125,7 @@ namespace GameLab
 
             // Shader setup
             //lightingShader = new PhongShading(Content.Load<Effect>("lightingWithShadow"));
+            testShader = new PhongShading(Content.Load<Effect>("lighting"));
             lightingShader = new PBR(Content.Load<Effect>("pbrShading"));
             shadowShader = new Shader(Content.Load<Effect>("shadowMap"));
             Sun = new Light(new Vector3(1.2f, 1.2f, 0.82f)*4.5f, -new Vector3(3.0f, 9.0f, 7.0f));
@@ -135,6 +138,11 @@ namespace GameLab
             lightingShader.setProjectionMatrix(projection);
             lightingShader.setLight(Sun);
             lightingShader.setOpacityValue(1.0f);
+
+            testShader.setCameraPosition(cameraPosition);
+            testShader.setViewMatrix(view);
+            testShader.setProjectionMatrix(projection);
+            testShader.setLight(Sun);
 
             // Initialize gamestate here:
             gameStateManager.Initialize(arenaModel, playerHatModels, playerModel, playerModelShell, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels);
@@ -173,6 +181,7 @@ namespace GameLab
 
         protected override void Draw(GameTime gameTime)
         {
+            // gameStateManager.ShaderTest(testShader,view,projection,GraphicsDevice);
             gameStateManager.DrawGame(shadowShader, lightingShader, view, projection, GraphicsDevice, shadowMap);
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;

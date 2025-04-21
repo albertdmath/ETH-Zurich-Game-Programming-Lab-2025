@@ -239,29 +239,40 @@ namespace src.GameObjects
             projectiles.RemoveAll(x => x.ToBeDeleted);
         }
 
+
+        public void ShaderTest(Shader testShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice)
+        {
+            graphicsDevice.SetRenderTarget(null);
+            graphicsDevice.Clear(Color.Black);
+            graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            testShader.setWorldMatrix(Matrix.Identity);
+            testShader.setViewMatrix(view);
+            testShader.setProjectionMatrix(projection);
+            arena.Draw(view, projection, testShader, graphicsDevice, false);
+        }
         public void DrawGame(Shader shadowShader, PBR lightingShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D shadowMap)
         {
             graphicsDevice.SetRenderTarget(shadowMap);
             graphicsDevice.Clear(Color.Black);
             graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
 
-            arena.Draw(view, projection, shadowShader, true);
+            arena.Draw(view, projection, shadowShader, graphicsDevice, true);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
 
             // Draw all active projectiles
             foreach (Projectile projectile in projectiles)
             {
-                projectile.Draw(view, projection, shadowShader, true);
+                projectile.Draw(view, projection, shadowShader, graphicsDevice, true);
                 // projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             }
 
             // Draw all players
             foreach (Player player in players)
             {
-                player.Draw(view, projection, shadowShader, true);
+                player.Draw(view, projection, shadowShader,graphicsDevice,  true);
                 //player.Hitbox.DebugDraw(graphicsDevice, view, projection);
             }
-            mob.Draw(view, projection, shadowShader, true);
+            mob.Draw(view, projection, shadowShader, graphicsDevice, true);
 
             lightingShader.setShadowTexture(shadowMap);
             graphicsDevice.SetRenderTarget(null);
@@ -272,7 +283,7 @@ namespace src.GameObjects
             
             lightingShader.setMetallic(arena.DrawModel.metallic);
             lightingShader.setRoughness(arena.DrawModel.roughness);
-            arena.Draw(view, projection, lightingShader, false);
+            arena.Draw(view, projection, lightingShader, graphicsDevice, false);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
 
             // Draw all active projectiles:
@@ -280,7 +291,7 @@ namespace src.GameObjects
             {
                 lightingShader.setMetallic(projectile.DrawModel.metallic);
                 lightingShader.setRoughness(projectile.DrawModel.roughness);
-                projectile.Draw(view, projection, lightingShader, false);
+                projectile.Draw(view, projection, lightingShader, graphicsDevice, false);
                 // projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             }
 
@@ -297,19 +308,19 @@ namespace src.GameObjects
 
                 lightingShader.setMetallic(player.DrawModel.metallic);
                 lightingShader.setRoughness(player.DrawModel.roughness);
-                player.Draw(view, projection, lightingShader, false);
+                player.Draw(view, projection, lightingShader, graphicsDevice, false);
                 //player.Hitbox.DebugDraw(graphicsDevice, view, projection);
             }
 
             // Draw mob
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
             lightingShader.setOpacityValue(1.0f);
-            mob.Draw(view, projection, lightingShader, false);
+            mob.Draw(view, projection, lightingShader, graphicsDevice, false);
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
             lightingShader.setOpacityValue(0.2f);
             foreach(AreaDamage areaDamage in areaDamages) 
             {
-                areaDamage.Draw(view, projection, lightingShader, false);
+                areaDamage.Draw(view, projection, lightingShader, graphicsDevice, false);
             }
             
             graphicsDevice.BlendState = BlendState.Opaque;

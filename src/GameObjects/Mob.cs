@@ -1,5 +1,6 @@
 using GameLab;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 
@@ -194,9 +195,9 @@ namespace src.GameObjects
         //     }
         // }
         
-        public void Draw(Matrix view, Matrix projection, Shader shader, bool shadowDraw) {
+        public void Draw(Matrix view, Matrix projection, Shader shader, GraphicsDevice graphicsDevice, bool shadowDraw) {
             foreach (Zombie zombie in active)
-                zombie.Draw(view, projection, shader, shadowDraw);
+                zombie.Draw(view, projection, shader, graphicsDevice, shadowDraw);
         }
     }
     

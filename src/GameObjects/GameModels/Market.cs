@@ -15,7 +15,7 @@ namespace src.GameObjects
         {
 
             this.Position = position;
-            this.Orientation = Vector3.Normalize(-Position);
+            this.Orientation = Vector3.Normalize(Position);
             this.Type = type;
         }
 
