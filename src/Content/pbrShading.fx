@@ -168,14 +168,14 @@ float4 PS(VertexOutput input) : SV_Target
     float3 LightDirView = mul(LightDirection,(float3x3)View).rgb;
     float4 WorldPos = mul(FragPos,ViewInverse);
     float4 LightViewPos = mul(WorldPos,LightViewProjection);
-    float3 F0 = float3(0.06f,0.06f,0.06f); 
+    float3 F0 = float3(0.04f,0.04f,0.04f); 
     F0 = lerp(F0,albedo,metallic); 
     float3 wi = normalize(LightDirView);
     float3 viewDir = normalize(-FragPos.xyz); 
 
     float3 halfWay = normalize(viewDir + wi); 
     float cosTheta = max(dot(Normal,viewDir),0.0); 
-    float3 radiance = LightColor; 
+    float3 radiance = LightColor * 2.0f; 
 
     float NDF = DistributionGGX(Normal, halfWay, roughness); 
     float G = GeometrySmith(Normal,viewDir, wi,roughness); 
@@ -194,7 +194,7 @@ float4 PS(VertexOutput input) : SV_Target
     float shadow = ShadowCalc(LightViewPos); 
     float3 Lo =  (kD * albedo / PI + specular) * radiance * NdotL * shadow;
 
-    float3 ambient = float3(0.4f,0.4f,0.4f) * albedo;
+    float3 ambient = float3(0.2f,0.2f,0.2f) * albedo;
     float3 color   = ambient + Lo;
     //color = color / (color + float3(1.0f,1.0f,1.0f));
     float HDRnormalizer = 1.0f/2.2f; 
