@@ -56,7 +56,7 @@ public class HUD
     public bool DrawWin(SpriteBatch spriteBatch, GraphicsDevice graphics)
     {
 
-        if (gameStateManager.livingPlayers.Count() == 1 && !(menuStateManager.NUM_PLAYERS==1))
+        if (gameStateManager.GameIsOver())
         {
             // Get a random ass texture so we use it as background for the backdrop
             Texture2D pixel = new Texture2D(graphics, 1, 1);

@@ -331,5 +331,9 @@ namespace src.GameObjects
             InitializeMob();
             InitializePlayers();
         }
+
+        public bool GameIsOver(){
+            return livingPlayers.Count() == 1 && !(menuStateManager.NUM_PLAYERS==1);
+        }
     }
 }

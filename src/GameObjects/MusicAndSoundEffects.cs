@@ -46,7 +46,7 @@ public class MusicAndSoundEffects
 
         menuStateManager = MenuStateManager.GetMenuStateManager();
 
-        if(menuStateManager.SOUND_ENABLED) {
+        if(menuStateManager.SOUND_ENABLED) {//SENSE
             MediaPlayer.Volume = 0.45f;
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(bgMusic);

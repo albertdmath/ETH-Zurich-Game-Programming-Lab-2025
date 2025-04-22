@@ -126,6 +126,9 @@ namespace src.GameObjects{
             
             //RESUMEBUTTON
             MyButton resumebutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Resume","ResumeButton",0,0,(s,a) => {
+                if(gameStateManager.GameIsOver()){
+                    gameStateManager.StartNewGame();
+                }
                 CloseMenu();
             },grid);
 
