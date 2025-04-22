@@ -8,7 +8,7 @@ namespace src.GameObjects
     public class Mob
     {
         // Zombies
-        private const int N_ZOMBIES = 300;
+        private const int N_ZOMBIES = 150;
         public static Zombie[] active = new Zombie[N_ZOMBIES];
         private List<Zombie>[] sortedZombies = new List<Zombie>[24 * 24];
 

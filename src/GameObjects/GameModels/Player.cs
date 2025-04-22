@@ -219,6 +219,7 @@ namespace src.GameObjects
             if (gameStateManager.livingPlayers.Count != 1 && immunity <= 0)
             {
                 input.Vibrate();
+                MusicAndSoundEffects.playHitSFX();
                 if(armor)
                 {
                     armor = false;
@@ -332,6 +333,11 @@ namespace src.GameObjects
         {
             Hand.StopCatching();
             projectileHeld = projectile;
+            if(projectile.Holder != null) 
+            {
+                (projectile.Holder as Player).projectileHeld = null;
+                (projectile.Holder as Player).playerState = PlayerState.NormalMovement;
+            }
             projectile.Catch(this);
             MusicAndSoundEffects.playProjectileSFX(projectile.Type);
             playerState = PlayerState.HoldingProjectile;
