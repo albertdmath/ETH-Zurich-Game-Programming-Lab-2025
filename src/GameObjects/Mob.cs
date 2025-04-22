@@ -196,8 +196,13 @@ namespace src.GameObjects
         // }
         
         public void Draw(Matrix view, Matrix projection, Shader shader, GraphicsDevice graphicsDevice, bool shadowDraw) {
-            foreach (Zombie zombie in active)
+            foreach (Zombie zombie in active) {
+                if(!shadowDraw){
+                shader.setRoughness(zombie.DrawModel.roughness);
+                shader.setMetallic(zombie.DrawModel.metallic);
+                }
                 zombie.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+        }
         }
     }
     

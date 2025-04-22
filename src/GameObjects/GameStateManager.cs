@@ -388,6 +388,8 @@ namespace src.GameObjects
             geometryShader.setOpacityValue(0.2f);
             foreach (AreaDamage areaDamage in areaDamages)
             {
+                geometryShader.setMetallic(areaDamage.DrawModel.metallic);
+                geometryShader.setRoughness(areaDamage.DrawModel.roughness);
                 areaDamage.Draw(view, projection, geometryShader, graphicsDevice, false);
             }
 

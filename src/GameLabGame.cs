@@ -137,9 +137,9 @@ namespace GameLab
             playerHatModels.Add(new DrawModel("../../../Content/Player/player3_hat.dae", Content.Load<Model>("Player/player3_hat"),0.0f,0.3f,GraphicsDevice));
             playerHatModels.Add(new DrawModel("../../../Content/Player/player4_hat.dae",Content.Load<Model>("Player/player4_hat"),0.0f,0.3f,GraphicsDevice));
 
-            mobModels.Add(new DrawModel("../../../Content/mob1.dae",Content.Load<Model>("mob1"),0.0f,0.3f,GraphicsDevice));
-            mobModels.Add(new DrawModel("../../../Content/mob2.dae",Content.Load<Model>("mob2"),0.0f,0.3f,GraphicsDevice));
-            mobModels.Add(new DrawModel("../../../Content/mob3.dae",Content.Load<Model>("mob3"),0.0f,0.3f,GraphicsDevice));
+            mobModels.Add(new DrawModel("../../../Content/mob1.dae",Content.Load<Model>("mob1"),0.0f,0.6f,GraphicsDevice));
+            mobModels.Add(new DrawModel("../../../Content/mob2.dae",Content.Load<Model>("mob2"),0.0f,0.6f,GraphicsDevice));
+            mobModels.Add(new DrawModel("../../../Content/mob3.dae",Content.Load<Model>("mob3"),0.0f,0.6f,GraphicsDevice));
 
             projectileModels.Add(ProjectileType.Frog, new DrawModel("../../../Content/frog.dae",Content.Load<Model>("frog"),0.0f,0.4f,GraphicsDevice));
             projectileModels.Add(ProjectileType.Swordfish, new DrawModel("../../../Content/swordfish.dae",Content.Load<Model>("swordfish"),0.0f,0.5f,GraphicsDevice));
@@ -152,7 +152,7 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Spear, new DrawModel("../../../Content/trident.dae",Content.Load<Model>("trident"),0.0f,0.9f,GraphicsDevice));
 
             areaDamageModels.Add(new DrawModel("../../../Content/hammer_aoe.dae",Content.Load<Model>("hammer_aoe"),0.0f,0.9f,GraphicsDevice));
-            areaDamageModels.Add(new DrawModel("../../../Content/tomato_aoe.dae",Content.Load<Model>("tomato_aoe"),0.0f,0.9f,GraphicsDevice));
+            areaDamageModels.Add(new DrawModel("../../../Content/tomato_aoe.dae",Content.Load<Model>("tomato_aoe"),0.0f,0.3f,GraphicsDevice));
 
             playerHP.Add(Content.Load<Texture2D>("HUD/blue_heart"));
             playerHP.Add(Content.Load<Texture2D>("HUD/pink_heart"));
