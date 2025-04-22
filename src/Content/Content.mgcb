@@ -162,6 +162,12 @@
 /processorParam:TextureFormat=Compressed
 /build:frog.dae
 
+#begin GeometryPass.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:GeometryPass.fx
+
 #begin hammer_aoe.dae
 /importer:FbxImporter
 /processor:ModelProcessor

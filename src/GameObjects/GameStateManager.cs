@@ -266,11 +266,51 @@ namespace src.GameObjects
             testShader.setProjectionMatrix(projection);
             arena.Draw(view, projection, testShader, graphicsDevice, false);
         }
-        public void DrawGame(Shader shadowShader, PBR lightingShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D shadowMap)
+        public void DrawGame(PBR lightingShader, GraphicsDevice graphicsDevice, VertexBuffer fullScreenQuad, RenderTarget2D FragPosMap, RenderTarget2D NormalMap, RenderTarget2D AlbedoMap, RenderTarget2D RoughnessMetallicMap, RenderTarget2D ShadowMap, SpriteBatch spriteBatch, bool test)
+        {
+            graphicsDevice.SetVertexBuffer(fullScreenQuad);
+            graphicsDevice.Clear(Color.White);
+            graphicsDevice.DepthStencilState = DepthStencilState.Default;
+            graphicsDevice.BlendState = BlendState.Opaque;
+            graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            lightingShader.setFragPosTexture(FragPosMap);
+            lightingShader.setNormalTexture(NormalMap);
+            lightingShader.setTexture(AlbedoMap);
+            lightingShader.setShadowTexture(ShadowMap);
+            lightingShader.setRoughnessTexture(RoughnessMetallicMap);
+
+          
+            // You don’t need an index buffer for this simple triangle list
+            foreach (var pass in lightingShader.effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, 2); // 2 triangles = 6 vertices
+            }
+            graphicsDevice.SetRenderTarget(null);
+          if (test)
+            {
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(FragPosMap, new Rectangle(0, 0, 400, 400), Color.White);
+                spriteBatch.End(); 
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(NormalMap, new Rectangle(0, 400, 400, 400), Color.White);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(AlbedoMap, new Rectangle(0, 800, 400, 400), Color.White);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(ShadowMap, new Rectangle(400, 400, 400, 400), Color.White);
+                spriteBatch.End();
+
+            }
+
+        }
+
+        public void GeometryPass(Shader geometryShader, Shader shadowShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D shadowMap, RenderTargetBinding[] targets, SpriteBatch spriteBatch, bool test)
         {
             graphicsDevice.SetRenderTarget(shadowMap);
             graphicsDevice.Clear(Color.Black);
-             graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
+            graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
             // graphicsDevice.RasterizerState = this.shadowRasterizer;
 
             arena.Draw(view, projection, shadowShader, graphicsDevice, true);
@@ -290,26 +330,31 @@ namespace src.GameObjects
                 //player.Hitbox.DebugDraw(graphicsDevice, view, projection);
             }
             mob.Draw(view, projection, shadowShader, graphicsDevice, true);
-
-            lightingShader.setShadowTexture(shadowMap);
-            graphicsDevice.SetRenderTarget(null);
+            
+            graphicsDevice.SetRenderTargets(targets);
             graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+             graphicsDevice.DepthStencilState = DepthStencilState.Default;
+            graphicsDevice.BlendState = BlendState.Opaque;
+            graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+
             // graphicsDevice.RasterizerState = this.renderingRasterizer;
 
             // Set background color
             graphicsDevice.Clear(Color.DeepSkyBlue);
 
-            lightingShader.setMetallic(arena.DrawModel.metallic);
-            lightingShader.setRoughness(arena.DrawModel.roughness);
-            arena.Draw(view, projection, lightingShader, graphicsDevice, false);
+            geometryShader.setMetallic(arena.DrawModel.metallic);
+            geometryShader.setRoughness(arena.DrawModel.roughness);
+
+            arena.Draw(view, projection, geometryShader, graphicsDevice, false);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
 
             // Draw all active projectiles:
             foreach (Projectile projectile in projectiles)
             {
-                lightingShader.setMetallic(projectile.DrawModel.metallic);
-                lightingShader.setRoughness(projectile.DrawModel.roughness);
-                projectile.Draw(view, projection, lightingShader, graphicsDevice, false);
+                geometryShader.setMetallic(projectile.DrawModel.metallic);
+                geometryShader.setRoughness(projectile.DrawModel.roughness);
+
+                projectile.Draw(view, projection, geometryShader, graphicsDevice, false);
                 // projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             }
 
@@ -319,41 +364,68 @@ namespace src.GameObjects
                 if (player.playerState == Player.PlayerState.Crawling)
                 {
                     graphicsDevice.BlendState = BlendState.NonPremultiplied;
-                    lightingShader.setOpacityValue(0.4f);
+                    geometryShader.setOpacityValue(0.4f);
+
                 }
                 else
                 {
                     graphicsDevice.BlendState = BlendState.Opaque;
-                    lightingShader.setOpacityValue(1.0f);
+                    geometryShader.setOpacityValue(1.0f);
                 }
 
-                lightingShader.setMetallic(player.DrawModel.metallic);
-                lightingShader.setRoughness(player.DrawModel.roughness);
-                player.Draw(view, projection, lightingShader, graphicsDevice, false);
+                geometryShader.setMetallic(player.DrawModel.metallic);
+                geometryShader.setRoughness(player.DrawModel.roughness);
+
+                player.Draw(view, projection, geometryShader, graphicsDevice, false);
                 //player.Hitbox.DebugDraw(graphicsDevice, view, projection);
             }
 
             // Draw mob
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
-            lightingShader.setOpacityValue(1.0f);
-            mob.Draw(view, projection, lightingShader, graphicsDevice, false);
+            geometryShader.setOpacityValue(1.0f);
+            mob.Draw(view, projection, geometryShader, graphicsDevice, false);
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
-            lightingShader.setOpacityValue(0.2f);
+            geometryShader.setOpacityValue(0.2f);
             foreach (AreaDamage areaDamage in areaDamages)
             {
-                areaDamage.Draw(view, projection, lightingShader, graphicsDevice, false);
+                areaDamage.Draw(view, projection, geometryShader, graphicsDevice, false);
             }
 
             graphicsDevice.BlendState = BlendState.Opaque;
-            lightingShader.setOpacityValue(1.0f);
+            geometryShader.setOpacityValue(1.0f);
             // graphicsDevice.BlendState = BlendState.NonPremultiplied;
             // lightingShader.setOpacityValue(0.7f);
-            lightingShader.setRoughness(0.3f);
-            lightingShader.setMetallic(0.0f);
+            geometryShader.setRoughness(0.3f);
+            geometryShader.setMetallic(0.0f);
             // graphicsDevice.BlendState = BlendState.Opaque;
             // lightingShader.setOpacityValue(1.0f);
 
+
+
+            graphicsDevice.SetRenderTarget(null);
+            if (test)
+            {
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw((RenderTarget2D)targets[0].RenderTarget, new Rectangle(0, 0, 400, 400), Color.White);
+                spriteBatch.End(); 
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw((RenderTarget2D)targets[1].RenderTarget, new Rectangle(0, 400, 400, 400), Color.White);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw((RenderTarget2D)targets[2].RenderTarget, new Rectangle(400, 0, 400, 400), Color.White);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(shadowMap, new Rectangle(400, 400, 400, 400), Color.White);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw((RenderTarget2D)targets[3].RenderTarget, new Rectangle(800, 0, 400, 400), Color.White);
+                spriteBatch.End();
+
+            }
+
+
         }
+
 
         public void StartNewGame()
         {

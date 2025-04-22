@@ -14,19 +14,13 @@ float3 LightDirection;
 float3 LightColor; 
 
 //PBR
-float metallic;
-float roughness; 
-
-
-
-
-float4x4 World;
-float4x4 View;
-float4x4 Projection;
+float4x4 ViewInverse;
 float4x4 LightViewProjection;
+float4x4 View;
 
-float3 CameraPosition;
-float OpacityVal;
+
+
+
 
 
 sampler2D ShadowSampler;
@@ -37,22 +31,31 @@ Texture2D ModelTexture;
 SamplerState TextureSampler;
 
 
+Texture2D FragPosTexture;
+SamplerState FragPosSampler;
+
+Texture2D NormalTexture;
+SamplerState NormalPosSampler;
+
+Texture2D RoughnessTexture;
+SamplerState RoughnessSampler;
+
+Texture2D MetallicTexture;
+SamplerState MetallicSampler;
+
+
+
 
 struct VertexInput 
 {
     float4 Position: SV_POSITION; 
-    float3 Normal: NORMAL; 
     float2 TexCoord: TEXCOORD0; 
-    float4 Color: COLOR0;
 };
 
 struct VertexOutput {
     float4 Position: SV_POSITION; 
-    float3 Normal: TEXCOORD1;
-    float4 Color: COLOR0; 
     float2 TexCoord: TEXCOORD0; 
-    float4 FragLightPosSpace: TEXCOORD3;
-    float3 WorldPos: TEXCOORD2; 
+
 };
 
 
@@ -144,13 +147,8 @@ float ShadowCalc(float4 FragLightPosSpace){
 
 VertexOutput VS(VertexInput input) {
     VertexOutput output; 
-    float4 worldPos = mul(input.Position, World);
-    output.Position = mul(worldPos,mul(View,Projection)); 
-    output.Normal = mul(input.Normal,(float3x3)World);
+    output.Position = input.Position;
     output.TexCoord = input.TexCoord; 
-    output.Color = input.Color;
-    output.WorldPos = worldPos.xyz;
-    output.FragLightPosSpace = mul(worldPos,LightViewProjection);
     return output; 
 
 }
@@ -159,12 +157,21 @@ VertexOutput VS(VertexInput input) {
 float4 PS(VertexOutput input) : SV_Target
 {   
 
-    float3 Normal = normalize(input.Normal);
-    float3 albedo = pow(ModelTexture.Sample(TextureSampler,input.TexCoord.xy).rgb,2.2f);
-    float3 F0 = float3(0.04f,0.04f,0.04f); 
+    float3 Normal = normalize(NormalTexture.Sample(NormalPosSampler,input.TexCoord.xy).xyz);
+    float4 albedoColor = pow(ModelTexture.Sample(TextureSampler,input.TexCoord.xy),2.2f);
+    float3 albedo = albedoColor.rgb;
+    float OpacityVal = albedoColor.a;
+    float4 FragPos = FragPosTexture.Sample(FragPosSampler,input.TexCoord.xy);
+    float2 roughmet = RoughnessTexture.Sample(RoughnessSampler,input.TexCoord.xy).rg;
+    float roughness = roughmet.r;
+    float metallic = roughmet.g;
+    float3 LightDirView = mul(LightDirection,(float3x3)View).rgb;
+    float4 WorldPos = mul(FragPos,ViewInverse);
+    float4 LightViewPos = mul(WorldPos,LightViewProjection);
+    float3 F0 = float3(0.06f,0.06f,0.06f); 
     F0 = lerp(F0,albedo,metallic); 
-    float3 wi = normalize(LightDirection);
-    float3 viewDir = normalize(CameraPosition - input.WorldPos); 
+    float3 wi = normalize(LightDirView);
+    float3 viewDir = normalize(-FragPos.xyz); 
 
     float3 halfWay = normalize(viewDir + wi); 
     float cosTheta = max(dot(Normal,viewDir),0.0); 
@@ -184,10 +191,10 @@ float4 PS(VertexOutput input) : SV_Target
     kD *= 1.0 - metallic; 
 
     float NdotL = max(dot(Normal, wi), 0.0);        
-    float shadow = ShadowCalc(input.FragLightPosSpace); 
+    float shadow = ShadowCalc(LightViewPos); 
     float3 Lo =  (kD * albedo / PI + specular) * radiance * NdotL * shadow;
 
-    float3 ambient = float3(0.03f,0.03f,0.03f) * albedo;
+    float3 ambient = float3(0.4f,0.4f,0.4f) * albedo;
     float3 color   = ambient + Lo;
     //color = color / (color + float3(1.0f,1.0f,1.0f));
     float HDRnormalizer = 1.0f/2.2f; 
@@ -199,7 +206,7 @@ float4 PS(VertexOutput input) : SV_Target
 
 }
 
-technique BlinnPhongTec {
+technique PBR {
     pass Pass1 {
         VertexShader = compile VS_SHADERMODEL VS();
         PixelShader  = compile PS_SHADERMODEL PS();
