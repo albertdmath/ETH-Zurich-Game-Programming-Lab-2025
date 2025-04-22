@@ -133,7 +133,7 @@ namespace GameLab
             lightingShader = new PBR(Content.Load<Effect>("pbrShading"));
             shadowShader = new Shader(Content.Load<Effect>("shadowMap"));
             Sun = new Light(new Vector3(1.2f, 1.2f, 0.82f)*4.5f, -new Vector3(3.0f, 9.0f, 7.0f));
-            shadowMap = new RenderTarget2D(_graphics.GraphicsDevice, 2048, 2048, false, SurfaceFormat.Single, DepthFormat.Depth24);
+            shadowMap = new RenderTarget2D(_graphics.GraphicsDevice, 4096, 4096, false, SurfaceFormat.Single, DepthFormat.Depth24);
 
             shadowShader.setLightSpaceMatrix(Sun.lightSpaceMatrix);
             lightingShader.setLightSpaceMatrix(Sun.lightSpaceMatrix);

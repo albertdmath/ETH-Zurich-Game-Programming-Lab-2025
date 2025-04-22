@@ -100,7 +100,7 @@ float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
 
 float ShadowCalc(float4 FragLightPosSpace){
     
-    float shadow = 1.0f;
+    float shadow = 20.0f;
     float2 projCoords = FragLightPosSpace.xy/FragLightPosSpace.w;
     if (projCoords.x > -1.0 && projCoords.x<1.0 && projCoords.y>-1.0 && projCoords.y < 1.0){
         
@@ -112,9 +112,9 @@ float ShadowCalc(float4 FragLightPosSpace){
     float currentDepth = FragLightPosSpace.z/FragLightPosSpace.w;
     int samples = 0;
     float bias = 0.001;
-    float2 texel = 1.0f/2048.0f; 
-    for (int x = -1; x <= 1; ++x) {
-        for (int y = -1; y <= 1; ++y) {
+    float2 texel = 1.0f/4096.0f; 
+    for (int x = -3; x <= 3; ++x) {
+        for (int y = -3; y <= 3; ++y) {
             float2 offset = float2(x, y) * texel;
             float2 sampleUV = projCoords + offset;
 
