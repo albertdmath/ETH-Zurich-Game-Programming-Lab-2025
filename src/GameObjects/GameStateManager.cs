@@ -36,6 +36,7 @@ namespace src.GameObjects
 
         // Model references for initializing the instances
         private DrawModel arenaModel;
+        private List<DrawModel> marketModels = new List<DrawModel>();
         private List<DrawModel> playerHatModels;
         private DrawModel playerModel;
         private DrawModel playerModelShell;
@@ -64,10 +65,11 @@ namespace src.GameObjects
             return instance;
         }
 
-        public void Initialize(DrawModel arenaModel, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels)
+        public void Initialize(DrawModel arenaModel, List<DrawModel> marketModels, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels)
         {
             this.menuStateManager = MenuStateManager.GetMenuStateManager();
             this.arenaModel = arenaModel;
+            this.marketModels = marketModels;
             this.playerHatModels = playerHatModels;
             this.playerModel = playerModel;
             this.playerHandModel = playerHandModel;

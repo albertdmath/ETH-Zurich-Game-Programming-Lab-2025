@@ -15,6 +15,7 @@ namespace GameLab
         private KeyboardState _previousKeyboardState;
         // Private fields:
         private DrawModel arenaModel;
+        private List<DrawModel> marketModels = new List<DrawModel>();
         private DrawModel playerModel;
         private DrawModel playerModelShell;
 
@@ -81,6 +82,12 @@ namespace GameLab
 
             // Load all of the models
             arenaModel = new DrawModel(Content.Load<Model>("marketplace"),0.0f,1.0f);
+            
+            marketModels.Add(new DrawModel(Content.Load<Model>("market_1"),0.0f,0.3f));
+            marketModels.Add(new DrawModel(Content.Load<Model>("market_2"),0.0f,0.3f));
+            marketModels.Add(new DrawModel(Content.Load<Model>("market_3"),0.0f,0.3f));
+            marketModels.Add(new DrawModel(Content.Load<Model>("market_4"),0.0f,0.3f));
+
             playerModel = new DrawModel(Content.Load<Model>("Player/player_body"),0.0f,0.3f);
             playerModelShell = new DrawModel(Content.Load<Model>("Player/player_body_shell"),0.0f,0.3f);
 
@@ -137,7 +144,7 @@ namespace GameLab
             lightingShader.setOpacityValue(1.0f);
 
             // Initialize gamestate here:
-            gameStateManager.Initialize(arenaModel, playerHatModels, playerModel, playerModelShell, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels);
+            gameStateManager.Initialize(arenaModel, marketModels, playerHatModels, playerModel, playerModelShell, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels);
             gameStateManager.StartNewGame();
 
             _menu = new MyMenu(this);
