@@ -306,6 +306,29 @@ namespace src.GameObjects
 
         }
 
+        public void HBAOPass(HBAOShader hBAOShader, RenderTarget2D PosMap, RenderTarget2D NormalMap, RenderTarget2D HBAOmap, VertexBuffer fullscreenquad, GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, bool test){
+            graphicsDevice.SetRenderTarget(HBAOmap);
+            graphicsDevice.SetVertexBuffer(fullscreenquad);
+            graphicsDevice.Clear(Color.White);
+            graphicsDevice.DepthStencilState = DepthStencilState.Default;
+            graphicsDevice.BlendState = BlendState.Opaque;
+            graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            hBAOShader.setFragPosTexture(PosMap);
+           hBAOShader.setNormalTexture(NormalMap);
+            foreach (var pass in hBAOShader.effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, 2); // 2 triangles = 6 vertices
+            }
+            graphicsDevice.SetRenderTarget(null);
+          if (test)
+            {
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(HBAOmap, new Rectangle(0, 0, graphicsDevice.PresentationParameters.BackBufferWidth, graphicsDevice.PresentationParameters.BackBufferHeight), Color.White);
+                spriteBatch.End(); 
+
+            }
+        }
         public void GeometryPass(Shader geometryShader, Shader shadowShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D shadowMap, RenderTargetBinding[] targets, SpriteBatch spriteBatch, bool test)
         {
             graphicsDevice.SetRenderTarget(shadowMap);

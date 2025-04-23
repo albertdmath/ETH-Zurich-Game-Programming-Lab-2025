@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -72,19 +73,82 @@ public class PhongShading : Shader {
     }
 }
 
+
+public class HBAOShader : Shader {
+  public HBAOShader(Effect effect) : base(effect){
+
+  }
+
+  public void setSampleDirections(Vector3[] sampleDirections){
+    effect.Parameters["sampleDirections"].SetValue(sampleDirections);
+  }
+
+  public void setStrengthPerRay(float strengthPerRay){
+    effect.Parameters["strengthPerRay"].SetValue(strengthPerRay);
+  }
+
+
+  public void sethalfSampleRadius(float halfSampleRadius){
+    effect.Parameters["halfSampleRadius"].SetValue(halfSampleRadius);
+  }
+
+    public void setFalloff(float falloff){
+    effect.Parameters["fallOff"].SetValue(falloff);
+  }
+
+  public void setDitherScale(float ditherScale){
+    effect.Parameters["ditherScale"].SetValue(ditherScale);
+  }
+  public void setBias(float bias){
+    effect.Parameters["bias"].SetValue(bias);
+  }
+
+  public void SetRenderTargetResolution(Vector2 resolution){
+    effect.Parameters["renderTargetResolution"].SetValue(resolution);
+  }
+
+  public void setupSampleDirections()
+  {
+    int size = 8;
+    var sampleDirs = new Vector2[size];
+    for (int i = 0; i < size; i++)
+    {
+      float angle = MathF.PI * 2 * i / size;
+      sampleDirs[i] = new Vector2(MathF.Cos(angle), MathF.Sin(angle));
+    }
+    effect.Parameters["sampleDirections"].SetValue(sampleDirs);
+  }
+
+    public void setNormalTexture(Texture2D normalMap){
+    effect.Parameters["NormalPosSampler+NormalTexture"].SetValue(normalMap);
+  }
+
+
+   public void setFragPosTexture(Texture2D fragPosTexture){
+    effect.Parameters["FragPosSampler+FragPosTexture"].SetValue(fragPosTexture);
+  }
+
+   public void setDitherTexture(Texture2D DitherTexture){
+    effect.Parameters["DitherSampler+DitherTexture"].SetValue(DitherTexture);
+  }
+
+
+}
+
+
 public class PBR:PhongShading {
   
   public PBR(Effect effect) : base(effect) {
 
   } 
 
+  public void setViewInverse(Matrix viewInverse){
+    effect.Parameters["ViewInverse"].SetValue(viewInverse);
+  }
   public void setNormalTexture(Texture2D normalMap){
     effect.Parameters["NormalPosSampler+NormalTexture"].SetValue(normalMap);
   }
 
-  public void setViewInverse(Matrix viewInverse){
-    effect.Parameters["ViewInverse"].SetValue(viewInverse);
-  }
 
    public void setFragPosTexture(Texture2D fragPosTexture){
     effect.Parameters["FragPosSampler+FragPosTexture"].SetValue(fragPosTexture);

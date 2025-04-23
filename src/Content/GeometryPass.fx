@@ -40,7 +40,8 @@ struct VertexOutput {
 
 VertexOutput VS(VertexInput input) {
     VertexOutput output; 
-    float4 viewPos = mul(float4(input.Position,1.0f), mul(World, View));
+    float4 worldPos = mul(float4(input.Position,1.0f),World);
+    float4 viewPos =  mul(worldPos, View);
     output.Position = mul(viewPos,Projection); 
     output.Normal = mul(input.Normal,(float3x3)NormalMatrix);
     output.TexCoord = input.TexCoord; 
