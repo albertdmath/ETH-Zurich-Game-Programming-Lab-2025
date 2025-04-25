@@ -311,16 +311,16 @@ namespace GameLab
             gameStateManager.HBAOPass(hBAOShader,posMap,normalMap,HBAOmap,fullscreenVertexBuffer,GraphicsDevice,_spriteBatch,false);
            gameStateManager.FilterPass(HBAOFilter,HBAOmap,normalMap,posMap,HBAOBlurredMap,GraphicsDevice,fullscreenVertexBuffer,_spriteBatch,false);
             gameStateManager.DrawGame(lightingShader,GraphicsDevice,fullscreenVertexBuffer,posMap,normalMap,albedoMap,roughnessMetallicMap,shadowMap,HBAOBlurredMap,_spriteBatch,false);
-            // _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-            // GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-            // hud.DrawPlayerHud(_spriteBatch);
-            // hud.DrawWin(_spriteBatch, GraphicsDevice);
-            // // Draw menu
-            // _menu.Draw();
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+            hud.DrawPlayerHud(_spriteBatch);
+            hud.DrawWin(_spriteBatch, GraphicsDevice);
+            // Draw menu
+            _menu.Draw();
 
-            // _spriteBatch.End();
-            // GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            // GraphicsDevice.BlendState = BlendState.Opaque;
+            _spriteBatch.End();
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.BlendState = BlendState.Opaque;
 
             base.Draw(gameTime);
         }

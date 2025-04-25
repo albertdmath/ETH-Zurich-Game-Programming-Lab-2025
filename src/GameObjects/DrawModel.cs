@@ -1,3 +1,4 @@
+
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using Assimp;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.IO;
 using System.Runtime.InteropServices;
 using src.GameObjects;
+using Assimp.Unmanaged;
 
 
 /** 
@@ -18,36 +20,53 @@ Custom Vertex Struct for GameModel
 public struct GameModelVertex : IVertexType
 {
 
-    private Vector3 position;
-    private Vector3 normal;
-    private Vector2 texCoord;   
+    public Vector3 Position;
+    public Vector3 Normal;
+    public Vector2 TexCoord;   
+
+    public Vector4 BoneIds;
+
+    public Vector4 BoneWeights;
 
     public GameModelVertex(Vector3 pos, Vector3 norm, Vector2 texCoord)
     {
-        position = pos;
-        normal = norm;
-        this.texCoord = texCoord;
+        Position = pos;
+        Normal = norm;
+        this.TexCoord = texCoord;
+        BoneIds = new Vector4(-1,-1,-1,-1); // -1 means no bone assigned
+        BoneWeights = new Vector4(0.0f,0.0f,0.0f,0.0f); // 0 means no weight assigned
     }
 
     
-    public Vector3 Position
-{
-    get { return position; }
-    set { position = value; }
-}
+//     public Vector3 Position
+// {
+//     get { return position; }
+//     set { position = value; }
+// }
 
 
-    public Vector3 Normal
-{
-    get { return normal; }
-    set { normal = value; }
-}
+//     public Vector3 Normal
+// {
+//     get { return normal; }
+//     set { normal = value; }
+// }
 
-public Vector2 TexCoord
-{
-    get { return texCoord; }
-    set { texCoord = value; }
-}
+// public Vector2 TexCoord
+// {
+//     get { return texCoord; }
+//     set { texCoord = value; }
+// }
+
+
+// public Vector4 BoneIds {
+//     get { return boneIds; }
+//     set { boneIds = value; }
+// }
+
+// public Vector4 BoneWeights {
+//     get { return boneWeights; } 
+//     set { boneWeights = value; }
+// }
 
      // Tell MonoGame what this struct looks like
      //This is important so we can pass it to the shader correctly
@@ -56,7 +75,9 @@ public Vector2 TexCoord
     (
         new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
         new VertexElement(sizeof(float) * 3, VertexElementFormat.Vector3, VertexElementUsage.Normal, 0),
-        new VertexElement(sizeof(float) * 6, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0)
+        new VertexElement(sizeof(float) * 6, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0),
+        new VertexElement(sizeof(float) * 8, VertexElementFormat.Vector4, VertexElementUsage.TextureCoordinate, 1),
+        new VertexElement(sizeof(float) * 12, VertexElementFormat.Vector4, VertexElementUsage.TextureCoordinate, 2)
     );
 
    
@@ -65,6 +86,16 @@ public Vector2 TexCoord
 {
     get { return vertexDecl; }
 }
+
+};
+
+public struct BoneInfo
+{
+	/*id is index in finalBoneMatrices*/
+	public int id;
+
+	/*offset matrix transforms vertex from model space to bone space*/
+	public Matrix offset;
 
 };
 
@@ -102,7 +133,10 @@ public class DrawModel
 
     private string modelFilePath;
 
+    public bool hasAnimations { get; set; } = false;
 
+    private Dictionary<string, BoneInfo> boneInfoMap = new Dictionary<string, BoneInfo>();
+    private int boneCount = 0;
 
     public DrawModel(string path, Model model, float metallic, float roughness, GraphicsDevice graphicsDevice)
     {
@@ -116,7 +150,17 @@ public class DrawModel
         extractTextures();
     }
 
+    public Dictionary<string,BoneInfo> getBoneInfoMap(){
+        return this.boneInfoMap; 
+    }
 
+    public int getBoneCount(){
+        return this.boneCount; 
+    }
+
+    public void incrementBoneCount(){
+        this.boneCount++; 
+    }
 //This is the setup function for Assimp, it loads the model and sets up the vertex buffers and index buffers for each mesh in the model
 //It also extracts the textures from the model and sets them up for use in the shader
 //IMPORTANT: Your path is relative to the executable, not the project file. That means you either need to actually copy the model to the executable folder or use a relative path from the executable to the model.
@@ -135,6 +179,11 @@ PostProcessSteps.CalculateTangentSpace |
 PostProcessSteps.FlipWindingOrder);
         //Flip Winding order for the accursed Monogame Coordinate system
 
+        if(scene.HasAnimations){
+            hasAnimations = true; 
+        } else {
+            hasAnimations = false; 
+        }
 
         //We now extract the positions, normals etc. from your scene and set them up for use in the shader
 
@@ -172,7 +221,12 @@ PostProcessSteps.FlipWindingOrder);
                     vertex.TexCoord = Vector2.Zero;
                 }
                 gameMesh.vertices.Add(vertex);
+                
             }
+             if (currMesh.HasBones) {
+					ExtractBoneWeightForVertices(meshes[i].vertices, currMesh, scene);
+				}
+           
             //Fetch the indices
             gameMesh.indices = currMesh.GetIndices().ToList();
             Material material = scene.Materials[currMesh.MaterialIndex];
@@ -180,8 +234,64 @@ PostProcessSteps.FlipWindingOrder);
             setupBuffers(gameMesh, graphicsDevice);
             this.meshes.Add(gameMesh);
 
+
+
         }
        
+    }
+
+    private void ExtractBoneWeightForVertices(List<GameModelVertex> vertices, Mesh mesh, Scene scene){
+        for (int boneIndex = 0; boneIndex < mesh.BoneCount; boneIndex++){
+            int boneID = -1; 
+            string boneName = mesh.Bones[boneIndex].Name;
+            if(!boneInfoMap.ContainsKey(boneName)){
+                BoneInfo newBoneInfo = new BoneInfo();
+                newBoneInfo.id = boneCount; 
+                newBoneInfo.offset = mesh.Bones[boneIndex].OffsetMatrix;
+                boneInfoMap[boneName] = newBoneInfo;
+                boneID = boneCount;
+                incrementBoneCount();
+            } else {
+                boneID = boneInfoMap[boneName].id; 
+            }
+            if(boneID == -1){
+                throw new Exception("Bone ID not found for bone: " + boneName);
+            }
+
+            var weights = mesh.Bones[boneIndex].VertexWeights;
+            int numWeights = mesh.Bones[boneIndex].VertexWeightCount;;
+
+            for(int weightIndex = 0; weightIndex < numWeights; weightIndex++){
+                int vertexID = weights[weightIndex].VertexID;
+                float weight = weights[weightIndex].Weight; 
+                if(vertexID > vertices.Count){
+                    throw new Exception("Vertex ID out of range: " + vertexID + " for bone: " + boneName);
+                }
+                GameModelVertex vertexData = vertices[vertexID];
+                setVertexBoneData(vertexData, boneID, weight);
+                vertices[vertexID] = vertexData; //Update the vertex data in the list
+                
+        }
+        }
+    }
+
+    private void setVertexBoneData(GameModelVertex vertex, int boneId, float weight){
+        //Check if the vertex already has a bone assigned
+        if(vertex.BoneIds.X == -1){
+            vertex.BoneIds.X = boneId; 
+            vertex.BoneWeights.X = weight; 
+        } else if(vertex.BoneIds.Y == -1){
+            vertex.BoneIds.Y = boneId; 
+            vertex.BoneWeights.Y = weight; 
+        } else if(vertex.BoneIds.Z == -1){
+            vertex.BoneIds.Z = boneId; 
+            vertex.BoneWeights.Z = weight; 
+        } else if(vertex.BoneIds.W == -1){
+            vertex.BoneIds.W = boneId; 
+            vertex.BoneWeights.W = weight; 
+        } else {
+            throw new Exception("Vertex has too many bones assigned: " + vertex.ToString());
+        }
     }
 
     //This is OpenGL style: We set up Vertex and Index Buffer for every mesh in the model
