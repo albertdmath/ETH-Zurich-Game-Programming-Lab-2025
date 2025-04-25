@@ -136,6 +136,12 @@
 /processorParam:TextureFormat=Compressed
 /build:coconut.dae
 
+#begin depthmap.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:depthmap.fx
+
 #begin font.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
@@ -438,6 +444,12 @@
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
 /build:mob3.dae
+
+#begin OcclusionBlur.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:OcclusionBlur.fx
 
 #begin pbrShading.fx
 /importer:EffectImporter

@@ -9,6 +9,11 @@ using System.IO;
 using System.Runtime.InteropServices;
 using src.GameObjects;
 
+
+/** 
+Custom Vertex Struct for GameModel
+**/
+
 [StructLayout(LayoutKind.Sequential)]
 public struct GameModelVertex : IVertexType
 {
@@ -45,6 +50,8 @@ public Vector2 TexCoord
 }
 
      // Tell MonoGame what this struct looks like
+     //This is important so we can pass it to the shader correctly
+     
     public static readonly VertexDeclaration vertexDecl = new VertexDeclaration
     (
         new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
@@ -94,14 +101,7 @@ public class DrawModel
     private AssimpContext context;
 
     private string modelFilePath;
-     public static readonly VertexDeclaration VertexDeclaration =
-        new VertexDeclaration(
-            new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
-            new VertexElement(12, VertexElementFormat.Vector3, VertexElementUsage.Normal, 0),
-            new VertexElement(24, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0)
-        );
 
-   
 
 
     public DrawModel(string path, Model model, float metallic, float roughness, GraphicsDevice graphicsDevice)
@@ -116,15 +116,28 @@ public class DrawModel
         extractTextures();
     }
 
+
+//This is the setup function for Assimp, it loads the model and sets up the vertex buffers and index buffers for each mesh in the model
+//It also extracts the textures from the model and sets them up for use in the shader
+//IMPORTANT: Your path is relative to the executable, not the project file. That means you either need to actually copy the model to the executable folder or use a relative path from the executable to the model.
+//Be careful when releasing this: All models you are using MUST be in the same folder as the executable or you will get a file not found exception.
+//This is a bit of a pain, but it is how Assimp works. You can also use absolute paths, but that is not recommended as it will break when you release the game.
     private void AssimpSetup(string path, GraphicsDevice graphicsDevice)
     {
+                //This is what an example file path looks like for us
+            string MODELFILEPATH = "../../../Content/arena.dae"; 
         Console.WriteLine("Assimp Importing File: " + path);
+        //This generates a "scene" for your model
         var scene = context.ImportFile(path, PostProcessSteps.Triangulate |
 PostProcessSteps.GenerateNormals |
 PostProcessSteps.JoinIdenticalVertices |
 PostProcessSteps.CalculateTangentSpace |
 PostProcessSteps.FlipWindingOrder);
-    
+        //Flip Winding order for the accursed Monogame Coordinate system
+
+
+        //We now extract the positions, normals etc. from your scene and set them up for use in the shader
+
         int num_meshes = scene.MeshCount;
         this.meshes = new List<GameMesh>();
         for (int i = 0; i < num_meshes; i++)
@@ -160,6 +173,7 @@ PostProcessSteps.FlipWindingOrder);
                 }
                 gameMesh.vertices.Add(vertex);
             }
+            //Fetch the indices
             gameMesh.indices = currMesh.GetIndices().ToList();
             Material material = scene.Materials[currMesh.MaterialIndex];
             extractTextures(material,gameMesh,scene,graphicsDevice);
@@ -170,6 +184,7 @@ PostProcessSteps.FlipWindingOrder);
        
     }
 
+    //This is OpenGL style: We set up Vertex and Index Buffer for every mesh in the model
     private void setupBuffers(GameMesh gameMesh, GraphicsDevice graphicsDevice)
     {
         gameMesh.vertexBuffer = new VertexBuffer(graphicsDevice, typeof(GameModelVertex), gameMesh.vertices.Count, BufferUsage.WriteOnly);
@@ -178,8 +193,10 @@ PostProcessSteps.FlipWindingOrder);
         gameMesh.vertexBuffer.SetData(gameMesh.vertices.ToArray());
         gameMesh.indexBuffer.SetData(gameMesh.indices.ToArray());
     }
-
-    private void extractTextures(Material material, GameMesh gameMesh, Scene scene, GraphicsDevice graphicsDevice)
+    
+        //Here we extract the textures from the material and load them. 
+        ////We check if the texture is embedded in the model or if it is a file path. If it is a file path, we load it from the file system
+        private void extractTextures(Material material, GameMesh gameMesh, Scene scene, GraphicsDevice graphicsDevice)
     {
         if (material.HasTextureDiffuse)
         {
@@ -240,8 +257,7 @@ PostProcessSteps.FlipWindingOrder);
             {
           if (!Path.IsPathRooted(filePath))
         {
-            string MODELFILEPATH = "../../../Content/arena.dae";
-            //TODO: CHANGE THIS THIS IS CURSED AND JUST FOR TESTING 
+    
             string modelDir = Path.GetDirectoryName(this.modelFilePath);
             filePath = Path.Combine(modelDir, filePath);
         }
@@ -257,6 +273,7 @@ PostProcessSteps.FlipWindingOrder);
             }
     }
 
+//Old function to extract textures from the Monogame model directly. 
     private void extractTextures()
     {
         foreach (ModelMesh mesh in model.Meshes)

@@ -7,7 +7,8 @@
  #define PS_SHADERMODEL ps_4_0_level_9_1
 #endif
 
-matrix LightViewProjection;
+matrix Projection;
+matrix View;
 matrix World;
 
 struct VertexShaderInput
@@ -17,40 +18,40 @@ struct VertexShaderInput
     float2 TexCoord : TEXCOORD0;
 };
 
-struct ShadowMapVSOutput
+struct VSOutput
 {
     float4 Position : SV_Position;
     float Depth : TEXCOORD0;
 };
 
-ShadowMapVSOutput ShadowMapVS(VertexShaderInput input)
+VSOutput VS(VertexShaderInput input)
 {
-    ShadowMapVSOutput output;
+    VSOutput output;
 
     // Calculate position as usual- the ViewProjection Matrix already takes
     // the new light frustum into account.
-    output.Position = mul(input.Position, mul(World, LightViewProjection));
-    
+    float4 viewPos = mul(input.Position, mul(World, View));
+    output.Position = mul(viewPos, Projection);
     // Calculate depth. The division by the W component brings the component
     // into homogenous space- which means the depth is normalized on a 0-1 scale.
-    output.Depth = output.Position.z / output.Position.w; 
+    output.Depth = -viewPos.z; 
     //output.Depth = output.Position.z;
 
     return output;
 }
 
-float4 ShadowMapPS(ShadowMapVSOutput input) : COLOR
+float4 PS(VSOutput input) : COLOR
 {   
 
     // Store depth in the red component.
     return float4(input.Depth,input.Depth,input.Depth,1); 
 }
 
-technique ShadowMapDrawing
+technique DepthMap
 {
     pass P0
     {
-        VertexShader = compile VS_SHADERMODEL ShadowMapVS();
-        PixelShader = compile PS_SHADERMODEL ShadowMapPS();
+        VertexShader = compile VS_SHADERMODEL VS();
+        PixelShader = compile PS_SHADERMODEL PS();
     }
 };

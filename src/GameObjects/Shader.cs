@@ -57,6 +57,39 @@ public class Shader {
       effect.Parameters["OpacityVal"].SetValue(opacity);
     }
 
+  public void setOcclusionTexture(Texture2D occlusionMap){
+    effect.Parameters["OcclusionSampler+OcclusionTexture"].SetValue(occlusionMap);
+  }
+
+}
+
+
+public class Filter : Shader {
+  public Filter(Effect effect) : base(effect){
+
+  }
+
+  public void setAlbedoTexture(Texture2D tex){
+    effect.Parameters["AlbedoSampler+AlbedoTexture"].SetValue(tex);
+  }
+
+  public void setNormalTexture(Texture2D normalMap){
+    effect.Parameters["NormalPosSampler+NormalTexture"].SetValue(normalMap);
+  }
+
+
+   public void setFragPosTexture(Texture2D fragPosTexture){
+    effect.Parameters["FragPosSampler+FragPosTexture"].SetValue(fragPosTexture);
+  }
+
+  public void setFilterSize(int filterSize){
+    effect.Parameters["filterSize"].SetValue(filterSize);
+  }
+
+    public void SetRenderTargetResolution(Vector2 resolution){
+    effect.Parameters["renderTargetResolution"].SetValue(resolution);
+  }
+
 }
 
 public class PhongShading : Shader {

@@ -266,7 +266,7 @@ namespace src.GameObjects
             testShader.setProjectionMatrix(projection);
             arena.Draw(view, projection, testShader, graphicsDevice, false);
         }
-        public void DrawGame(PBR lightingShader, GraphicsDevice graphicsDevice, VertexBuffer fullScreenQuad, RenderTarget2D FragPosMap, RenderTarget2D NormalMap, RenderTarget2D AlbedoMap, RenderTarget2D RoughnessMetallicMap, RenderTarget2D ShadowMap, SpriteBatch spriteBatch, bool test)
+        public void DrawGame(PBR lightingShader, GraphicsDevice graphicsDevice, VertexBuffer fullScreenQuad, RenderTarget2D FragPosMap, RenderTarget2D NormalMap, RenderTarget2D AlbedoMap, RenderTarget2D RoughnessMetallicMap, RenderTarget2D ShadowMap, RenderTarget2D OcclusionMap, SpriteBatch spriteBatch, bool test)
         {
             graphicsDevice.SetVertexBuffer(fullScreenQuad);
             graphicsDevice.Clear(Color.White);
@@ -278,8 +278,10 @@ namespace src.GameObjects
             lightingShader.setTexture(AlbedoMap);
             lightingShader.setShadowTexture(ShadowMap);
             lightingShader.setRoughnessTexture(RoughnessMetallicMap);
+            if (OcclusionMap != null){
+            lightingShader.setOcclusionTexture(OcclusionMap);
+            }
 
-          
             // You don’t need an index buffer for this simple triangle list
             foreach (var pass in lightingShader.effect.CurrentTechnique.Passes)
             {
@@ -304,6 +306,40 @@ namespace src.GameObjects
 
             }
 
+        }
+
+        public void DepthMapPass(Shader depthShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D depthMap, SpriteBatch spriteBatch, bool test)
+        {
+            graphicsDevice.SetRenderTarget(depthMap);
+            graphicsDevice.Clear(Color.Black);
+            graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
+            // graphicsDevice.RasterizerState = this.shadowRasterizer;
+
+            arena.Draw(view, projection, depthShader, graphicsDevice, true);
+            // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+
+            // Draw all active projectiles
+            foreach (Projectile projectile in projectiles)
+            {
+                projectile.Draw(view, projection, depthShader, graphicsDevice, true);
+                // projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+            }
+
+            // Draw all players
+            foreach (Player player in players)
+            {
+                player.Draw(view, projection, depthShader, graphicsDevice, true);
+                //player.Hitbox.DebugDraw(graphicsDevice, view, projection);
+            }
+            mob.Draw(view, projection, depthShader, graphicsDevice, true);
+            graphicsDevice.SetRenderTarget(null);
+          if (test)
+            {
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(depthMap, new Rectangle(0, 0, 800, 800), Color.White);
+                spriteBatch.End(); 
+
+            }
         }
 
         public void HBAOPass(HBAOShader hBAOShader, RenderTarget2D PosMap, RenderTarget2D NormalMap, RenderTarget2D HBAOmap, VertexBuffer fullscreenquad, GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, bool test){
@@ -451,6 +487,30 @@ namespace src.GameObjects
 
         }
 
+public void FilterPass(Filter filterShader, RenderTarget2D inputTexture, RenderTarget2D normalTexture, RenderTarget2D fragPosTexture, RenderTarget2D outputTexture, GraphicsDevice graphicsDevice, VertexBuffer fullscreenquad, SpriteBatch spriteBatch, bool test)
+        {
+            graphicsDevice.SetRenderTarget(outputTexture);
+            graphicsDevice.SetVertexBuffer(fullscreenquad);
+            graphicsDevice.Clear(Color.White);
+            graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            filterShader.setFragPosTexture(fragPosTexture);
+            filterShader.setNormalTexture(normalTexture);
+            filterShader.setAlbedoTexture(inputTexture);
+        
+            foreach (var pass in filterShader.effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, 2); // 2 triangles = 6 vertices
+            }
+            graphicsDevice.SetRenderTarget(null);
+          if (test)
+            {
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(outputTexture, new Rectangle(0, 0, graphicsDevice.PresentationParameters.BackBufferWidth, graphicsDevice.PresentationParameters.BackBufferHeight), Color.White);
+                spriteBatch.End(); 
+
+            }
+        }
 
         public void StartNewGame()
         {

@@ -40,10 +40,12 @@ namespace GameLab
         private RenderTarget2D albedoMap;
      private RenderTarget2D roughnessMetallicMap;
 
+
+
      //HBAO
 
      private RenderTarget2D HBAOmap;
-
+     private RenderTarget2D HBAOBlurredMap;
 
         private VertexBuffer fullscreenVertexBuffer;
 
@@ -64,9 +66,13 @@ namespace GameLab
 
         Shader geometryShader;
 
+        Shader depthMapShader;
+
 
         //HBAO
         private HBAOShader hBAOShader;
+
+        private Filter HBAOFilter;
 
         private Texture2D ditherTex;
 
@@ -213,20 +219,22 @@ namespace GameLab
             testShader = new PhongShading(Content.Load<Effect>("lighting"));
             lightingShader = new PBR(Content.Load<Effect>("pbrShading"));
             shadowShader = new Shader(Content.Load<Effect>("shadowMap"));
+            depthMapShader = new Shader(Content.Load<Effect>("depthMap"));
             geometryShader = new Shader(Content.Load<Effect>("GeometryPass"));
             hBAOShader = new HBAOShader(Content.Load<Effect>("HBAO"));
-            hBAOShader.setProjectionMatrix(projection);
-           hBAOShader.setStrengthPerRay(0.09375f);
-        hBAOShader.setFalloff(2.0f);
+            HBAOFilter = new Filter(Content.Load<Effect>("OcclusionBlur"));
+           hBAOShader.setStrengthPerRay(0.1875f);
+        hBAOShader.setFalloff(0.25f);
            hBAOShader.setDitherScale(GraphicsDevice.PresentationParameters.BackBufferWidth / 4.0f);
-           hBAOShader.setBias(0.5f);
-
-            hBAOShader.SetRenderTargetResolution(new Vector2(GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight));
-            hBAOShader.setupSampleDirections();
+           hBAOShader.setBias(0.25f);
+            Vector2 renderTargetResolution = new Vector2(GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight);
+            hBAOShader.SetRenderTargetResolution(renderTargetResolution);
+            //hBAOShader.setupSampleDirections();
             Create4x4DitherTexture(GraphicsDevice);
             hBAOShader.setDitherTexture(ditherTex);
             
-
+            HBAOFilter.setFilterSize(4);
+            HBAOFilter.SetRenderTargetResolution(renderTargetResolution);
             Sun = new Light(new Vector3(1.2f, 1.2f, 0.82f), -new Vector3(3.0f, 9.0f, 7.0f));
             shadowMap = new RenderTarget2D(_graphics.GraphicsDevice, 4096, 4096, false, SurfaceFormat.Single, DepthFormat.Depth24);
 
@@ -235,7 +243,7 @@ namespace GameLab
             albedoMap = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth,  GraphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Vector4, DepthFormat.Depth24);
             roughnessMetallicMap = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth,  GraphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Vector2, DepthFormat.Depth24);
             HBAOmap = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth,  GraphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Vector4, DepthFormat.Depth24);
-            depthMap = new RenderTarget2D(_graphics.GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Single, DepthFormat.Depth24);
+            HBAOBlurredMap = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth,  GraphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Vector4, DepthFormat.None);
 
 
             shadowShader.setLightSpaceMatrix(Sun.lightSpaceMatrix);
@@ -298,9 +306,11 @@ namespace GameLab
                 new RenderTargetBinding(albedoMap),
                 new RenderTargetBinding(roughnessMetallicMap)
             };
+            //gameStateManager.DepthMapPass(depthMapShader, view, projection, GraphicsDevice, depthMap, _spriteBatch, true);
             gameStateManager.GeometryPass(geometryShader,shadowShader,view, projection, GraphicsDevice, shadowMap,targets, _spriteBatch,false);
-            gameStateManager.HBAOPass(hBAOShader,posMap,normalMap,HBAOmap,fullscreenVertexBuffer,GraphicsDevice,_spriteBatch,true);
-            // gameStateManager.DrawGame(lightingShader,GraphicsDevice,fullscreenVertexBuffer,posMap,normalMap,albedoMap,roughnessMetallicMap,shadowMap,_spriteBatch,false);
+            gameStateManager.HBAOPass(hBAOShader,posMap,normalMap,HBAOmap,fullscreenVertexBuffer,GraphicsDevice,_spriteBatch,false);
+           gameStateManager.FilterPass(HBAOFilter,HBAOmap,normalMap,posMap,HBAOBlurredMap,GraphicsDevice,fullscreenVertexBuffer,_spriteBatch,false);
+            gameStateManager.DrawGame(lightingShader,GraphicsDevice,fullscreenVertexBuffer,posMap,normalMap,albedoMap,roughnessMetallicMap,shadowMap,HBAOBlurredMap,_spriteBatch,false);
             // _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             // GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
             // hud.DrawPlayerHud(_spriteBatch);

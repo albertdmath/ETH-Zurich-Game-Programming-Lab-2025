@@ -37,6 +37,9 @@ SamplerState FragPosSampler;
 Texture2D NormalTexture;
 SamplerState NormalPosSampler;
 
+Texture2D OcclusionTexture;
+SamplerState OcclusionSampler;
+
 Texture2D RoughnessTexture;
 SamplerState RoughnessSampler;
 
@@ -193,6 +196,9 @@ float4 PS(VertexOutput input) : SV_Target
     float NdotL = max(dot(Normal, wi), 0.0);        
     float shadow = ShadowCalc(LightViewPos); 
     float3 Lo =  (kD * albedo / PI + specular) * radiance * NdotL * shadow;
+    float occlusion = 1.0f;
+    float occlusionCheck = OcclusionTexture.Sample(OcclusionSampler,input.TexCoord.xy).r;
+    occlusion = occlusionCheck; 
 
     float3 ambient = float3(0.2f,0.2f,0.2f) * albedo;
     float3 color   = ambient + Lo;
@@ -202,7 +208,7 @@ float4 PS(VertexOutput input) : SV_Target
 
 
 
-    return float4(color,OpacityVal); 
+    return float4(color * occlusion,OpacityVal); 
 
 }
 
