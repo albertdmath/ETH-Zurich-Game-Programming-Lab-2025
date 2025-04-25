@@ -1,68 +1,70 @@
-using GameLab;
-using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using System.Linq;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace src.GameObjects
 {
     public class Market : GameModel
     {
-        public static Market[] active = new Market[4];
+        private const float PROJECTILE_CREATION_TIME = 2f; 
+        private const int MAX_PROJECTILES = 5;
+
+        private DrawModel projectileModel;
+        private int nProjectiles = 0;
+        private float projectileTime = PROJECTILE_CREATION_TIME;
+
         public ProjectileType Type { get; private set; }
 
-        public Market(Vector3 position, ProjectileType type, DrawModel model, float scaling) : base(model, scaling)
+        public Market(Vector3 position, ProjectileType type, DrawModel model, DrawModel projectile, float scaling) : base(model, scaling)
         {
-
-            this.Position = position;
-            this.Orientation = Vector3.Normalize(-Position);
+            //this.Position = position;
+            //this.Orientation = Vector3.Normalize(-Position);
             this.Type = type;
+            this.projectileModel = projectile;
+            this.updateHitbox();
         }
 
-        public static void CreateMarket(float width, float height)
+        public override void Update(float dt)
         {
-            //this should be the positions of the corners
-            Vector3[] positions = new Vector3[]
-            {
-                new Vector3(-10, 0, 10),
-                new Vector3(10, 0, 10),
-                new Vector3(-10, 0, -10),
-                new Vector3(10, 0, -10)
-            };
-            ProjectileType[] types = SelectRandomTypes();
-
-            for (int i = 0; i < 4; i++)
-                active[i] = new Market(positions[i], types[i], GameLabGame.projectileModels[types[i]], 1f);
-        }
-
-        private static ProjectileType[] SelectRandomTypes()
-        {
-            List<ProjectileType> availableTypes = new List<ProjectileType>(Projectile.ProjectileProbability.Keys);
-            ProjectileType[] selected = new ProjectileType[4];
-            Random rng = new Random();
-            float totalWeight = availableTypes.Sum(type => Projectile.ProjectileProbability[type]);
-
-            for (int i = 0; i < 4; i++)
-            {
-                // Refill if empty
-                if (!availableTypes.Any()) 
-                    availableTypes = new List<ProjectileType>(Projectile.ProjectileProbability.Keys);
+            if (nProjectiles == MAX_PROJECTILES) return;
             
-                float randomValue = (float)rng.NextDouble() * totalWeight;
+            projectileTime -= dt;
+            
+            if (projectileTime > 0) return;
+                
+            nProjectiles++;
+            projectileTime = PROJECTILE_CREATION_TIME;
+        }
 
-                foreach (var type in availableTypes)
-                {
-                    randomValue -= Projectile.ProjectileProbability[type];
-                    if (randomValue > 0) continue;
-                    
-                    selected[i] = type;
-                    availableTypes.Remove(type);
-                    totalWeight -= Projectile.ProjectileProbability[type];
-                    break;
-                }
+        public bool GrabProjectile()
+        {
+            if (nProjectiles > 0)
+            {
+                nProjectiles--;
+                return true;
             }
+            return false;
+        }
 
-            return selected;
+        public void DrawFish(Matrix view, Matrix projection, Shader shader, bool shadowDraw)
+        {
+            for(int i = 0; i < nProjectiles; i++)
+            {
+                CalculateTransform();
+                int j = 0; 
+                foreach (ModelMesh mesh in DrawModel.model.Meshes)
+                {
+                    foreach(ModelMeshPart part in mesh.MeshParts){
+                        part.Effect = shader.effect; 
+                        shader.setWorldMatrix(Transform);
+                        
+                        if(!shadowDraw)
+                            shader.setTexture(this.DrawModel.textures[j]);
+                    }
+                    j++;
+                    mesh.Draw();
+                } 
+            }
         }
     }
 }
