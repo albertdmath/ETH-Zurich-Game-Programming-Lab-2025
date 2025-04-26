@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -13,6 +14,11 @@ public class GameModel
     public DrawModel DrawModel { get; set; }
     public Hitbox Hitbox { get; set; }
     public Matrix Transform { get; set; }
+
+    public bool hasAnimation {get; set;} = false;
+
+    public Animator animator {get; set;} = null;
+    public List<GameAnimation> animations {get; set;}
     protected Matrix Scaling;
 
     public GameModel(DrawModel model, float scale)
@@ -20,8 +26,38 @@ public class GameModel
         DrawModel = model;
         Scaling = Matrix.CreateScale(scale);
         CalculateTransform();
-        Hitbox = new Hitbox(this.DrawModel.model, Transform);
+        Hitbox = new Hitbox(this.DrawModel, Transform);
+        this.animations = new List<GameAnimation>();
+        if(model.hasAnimations){
+            hasAnimation = true; 
+            for(int i = 0; i < model.scene.AnimationCount; i++){
+                GameAnimation anim = new GameAnimation("Animation " +i, model.scene.Animations[i], model.scene, model);
+                animations.Add(anim);
+            }
+            this.animator = new Animator(animations[0], true);
+        }
 
+
+    }
+
+    public void UpdateAnimation(float dt){
+        if(this.animator != null){
+            this.animator.UpdateAnimation(dt);
+        }
+    }
+
+    public Matrix[] GetFinalBoneMatrices(){
+        if(this.animator != null){
+            return this.animator.finalBoneMatrices;
+        }
+        return new Matrix[]{}; 
+    }
+
+
+    public void SwitchAnimation(int index, bool loop = false){
+        if(this.animator != null && index < animations.Count){
+            this.animator.PlayAnimation(animations[index], loop);
+        } 
     }
 
     protected void CalculateTransform()

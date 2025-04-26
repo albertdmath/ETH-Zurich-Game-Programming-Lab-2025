@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -61,6 +62,11 @@ public class Shader {
     effect.Parameters["OcclusionSampler+OcclusionTexture"].SetValue(occlusionMap);
   }
 
+  public void setFinalBoneMatrices(Matrix[] matrices){
+    effect.Parameters["FinalBoneMatrices"].SetValue(matrices);
+  }
+
+
 }
 
 
@@ -86,7 +92,7 @@ public class Filter : Shader {
     effect.Parameters["filterSize"].SetValue(filterSize);
   }
 
-    public void SetRenderTargetResolution(Vector2 resolution){
+  public void SetRenderTargetResolution(Vector2 resolution){
     effect.Parameters["renderTargetResolution"].SetValue(resolution);
   }
 

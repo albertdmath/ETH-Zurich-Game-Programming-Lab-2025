@@ -37,6 +37,7 @@ public struct GameModelVertex : IVertexType
         BoneWeights = new Vector4(0.0f,0.0f,0.0f,0.0f); // 0 means no weight assigned
     }
 
+
     
 //     public Vector3 Position
 // {
@@ -120,7 +121,6 @@ public class GameMesh
 public class DrawModel
 {
 
-    public Model model { get; set; }
 
     public List<Texture2D> textures { get; }
 
@@ -133,21 +133,22 @@ public class DrawModel
 
     private string modelFilePath;
 
+    public Scene scene { get; set;}
+
     public bool hasAnimations { get; set; } = false;
 
     private Dictionary<string, BoneInfo> boneInfoMap = new Dictionary<string, BoneInfo>();
     private int boneCount = 0;
 
-    public DrawModel(string path, Model model, float metallic, float roughness, GraphicsDevice graphicsDevice)
+    public DrawModel(string path, float metallic, float roughness, GraphicsDevice graphicsDevice)
     {
         this.context = new AssimpContext();
         this.modelFilePath = path;
         AssimpSetup(path,graphicsDevice);
-        this.model = model;
         this.textures = new List<Texture2D>();
         this.metallic = metallic;
         this.roughness = roughness;
-        extractTextures();
+  
     }
 
     public Dictionary<string,BoneInfo> getBoneInfoMap(){
@@ -172,7 +173,7 @@ public class DrawModel
             string MODELFILEPATH = "../../../Content/arena.dae"; 
         Console.WriteLine("Assimp Importing File: " + path);
         //This generates a "scene" for your model
-        var scene = context.ImportFile(path, PostProcessSteps.Triangulate |
+        this.scene = context.ImportFile(path, PostProcessSteps.Triangulate |
 PostProcessSteps.GenerateNormals |
 PostProcessSteps.JoinIdenticalVertices |
 PostProcessSteps.CalculateTangentSpace |
@@ -220,27 +221,31 @@ PostProcessSteps.FlipWindingOrder);
                 {
                     vertex.TexCoord = Vector2.Zero;
                 }
+                vertex.BoneIds = new Vector4(-1,-1,-1,-1); 
+                vertex.BoneWeights = new Vector4(0.0f,0.0f,0.0f,0.0f);
                 gameMesh.vertices.Add(vertex);
                 
             }
-             if (currMesh.HasBones) {
-					ExtractBoneWeightForVertices(meshes[i].vertices, currMesh, scene);
-				}
-           
+   
             //Fetch the indices
             gameMesh.indices = currMesh.GetIndices().ToList();
             Material material = scene.Materials[currMesh.MaterialIndex];
             extractTextures(material,gameMesh,scene,graphicsDevice);
             setupBuffers(gameMesh, graphicsDevice);
             this.meshes.Add(gameMesh);
-
+            if (currMesh.HasBones) {
+                List<GameModelVertex> vertices = gameMesh.vertices;
+					ExtractBoneWeightForVertices(ref vertices, currMesh, scene);
+                gameMesh.vertices = vertices; //Update the vertex data in the list
+			}
+           
 
 
         }
        
     }
 
-    private void ExtractBoneWeightForVertices(List<GameModelVertex> vertices, Mesh mesh, Scene scene){
+    private void ExtractBoneWeightForVertices(ref List<GameModelVertex> vertices, Mesh mesh, Scene scene){
         for (int boneIndex = 0; boneIndex < mesh.BoneCount; boneIndex++){
             int boneID = -1; 
             string boneName = mesh.Bones[boneIndex].Name;
@@ -268,14 +273,15 @@ PostProcessSteps.FlipWindingOrder);
                     throw new Exception("Vertex ID out of range: " + vertexID + " for bone: " + boneName);
                 }
                 GameModelVertex vertexData = vertices[vertexID];
-                setVertexBoneData(vertexData, boneID, weight);
+                setVertexBoneData(ref vertexData, boneID, weight);
                 vertices[vertexID] = vertexData; //Update the vertex data in the list
                 
         }
         }
     }
 
-    private void setVertexBoneData(GameModelVertex vertex, int boneId, float weight){
+
+    private void setVertexBoneData(ref GameModelVertex vertex, int boneId, float weight){
         //Check if the vertex already has a bone assigned
         if(vertex.BoneIds.X == -1){
             vertex.BoneIds.X = boneId; 
@@ -289,9 +295,7 @@ PostProcessSteps.FlipWindingOrder);
         } else if(vertex.BoneIds.W == -1){
             vertex.BoneIds.W = boneId; 
             vertex.BoneWeights.W = weight; 
-        } else {
-            throw new Exception("Vertex has too many bones assigned: " + vertex.ToString());
-        }
+        } 
     }
 
     //This is OpenGL style: We set up Vertex and Index Buffer for every mesh in the model
@@ -384,18 +388,18 @@ PostProcessSteps.FlipWindingOrder);
     }
 
 //Old function to extract textures from the Monogame model directly. 
-    private void extractTextures()
-    {
-        foreach (ModelMesh mesh in model.Meshes)
-        {
-            foreach (BasicEffect effect in mesh.Effects)
-            {
-                if (effect.Texture != null)
-                {
-                    this.textures.Add(effect.Texture);
-                }
-            }
-        }
-    }
+    // private void extractTextures()
+    // {
+    //     foreach (ModelMesh mesh in model.Meshes)
+    //     {
+    //         foreach (BasicEffect effect in mesh.Effects)
+    //         {
+    //             if (effect.Texture != null)
+    //             {
+    //                 this.textures.Add(effect.Texture);
+    //             }
+    //         }
+    //     }
+    // }
 
 }

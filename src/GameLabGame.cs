@@ -22,6 +22,8 @@ namespace GameLab
         private DrawModel playerHandModel;
         private DrawModel indicatorModel;
 
+        private DrawModel jesterAnimated;
+
         private List<DrawModel> playerHatModels = new List<DrawModel>();
         private List<DrawModel> mobModels = new List<DrawModel>();
         private List<DrawModel> areaDamageModels = new List<DrawModel>();
@@ -35,17 +37,17 @@ namespace GameLab
 
 
         //DEFERRED SHADING
-        private RenderTarget2D posMap; 
-        private RenderTarget2D normalMap; 
+        private RenderTarget2D posMap;
+        private RenderTarget2D normalMap;
         private RenderTarget2D albedoMap;
-     private RenderTarget2D roughnessMetallicMap;
+        private RenderTarget2D roughnessMetallicMap;
 
 
 
-     //HBAO
+        //HBAO
 
-     private RenderTarget2D HBAOmap;
-     private RenderTarget2D HBAOBlurredMap;
+        private RenderTarget2D HBAOmap;
+        private RenderTarget2D HBAOBlurredMap;
 
         private VertexBuffer fullscreenVertexBuffer;
 
@@ -88,7 +90,7 @@ namespace GameLab
 
         private Matrix viewInverse;
 
-    private void generateFullScreenVertexBuffer()
+        private void generateFullScreenVertexBuffer()
         {
             VertexPositionTexture[] fullscreenQuad = new VertexPositionTexture[6] {
                     new VertexPositionTexture(new Vector3(-1, -1, 0), new Vector2(0, 1)),
@@ -99,44 +101,44 @@ namespace GameLab
                     new VertexPositionTexture(new Vector3( 1,  1, 0), new Vector2(1, 0)),
                     new VertexPositionTexture(new Vector3( 1, -1, 0), new Vector2(1, 1)),
                 };
-             fullscreenVertexBuffer = new VertexBuffer(
-             GraphicsDevice,
-             typeof(VertexPositionTexture),
-             fullscreenQuad.Length,
-             BufferUsage.WriteOnly
-         );
+            fullscreenVertexBuffer = new VertexBuffer(
+            GraphicsDevice,
+            typeof(VertexPositionTexture),
+            fullscreenQuad.Length,
+            BufferUsage.WriteOnly
+        );
 
             fullscreenVertexBuffer.SetData(fullscreenQuad);
         }
 
-    private void Create4x4DitherTexture(GraphicsDevice device)
-{
-    const int size = 4;
-    var tex = new Texture2D(device, size, size, false, SurfaceFormat.Color);
-    var data = new Color[size * size];
-    var rnd  = new Random(12345);  // seed for reproducibility
-
-    for (int y = 0; y < size; y++)
-    {
-        for (int x = 0; x < size; x++)
+        private void Create4x4DitherTexture(GraphicsDevice device)
         {
-            // 1) random angle in [0, 2π)
-            float angle  = (float)(rnd.NextDouble() * Math.PI * 2.0);
-            // 2) random jitter in [0,1]
-            float jitter = (float)rnd.NextDouble();
+            const int size = 4;
+            var tex = new Texture2D(device, size, size, false, SurfaceFormat.Color);
+            var data = new Color[size * size];
+            var rnd = new Random(12345);  // seed for reproducibility
 
-            // encode cos/sin into [0,1]
-            float u = 0.5f + 0.5f * (float)Math.Cos(angle);
-            float v = 0.5f + 0.5f * (-(float)Math.Sin(angle));
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    // 1) random angle in [0, 2π)
+                    float angle = (float)(rnd.NextDouble() * Math.PI * 2.0);
+                    // 2) random jitter in [0,1]
+                    float jitter = (float)rnd.NextDouble();
 
-            // pack into a Color (RGBA8 UNORM)
-            data[y * size + x] = new Color(u, v, jitter, 0);
+                    // encode cos/sin into [0,1]
+                    float u = 0.5f + 0.5f * (float)Math.Cos(angle);
+                    float v = 0.5f + 0.5f * (-(float)Math.Sin(angle));
+
+                    // pack into a Color (RGBA8 UNORM)
+                    data[y * size + x] = new Color(u, v, jitter, 0);
+                }
+            }
+
+            tex.SetData(data);
+            this.ditherTex = tex;
         }
-    }
-
-    tex.SetData(data);
-    this.ditherTex = tex;
-}
 
         // Arena settings
         public const float ARENA_HEIGHT = 10f, ARENA_WIDTH = 17f;
@@ -160,12 +162,12 @@ namespace GameLab
             // Get Gamestatemanager instance yay and Menustatemanager too wahoo
             menuStateManager = MenuStateManager.GetMenuStateManager();
             gameStateManager = GameStateManager.GetGameStateManager();
-           
+
 
             base.Initialize();
         }
 
-        
+
 
         protected override void LoadContent()
         {
@@ -173,33 +175,33 @@ namespace GameLab
 
             generateFullScreenVertexBuffer();
             // Load all of the models
-            arenaModel = new DrawModel("../../../Content/marketplace.dae",Content.Load<Model>("marketplace"),0.0f,1.0f,GraphicsDevice);
-            playerModel = new DrawModel("../../../Content/Player/player_body.dae",Content.Load<Model>("Player/player_body"),0.0f,0.3f,GraphicsDevice);
-            playerModelShell = new DrawModel("../../../Content/Player/player_body_shell.dae", Content.Load<Model>("Player/player_body_shell"),0.0f,0.3f,GraphicsDevice);
+            arenaModel = new DrawModel("../../../Content/marketplace.dae", 0.0f, 1.0f, GraphicsDevice);
+            playerModel = new DrawModel("../../../Content/Player/player_body.dae", 0.0f, 0.3f, GraphicsDevice);
+            playerModelShell = new DrawModel("../../../Content/Player/player_body_shell.dae", 0.0f, 0.3f, GraphicsDevice);
+            jesterAnimated = new DrawModel("../../../Content/Player/jester_animated.gltf", 0.0f, 0.3f, GraphicsDevice);
+            playerHandModel = new DrawModel("../../../Content/Player/hand.dae", 0.0f, 0.3f, GraphicsDevice);
+            indicatorModel = new DrawModel("../../../Content/indicator.dae", 0.0f, 0.3f, GraphicsDevice);
+            playerHatModels.Add(new DrawModel("../../../Content/Player/player1_hat.dae", 0.0f, 0.3f, GraphicsDevice));
+            playerHatModels.Add(new DrawModel("../../../Content/Player/player2_hat.dae", 0.0f, 0.3f, GraphicsDevice));
+            playerHatModels.Add(new DrawModel("../../../Content/Player/player3_hat.dae", 0.0f, 0.3f, GraphicsDevice));
+            playerHatModels.Add(new DrawModel("../../../Content/Player/player4_hat.dae", 0.0f, 0.3f, GraphicsDevice));
 
-            playerHandModel = new DrawModel("../../../Content/Player/hand.dae", Content.Load<Model>("Player/hand"),0.0f,0.3f,GraphicsDevice);
-            indicatorModel = new DrawModel("../../../Content/indicator.dae", Content.Load<Model>("indicator"),0.0f,0.3f,GraphicsDevice);
-            playerHatModels.Add(new DrawModel("../../../Content/Player/player1_hat.dae", Content.Load<Model>("Player/player1_hat"),0.0f,0.3f,GraphicsDevice));
-            playerHatModels.Add(new DrawModel("../../../Content/Player/player2_hat.dae", Content.Load<Model>("Player/player2_hat"),0.0f,0.3f,GraphicsDevice));
-            playerHatModels.Add(new DrawModel("../../../Content/Player/player3_hat.dae", Content.Load<Model>("Player/player3_hat"),0.0f,0.3f,GraphicsDevice));
-            playerHatModels.Add(new DrawModel("../../../Content/Player/player4_hat.dae",Content.Load<Model>("Player/player4_hat"),0.0f,0.3f,GraphicsDevice));
+            mobModels.Add(new DrawModel("../../../Content/mob1.dae", 0.0f, 0.6f, GraphicsDevice));
+            mobModels.Add(new DrawModel("../../../Content/mob2.dae", 0.0f, 0.6f, GraphicsDevice));
+            mobModels.Add(new DrawModel("../../../Content/mob3.dae", 0.0f, 0.6f, GraphicsDevice));
 
-            mobModels.Add(new DrawModel("../../../Content/mob1.dae",Content.Load<Model>("mob1"),0.0f,0.6f,GraphicsDevice));
-            mobModels.Add(new DrawModel("../../../Content/mob2.dae",Content.Load<Model>("mob2"),0.0f,0.6f,GraphicsDevice));
-            mobModels.Add(new DrawModel("../../../Content/mob3.dae",Content.Load<Model>("mob3"),0.0f,0.6f,GraphicsDevice));
+            projectileModels.Add(ProjectileType.Frog, new DrawModel("../../../Content/frog.dae", 0.0f, 0.4f, GraphicsDevice));
+            projectileModels.Add(ProjectileType.Swordfish, new DrawModel("../../../Content/swordfish.dae", 0.0f, 0.5f, GraphicsDevice));
+            projectileModels.Add(ProjectileType.Tomato, new DrawModel("../../../Content/tomato.dae", 0.0f, 0.6f, GraphicsDevice));
+            projectileModels.Add(ProjectileType.Coconut, new DrawModel("../../../Content/coconut.dae", 0.0f, 0.9f, GraphicsDevice));
+            projectileModels.Add(ProjectileType.Banana, new DrawModel("../../../Content/bananapeel.dae", 0.0f, 0.9f, GraphicsDevice));
+            projectileModels.Add(ProjectileType.Turtle, new DrawModel("../../../Content/turtle_shell.dae", 0.0f, 0.9f, GraphicsDevice));
+            projectileModels.Add(ProjectileType.TurtleWalking, new DrawModel("../../../Content/turtle.dae", 0.0f, 0.9f, GraphicsDevice));
+            projectileModels.Add(ProjectileType.Mjoelnir, new DrawModel("../../../Content/mjoelnir.dae", 0.0f, 0.9f, GraphicsDevice));
+            projectileModels.Add(ProjectileType.Spear, new DrawModel("../../../Content/trident.dae", 0.0f, 0.9f, GraphicsDevice));
 
-            projectileModels.Add(ProjectileType.Frog, new DrawModel("../../../Content/frog.dae",Content.Load<Model>("frog"),0.0f,0.4f,GraphicsDevice));
-            projectileModels.Add(ProjectileType.Swordfish, new DrawModel("../../../Content/swordfish.dae",Content.Load<Model>("swordfish"),0.0f,0.5f,GraphicsDevice));
-            projectileModels.Add(ProjectileType.Tomato, new DrawModel("../../../Content/tomato.dae",Content.Load<Model>("tomato"),0.0f,0.6f,GraphicsDevice));
-            projectileModels.Add(ProjectileType.Coconut, new DrawModel("../../../Content/coconut.dae",Content.Load<Model>("coconut"),0.0f,0.9f,GraphicsDevice));
-            projectileModels.Add(ProjectileType.Banana, new DrawModel("../../../Content/bananapeel.dae",Content.Load<Model>("bananapeel"),0.0f,0.9f,GraphicsDevice));
-            projectileModels.Add(ProjectileType.Turtle, new DrawModel("../../../Content/turtle_shell.dae",Content.Load<Model>("turtle_shell"),0.0f,0.9f,GraphicsDevice));
-            projectileModels.Add(ProjectileType.TurtleWalking, new DrawModel("../../../Content/turtle.dae",Content.Load<Model>("turtle"),0.0f,0.9f,GraphicsDevice));
-            projectileModels.Add(ProjectileType.Mjoelnir, new DrawModel("../../../Content/mjoelnir.dae",Content.Load<Model>("mjoelnir"),0.0f,0.9f,GraphicsDevice));
-            projectileModels.Add(ProjectileType.Spear, new DrawModel("../../../Content/trident.dae",Content.Load<Model>("trident"),0.0f,0.9f,GraphicsDevice));
-
-            areaDamageModels.Add(new DrawModel("../../../Content/hammer_aoe.dae",Content.Load<Model>("hammer_aoe"),0.0f,0.9f,GraphicsDevice));
-            areaDamageModels.Add(new DrawModel("../../../Content/tomato_aoe.dae",Content.Load<Model>("tomato_aoe"),0.0f,0.3f,GraphicsDevice));
+            areaDamageModels.Add(new DrawModel("../../../Content/hammer_aoe.dae", 0.0f, 0.9f, GraphicsDevice));
+            areaDamageModels.Add(new DrawModel("../../../Content/tomato_aoe.dae", 0.0f, 0.3f, GraphicsDevice));
 
             playerHP.Add(Content.Load<Texture2D>("HUD/blue_heart"));
             playerHP.Add(Content.Load<Texture2D>("HUD/pink_heart"));
@@ -223,27 +225,27 @@ namespace GameLab
             geometryShader = new Shader(Content.Load<Effect>("GeometryPass"));
             hBAOShader = new HBAOShader(Content.Load<Effect>("HBAO"));
             HBAOFilter = new Filter(Content.Load<Effect>("OcclusionBlur"));
-           hBAOShader.setStrengthPerRay(0.1875f);
-        hBAOShader.setFalloff(0.25f);
-           hBAOShader.setDitherScale(GraphicsDevice.PresentationParameters.BackBufferWidth / 4.0f);
-           hBAOShader.setBias(0.25f);
+            hBAOShader.setStrengthPerRay(0.1875f);
+            hBAOShader.setFalloff(0.25f);
+            hBAOShader.setDitherScale(GraphicsDevice.PresentationParameters.BackBufferWidth / 4.0f);
+            hBAOShader.setBias(0.25f);
             Vector2 renderTargetResolution = new Vector2(GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight);
             hBAOShader.SetRenderTargetResolution(renderTargetResolution);
             //hBAOShader.setupSampleDirections();
             Create4x4DitherTexture(GraphicsDevice);
             hBAOShader.setDitherTexture(ditherTex);
-            
+
             HBAOFilter.setFilterSize(4);
             HBAOFilter.SetRenderTargetResolution(renderTargetResolution);
             Sun = new Light(new Vector3(1.2f, 1.2f, 0.82f), -new Vector3(3.0f, 9.0f, 7.0f));
             shadowMap = new RenderTarget2D(_graphics.GraphicsDevice, 4096, 4096, false, SurfaceFormat.Single, DepthFormat.Depth24);
 
-            posMap = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth,  GraphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Vector4, DepthFormat.Depth24);
-            normalMap = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth,  GraphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Vector4, DepthFormat.Depth24);
-            albedoMap = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth,  GraphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Vector4, DepthFormat.Depth24);
-            roughnessMetallicMap = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth,  GraphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Vector2, DepthFormat.Depth24);
-            HBAOmap = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth,  GraphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Vector4, DepthFormat.Depth24);
-            HBAOBlurredMap = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth,  GraphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Vector4, DepthFormat.None);
+            posMap = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Vector4, DepthFormat.Depth24);
+            normalMap = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Vector4, DepthFormat.Depth24);
+            albedoMap = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Vector4, DepthFormat.Depth24);
+            roughnessMetallicMap = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Vector2, DepthFormat.Depth24);
+            HBAOmap = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Vector4, DepthFormat.Depth24);
+            HBAOBlurredMap = new RenderTarget2D(GraphicsDevice, GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Vector4, DepthFormat.None);
 
 
             shadowShader.setLightSpaceMatrix(Sun.lightSpaceMatrix);
@@ -259,7 +261,7 @@ namespace GameLab
 
 
             geometryShader.setViewMatrix(view);
-            geometryShader.setProjectionMatrix(projection); 
+            geometryShader.setProjectionMatrix(projection);
             geometryShader.setOpacityValue(1.0f);
 
             // Initialize gamestate here:
@@ -307,10 +309,10 @@ namespace GameLab
                 new RenderTargetBinding(roughnessMetallicMap)
             };
             //gameStateManager.DepthMapPass(depthMapShader, view, projection, GraphicsDevice, depthMap, _spriteBatch, true);
-            gameStateManager.GeometryPass(geometryShader,shadowShader,view, projection, GraphicsDevice, shadowMap,targets, _spriteBatch,false);
-            gameStateManager.HBAOPass(hBAOShader,posMap,normalMap,HBAOmap,fullscreenVertexBuffer,GraphicsDevice,_spriteBatch,false);
-           gameStateManager.FilterPass(HBAOFilter,HBAOmap,normalMap,posMap,HBAOBlurredMap,GraphicsDevice,fullscreenVertexBuffer,_spriteBatch,false);
-            gameStateManager.DrawGame(lightingShader,GraphicsDevice,fullscreenVertexBuffer,posMap,normalMap,albedoMap,roughnessMetallicMap,shadowMap,HBAOBlurredMap,_spriteBatch,false);
+            gameStateManager.GeometryPass(geometryShader, shadowShader, view, projection, GraphicsDevice, shadowMap, targets, _spriteBatch, false);
+            gameStateManager.HBAOPass(hBAOShader, posMap, normalMap, HBAOmap, fullscreenVertexBuffer, GraphicsDevice, _spriteBatch, false);
+            gameStateManager.FilterPass(HBAOFilter, HBAOmap, normalMap, posMap, HBAOBlurredMap, GraphicsDevice, fullscreenVertexBuffer, _spriteBatch, false);
+            gameStateManager.DrawGame(lightingShader, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
             hud.DrawPlayerHud(_spriteBatch);
@@ -319,8 +321,11 @@ namespace GameLab
             _menu.Draw();
 
             _spriteBatch.End();
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.BlendState = BlendState.Opaque;
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap; // or whatever your 3D renderer expects
+            GraphicsDevice.SetRenderTarget(null); // go back to backbuffer
 
             base.Draw(gameTime);
         }

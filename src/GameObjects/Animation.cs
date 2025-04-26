@@ -26,7 +26,7 @@ struct KeyScale
     public double timeStamp;
 };
 
-struct AssimpNodeData
+public struct AssimpNodeData
 {
     public Matrix transformation;
     public string name;
@@ -34,7 +34,7 @@ struct AssimpNodeData
     public List<AssimpNodeData> children;
 };
 
-class Bone {
+public class Bone {
      
        private List<KeyPosition> positions;
        private List<KeyRotation> rotations;
@@ -49,21 +49,20 @@ class Bone {
       private  int id;
 
 
-      public Bone(string name, int ID, AiNodeAnim channel){
+      public Bone(string name, int ID, NodeAnimationChannel channel){
         this. name = name; 
         this.id = ID;   
         this.localTransform = Matrix.Identity;
-        this.NumPositions = (int)channel.NumPositionKeys;
-        this.NumRotations = (int)channel.NumRotationKeys;
-        this.NumScales = (int)channel.NumScalingKeys;
+        this.NumPositions = (int)channel.PositionKeyCount;
+        this.NumRotations = (int)channel.RotationKeyCount;
+        this.NumScales = (int)channel.ScalingKeyCount;
         int structSize = Marshal.SizeOf(typeof(VectorKey));
         this.positions = new List<KeyPosition>();
         this.rotations = new List<KeyRotation>();
         this.scales = new List<KeyScale>();
 
         for(int index = 0; index < NumPositions; index++){
-            IntPtr keyPtr = IntPtr.Add(channel.PositionKeys, index * structSize);
-            VectorKey key = Marshal.PtrToStructure<VectorKey>(keyPtr);
+            VectorKey key = channel.PositionKeys[index];
             double timeStamp = key.Time;
             KeyPosition data; 
             data. position = new Vector3(key.Value.X, key.Value.Y, key.Value.Z);
@@ -73,8 +72,7 @@ class Bone {
 
         structSize = Marshal.SizeOf(typeof(QuaternionKey));
         for(int index = 0; index < NumRotations; index++){
-            IntPtr keyPtr = IntPtr.Add(channel.RotationKeys, index * structSize);
-            QuaternionKey key = Marshal.PtrToStructure<QuaternionKey>(keyPtr);
+            QuaternionKey key = channel.RotationKeys[index];
             double timeStamp = key.Time;
             KeyRotation data; 
             data.orientation = new Quaternion(key.Value.W, key.Value.X, key.Value.Y, key.Value.Z);  
@@ -84,8 +82,7 @@ class Bone {
         
            structSize = Marshal.SizeOf(typeof(VectorKey));     
         for(int index = 0; index < NumScales; index++){
-            IntPtr keyPtr = IntPtr.Add(channel.ScalingKeys, index * structSize);
-            VectorKey key = Marshal.PtrToStructure<VectorKey>(keyPtr);
+           VectorKey key = channel.ScalingKeys[index];
             double timeStamp = key.Time;
             KeyScale data; 
             data.scale = new Vector3(key.Value.X, key.Value.Y, key.Value.Z);
@@ -189,7 +186,7 @@ class Bone {
     }
 }
 
-class Animation {
+public class GameAnimation {
     private List<Bone> bones = new List<Bone>();
     private int numBones;
     private double duration;
@@ -200,19 +197,17 @@ class Animation {
 
     private Dictionary<string, BoneInfo> boneInfoMap;
 
-    public Animation(string name, AiAnimation anim, AiScene scene, DrawModel model){
+    public GameAnimation(string name, Animation anim, Scene scene, DrawModel model){
         this.name = name; 
-        AiAnimation currAnim = anim;
-        this.duration = currAnim.Duration;
+        Animation currAnim = anim;
+        this.duration = currAnim.DurationInTicks;
         this.ticksPerSecond = currAnim.TicksPerSecond;
-        IntPtr scenePtr = scene.RootNode; 
-        int structSize = Marshal.SizeOf(typeof(AiNode));
-        AiNode AirootNode = Marshal.PtrToStructure<AiNode>(scenePtr);
+        Node node = scene.RootNode;
         this.rootNode = new AssimpNodeData();
         this.bones = new List<Bone>();
-        ReadAnimNodeHierarchy(ref rootNode, scene.RootNode);
+        ReadAnimNodeHierarchy(ref rootNode,node);
         ReadMissingBones(currAnim, model);
-        this.globalInverseTransform = Matrix.Invert(AirootNode.Transformation);
+        this.globalInverseTransform = Matrix.Invert(node.Transform);
         this.numBones = bones.Count;
 
     }
@@ -230,29 +225,27 @@ class Animation {
 
    public double GetDuration() { return duration; }
 
-    private void ReadAnimNodeHierarchy(ref AssimpNodeData destination, IntPtr rootNodePtr){
-        AiNode rootNode = Marshal.PtrToStructure<AiNode>(rootNodePtr);
-        destination.name = rootNode.Name.ToString();
-        destination.transformation = rootNode.Transformation;
-        destination.childrenCount = (int)rootNode.NumChildren;
+    private void ReadAnimNodeHierarchy(ref AssimpNodeData destination, Node currNode){
+        destination.name = currNode.Name;
+        destination.transformation = currNode.Transform;
+        destination.childrenCount = currNode.ChildCount;
         destination.children = new List<AssimpNodeData>();
-        for(int index = 0; index < rootNode.NumChildren; index++){
-            IntPtr childPtr = IntPtr.Add(rootNode.Children, index * Marshal.SizeOf(typeof(AiNode)));
+        for(int index = 0; index < currNode.ChildCount; index++){
             AssimpNodeData childData = new AssimpNodeData();
-            ReadAnimNodeHierarchy(ref childData, childPtr);
+            ReadAnimNodeHierarchy(ref childData, currNode.Children[index]);
             destination.children.Add(childData);
         }
     }
 
-    private void ReadMissingBones(AiAnimation anim, DrawModel model){
-        int size = (int)anim.NumChannels;
+    private void ReadMissingBones(Animation anim, DrawModel model){
+        int size = (int)anim.NodeAnimationChannelCount;
         var boneInfoMap = model.getBoneInfoMap();
 
         int boneCount = model.getBoneCount();
 
         for(int i = 0; i < size; i++){
-            AiNodeAnim channel = Marshal.PtrToStructure<AiNodeAnim>(IntPtr.Add(anim.Channels, i * Marshal.SizeOf(typeof(AiNodeAnim))));
-            string boneName = channel.NodeName.ToString();
+
+            string boneName = anim.NodeAnimationChannels[i].NodeName.ToString();
             if(!boneInfoMap.ContainsKey(boneName)){
                 BoneInfo boneInfo = new BoneInfo();
                 boneInfo.id = boneCount;
@@ -262,7 +255,7 @@ class Animation {
                 boneCount = model.getBoneCount();
             }  
             int boneIndex = boneInfoMap[boneName].id;
-                Bone bone = new Bone(boneName, boneIndex, channel);
+                Bone bone = new Bone(boneName, boneIndex,  anim.NodeAnimationChannels[i]);
                 this.bones.Add(bone);
         }
         this.boneInfoMap = boneInfoMap;

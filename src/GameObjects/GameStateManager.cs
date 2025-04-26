@@ -41,7 +41,9 @@ namespace src.GameObjects
         private DrawModel playerModelShell;
         private DrawModel playerHandModel;
         private DrawModel indicatorModel;
+        private DrawModel jester;
 
+        private GameModel jesterGame;
         private List<DrawModel> mobModels;
         private List<DrawModel> areaDamageModels;
         private Dictionary<ProjectileType, DrawModel> projectileModels;
@@ -80,6 +82,9 @@ namespace src.GameObjects
             this.projectileModels = projectileModels;
             this.indicatorModel = indicatorModel;
             this.playerModelShell = playerModelShell;
+            //this.jester = jester;
+            // jesterGame = new GameModel(jester,0.5f);
+            // jesterGame.SwitchAnimation(0,true);
 
             this.renderingRasterizer = new RasterizerState()
             {
@@ -166,7 +171,8 @@ namespace src.GameObjects
 
         public void UpdateGame(float dt)
         {
-
+           // jesterGame.UpdateAnimation(dt);
+    
             // Update area damage
             foreach (AreaDamage areaDamage in areaDamages)
                 areaDamage.updateWrap(dt);
@@ -374,6 +380,7 @@ namespace src.GameObjects
 
             arena.Draw(view, projection, shadowShader, graphicsDevice, true);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+            // jesterGame.Draw(view, projection, shadowShader, graphicsDevice, true);
 
             // Draw all active projectiles
             foreach (Projectile projectile in projectiles)
@@ -405,6 +412,9 @@ namespace src.GameObjects
             geometryShader.setRoughness(arena.DrawModel.roughness);
 
             arena.Draw(view, projection, geometryShader, graphicsDevice, false);
+            // Matrix[] check = jesterGame.GetFinalBoneMatrices();
+            //     geometryShader.setFinalBoneMatrices(jesterGame.GetFinalBoneMatrices());
+            //    jesterGame.Draw(view, projection, geometryShader, graphicsDevice, false);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
 
             // Draw all active projectiles:
