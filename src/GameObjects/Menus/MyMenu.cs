@@ -18,12 +18,15 @@ using Myra.Graphics2D.Brushes;
 //CLASS NOT USED
 namespace src.GameObjects{
     public class MyMenu{
+        private bool changegrid = false;
         private int controllerselectedbutton;
         private int CENTER_BUTTON_HEIGHT = 40;
         private int CENTER_BUTTON_WIDTH = 250;
         private Desktop desktop;
+        private Grid _grid;
         private MyMenuElement[] menuElements;
-        private bool menuopen=false;
+        private MyMenuElement[] basemenuElements;
+        private bool menuopen=true;
         private bool insubElement=false;
         private GameStateManager gameStateManager;
         private MenuStateManager menuStateManager;
@@ -63,6 +66,22 @@ namespace src.GameObjects{
                 Height = CENTER_BUTTON_HEIGHT,
                 Width = CENTER_BUTTON_WIDTH
             };
+            SliderStyle DefaultSliderStyle = new SliderStyle{
+                Background = new SolidBrush(Color.White),
+                FocusedBorder = new SolidBrush(Color.Honeydew),
+                DisabledBackground = new SolidBrush(Color.Aquamarine),
+                DisabledBorder = new SolidBrush(Color.Beige),
+                Border = new SolidBrush(Color.White),
+                Height = 20,
+                //NO IDEA SMTH LIKE PADDING Margin= new Thickness{Right=10,Left=10,Top=10,Bottom=10},
+                //PADDING Padding = new Thickness{Right=0,Left=0,Top=0,Bottom=0},
+                OverBackground = new SolidBrush(Color.Purple),
+                OverBorder = new SolidBrush(Color.Red),
+                FocusedBackground = new SolidBrush(Color.GreenYellow),
+                BorderThickness = new Thickness{Right=2,Left=2,Top=2,Bottom=2},
+                Width=300,
+            };
+            Stylesheet.Current.HorizontalSliderStyles["default"] = DefaultSliderStyle;
             //ADD CUSTOM STYLES
             Stylesheet.Current.SpinButtonStyles["controller"] = ControllerSpinbuttonStyle;
             Stylesheet.Current.SpinButtonStyles["default"] = DefaultSpinbuttonStyle;
@@ -77,12 +96,8 @@ namespace src.GameObjects{
             controllerselectedbutton=0;
 
             //WINDOW
-            Window gridWindow = new Window
-            {
-                Width = 500,
-                Height = 250,
-            };
-            Grid grid = new Grid
+            
+            _grid = new Grid
             {
                 RowSpacing = 5,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -91,11 +106,23 @@ namespace src.GameObjects{
                 //Height=DisplayHeight/2,
                 //Width=DisplayWidth/3
             };
+            
+            Grid startgrid = new Grid{
+                RowSpacing = 1,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                ShowGridLines = true
+            };
 
-            grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-            grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-            grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-            grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+            _grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+            _grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+            _grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+            _grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+            
+            startgrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+            startgrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+            startgrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+            startgrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
             /*MYRA REFERENCE CODE
             var helloworld = new Label{
                 Id="label",
@@ -113,16 +140,34 @@ namespace src.GameObjects{
 
             grid.Widgets.Add(combo);
             */
+            //STARTMENU/GRID
+            MyButton startexit = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit","StartExitButton",0,3,(s,a)=>{
+                game.Exit();
+            },startgrid);
+
+            MyButton startstartbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Start Game","StartButton",0,0,(s,a)=>{
+                gameStateManager.StartNewGame();
+                CloseMenu();
+            },startgrid);
+
+            MySpinbutton startNumPlayerSpinButton = new MySpinbutton(menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"StartNumPlayerSpinButton",0,1,startgrid,(c,a)=>{
+                float? nullableFloat = a.NewValue;
+                menuStateManager.NUM_PLAYERS = (int)(nullableFloat ?? 1);
+                gameStateManager.StartNewGame();
+            });
+
+            //BASEGRID
             //CLOSEBUTTON
-            MyButton closebutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit","ExitButton",0,3,(s,a)=>{
+            MyButton closebutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit","ExitButton",0,4,(s,a)=>{
                 game.Exit();//HARDCORE CLOSING
-            },grid);
+            },_grid);
+            
             
             //RELOADBUTTON
             MyButton reloadbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"New Game","ReloadButton",0,2,(s,a)=>{
                 gameStateManager.StartNewGame();//RELOADING
                 CloseMenu();
-            },grid);
+            },_grid);
             
             //RESUMEBUTTON
             MyButton resumebutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Resume","ResumeButton",0,0,(s,a) => {
@@ -130,14 +175,20 @@ namespace src.GameObjects{
                     gameStateManager.StartNewGame();
                 }
                 CloseMenu();
-            },grid);
+            },_grid);
 
-            MySpinbutton NumPlayerSpinButton = new MySpinbutton(menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"NumPlayerSpinButton",0,1,grid,(c,a) => {
+            
+            //NUM_PLAYERS
+            MySpinbutton NumPlayerSpinButton = new MySpinbutton(menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"NumPlayerSpinButton",0,1,_grid,(c,a) => {
                 float? nullableFloat = a.NewValue;
                 menuStateManager.NUM_PLAYERS = (int)(nullableFloat ?? 1);
                 gameStateManager.StartNewGame();
             });
 
+            //SETTINGS
+            MyButton settingsButton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settings","SettingsButton",0,3,(s,a)=>{
+
+            },_grid);
             
             
             //TEST IN PROGRESS
@@ -148,19 +199,18 @@ namespace src.GameObjects{
                     Content = new Label{
                         HorizontalAlignment = HorizontalAlignment.Center,
                         VerticalAlignment = VerticalAlignment.Center,
-                        Text = " THIS IS A CHECKBOX"
+                        Text = "Sound"
                     }
                 };
 
-                // Optional: handle toggle events
-            checkBox.EnabledChanged += (s, e) =>
-            {
-                menuStateManager.SOUND_ENABLED=!menuStateManager.SOUND_ENABLED;
+            // Optional: handle toggle events
+            checkBox.PressedChanged += (s,e)=>{
+                menuStateManager.SOUND_ENABLED = !menuStateManager.SOUND_ENABLED;
             };
             Grid.SetColumn(checkBox,3);
             Grid.SetRow(checkBox,0);
-            grid.Widgets.Add(checkBox);
-            
+            _grid.Widgets.Add(checkBox);
+            //SLIDER TESTS
             HorizontalSlider sl = new HorizontalSlider{
                 Width = CENTER_BUTTON_WIDTH,
                 Minimum=0,
@@ -173,8 +223,8 @@ namespace src.GameObjects{
             };
             Grid.SetColumn(sl,3);
             Grid.SetRow(sl,2);
-            grid.Widgets.Add(sl);
-
+            _grid.Widgets.Add(sl);
+            sl.SetStyle("default");
             HorizontalSlider slsfx = new HorizontalSlider{
                 Width = CENTER_BUTTON_WIDTH,
                 Minimum = 0,
@@ -186,14 +236,22 @@ namespace src.GameObjects{
             };
             Grid.SetColumn(slsfx,3);
             Grid.SetRow(slsfx,3);
-            grid.Widgets.Add(slsfx);
+            _grid.Widgets.Add(slsfx);
 
+            //SET DESKTOP FOR STARTMENU
             desktop = new Desktop();
-            desktop.Root = grid;
-            //ELEMENTÄRÄI
-            menuElements = new MyMenuElement[]{resumebutton,NumPlayerSpinButton,reloadbutton,closebutton};
+            desktop.Root = startgrid;
+            //desktop.Root = grid;
+            //ELEMENTÄRÄIs
+            menuElements = new MyMenuElement[]{startstartbutton,startNumPlayerSpinButton,startexit};
+            basemenuElements = new MyMenuElement[]{resumebutton,NumPlayerSpinButton,reloadbutton,settingsButton,closebutton};
         }
         public void Update(GameTime gameTime, KeyboardState keyboardState, KeyboardState previousKeyboardState, GamePadState gamePadState, GamePadState previousGamePadState){
+            if(changegrid){
+                desktop.Root = _grid;
+                changegrid=false;
+                menuElements = basemenuElements;
+            }
             if(keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape) || (gamePadState.Buttons.Start == ButtonState.Pressed && previousGamePadState.Buttons.Start == ButtonState.Released)){
                 if(menuopen){
                     CloseMenu();
@@ -245,6 +303,11 @@ namespace src.GameObjects{
             menuElements[controllerselectedbutton].UnHighlight();
             controllerselectedbutton=0;
             menuopen=false;
+
+            if(menuStateManager.START_MENU_IS_OPEN){
+                menuStateManager.START_MENU_IS_OPEN=false;
+                changegrid = true;
+            }
         }
         public void OpenMenu(){
             //menuElements[controllerselectedbutton].Highlight(); //SHOULD FIRST BUTTON BE HIGHLIGHTED IF WE OPEN THE MENU??? I SAY NO

@@ -145,7 +145,6 @@ namespace GameLab
             gameStateManager.StartNewGame();
 
             _menu = new MyMenu(this, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
-
             hud = new HUD(playerHP, playerHats, hudBackground, winMessage, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
 
             // Load Sounds:
@@ -157,9 +156,7 @@ namespace GameLab
         {
             KeyboardState keyboardState = Keyboard.GetState();
             GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
-
             _menu.Update(gameTime, keyboardState, _previousKeyboardState, gamePadState, _previousGamePadState);
-
             if (_menu.menuisopen())
             {
                 _previousKeyboardState = keyboardState;

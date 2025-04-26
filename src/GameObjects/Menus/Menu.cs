@@ -6,6 +6,8 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
 //WE DONT NEED THIS IF WE WILL USE MYRA ANYWAY
+//NOT IN USE
+//CAN DELETE AFAIK
 namespace src.GameObjects{
     public class Menu{
 
