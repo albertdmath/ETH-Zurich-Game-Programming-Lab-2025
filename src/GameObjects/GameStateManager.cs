@@ -320,7 +320,7 @@ namespace src.GameObjects
             foreach (Market market in markets)
             {
                 market.Draw(view, projection, shadowShader, true);
-                market.DrawFish(view, projection, shadowShader, true);
+                market.DrawFish(shadowShader, true);
             }
 
             // Draw all active projectiles
@@ -356,7 +356,7 @@ namespace src.GameObjects
                 lightingShader.setMetallic(market.DrawModel.metallic);
                 lightingShader.setRoughness(market.DrawModel.roughness);
                 market.Draw(view, projection, lightingShader, false);
-                market.DrawFish(view, projection, lightingShader, false);
+                market.DrawFish(lightingShader, false);
                 //market.Hitbox.DebugDraw(graphicsDevice,view,projection);
             }
 
