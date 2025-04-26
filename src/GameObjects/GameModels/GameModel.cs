@@ -18,7 +18,6 @@ public class GameModel {
         Scaling = Matrix.CreateScale(scale);
         CalculateTransform();
         Hitbox = new Hitbox(this.DrawModel.model,Transform);
-
     }
 
     protected void CalculateTransform(){

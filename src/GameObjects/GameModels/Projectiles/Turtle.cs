@@ -21,10 +21,12 @@ public class Turtle : Projectile
     // Fields
 
     // Constructor:
-    public Turtle(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, DrawModel walkingModel, float scaling, float height) : base(type, origin, target, model, scaling, height) {
+    public Turtle(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, DrawModel walkingModel, float scaling, float height) : base(type, origin, target, model, scaling, height) 
+    {
         this.shellModel = model;
         this.walkingModel = walkingModel;
     }
+
 
     private void RotateAway(float dt)
     {
@@ -50,7 +52,7 @@ public class Turtle : Projectile
         Velocity = WALKING_VELOCITY;
         _bounceBackTime = BOUNCE_BACK_TIME;
         Orientation *= -1;
-        //this.DrawModel = this.walkingModel;
+        this.DrawModel = this.walkingModel;
     }
 
     public override void OnPlayerHit(Player player) 
@@ -68,7 +70,6 @@ public class Turtle : Projectile
             player.GetHit(this);  
             BounceAfterHit();
         }
-        this.DrawModel = this.walkingModel;
     }
 
     /*
@@ -78,7 +79,6 @@ public class Turtle : Projectile
         BounceAfterHit();
     }
     */
-    
 
     protected override void Move(float dt)
     {
@@ -99,10 +99,7 @@ public class Turtle : Projectile
     public override void Catch(GameModel player)
     {
         base.Catch(player);
-        if(player is Player)
-        {
-            this.DrawModel = this.walkingModel;
-        }
+        this.DrawModel = this.shellModel;
     }
 
     public override void Throw(float chargeUp)
