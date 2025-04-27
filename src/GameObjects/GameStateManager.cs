@@ -61,10 +61,6 @@ namespace src.GameObjects
         private MenuStateManager menuStateManager;
         private readonly List<AreaDamage> areaDamages = new List<AreaDamage>();
         // Singleton instancing
-
-        private RasterizerState renderingRasterizer;
-
-        private RasterizerState shadowRasterizer;
         private GameStateManager() { }
 
         private static readonly GameStateManager instance = new();
@@ -121,10 +117,10 @@ namespace src.GameObjects
             // Market positions (corners)
             Vector3[] positions = new Vector3[]
             {
-                new(-6.5f, 0, -3.7f),
-                new(6.5f, 0, -3.7f),
-                new(-5f, 0, 3.7f),
-                new(5f, 0, 3.7f)
+                new(-7.8f, 0, -3.5f),
+                new(7.8f, 0, -3.5f),
+                new(-5.7f, 0, 3.7f),
+                new(4.7f, 0, 4.2f)
             };
 
             // Random projectile type selection logic
@@ -157,7 +153,7 @@ namespace src.GameObjects
                     break;
                 }
                 // Create market with selected type
-                markets.Add(new Market(positions[i], selectedType, marketModels[i%2], projectileModels[selectedType] , 4f));
+                markets.Add(new Market(positions[i], selectedType, marketModels[i], projectileModels[selectedType] , 4f));
             }
         }
 
@@ -191,7 +187,7 @@ namespace src.GameObjects
                     projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Mjoelnir], MJOELNIR_SCALE, MJOELNIR_HEIGHT);
                     break;
                 case ProjectileType.Chicken:
-                    projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Chicken], CHICKEN_SCALE, CHICKEN_HEIGHT);
+                    projectile = new Chicken(type, origin, target, projectileModels[ProjectileType.Chicken], CHICKEN_SCALE, CHICKEN_HEIGHT);
                     break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());

@@ -12,6 +12,7 @@ namespace src.GameObjects
         DrawModel targetModel;
         DrawModel arrowModel;
         
+        
         public AimIndicator(Player player, DrawModel targetModel,DrawModel arrowModel,float scale) : base(arrowModel,scale)
         {
             this.player=player;
@@ -23,18 +24,7 @@ namespace src.GameObjects
         // Places the indicator
         public void PlaceIndicator(float timeSpentCharging, float speedOfCharging,bool arrow)
         {
-            Orientation = player.Orientation;
-            if(arrow)
-            {
-                UpdateScale(1f+timeSpentCharging * speedOfCharging);
-                this.DrawModel = this.arrowModel;
-                Position = player.Position;
-            }else{
-                this.DrawModel = this.targetModel;
-                UpdateScale(1f);
-                Position = player.Position + player.Orientation * timeSpentCharging * speedOfCharging;
-            }
-            
+            Position = player.Position + player.Orientation * (0.2f + timeSpentCharging * speedOfCharging);
         }
     }
 }

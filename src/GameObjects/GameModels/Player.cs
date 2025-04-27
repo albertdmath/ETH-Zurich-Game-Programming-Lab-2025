@@ -17,7 +17,8 @@ namespace src.GameObjects
             Stunned,
             Crawling,
             JumpingWithTheMightyHammerOfTheThousandThunders,
-            DroppingThenNormalMovement
+            DroppingThenNormalMovement,
+            FloatingWithChicken
         }
         public int Id { get; set; }
         // Private fields:
@@ -294,7 +295,11 @@ namespace src.GameObjects
             playerState = PlayerState.JumpingWithTheMightyHammerOfTheThousandThunders;
             
         }
-
+        public void FlyWithChicken()
+        {
+            playerState = PlayerState.FloatingWithChicken;
+            playerSpeed = 1.5f;
+        }
 
         // ---------------------
         // End of public functions to change state of player. Meant to be called by projectile, after a collision
@@ -364,7 +369,7 @@ namespace src.GameObjects
             if(projectileHeld != null)
             {
                 projectileHeld.ToBeDeleted = true;
-                 Console.WriteLine("Dropping " + projectileHeld.Type);
+                Console.WriteLine("Dropping " + projectileHeld.Type);
             }
             projectileHeld = null;
             playerState = PlayerState.NormalMovement;
@@ -407,6 +412,7 @@ namespace src.GameObjects
                     {
                         actionPushedDuration += actionPushedDuration >= 2f ? 0f : dt;
                         aimIndicator.PlaceIndicator(actionPushedDuration,1f,true);
+
                     }
                     else
                     {
@@ -444,6 +450,17 @@ namespace src.GameObjects
                     Drop();
                     playerState = PlayerState.NormalMovement;
                     goto case PlayerState.NormalMovement;
+                case PlayerState.FloatingWithChicken:
+                    Move(dt);
+                    float height = (projectileHeld as Chicken).YCoordinate;
+                    Position = new(Position.X, height, Position.Z);
+                    if(height <= 0 || ellipse.Outside(Position.X, Position.Z))
+                    {
+                        Position = new Vector3(Position.X, 0, Position.Z);
+                        playerSpeed = 3f;
+                        Drop();
+                    }
+                    break;
             }
 
             actionPushedDuration = input.Action() ? actionPushedDuration + dt : 0f;
