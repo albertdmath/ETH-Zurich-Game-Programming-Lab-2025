@@ -226,7 +226,7 @@ namespace src.GameObjects
                     players[i].PlayerCollision(players[j]);
 
 
-            foreach (Player player in players.Where(x => x.Life == 0))
+            foreach (Player player in players)
             {
                 foreach (Market market in markets)
                 {
