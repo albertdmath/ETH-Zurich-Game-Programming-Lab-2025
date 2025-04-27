@@ -39,7 +39,7 @@ public class GameModel
 
     }
     public void UpdateScale(float scale){
-        Scaling = Matrix.CreateScale(1f,1f,scale);
+        Scaling = Matrix.CreateScale(scale,1f,scale);
     }
 
     public void UpdateAnimation(float dt){
