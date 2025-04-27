@@ -36,10 +36,10 @@ namespace src.GameObjects
         public Market(Vector3 position, ProjectileType type, DrawModel model, DrawModel projectile, float scaling) : base(model, scaling)
         {
             this.Position = position;
-            this.Orientation = Vector3.Normalize(Position);
+            this.Orientation = Vector3.Normalize(-Position);
             this.Type = type;
             this.projectileModel = projectile;
-            this.marketRotTrans = Matrix.CreateRotationY((float)Math.Atan2(Orientation.X, Orientation.Z)) 
+            this.marketRotTrans = Matrix.CreateRotationY((float)Math.Atan2(-Orientation.X, -Orientation.Z)) 
                                 * Matrix.CreateTranslation(Position);
             this.projectileScale = Matrix.CreateScale(projectileScaling[type]);
             this.updateHitbox();
@@ -70,7 +70,7 @@ namespace src.GameObjects
         {  
             for (int i = 0; i < nProjectiles; i++)
             {
-                Matrix projectileTranslation =  Matrix.CreateTranslation(positions[i], 0.5f, -0.65f);
+                Matrix projectileTranslation =  Matrix.CreateTranslation(positions[i], 0.5f, 0.15f);
 
                 Matrix finalTransform = projectileScale * projectileTranslation * marketRotTrans;
 
