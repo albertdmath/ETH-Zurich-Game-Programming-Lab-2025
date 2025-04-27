@@ -22,6 +22,7 @@ namespace src.GameObjects
         private const float TURTLE_SCALE = 0.3f;
         private const float MJOELNIR_SCALE = 1.5f;
         private const float SPEAR_SCALE = 0.9f;
+        private const float CHICKEN_SCALE = 0.9f;
 
 
         private const float TOMATO_HEIGHT = 0f;
@@ -32,26 +33,31 @@ namespace src.GameObjects
         private const float TURTLE_HEIGHT = 0f;
         private const float MJOELNIR_HEIGHT = 0.2f;
         private const float SPEAR_HEIGHT = 0f;
+        private const float CHICKEN_HEIGHT = 0f;
 
 
         // Model references for initializing the instances
         private DrawModel arenaModel;
+        private List<DrawModel> marketModels;
         private List<DrawModel> playerHatModels;
         private DrawModel playerModel;
         private DrawModel playerModelShell;
         private DrawModel playerHandModel;
-        private DrawModel indicatorModel;
+        private List<DrawModel> indicatorModel;
 
         private List<DrawModel> mobModels;
         private List<DrawModel> areaDamageModels;
         private Dictionary<ProjectileType, DrawModel> projectileModels;
         private GameModel arena;
+        private DrawModel walkingTurtle;
 
         // This is the mob that might or might not be angry
         private Mob mob;
         public readonly List<Player> players = new List<Player>();
         public readonly List<Player> livingPlayers = new List<Player>();
         public readonly List<Projectile> projectiles = new List<Projectile>();
+        public readonly List<Market> markets = new List<Market>();
+
         private MenuStateManager menuStateManager;
         private readonly List<AreaDamage> areaDamages = new List<AreaDamage>();
         // Singleton instancing
@@ -64,10 +70,11 @@ namespace src.GameObjects
             return instance;
         }
 
-        public void Initialize(DrawModel arenaModel, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels)
+        public void Initialize(DrawModel arenaModel, List<DrawModel> marketModels, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerModelShell, DrawModel playerHandModel, List<DrawModel> indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels, DrawModel walkingTurtle)
         {
             this.menuStateManager = MenuStateManager.GetMenuStateManager();
             this.arenaModel = arenaModel;
+            this.marketModels = marketModels;
             this.playerHatModels = playerHatModels;
             this.playerModel = playerModel;
             this.playerHandModel = playerHandModel;
@@ -76,6 +83,7 @@ namespace src.GameObjects
             this.projectileModels = projectileModels;
             this.indicatorModel = indicatorModel;
             this.playerModelShell = playerModelShell;
+            this.walkingTurtle = walkingTurtle;
 
             arena = new GameModel(arenaModel, ARENA_SCALE);
         }
@@ -84,8 +92,6 @@ namespace src.GameObjects
 
         public void InitializePlayers()
         {
-            players.Clear();
-            livingPlayers.Clear();
             float[] playerStartPositions = { -1.5f, -0.5f, 0.5f, 1.5f };
             float scaling = 0.5f;
             /*
@@ -95,14 +101,60 @@ namespace src.GameObjects
             for(int i = 0; i<MenuStateManager.GetMenuStateManager().NUM_PLAYERS; ++i)
                 players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), inputs[i], 0, mob.Ellipse, playerModels[i], scaling));
             SRY BOUT THAT*/
-            players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, mob.Ellipse, playerModel, playerModelShell, playerHandModel, playerHatModels[0], indicatorModel, scaling));
+            players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, mob.Ellipse, playerModel, playerModelShell, playerHandModel, playerHatModels[0], indicatorModel[0], indicatorModel[4], scaling));
             //players.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, mob.Ellipse, playerModels[1], scaling));
-            for(int i=1;i<menuStateManager.NUM_PLAYERS;++i){
-                    players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(),i,mob.Ellipse,playerModel, playerModelShell, playerHandModel, playerHatModels[i], indicatorModel, scaling));
+            for (int i = 1; i < menuStateManager.NUM_PLAYERS; ++i)
+            {
+                players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(), i, mob.Ellipse, playerModel, playerModelShell, playerHandModel, playerHatModels[i], indicatorModel[i], indicatorModel[i+4], scaling));
             }
 
             foreach (Player player in players)
                 livingPlayers.Add(player);
+        }
+
+        private void InitializeMarkets()
+        {
+            // Market positions (corners)
+            Vector3[] positions = new Vector3[]
+            {
+                new(-7.8f, 0, -3.5f),
+                new(7.8f, 0, -3.5f),
+                new(-5.7f, 0, 3.7f),
+                new(4.7f, 0, 4.2f)
+            };
+
+            // Random projectile type selection logic
+            //this should check for throwable
+            List<ProjectileType> availableTypes = Projectile.ProjectileProbability.Keys
+                                                .Where(type => Projectile.ProjectileProbability[type] > 0)
+                                                .ToList();
+            Random rng = new();
+            float totalWeight = availableTypes.Sum(type => Projectile.ProjectileProbability[type]);
+
+            for (int i = 0; i < 4; i++)
+            {
+                // Refill if empty
+                if (!availableTypes.Any()) 
+                    availableTypes = Projectile.ProjectileProbability.Keys
+                                    .Where(type => Projectile.ProjectileProbability[type] > 0)
+                                    .ToList();
+                
+                float randomValue = (float)rng.NextDouble() * totalWeight;
+                ProjectileType selectedType = default;
+
+                foreach (var type in availableTypes)
+                {
+                    randomValue -= Projectile.ProjectileProbability[type];
+                    if (randomValue > 0) continue;
+                    
+                    selectedType = type;
+                    availableTypes.Remove(type);
+                    totalWeight -= Projectile.ProjectileProbability[type];
+                    break;
+                }
+                // Create market with selected type
+                markets.Add(new Market(positions[i], selectedType, marketModels[i], projectileModels[selectedType] , 4f));
+            }
         }
 
         public Projectile CreateProjectile(ProjectileType type, Vector3 origin, Vector3 target)
@@ -126,7 +178,7 @@ namespace src.GameObjects
                     projectile = new Banana(type, origin, target, projectileModels[ProjectileType.Banana], BANANA_SCALE, BANANA_HEIGHT);
                     break;
                 case ProjectileType.Turtle:
-                    projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], projectileModels[ProjectileType.TurtleWalking], TURTLE_SCALE, TURTLE_HEIGHT);
+                    projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], walkingTurtle, TURTLE_SCALE, TURTLE_HEIGHT);
                     break;
                 case ProjectileType.Spear:
                     projectile = new Spear(type, origin, target, projectileModels[ProjectileType.Spear], SPEAR_SCALE, SPEAR_HEIGHT);
@@ -134,27 +186,31 @@ namespace src.GameObjects
                 case ProjectileType.Mjoelnir:
                     projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Mjoelnir], MJOELNIR_SCALE, MJOELNIR_HEIGHT);
                     break;
+                case ProjectileType.Chicken:
+                    projectile = new Chicken(type, origin, target, projectileModels[ProjectileType.Chicken], CHICKEN_SCALE, CHICKEN_HEIGHT);
+                    break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());
             }
             projectiles.Add(projectile);
             return projectile;
         }
-        public void CreateAreaDamage(Vector3 position, float scale,Player player,ProjectileType type)
+        public void CreateAreaDamage(Vector3 position, float scale, Player player, ProjectileType type)
         {
-            if(type == ProjectileType.Mjoelnir)
-                areaDamages.Add(new AreaDamage(position,player,areaDamageModels[0],scale));
+            if (type == ProjectileType.Mjoelnir)
+                areaDamages.Add(new AreaDamage(position, player, areaDamageModels[0], scale));
             else
-                areaDamages.Add(new AreaDamage(position,player,areaDamageModels[1],scale));
+                areaDamages.Add(new AreaDamage(position, player, areaDamageModels[1], scale));
         }
 
         public void UpdateGame(float dt)
         {
-
+           // jesterGame.UpdateAnimation(dt);
+    
             // Update area damage
-            foreach(AreaDamage areaDamage in areaDamages)
+            foreach (AreaDamage areaDamage in areaDamages)
                 areaDamage.updateWrap(dt);
-                areaDamages.RemoveAll(x => x.ToBeDeleted);
+            areaDamages.RemoveAll(x => x.ToBeDeleted);
 
             // Move Players
             foreach (Player player in players)
@@ -165,10 +221,24 @@ namespace src.GameObjects
                 for (int j = i + 1; j < players.Count; j++)
                     players[i].PlayerCollision(players[j]);
 
+
+            foreach (Player player in players)
+            {
+                foreach (Market market in markets)
+                {
+                    if (player.Hitbox.Intersects(market.Hitbox))
+                        player.MarketCollision(market);
+                }
+            }
+            
+            // Update markets
+            foreach (Market market in markets)
+                market.Update(dt);
+
             // Update mob
             mob.Update(dt);
 
-   
+
             // Move the projectiles
             foreach (Projectile projectile in projectiles)
                 projectile.updateWrap(dt);
@@ -183,7 +253,7 @@ namespace src.GameObjects
             {
                 for (int j = i + 1; j < projectiles.Count; j++)
                 {
-                    if(projectiles[i].Hitbox.Intersects(projectiles[j].Hitbox))
+                    if (projectiles[i].Hitbox.Intersects(projectiles[j].Hitbox))
                     {
                         projectiles[i].ToBeDeleted = projectiles[j].DestroysOtherProjectiles;
                         projectiles[j].ToBeDeleted = projectiles[i].DestroysOtherProjectiles;
@@ -193,16 +263,29 @@ namespace src.GameObjects
 
             // Early delete projectiles for efficiency
             projectiles.RemoveAll(x => x.ToBeDeleted);
-            
+
             // Check for projectile-player hand intersections
-            foreach (Projectile projectile in projectiles)
+            foreach (Player player in players.Where(p => p.Hand.IsCatching))
             {
-                foreach (Player player in players)
+                foreach (Projectile projectile in projectiles)
                 {
-                    if (player.Hand.IsCatching && projectile.Hitbox.Intersects(player.Hand.Hitbox))
+                    if (projectile.Hitbox.Intersects(player.Hand.Hitbox))
                         player.Catch(projectile);
                 }
+
+                foreach (Market market in markets)
+                {
+                    if (market.Hitbox.Intersects(player.Hand.Hitbox))
+                    {
+                        if(market.GrabProjectile())
+                        {
+                            Projectile projectile = CreateProjectile(market.Type, player.Position, player.Position);
+                            player.Catch(projectile);
+                        }
+                    }
+                }
             }
+            
             // Check for projectile-player intersections
             foreach (Projectile projectile in projectiles.Where(x => x.Holder == null || x.DestroysOtherProjectiles))
             {
@@ -239,96 +322,310 @@ namespace src.GameObjects
             projectiles.RemoveAll(x => x.ToBeDeleted);
         }
 
-        public void DrawGame(Shader shadowShader, PBR lightingShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D shadowMap)
+
+        public void ShaderTest(Shader testShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice)
         {
-            graphicsDevice.SetRenderTarget(shadowMap);
+            graphicsDevice.SetRenderTarget(null);
+            graphicsDevice.Clear(Color.Black);
+            graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            testShader.setWorldMatrix(Matrix.Identity);
+            testShader.setViewMatrix(view);
+            testShader.setProjectionMatrix(projection);
+            arena.Draw(view, projection, testShader, graphicsDevice, false);
+        }
+        public void DrawGame(RenderTarget2D output, PBR lightingShader, GraphicsDevice graphicsDevice, VertexBuffer fullScreenQuad, RenderTarget2D FragPosMap, RenderTarget2D NormalMap, RenderTarget2D AlbedoMap, RenderTarget2D RoughnessMetallicMap, RenderTarget2D ShadowMap, RenderTarget2D OcclusionMap, SpriteBatch spriteBatch, bool test)
+        {
+            graphicsDevice.SetRenderTarget(output);
+            graphicsDevice.SetVertexBuffer(fullScreenQuad);
+            graphicsDevice.Clear(Color.White);
+            graphicsDevice.DepthStencilState = DepthStencilState.Default;
+            graphicsDevice.BlendState = BlendState.Opaque;
+            graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            lightingShader.setFragPosTexture(FragPosMap);
+            lightingShader.setNormalTexture(NormalMap);
+            lightingShader.setTexture(AlbedoMap);
+            lightingShader.setShadowTexture(ShadowMap);
+            lightingShader.setRoughnessTexture(RoughnessMetallicMap);
+            if (OcclusionMap != null){
+            lightingShader.setOcclusionTexture(OcclusionMap);
+            }
+
+            // You don’t need an index buffer for this simple triangle list
+            foreach (var pass in lightingShader.effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, 2); // 2 triangles = 6 vertices
+            }
+            graphicsDevice.SetRenderTarget(null);
+          if (test)
+            {
+                if(output != null){
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(output, new Rectangle(400, 400, 400, 400), Color.White);
+                spriteBatch.End(); 
+                }
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(FragPosMap, new Rectangle(0, 0, 400, 400), Color.White);
+                spriteBatch.End(); 
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(NormalMap, new Rectangle(0, 400, 400, 400), Color.White);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(AlbedoMap, new Rectangle(0, 800, 400, 400), Color.White);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(ShadowMap, new Rectangle(400, 0, 400, 400), Color.White);
+                spriteBatch.End();
+
+            }
+
+        }
+
+        public void DepthMapPass(Shader depthShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D depthMap, SpriteBatch spriteBatch, bool test)
+        {
+            graphicsDevice.SetRenderTarget(depthMap);
             graphicsDevice.Clear(Color.Black);
             graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
+            // graphicsDevice.RasterizerState = this.shadowRasterizer;
 
-            arena.Draw(view, projection, shadowShader, true);
+            arena.Draw(view, projection, depthShader, graphicsDevice, true);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+            foreach (Market market in markets)
+            {
+                market.Draw(view, projection, depthShader, graphicsDevice, true);
+                market.DrawFish(view, graphicsDevice, depthShader, true);
+            }
 
             // Draw all active projectiles
             foreach (Projectile projectile in projectiles)
             {
-                projectile.Draw(view, projection, shadowShader, true);
+                projectile.Draw(view, projection, depthShader, graphicsDevice, true);
                 // projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             }
 
             // Draw all players
             foreach (Player player in players)
             {
-                player.Draw(view, projection, shadowShader, true);
+                player.Draw(view, projection, depthShader, graphicsDevice, true);
                 //player.Hitbox.DebugDraw(graphicsDevice, view, projection);
             }
-            mob.Draw(view, projection, shadowShader, true);
-
-            lightingShader.setShadowTexture(shadowMap);
+            mob.Draw(view, projection, depthShader, graphicsDevice, true);
             graphicsDevice.SetRenderTarget(null);
+          if (test)
+            {
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(depthMap, new Rectangle(0, 0, 800, 800), Color.White);
+                spriteBatch.End(); 
+
+            }
+        }
+
+        public void HBAOPass(HBAOShader hBAOShader, RenderTarget2D PosMap, RenderTarget2D NormalMap, RenderTarget2D HBAOmap, VertexBuffer fullscreenquad, GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, bool test){
+            graphicsDevice.SetRenderTarget(HBAOmap);
+            graphicsDevice.SetVertexBuffer(fullscreenquad);
+            graphicsDevice.Clear(Color.White);
+            graphicsDevice.DepthStencilState = DepthStencilState.Default;
+            graphicsDevice.BlendState = BlendState.Opaque;
             graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            hBAOShader.setFragPosTexture(PosMap);
+            hBAOShader.setNormalTexture(NormalMap);
+            foreach (var pass in hBAOShader.effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, 2); // 2 triangles = 6 vertices
+            }
+            graphicsDevice.SetRenderTarget(null);
+          if (test)
+            {
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(HBAOmap, new Rectangle(0, 0, graphicsDevice.PresentationParameters.BackBufferWidth, graphicsDevice.PresentationParameters.BackBufferHeight), Color.White);
+                spriteBatch.End(); 
+
+            }
+        }
+        public void GeometryPass(Shader geometryShader, Shader shadowShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D shadowMap, RenderTargetBinding[] targets, SpriteBatch spriteBatch, bool test)
+        {
+            graphicsDevice.SetRenderTarget(shadowMap);
+            graphicsDevice.Clear(Color.Black);
+            graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
+            // graphicsDevice.RasterizerState = this.shadowRasterizer;
+
+            arena.Draw(view, projection, shadowShader, graphicsDevice, true);
+            // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+            foreach (Market market in markets)
+            {
+                market.Draw(view, projection, shadowShader, graphicsDevice, true);
+                market.DrawFish(view, graphicsDevice, shadowShader, true);
+            }
+            // jesterGame.Draw(view, projection, shadowShader, graphicsDevice, true);
+
+            // Draw all active projectiles
+            foreach (Projectile projectile in projectiles)
+            {
+                projectile.Draw(view, projection, shadowShader, graphicsDevice, true);
+                // projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+            }
+
+            // Draw all players
+            foreach (Player player in players)
+            {
+                player.Draw(view, projection, shadowShader, graphicsDevice, true);
+                //player.Hitbox.DebugDraw(graphicsDevice, view, projection);
+            }
+            mob.Draw(view, projection, shadowShader, graphicsDevice, true);
+            
+            graphicsDevice.SetRenderTargets(targets);
+            graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+             graphicsDevice.DepthStencilState = DepthStencilState.Default;
+            graphicsDevice.BlendState = BlendState.Opaque;
+            graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+
+            // graphicsDevice.RasterizerState = this.renderingRasterizer;
 
             // Set background color
             graphicsDevice.Clear(Color.DeepSkyBlue);
-            
-            lightingShader.setMetallic(arena.DrawModel.metallic);
-            lightingShader.setRoughness(arena.DrawModel.roughness);
-            arena.Draw(view, projection, lightingShader, false);
+
+            geometryShader.setMetallic(arena.DrawModel.metallic);
+            geometryShader.setRoughness(arena.DrawModel.roughness);
+
+            arena.Draw(view, projection, geometryShader, graphicsDevice, false);
+            // Matrix[] check = jesterGame.GetFinalBoneMatrices();
+            //     geometryShader.setFinalBoneMatrices(jesterGame.GetFinalBoneMatrices());
+            //    jesterGame.Draw(view, projection, geometryShader, graphicsDevice, false);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+            
+            //draw all markets
+            foreach (Market market in markets)
+            {
+                geometryShader.setMetallic(market.DrawModel.metallic);
+                geometryShader.setRoughness(market.DrawModel.roughness);
+                market.Draw(view, projection, geometryShader, graphicsDevice, false);
+                market.DrawFish(view, graphicsDevice, geometryShader, false);
+                //market.Hitbox.DebugDraw(graphicsDevice,view,projection);
+            }
 
             // Draw all active projectiles:
             foreach (Projectile projectile in projectiles)
             {
-                lightingShader.setMetallic(projectile.DrawModel.metallic);
-                lightingShader.setRoughness(projectile.DrawModel.roughness);
-                projectile.Draw(view, projection, lightingShader, false);
+                geometryShader.setMetallic(projectile.DrawModel.metallic);
+                geometryShader.setRoughness(projectile.DrawModel.roughness);
+
+                projectile.Draw(view, projection, geometryShader, graphicsDevice, false);
                 // projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             }
 
             // Draw all Players
             foreach (Player player in players)
             {
-                if(player.playerState == Player.PlayerState.Crawling){
+                if (player.playerState == Player.PlayerState.Crawling)
+                {
                     graphicsDevice.BlendState = BlendState.NonPremultiplied;
-                    lightingShader.setOpacityValue(0.4f);
-                }else{
+                    geometryShader.setOpacityValue(0.4f);
+
+                }
+                else
+                {
                     graphicsDevice.BlendState = BlendState.Opaque;
-                    lightingShader.setOpacityValue(1.0f);
+                    geometryShader.setOpacityValue(1.0f);
                 }
 
-                lightingShader.setMetallic(player.DrawModel.metallic);
-                lightingShader.setRoughness(player.DrawModel.roughness);
-                player.Draw(view, projection, lightingShader, false);
+                geometryShader.setMetallic(player.DrawModel.metallic);
+                geometryShader.setRoughness(player.DrawModel.roughness);
+
+                player.Draw(view, projection, geometryShader, graphicsDevice, false);
                 //player.Hitbox.DebugDraw(graphicsDevice, view, projection);
             }
 
             // Draw mob
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
-            lightingShader.setOpacityValue(1.0f);
-            mob.Draw(view, projection, lightingShader, false);
+            geometryShader.setOpacityValue(1.0f);
+            mob.Draw(view, projection, geometryShader, graphicsDevice, false);
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
-            lightingShader.setOpacityValue(0.2f);
-            foreach(AreaDamage areaDamage in areaDamages) 
+            geometryShader.setOpacityValue(0.2f);
+            foreach (AreaDamage areaDamage in areaDamages)
             {
-                areaDamage.Draw(view, projection, lightingShader, false);
+                geometryShader.setMetallic(areaDamage.DrawModel.metallic);
+                geometryShader.setRoughness(areaDamage.DrawModel.roughness);
+                areaDamage.Draw(view, projection, geometryShader, graphicsDevice, false);
             }
-            
+
             graphicsDevice.BlendState = BlendState.Opaque;
-            lightingShader.setOpacityValue(1.0f);
+            geometryShader.setOpacityValue(1.0f);
             // graphicsDevice.BlendState = BlendState.NonPremultiplied;
             // lightingShader.setOpacityValue(0.7f);
-            lightingShader.setRoughness(0.3f);
-            lightingShader.setMetallic(0.0f);
+            geometryShader.setRoughness(0.3f);
+            geometryShader.setMetallic(0.0f);
             // graphicsDevice.BlendState = BlendState.Opaque;
             // lightingShader.setOpacityValue(1.0f);
-     
+
+
+
+            graphicsDevice.SetRenderTarget(null);
+            if (test)
+            {
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw((RenderTarget2D)targets[0].RenderTarget, new Rectangle(0, 0, 400, 400), Color.White);
+                spriteBatch.End(); 
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw((RenderTarget2D)targets[1].RenderTarget, new Rectangle(0, 400, 400, 400), Color.White);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw((RenderTarget2D)targets[2].RenderTarget, new Rectangle(400, 0, 400, 400), Color.White);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(shadowMap, new Rectangle(400, 400, 400, 400), Color.White);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw((RenderTarget2D)targets[3].RenderTarget, new Rectangle(800, 0, 400, 400), Color.White);
+                spriteBatch.End();
+
+            }
+
+
+        }
+
+public void FilterPass(Filter filterShader, RenderTarget2D inputTexture, RenderTarget2D normalTexture, RenderTarget2D fragPosTexture, RenderTarget2D outputTexture, GraphicsDevice graphicsDevice, VertexBuffer fullscreenquad, SpriteBatch spriteBatch, bool test)
+        {
+            graphicsDevice.SetRenderTarget(outputTexture);
+            graphicsDevice.SetVertexBuffer(fullscreenquad);
+            graphicsDevice.Clear(Color.White);
+            graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            if(fragPosTexture != null){
+            filterShader.setFragPosTexture(fragPosTexture);
+            }   
+            if(normalTexture != null){
+                 filterShader.setNormalTexture(normalTexture);
+            }   
+            if(inputTexture != null){             
+            filterShader.setAlbedoTexture(inputTexture);
+            }
+
+
+        
+            foreach (var pass in filterShader.effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                graphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, 2); // 2 triangles = 6 vertices
+            }
+            graphicsDevice.SetRenderTarget(null);
+          if (test)
+            {
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(outputTexture, new Rectangle(0, 0, graphicsDevice.PresentationParameters.BackBufferWidth, graphicsDevice.PresentationParameters.BackBufferHeight), Color.White);
+                spriteBatch.End(); 
+
+            }
         }
 
         public void StartNewGame()
         {
             players.Clear();
             projectiles.Clear();
+            markets.Clear();
+            livingPlayers.Clear();
 
             InitializeMob();
+            InitializeMarkets();
             InitializePlayers();
         }
 

@@ -85,6 +85,17 @@ namespace src.GameObjects
                 ZombieSpeedY += 10f*y*temp;
             }
         }
+        public void ForceByMarket(Market market){
+            float x = this.Position.X - market.Position.X;
+            float y = this.Position.Z - market.Position.Z;
+            float lengthSquared = (x*x+y*y);
+            float length = (float)Math.Sqrt(lengthSquared);
+            if(lengthSquared<1.5f){
+                float temp = (1.5f-lengthSquared)/length;
+                ZombieSpeedX += 10f*x*temp;
+                ZombieSpeedY += 10f*y*temp;
+            }
+        }
         public bool Spawn(ProjectileType type, Player target)
         {
             if(projectileHeld == null)
@@ -99,7 +110,7 @@ namespace src.GameObjects
         }
         private void Throw(float dt)
         {
-            if(timeSinceSpawn <= 1f)
+            if(timeSinceSpawn <= 2f)
             {
                 timeSinceSpawn += dt;
                 return;

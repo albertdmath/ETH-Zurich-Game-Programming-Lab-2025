@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "xtree": "cpp",
+        "xstring": "cpp",
+        "xhash": "cpp",
+        "xutility": "cpp"
+    }
+}

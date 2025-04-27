@@ -29,9 +29,9 @@ public class HUD
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         offsets.Add(new Vector2(50,40));
-        offsets.Add(new Vector2(screenWidth - 3400*menuStateManager.HUD_SCALE,40));
+        offsets.Add(new Vector2(screenWidth - 4300*menuStateManager.HUD_SCALE,40));
         offsets.Add(new Vector2(50, screenHeight - 200));
-        offsets.Add(new Vector2(screenWidth - 3400*menuStateManager.HUD_SCALE, screenHeight-200));
+        offsets.Add(new Vector2(screenWidth - 4300*menuStateManager.HUD_SCALE, screenHeight-200));
     }
 
     // Draws the player HUD depending on the number of players, 
@@ -40,7 +40,7 @@ public class HUD
         for(int i = 0; i < menuStateManager.NUM_PLAYERS; i++)
         {
             // Draws backdrop
-            spriteBatch.Draw(hudBackground, offsets[i], null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE, SpriteEffects.None, 0f);
+            //spriteBatch.Draw(hudBackground, offsets[i], null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE * 2f, SpriteEffects.None, 0f);
             // Draws player hats
             spriteBatch.Draw(playerHats[i], offsets[i] - new Vector2(400*menuStateManager.HUD_SCALE, 0) , null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE, SpriteEffects.None, 0f);
             // Draws player hearts

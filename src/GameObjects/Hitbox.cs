@@ -11,9 +11,11 @@ public class Hitbox {
     // Axis-aligned bounding boxes
     public List<OrientedBoundingBox> BoundingBoxes { get; } = new List<OrientedBoundingBox>();
 
-    public Hitbox(Model model, Matrix transformation) {
-        foreach(ModelMesh mesh in model.Meshes) {
+    public Hitbox(DrawModel model, Matrix transformation) {
+        if(model != null){
+        foreach(GameMesh mesh in model.meshes) {
             BoundingBoxes.Add(OrientedBoundingBox.ComputeOBB(mesh, transformation));
+        }
         }
     }
 

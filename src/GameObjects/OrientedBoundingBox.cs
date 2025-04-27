@@ -57,24 +57,24 @@ public class OrientedBoundingBox
         Center, (half)extents and orientation form the OBB
         If I ever come back here to steal this genius piece of code: hey, you can do it! :)
     */
-    public static OrientedBoundingBox ComputeOBB(ModelMesh mesh, Matrix transformation)
+    public static OrientedBoundingBox ComputeOBB(GameMesh mesh, Matrix transformation)
     {
-        List<Vector3> vertices = GetMeshVertices(mesh);
+        List<GameModelVertex> vertices = mesh.vertices;
         if (vertices == null || vertices.Count == 0)
             throw new ArgumentException("No vertices provided!");
 
         // Compute mean (center of mass)
         Vector3 mean = Vector3.Zero;
-        foreach (var v in vertices)
-            mean += v;
+        foreach (GameModelVertex v in vertices)
+            mean += v.Position;
         mean /= vertices.Count;
 
         // Construct 3x3 covariance matrix
         double[,] covarianceMatrix = new double[3, 3];
 
-        foreach (var v in vertices)
+        foreach (GameModelVertex v in vertices)
         {
-            Vector3 d = v - mean;
+            Vector3 d = v.Position - mean;
             covarianceMatrix[0, 0] += d.X * d.X;
             covarianceMatrix[0, 1] += d.X * d.Y;
             covarianceMatrix[0, 2] += d.X * d.Z;
@@ -122,8 +122,8 @@ public class OrientedBoundingBox
         // Transform vertices into the new basis
         List<Vector3> transformed = new List<Vector3>();
         Matrix rotationTranspose = Matrix.Transpose(rotation);
-        foreach (var v in vertices)
-            transformed.Add(Vector3.Transform(v - mean, rotationTranspose));
+        foreach (GameModelVertex v in vertices)
+            transformed.Add(Vector3.Transform(v.Position - mean, rotationTranspose));
 
         // Compute min/max extents
         Vector3 min = new Vector3(float.MaxValue);

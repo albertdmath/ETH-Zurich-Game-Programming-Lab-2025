@@ -1,5 +1,6 @@
 using GameLab;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 
@@ -77,6 +78,7 @@ namespace src.GameObjects
             CloseRing(dt);
             MobPhysics();
             MobPlayerInteraction();
+            MobMarketInteraction();
             foreach (Zombie zombie in active) zombie.updateWrap(dt);
             NewMobProjectile(dt);
         }
@@ -163,6 +165,15 @@ namespace src.GameObjects
                 }
             }
         }
+        private void MobMarketInteraction(){
+
+            foreach (Zombie zombie in active)
+            { 
+                foreach(Market market in gameStateManager.markets){
+                    if(zombie.Hitbox.Intersects(market.Hitbox))zombie.ForceByMarket(market);
+                }
+            }
+        }
 
         private void NewMobProjectile(float dt)
         {
@@ -194,9 +205,14 @@ namespace src.GameObjects
         //     }
         // }
         
-        public void Draw(Matrix view, Matrix projection, Shader shader, bool shadowDraw) {
-            foreach (Zombie zombie in active)
-                zombie.Draw(view, projection, shader, shadowDraw);
+        public void Draw(Matrix view, Matrix projection, Shader shader, GraphicsDevice graphicsDevice, bool shadowDraw) {
+            foreach (Zombie zombie in active) {
+                if(!shadowDraw){
+                shader.setRoughness(zombie.DrawModel.roughness);
+                shader.setMetallic(zombie.DrawModel.metallic);
+                }
+                zombie.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+        }
         }
     }
     

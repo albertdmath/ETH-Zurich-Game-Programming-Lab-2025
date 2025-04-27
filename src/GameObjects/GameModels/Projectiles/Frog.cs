@@ -86,12 +86,6 @@ public class Frog : Projectile
         Position = new Vector3(Position.X, position_y, Position.Z);
     }
 
-    public override void Throw(float chargeUp)
-    {
-        base.Throw(chargeUp);
-        StartThrow(Position, chargeUp);
-    }
-
     public override void Throw(Vector3 origin, Vector3 target) {
         base.Throw(origin, target);
         StartThrow(origin, CalculateVelocity(origin, target));
@@ -105,7 +99,7 @@ public class Frog : Projectile
         timeAlive = 0f;
     }
 
-    private float CalculateVelocity(Vector3 origin, Vector3 target)
+    private static float CalculateVelocity(Vector3 origin, Vector3 target)
     {
         // Calculate the horizontal distance (XZ-plane)
         float distance = Vector3.Distance(target, origin);
@@ -113,10 +107,18 @@ public class Frog : Projectile
         // Calculate the initial velocity using the simplified formula
         return (float)Math.Sqrt((HALF_GRAVITY * distance) / (Math.Cos(THROW_ANGLE) * Math.Sin(THROW_ANGLE)));
     }
-    public override bool Action(float chargeUp)
+    public override bool Action(float chargeUp, Vector3 aimPoint)
     {
-        (Holder as Player).GainLife();
-        (Holder as Player).Drop();
-        return false;
+        if ((Holder as Player).Life == 3)
+        {
+            base.Action(chargeUp, aimPoint);
+            return true;
+        }
+        else
+        {
+            (Holder as Player).GainLife();
+            (Holder as Player).Drop();
+            return false;
+        }    
     }
 }
