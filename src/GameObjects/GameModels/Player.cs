@@ -22,7 +22,7 @@ namespace src.GameObjects
         public int Id { get; set; }
         // Private fields:
         private float playerSpeed = 3f;
-        public int Life { get; set; } = 3;
+        public int Life { get; set; } = 5;
         public float Stamina { get; set; } = 3f;
         public Projectile projectileHeld;
         private float dashTime = 0f,dashSpeed = 12f, flySpeed = 0f;
