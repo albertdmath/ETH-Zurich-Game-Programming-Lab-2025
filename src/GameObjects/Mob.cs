@@ -78,6 +78,7 @@ namespace src.GameObjects
             CloseRing(dt);
             MobPhysics();
             MobPlayerInteraction();
+            MobMarketInteraction();
             foreach (Zombie zombie in active) zombie.updateWrap(dt);
             NewMobProjectile(dt);
         }
@@ -161,6 +162,15 @@ namespace src.GameObjects
                     foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour+jNeighbour])  
                         if((player.Position-endCenter).LengthSquared()<(zombie.Position-endCenter).LengthSquared())
                             player.MobCollision(zombie);
+                }
+            }
+        }
+        private void MobMarketInteraction(){
+
+            foreach (Zombie zombie in active)
+            { 
+                foreach(Market market in gameStateManager.markets){
+                    if(zombie.Hitbox.Intersects(market.Hitbox))zombie.ForceByMarket(market);
                 }
             }
         }
