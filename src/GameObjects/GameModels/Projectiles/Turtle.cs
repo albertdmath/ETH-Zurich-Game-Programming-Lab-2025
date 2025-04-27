@@ -30,6 +30,7 @@ public class Turtle : Projectile
     }
 
 
+
     private void RotateAway(float dt)
     {
         // Get nearest player
@@ -54,6 +55,7 @@ public class Turtle : Projectile
         Velocity = WALKING_VELOCITY;
         _bounceBackTime = BOUNCE_BACK_TIME;
         Orientation *= -1;
+        this.DrawModel = this.walkingModel;
         this.DrawModel = this.walkingModel;
     }
 
@@ -101,6 +103,7 @@ public class Turtle : Projectile
     public override void Catch(GameModel player)
     {
         base.Catch(player);
+        this.DrawModel = this.shellModel;
         this.DrawModel = this.shellModel;
     }
 

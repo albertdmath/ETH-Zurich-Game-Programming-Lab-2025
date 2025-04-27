@@ -257,7 +257,6 @@ namespace src.GameObjects
             projectiles.RemoveAll(x => x.ToBeDeleted);
             
             // Check for projectile-player hand intersections
-            //now it doesnt break when you catch one projectile
             foreach (Player player in players.Where(p => p.Hand.IsCatching))
             {
                 foreach (Projectile projectile in projectiles)
@@ -420,8 +419,11 @@ namespace src.GameObjects
             projectiles.Clear();
             markets.Clear();
             livingPlayers.Clear();
+            markets.Clear();
+            livingPlayers.Clear();
 
             InitializeMob();
+            InitializeMarkets();
             InitializeMarkets();
             InitializePlayers();
         }
