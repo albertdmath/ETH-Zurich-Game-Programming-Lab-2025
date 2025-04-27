@@ -320,7 +320,7 @@ namespace GameLab
             gameStateManager.GeometryPass(geometryShader, shadowShader, view, projection, GraphicsDevice, shadowMap, targets, _spriteBatch, false);
             gameStateManager.HBAOPass(hBAOShader, posMap, normalMap, HBAOmap, fullscreenVertexBuffer, GraphicsDevice, _spriteBatch, false);
             gameStateManager.FilterPass(HBAOFilter, HBAOmap, normalMap, posMap, HBAOBlurredMap, GraphicsDevice, fullscreenVertexBuffer, _spriteBatch, false);
-            gameStateManager.DrawGame(lightingShader, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
+           gameStateManager.DrawGame(lightingShader, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
             hud.DrawPlayerHud(_spriteBatch);
