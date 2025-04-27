@@ -36,7 +36,7 @@ namespace src.GameObjects
         public Market(Vector3 position, ProjectileType type, DrawModel model, DrawModel projectile, float scaling) : base(model, scaling)
         {
             this.Position = position;
-            this.Orientation = Vector3.Normalize(-Position);
+            this.Orientation = Vector3.Normalize(Position);
             this.Type = type;
             this.projectileModel = projectile;
             this.marketRotTrans = Matrix.CreateRotationY((float)Math.Atan2(-Orientation.X, -Orientation.Z)) 

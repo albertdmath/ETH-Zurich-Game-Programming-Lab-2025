@@ -25,27 +25,24 @@ SamplerState TextureSampler;
 
 struct VertexInput 
 {
-    float4 Position: SV_POSITION; 
-    float3 Normal: NORMAL; 
+    float3 Position: POSITION; 
+    float3 Normal: NORMAL0; 
     float2 TexCoord: TEXCOORD0; 
-    float4 Color: COLOR0;
 };
 
 struct VertexOutput {
     float4 Position: SV_POSITION; 
     float3 Normal: TEXCOORD1;
-    float4 Color: COLOR0; 
     float2 TexCoord: TEXCOORD0; 
     float3 WorldPos: TEXCOORD2; 
 };
 
 VertexOutput VS(VertexInput input) {
     VertexOutput output; 
-    float4 worldPos = mul(input.Position, World);
+    float4 worldPos = mul(float4(input.Position,1.0f), World);
     output.Position = mul(worldPos,mul(View,Projection)); 
     output.Normal = mul(input.Normal,(float3x3)World);
     output.TexCoord = input.TexCoord; 
-    output.Color = input.Color;
     output.WorldPos = worldPos.xyz;
     return output; 
 
@@ -67,6 +64,7 @@ float4 PS(VertexOutput input) : SV_Target
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     float3 specular = 0.5 * spec * LightColor;  
 
+    
     return float4(texCol * (ambient + diffuse + spec),1); 
 
 }

@@ -33,25 +33,34 @@ namespace src.GameObjects
         }
 
         // Override draw to account for missing bells when the player loses hp
-        public override void Draw(Matrix view, Matrix projection, Shader shader, bool shadowDraw)
+        public override void Draw(Matrix view, Matrix projection, Shader shader, GraphicsDevice graphicsDevice, bool shadowDraw)
         {
             CalculateTransform();
-            int i = 0; 
-            foreach (ModelMesh mesh in DrawModel.model.Meshes)
+            int i = 0;
+            foreach (GameMesh mesh in DrawModel.meshes)
+        {
+            graphicsDevice.SetVertexBuffer(mesh.vertexBuffer);
+            graphicsDevice.Indices = mesh.indexBuffer;
+            shader.setWorldMatrix(Transform);
+            if (!shadowDraw && mesh.hasDiffuse)
             {
-                foreach(ModelMeshPart part in mesh.MeshParts){
-                    part.Effect = shader.effect; 
-                    shader.setWorldMatrix(Transform);
-                    
-                    if(!shadowDraw){
-                    shader.setTexture(this.DrawModel.textures[i]);
-                    }
-                }
-                i++;
+                shader.setTexture(mesh.diffuse);
+            }
                 if(player.Life == 2 && i == 1) continue;
                 if(player.Life == 1 && (i == 1 || i == 2)) continue;
                 if(player.Life == 0 && (i == 1 || i == 2 || i == 3)) continue;
-                mesh.Draw();
+            foreach (var pass in shader.effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+
+                graphicsDevice.DrawIndexedPrimitives(
+                    PrimitiveType.TriangleList,
+                    baseVertex: 0,
+                    startIndex: 0,
+                    primitiveCount: mesh.indices.Count / 3
+                );
+            }
+            i++;
             }
         }
        

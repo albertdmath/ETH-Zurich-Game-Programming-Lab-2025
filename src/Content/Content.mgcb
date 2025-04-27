@@ -117,6 +117,12 @@
 /processorParam:TextureFormat=Compressed
 /build:coconut.dae
 
+#begin depthmap.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:depthmap.fx
+
 #begin font.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
@@ -143,6 +149,12 @@
 /processorParam:TextureFormat=Compressed
 /build:frog.dae
 
+#begin GeometryPass.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:GeometryPass.fx
+
 #begin hammer_aoe.dae
 /importer:FbxImporter
 /processor:ModelProcessor
@@ -161,6 +173,12 @@
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
 /build:hammer_aoe.dae
+
+#begin HBAO.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:HBAO.fx
 
 #begin HUD/blue_heart.png
 /importer:TextureImporter
@@ -483,6 +501,12 @@
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
 /build:mob3.dae
+
+#begin OcclusionBlur.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:OcclusionBlur.fx
 
 #begin palmtree.dae
 /importer:FbxImporter

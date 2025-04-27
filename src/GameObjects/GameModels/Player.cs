@@ -454,7 +454,7 @@ namespace src.GameObjects
             jesterHat.updateWrap(dt);
         }
 
-        public override void Draw(Matrix view, Matrix projection, Shader shader, bool shadowDraw)
+        public override void Draw(Matrix view, Matrix projection, Shader shader, GraphicsDevice graphicsDevice, bool shadowDraw)
         {
             // Blink every 0.1 seconds when either stunDuration or immunity are active
             bool shouldDraw = true;
@@ -465,11 +465,11 @@ namespace src.GameObjects
                 shouldDraw = (int)(immunity * 10) % 2 == 0;
 
             if (shouldDraw)
-                base.Draw(view, projection, shader, shadowDraw);
-            Hand.Draw(view, projection, shader, shadowDraw);
-            jesterHat.Draw(view, projection, shader, shadowDraw);
+                base.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+            Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+            jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
             if(playerState == PlayerState.Aiming)
-                aimIndicator.Draw(view, projection, shader, shadowDraw);
+                aimIndicator.Draw(view, projection, shader, graphicsDevice, shadowDraw);
         }
     }
 }
