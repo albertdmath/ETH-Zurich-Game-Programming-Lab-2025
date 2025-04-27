@@ -111,6 +111,7 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Turtle, new DrawModel(Content.Load<Model>("turtle_shell"),0.0f,0.9f));
             projectileModels.Add(ProjectileType.Mjoelnir, new DrawModel(Content.Load<Model>("mjoelnir"),0.0f,0.9f));
             projectileModels.Add(ProjectileType.Spear, new DrawModel(Content.Load<Model>("trident"),0.0f,0.9f));
+            projectileModels.Add(ProjectileType.Chicken, new DrawModel(Content.Load<Model>("rooster"),0.0f,0.9f));
 
             walkingTurtle = new DrawModel(Content.Load<Model>("turtle"),0.0f,0.9f);
 

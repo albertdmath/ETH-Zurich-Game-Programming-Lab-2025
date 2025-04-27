@@ -22,6 +22,7 @@ namespace src.GameObjects
         private const float TURTLE_SCALE = 0.3f;
         private const float MJOELNIR_SCALE = 1.5f;
         private const float SPEAR_SCALE = 0.9f;
+        private const float CHICKEN_SCALE = 0.9f;
 
 
         private const float TOMATO_HEIGHT = 0f;
@@ -32,6 +33,7 @@ namespace src.GameObjects
         private const float TURTLE_HEIGHT = 0f;
         private const float MJOELNIR_HEIGHT = 0.2f;
         private const float SPEAR_HEIGHT = 0f;
+        private const float CHICKEN_HEIGHT = 0f;
 
 
         // Model references for initializing the instances
@@ -181,6 +183,9 @@ namespace src.GameObjects
                     break;
                 case ProjectileType.Mjoelnir:
                     projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Mjoelnir], MJOELNIR_SCALE, MJOELNIR_HEIGHT);
+                    break;
+                case ProjectileType.Chicken:
+                    projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Chicken], CHICKEN_SCALE, CHICKEN_HEIGHT);
                     break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());
