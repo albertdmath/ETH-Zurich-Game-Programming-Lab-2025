@@ -22,7 +22,7 @@ namespace GameLab
         private DrawModel walkingTurtle;
 
         private DrawModel playerHandModel;
-        private List<DrawModel> indicatorModel;
+        private List<DrawModel> indicatorModel = new List<DrawModel>();
 
         private DrawModel jesterAnimated;
 
