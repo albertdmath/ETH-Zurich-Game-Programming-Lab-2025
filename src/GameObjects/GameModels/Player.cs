@@ -35,7 +35,7 @@ namespace src.GameObjects
         private float timeSinceStartOfCatch = 0f;
         private float friction = 9f;
         public Projectile lastThrownProjectile = null; // Store last thrown projectile
-        private bool armor = false; // Store if player has armor
+        public bool armor = false; // Store if player has armor
         private DrawModel playerModel;
         private DrawModel playerModelShell;
         private float CATCH_COOLDOWN = 1.0f;
@@ -200,7 +200,12 @@ namespace src.GameObjects
         {
             float speedUp = 1 + 2 * (float)Math.Pow(actionPushedDuration, 2f);
             Console.WriteLine("Throwing projectile with orientation: " + Orientation + " and speedup: " + speedUp);
-            if (projectileHeld.Action(speedUp))
+            if(outside)
+            {
+                projectileHeld.Throw(this.Position, aimIndicator.Position);
+                Throw();
+            }
+            else if (projectileHeld.Action(speedUp, aimIndicator.Position))
                 Throw();
         }
         
@@ -338,8 +343,15 @@ namespace src.GameObjects
             projectileHeld = projectile;
             if(projectile.Holder != null) 
             {
-                (projectile.Holder as Player).projectileHeld = null;
-                (projectile.Holder as Player).playerState = PlayerState.NormalMovement;
+                if(projectile.Holder is Player)
+                {
+                    (projectile.Holder as Player).projectileHeld = null;
+                    (projectile.Holder as Player).playerState = PlayerState.NormalMovement;
+                }
+                else if(projectile.Holder is Zombie)
+                {
+                    (projectile.Holder as Zombie).projectileHeld = null;
+                }
             }
             projectile.Catch(this);
             MusicAndSoundEffects.playProjectileSFX(projectile.Type);
@@ -391,10 +403,9 @@ namespace src.GameObjects
                     break;
                 case PlayerState.Aiming:
                     Aim(dt);
-                    actionPushedDuration = actionPushedDuration > 4f ? 4f : actionPushedDuration;
                     if (input.Action())
                     {
-                        actionPushedDuration += dt;
+                        actionPushedDuration += actionPushedDuration >= 4f ? 0f : dt;
                         aimIndicator.PlaceIndicator(actionPushedDuration,1f);
                     }
                     else

@@ -21,7 +21,7 @@ public class Banana : Projectile
     // Constructor:
     public Banana(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) {}
 
-    private float CalculateVelocity(Vector3 origin, Vector3 target)
+    private static float CalculateVelocity(Vector3 origin, Vector3 target)
     {
         // Calculate the horizontal distance (XZ-plane)
         float distance = Vector3.Distance(target, origin);
@@ -57,13 +57,6 @@ public class Banana : Projectile
     public override void OnMobHit()
     {
         if (onGround) ToBeDeleted = true;
-    }
-    
-    public override void Throw(float chargeUp)
-    {
-        onGround = false;
-        base.Throw(chargeUp);
-        Throw(Position - Orientation, Position+chargeUp*Orientation);
     }
 
     public override void Throw(Vector3 origin, Vector3 target) 

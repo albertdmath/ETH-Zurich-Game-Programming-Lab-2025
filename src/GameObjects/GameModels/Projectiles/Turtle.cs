@@ -11,13 +11,15 @@ public class Turtle : Projectile
     private const float TIME_TO_WEAR = 0.5f; //the time it takes the player to to wear the turtle
     private const float ROTATION_SPEED = 1.5f;
     private const float WALKING_VELOCITY = 0.7f;
-    private const float THROW_VELOCITY = 2.0f;
+    private const float MIN_VELOCITY = 2.0f;
+    private const float MAX_VELOCITY = 20.0f;
     private const float BOUNCE_BACK_TIME = 0.3f;
 
     // Fields
     private float _bounceBackTime = 0f; // Time to transform from throwing to walking
-    private DrawModel walkingModel;
-    private DrawModel shellModel;
+    private float _noBounce = 0f; // Number of bounces before the turtle can be thrown again
+    private readonly DrawModel walkingModel;
+    private readonly DrawModel shellModel;
     // Fields
 
     // Constructor:
@@ -57,18 +59,17 @@ public class Turtle : Projectile
 
     public override void OnPlayerHit(Player player) 
     {    
-        if (ToBeDeleted) return; // If the projectile is already marked for deletion, do nothing
+        if (_bounceBackTime > 0) return;
 
         if(Velocity == WALKING_VELOCITY)
         {
-            if (_bounceBackTime > 0) return;
-
             base.OnPlayerHit(player);
         }
         else
         {
-            player.GetHit(this);  
-            BounceAfterHit();
+            player.GetHit(this);
+            if(_noBounce <= 0) 
+                BounceAfterHit();
         }
     }
 
@@ -85,7 +86,7 @@ public class Turtle : Projectile
         if((_bounceBackTime -= dt) > 0)
         {
             float jumpProgress = _bounceBackTime / BOUNCE_BACK_TIME;
-            Position += THROW_VELOCITY * Orientation * dt;
+            Position += MIN_VELOCITY * Orientation * dt;
             Position = new Vector3(Position.X, (float)Math.Sin(jumpProgress * Math.PI)*0.5f, Position.Z);
         }
         else
@@ -94,6 +95,7 @@ public class Turtle : Projectile
         
             Position += Velocity * Orientation * dt;
         }
+        _noBounce -= dt;
     }
 
     public override void Catch(GameModel player)
@@ -102,19 +104,37 @@ public class Turtle : Projectile
         this.DrawModel = this.shellModel;
     }
 
-    public override void Throw(float chargeUp)
+    public override bool Action(float chargeUp, Vector3 aimPoint)
     {
-        if (chargeUp < TIME_TO_WEAR) return;
-        
-        ToBeDeleted = true;
-        (Holder as Player).SetArmor(true);
-        this.Holder = null; 
+        if ((Holder as Player).armor)
+        {
+            _noBounce = 0.5f;
+            base.Action(chargeUp, aimPoint);
+            return true;
+        }
+        else
+        {
+            if (chargeUp < TIME_TO_WEAR) return false;
+            
+            (Holder as Player).SetArmor(true); 
+            (Holder as Player).Drop();
+            return false;
+        }
+    }
+
+    private static float CalculateVelocity(Vector3 origin, Vector3 target)
+    {
+        // Calculate the horizontal distance (XZ-plane)
+        float distance = Vector3.Distance(target, origin);
+        Console.WriteLine($"Distance: {distance}");
+        // Calculate the initial velocity using the simplified formula
+        return Math.Clamp(distance, MIN_VELOCITY, MAX_VELOCITY);
     }
 
     public override void Throw(Vector3 origin, Vector3 target) 
     {
+        Velocity = (Holder is Player) ? CalculateVelocity(origin, target) : MIN_VELOCITY;
         base.Throw(origin, target);
-        Velocity = THROW_VELOCITY;
     }
 }
 

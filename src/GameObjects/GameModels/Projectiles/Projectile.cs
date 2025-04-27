@@ -10,9 +10,9 @@ public enum ProjectileType
     Coconut,
     Banana,
     Turtle,
-    TurtleWalking,
     Spear,
-    Mjoelnir
+    Mjoelnir,
+    Chicken
 }
 
 /** Class for the projectiles **/
@@ -28,24 +28,17 @@ public class Projectile : GameModel
 
     public float Height {get; private set;}
     // Projectile spawn probabilities (can be adjusted via UI)
-    public readonly static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
+    public readonly static Dictionary<ProjectileType, float> ProjectileProbability = new()
     {
-        { ProjectileType.Banana, 0.1f },
-        { ProjectileType.Coconut, 0.1f },
-        { ProjectileType.Frog, 0.1f },
-        { ProjectileType.Swordfish, 0.1f },
-        { ProjectileType.Tomato, 0.1f },
+        { ProjectileType.Banana, 1.0f },
+        { ProjectileType.Coconut, 1.0f },
+        { ProjectileType.Frog, 1.0f },
+        { ProjectileType.Swordfish, 1.0f },
+        { ProjectileType.Tomato, 0.0f },
         { ProjectileType.Turtle, 0.0f },
-        { ProjectileType.Spear, 0.0f },
-        { ProjectileType.Mjoelnir, 0.0f }
-    };
-
-    public readonly static List<ProjectileType> AreThrowable = new List<ProjectileType>()
-    {
-        ProjectileType.Banana,
-        ProjectileType.Coconut,
-        ProjectileType.Swordfish,
-        ProjectileType.Tomato
+        { ProjectileType.Spear, 0.5f },
+        { ProjectileType.Mjoelnir, 0.0f },
+        { ProjectileType.Chicken, 0.0f }
     };
 
     public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(model, scaling) 
@@ -73,13 +66,6 @@ public class Projectile : GameModel
         ToBeDeleted = true;
     }
 
-    public virtual void Throw(float chargeUp) {
-        this.Position = Holder.Position + Holder.Orientation;
-        this.Orientation = Holder.Orientation;
-        this.Holder = null;
-        //Console.WriteLine("Projectile thrown with orientation: " + Orientation + " and speedup: " + chargeUp);
-    }
-
     public virtual void Throw(Vector3 origin, Vector3 target) 
     {
         this.Holder = null;
@@ -105,10 +91,9 @@ public class Projectile : GameModel
 
     // Catch the projectile
     public virtual void Catch(GameModel player) { Holder = player; }
-
-    public bool Free() { return Holder == null; } 
-    public virtual bool Action(float chargeUp) {
-        Throw(chargeUp);
+ 
+    public virtual bool Action(float chargeUp, Vector3 aimPoint) {
+        Throw(Position, aimPoint);
         // If it is thrown return true.
         return true;
     }

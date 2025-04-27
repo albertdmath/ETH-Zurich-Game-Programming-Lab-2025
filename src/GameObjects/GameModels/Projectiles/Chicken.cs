@@ -3,14 +3,14 @@ using Microsoft.Xna.Framework;
 
 
 namespace src.GameObjects;
-public class Swordfish : Projectile
+public class Chicken : Projectile
 {
     // Constants
     private const float MAX_VELOCITY = 20;
     private const float MIN_VELOCITY = 2.5f;
 
     // Constructor:
-    public Swordfish(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) {}
+    public Chicken(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) {}
 
     protected override void Move(float dt)
     {

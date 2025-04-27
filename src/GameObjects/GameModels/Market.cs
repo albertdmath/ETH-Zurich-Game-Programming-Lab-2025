@@ -9,15 +9,23 @@ namespace src.GameObjects
     {
         private const float PROJECTILE_CREATION_TIME = 2f; 
         private const int MAX_PROJECTILES = 5;
+        
         private readonly DrawModel projectileModel;
-        private readonly float[] positions = new float[MAX_PROJECTILES] { -0.5f, -0.25f, 0f, 0.25f, 0.5f };
+        private readonly Matrix marketRotTrans;
+        private readonly Matrix projectileScale;
+        private static readonly float[] positions = new float[MAX_PROJECTILES] { -0.7f, -0.35f, 0f, 0.35f, 0.7f };
         //this are only the throwable projectiles
-        private readonly Dictionary<ProjectileType, float> projectileScaling = new Dictionary<ProjectileType, float>()
+        private readonly static Dictionary<ProjectileType, float> projectileScaling = new()
         {
-            { ProjectileType.Banana, 0.5f},
-            { ProjectileType.Coconut, 0.3f},
-            { ProjectileType.Swordfish, 0.5f},
-            { ProjectileType.Tomato, 0.5f}
+            { ProjectileType.Banana, 0.7f },
+            { ProjectileType.Coconut, 0.2f },
+            { ProjectileType.Frog, 0.5f },
+            { ProjectileType.Swordfish, 0.6f },
+            { ProjectileType.Tomato, 0.6f },
+            { ProjectileType.Turtle, 0.3f },
+            { ProjectileType.Spear, 0.5f },
+            { ProjectileType.Mjoelnir, 0.5f },
+            { ProjectileType.Chicken, 0.5f }
         };
 
         private int nProjectiles = 0;
@@ -31,6 +39,9 @@ namespace src.GameObjects
             this.Orientation = Vector3.Normalize(-Position);
             this.Type = type;
             this.projectileModel = projectile;
+            this.marketRotTrans = Matrix.CreateRotationY((float)Math.Atan2(-Orientation.X, -Orientation.Z)) 
+                                * Matrix.CreateTranslation(Position);
+            this.projectileScale = Matrix.CreateScale(projectileScaling[type]);
             this.updateHitbox();
         }
 
@@ -48,29 +59,22 @@ namespace src.GameObjects
 
         public bool GrabProjectile()
         {
-            if (nProjectiles > 0)
-            {
-                nProjectiles--;
-                return true;
-            }
-            return false;
+            if (nProjectiles == 0)
+                return false;
+            
+            nProjectiles--;
+            return true;
         }
 
         public void DrawFish(Shader shader, bool shadowDraw)
-        {   
-            // Base transform (scale + rotation + position)
-            Matrix marketRot = Matrix.CreateRotationY((float)Math.Atan2(-Orientation.X, -Orientation.Z));
-            Matrix marketTranslation = Matrix.CreateTranslation(Position);
-            Matrix projectileScale = Matrix.CreateScale(projectileScaling[Type]);
-
+        {  
             for (int i = 0; i < nProjectiles; i++)
             {
                 Matrix projectileTranslation =  Matrix.CreateTranslation(positions[i], 0.5f, 0f);
 
                 shader.setWorldMatrix(projectileScale * 
                                       projectileTranslation * 
-                                      marketRot * 
-                                      marketTranslation);
+                                      marketRotTrans);
 
                 for (int j = 0; j < projectileModel.model.Meshes.Count; j++)
                 {

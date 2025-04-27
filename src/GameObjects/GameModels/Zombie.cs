@@ -99,7 +99,7 @@ namespace src.GameObjects
         }
         private void Throw(float dt)
         {
-            if(timeSinceSpawn <= 1f)
+            if(timeSinceSpawn <= 2f)
             {
                 timeSinceSpawn += dt;
                 return;

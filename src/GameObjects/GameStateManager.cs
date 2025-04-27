@@ -46,6 +46,7 @@ namespace src.GameObjects
         private List<DrawModel> areaDamageModels;
         private Dictionary<ProjectileType, DrawModel> projectileModels;
         private GameModel arena;
+        private DrawModel walkingTurtle;
 
         // This is the mob that might or might not be angry
         private Mob mob;
@@ -66,7 +67,7 @@ namespace src.GameObjects
             return instance;
         }
 
-        public void Initialize(DrawModel arenaModel, List<DrawModel> marketModels, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels)
+        public void Initialize(DrawModel arenaModel, List<DrawModel> marketModels, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels, DrawModel walkingTurtle)
         {
             this.menuStateManager = MenuStateManager.GetMenuStateManager();
             this.arenaModel = arenaModel;
@@ -79,6 +80,7 @@ namespace src.GameObjects
             this.projectileModels = projectileModels;
             this.indicatorModel = indicatorModel;
             this.playerModelShell = playerModelShell;
+            this.walkingTurtle = walkingTurtle;
 
             arena = new GameModel(arenaModel, ARENA_SCALE);
         }
@@ -111,23 +113,27 @@ namespace src.GameObjects
             // Market positions (corners)
             Vector3[] positions = new Vector3[]
             {
-                new Vector3(-6f, 0, 4f),
-                new Vector3(-6f, 0, -4f),
-                new Vector3(6f, 0, 4f),
-                new Vector3(6f, 0, -4f)
+                new(-6.5f, 0, -3.7f),
+                new(6.5f, 0, -3.7f),
+                new(-5f, 0, 3.7f),
+                new(5f, 0, 3.7f)
             };
 
             // Random projectile type selection logic
             //this should check for throwable
-            List<ProjectileType> availableTypes = Projectile.AreThrowable;
-            Random rng = new Random();
+            List<ProjectileType> availableTypes = Projectile.ProjectileProbability.Keys
+                                                .Where(type => Projectile.ProjectileProbability[type] > 0)
+                                                .ToList();
+            Random rng = new();
             float totalWeight = availableTypes.Sum(type => Projectile.ProjectileProbability[type]);
 
             for (int i = 0; i < 4; i++)
             {
                 // Refill if empty
                 if (!availableTypes.Any()) 
-                    availableTypes = Projectile.AreThrowable;
+                    availableTypes = Projectile.ProjectileProbability.Keys
+                                    .Where(type => Projectile.ProjectileProbability[type] > 0)
+                                    .ToList();
                 
                 float randomValue = (float)rng.NextDouble() * totalWeight;
                 ProjectileType selectedType = default;
@@ -143,7 +149,7 @@ namespace src.GameObjects
                     break;
                 }
                 // Create market with selected type
-                markets.Add(new Market(positions[i], selectedType, marketModels[i], projectileModels[selectedType] , 4f));
+                markets.Add(new Market(positions[i], selectedType, marketModels[i%2], projectileModels[selectedType] , 4f));
             }
         }
 
@@ -168,7 +174,7 @@ namespace src.GameObjects
                     projectile = new Banana(type, origin, target, projectileModels[ProjectileType.Banana], BANANA_SCALE, BANANA_HEIGHT);
                     break;
                 case ProjectileType.Turtle:
-                    projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], projectileModels[ProjectileType.TurtleWalking], TURTLE_SCALE, TURTLE_HEIGHT);
+                    projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], walkingTurtle, TURTLE_SCALE, TURTLE_HEIGHT);
                     break;
                 case ProjectileType.Spear:
                     projectile = new Spear(type, origin, target, projectileModels[ProjectileType.Spear], SPEAR_SCALE, SPEAR_HEIGHT);

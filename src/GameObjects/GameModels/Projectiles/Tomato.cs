@@ -19,7 +19,7 @@ public class Tomato : Projectile
     // Constructor:
     public Tomato(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) { }
 
-    private float CalculateVelocity(Vector3 origin, Vector3 target)
+    private static float CalculateVelocity(Vector3 origin, Vector3 target)
     {
         // Calculate the horizontal distance (XZ-plane)
         float distance = Vector3.Distance(target, origin);
@@ -59,12 +59,6 @@ public class Tomato : Projectile
                 player.GetHit(this);
         } */
         gameStateManager.CreateAreaDamage(Position,1f,null,ProjectileType.Tomato);
-    }
-
-    public override void Throw(float chargeUp)
-    {
-        base.Throw(chargeUp);
-        Throw(Position - Orientation, Position + chargeUp * Orientation);
     }
 
     public override void Throw(Vector3 origin, Vector3 target)

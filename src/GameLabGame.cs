@@ -18,6 +18,7 @@ namespace GameLab
         private List<DrawModel> marketModels = new List<DrawModel>();
         private DrawModel playerModel;
         private DrawModel playerModelShell;
+        private DrawModel walkingTurtle;
 
         private DrawModel playerHandModel;
         private DrawModel indicatorModel;
@@ -108,9 +109,10 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Coconut, new DrawModel(Content.Load<Model>("coconut"),0.0f,0.9f));
             projectileModels.Add(ProjectileType.Banana, new DrawModel(Content.Load<Model>("bananapeel"),0.0f,0.9f));
             projectileModels.Add(ProjectileType.Turtle, new DrawModel(Content.Load<Model>("turtle_shell"),0.0f,0.9f));
-            projectileModels.Add(ProjectileType.TurtleWalking, new DrawModel(Content.Load<Model>("turtle"),0.0f,0.9f));
             projectileModels.Add(ProjectileType.Mjoelnir, new DrawModel(Content.Load<Model>("mjoelnir"),0.0f,0.9f));
             projectileModels.Add(ProjectileType.Spear, new DrawModel(Content.Load<Model>("trident"),0.0f,0.9f));
+
+            walkingTurtle = new DrawModel(Content.Load<Model>("turtle"),0.0f,0.9f);
 
             areaDamageModels.Add(new DrawModel(Content.Load<Model>("hammer_aoe"),0.0f,0.9f));
             areaDamageModels.Add(new DrawModel(Content.Load<Model>("tomato_aoe"),0.0f,0.9f));
@@ -144,7 +146,7 @@ namespace GameLab
             lightingShader.setOpacityValue(1.0f);
 
             // Initialize gamestate here:
-            gameStateManager.Initialize(arenaModel, marketModels, playerHatModels, playerModel, playerModelShell, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels);
+            gameStateManager.Initialize(arenaModel, marketModels, playerHatModels, playerModel, playerModelShell, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels, walkingTurtle);
             gameStateManager.StartNewGame();
 
             _menu = new MyMenu(this);
