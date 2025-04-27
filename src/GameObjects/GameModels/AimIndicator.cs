@@ -27,7 +27,8 @@ namespace src.GameObjects
             {
                 UpdateScale(1f+timeSpentCharging * speedOfCharging);
                 this.DrawModel = this.arrowModel;
-                Position = player.Position + player.Orientation * (1f+timeSpentCharging) * speedOfCharging;
+                Orientation = player.Orientation;
+                Position = player.Position;
             }else{
                 this.DrawModel = this.targetModel;
                 UpdateScale(1f);
