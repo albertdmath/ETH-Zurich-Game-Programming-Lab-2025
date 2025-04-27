@@ -79,7 +79,7 @@ namespace src.GameObjects{
                 OverBorder = new SolidBrush(Color.Red),
                 FocusedBackground = new SolidBrush(Color.GreenYellow),
                 BorderThickness = new Thickness{Right=2,Left=2,Top=2,Bottom=2},
-                Width=300,
+                Width=CENTER_BUTTON_WIDTH,
             };
             SliderStyle ControllerSliderStyle = new SliderStyle{
                 Background = new SolidBrush(Color.Red),
@@ -94,7 +94,7 @@ namespace src.GameObjects{
                 OverBorder = new SolidBrush(Color.Red),
                 FocusedBackground = new SolidBrush(Color.GreenYellow),
                 BorderThickness = new Thickness{Right=2,Left=2,Top=2,Bottom=2},
-                Width=300,
+                Width=CENTER_BUTTON_WIDTH,
             };
             SliderStyle ControllerPressedSliderStyle = new SliderStyle{
                 Background = new SolidBrush(Color.White),
@@ -109,7 +109,7 @@ namespace src.GameObjects{
                 OverBorder = new SolidBrush(Color.Red),
                 FocusedBackground = new SolidBrush(Color.GreenYellow),
                 BorderThickness = new Thickness{Right=2,Left=2,Top=2,Bottom=2},
-                Width=300,
+                Width=CENTER_BUTTON_WIDTH,
             };
             Stylesheet.Current.HorizontalSliderStyles["default"] = DefaultSliderStyle;
             Stylesheet.Current.HorizontalSliderStyles["controller"] = ControllerSliderStyle;
@@ -134,7 +134,7 @@ namespace src.GameObjects{
                 RowSpacing = 5,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                ShowGridLines=true,
+                ShowGridLines=false,
                 //Height=DisplayHeight/2,
                 //Width=DisplayWidth/3
             };
@@ -143,7 +143,7 @@ namespace src.GameObjects{
                 RowSpacing = 1,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                ShowGridLines = true
+                ShowGridLines = false
             };
 
             _grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
@@ -218,16 +218,27 @@ namespace src.GameObjects{
             });
 
             //SETTINGS
-            MyButton settingsButton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settings","SettingsButton",0,3,(s,a)=>{
+            MyButton settingsButton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settings?","SettingsButton",0,3,(s,a)=>{
 
             },_grid);
-            
-            MyHorizontalSlider Volume = new MyHorizontalSlider(300,0,100,100,2,2,(s,a)=>{
-                return;
+            //MUSICSLIDER
+            MyHorizontalSlider Volume = new MyHorizontalSlider(0,100,100,2,2,(s,a)=>{
+                MediaPlayer.Volume = a.NewValue*0.01f;
             },_grid);
             
+            /*MyButton VolumePlaceholder = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Volume","VolumePlaceholder",2,1,(s,a)=>{
+                return;
+            },_grid);*/
+            Label VolumeLabel = new Label{
+                Text = "Music",
+                TextColor = Color.Black,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            Grid.SetColumn(VolumeLabel,2);
+            Grid.SetRow(VolumeLabel,1);
+            _grid.Widgets.Add(VolumeLabel);
             //TEST IN PROGRESS
-            
+            /*
             CheckButton checkBox = new CheckButton
                 {
                     IsChecked = true,
@@ -273,7 +284,7 @@ namespace src.GameObjects{
             };
             Grid.SetColumn(slsfx,3);
             Grid.SetRow(slsfx,3);
-            _grid.Widgets.Add(slsfx);
+            _grid.Widgets.Add(slsfx);*/
 
             //SET DESKTOP FOR STARTMENU
             desktop = new Desktop();

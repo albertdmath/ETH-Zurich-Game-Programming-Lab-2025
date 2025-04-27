@@ -13,15 +13,13 @@ using Myra.Events;
 namespace src.GameObjects{
     public class MyHorizontalSlider : MyMenuElement{
         private bool controllerselected = false;
-        private int WIDTH;
         private int MINIMUM;
         private int MAXIMUM;
         private int VALUE;
         private Grid grid;
         private EventHandler<Myra.Events.ValueChangedEventArgs<float>> CHANGE;
         private HorizontalSlider slider;
-        public MyHorizontalSlider(int width, int min, int max, int value, int column, int row, EventHandler<Myra.Events.ValueChangedEventArgs<float>> CHANGE, Grid grid){
-            WIDTH = width;
+        public MyHorizontalSlider(int min, int max, int value, int column, int row, EventHandler<Myra.Events.ValueChangedEventArgs<float>> CHANGE, Grid grid){
             MINIMUM = min;
             MAXIMUM = max;
             if(value<=MAXIMUM && value>=MINIMUM){
@@ -35,7 +33,7 @@ namespace src.GameObjects{
                 Minimum=MINIMUM,
                 Maximum=MAXIMUM,
                 Value=VALUE,
-                Width = WIDTH
+                
             };
             slider.ValueChanged += CHANGE;
             Grid.SetColumn(slider,column);
