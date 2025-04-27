@@ -337,8 +337,9 @@ namespace src.GameObjects
             testShader.setProjectionMatrix(projection);
             arena.Draw(view, projection, testShader, graphicsDevice, false);
         }
-        public void DrawGame(PBR lightingShader, GraphicsDevice graphicsDevice, VertexBuffer fullScreenQuad, RenderTarget2D FragPosMap, RenderTarget2D NormalMap, RenderTarget2D AlbedoMap, RenderTarget2D RoughnessMetallicMap, RenderTarget2D ShadowMap, RenderTarget2D OcclusionMap, SpriteBatch spriteBatch, bool test)
+        public void DrawGame(RenderTarget2D output, PBR lightingShader, GraphicsDevice graphicsDevice, VertexBuffer fullScreenQuad, RenderTarget2D FragPosMap, RenderTarget2D NormalMap, RenderTarget2D AlbedoMap, RenderTarget2D RoughnessMetallicMap, RenderTarget2D ShadowMap, RenderTarget2D OcclusionMap, SpriteBatch spriteBatch, bool test)
         {
+            graphicsDevice.SetRenderTarget(output);
             graphicsDevice.SetVertexBuffer(fullScreenQuad);
             graphicsDevice.Clear(Color.White);
             graphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -362,6 +363,11 @@ namespace src.GameObjects
             graphicsDevice.SetRenderTarget(null);
           if (test)
             {
+                if(output != null){
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+                spriteBatch.Draw(output, new Rectangle(400, 400, 400, 400), Color.White);
+                spriteBatch.End(); 
+                }
                 spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
                 spriteBatch.Draw(FragPosMap, new Rectangle(0, 0, 400, 400), Color.White);
                 spriteBatch.End(); 
@@ -372,7 +378,7 @@ namespace src.GameObjects
                 spriteBatch.Draw(AlbedoMap, new Rectangle(0, 800, 400, 400), Color.White);
                 spriteBatch.End();
                 spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
-                spriteBatch.Draw(ShadowMap, new Rectangle(400, 400, 400, 400), Color.White);
+                spriteBatch.Draw(ShadowMap, new Rectangle(400, 0, 400, 400), Color.White);
                 spriteBatch.End();
 
             }
@@ -588,9 +594,17 @@ public void FilterPass(Filter filterShader, RenderTarget2D inputTexture, RenderT
             graphicsDevice.SetVertexBuffer(fullscreenquad);
             graphicsDevice.Clear(Color.White);
             graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            if(fragPosTexture != null){
             filterShader.setFragPosTexture(fragPosTexture);
-            filterShader.setNormalTexture(normalTexture);
+            }   
+            if(normalTexture != null){
+                 filterShader.setNormalTexture(normalTexture);
+            }   
+            if(inputTexture != null){             
             filterShader.setAlbedoTexture(inputTexture);
+            }
+
+
         
             foreach (var pass in filterShader.effect.CurrentTechnique.Passes)
             {
