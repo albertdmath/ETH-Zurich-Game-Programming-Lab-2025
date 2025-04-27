@@ -23,11 +23,11 @@ namespace src.GameObjects
         // Places the indicator
         public void PlaceIndicator(float timeSpentCharging, float speedOfCharging,bool arrow)
         {
+            Orientation = player.Orientation;
             if(arrow)
             {
                 UpdateScale(1f+timeSpentCharging * speedOfCharging);
                 this.DrawModel = this.arrowModel;
-                Orientation = player.Orientation;
                 Position = player.Position;
             }else{
                 this.DrawModel = this.targetModel;
