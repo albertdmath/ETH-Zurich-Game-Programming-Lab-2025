@@ -25,7 +25,7 @@ namespace src.GameObjects
             { ProjectileType.Turtle, 0.3f },
             { ProjectileType.Spear, 0.5f },
             { ProjectileType.Mjoelnir, 0.5f },
-            { ProjectileType.Chicken, 0.5f }
+            { ProjectileType.Chicken, 0.8f }
         };
 
         private int nProjectiles = 0;
@@ -36,7 +36,7 @@ namespace src.GameObjects
         public Market(Vector3 position, ProjectileType type, DrawModel model, DrawModel projectile, float scaling) : base(model, scaling)
         {
             this.Position = position;
-            this.Orientation = Vector3.Normalize(Position);
+            this.Orientation = Vector3.Normalize(-Position);
             this.Type = type;
             this.projectileModel = projectile;
             this.marketRotTrans = Matrix.CreateRotationY((float)Math.Atan2(-Orientation.X, -Orientation.Z)) 
@@ -70,9 +70,9 @@ namespace src.GameObjects
         {  
             for (int i = 0; i < nProjectiles; i++)
             {
-                Matrix projectileTranslation =  Matrix.CreateTranslation(positions[i], 0.5f, 0f);
+                Matrix projectileTranslation =  Matrix.CreateTranslation(positions[i], 0.5f, 0.15f);
 
-                Matrix finalTransform = projectileTranslation * projectileScale * marketRotTrans;
+                Matrix finalTransform = projectileScale * projectileTranslation * marketRotTrans;
 
                 foreach (GameMesh mesh in projectileModel.meshes)
                 {   
