@@ -18,7 +18,7 @@ public class MusicAndSoundEffects
     // Other Sound effects:
     private static SoundEffect hitSFX;
     private static SoundEffect angrymobSFX;
-    private static SoundEffectInstance angrymobInstance;
+    public static SoundEffectInstance angrymobInstance;
     // Backing track:
     private static Song bgMusic;
     private static MenuStateManager menuStateManager;
@@ -56,7 +56,7 @@ public class MusicAndSoundEffects
 
     public static void playHitSFX() {
         if(menuStateManager.SOUND_ENABLED)
-            hitSFX.Play(0.1f, 0.0f, 0.0f);
+            hitSFX.Play(0.1f*VOLUME, 0.0f, 0.0f);
     }
 
     public static void playProjectileSFX(ProjectileType type) {
@@ -66,28 +66,28 @@ public class MusicAndSoundEffects
             switch(type)
             {
                 case ProjectileType.Banana:
-                    bananaSFX.Play(0.1f, 0.0f, 0.0f);
+                    bananaSFX.Play(0.1f*VOLUME, 0.0f, 0.0f);
                     break;
                 case ProjectileType.Coconut:
-                    coconutSFX.Play(0.5f, 0.0f, 0.0f);
+                    coconutSFX.Play(0.5f*VOLUME, 0.0f, 0.0f);
                     break;
                 case ProjectileType.Frog:
-                    frogSFX.Play(0.2f, 0.0f, 0.0f);
+                    frogSFX.Play(0.2f*VOLUME, 0.0f, 0.0f);
                     break;
                 case ProjectileType.Mjoelnir:
-                    mjoelnirSFX.Play(0.4f, 0.0f, 0.0f);
+                    mjoelnirSFX.Play(0.4f*VOLUME, 0.0f, 0.0f);
                     break;
                 case ProjectileType.Spear:
-                    spearSFX.Play(0.2f, 0.0f, 0.0f);
+                    spearSFX.Play(0.2f*VOLUME, 0.0f, 0.0f);
                     break;
                 case ProjectileType.Swordfish:
-                    swordfishSFX.Play(0.5f, 0.0f, 0.0f);
+                    swordfishSFX.Play(0.5f*VOLUME, 0.0f, 0.0f);
                     break;
                 case ProjectileType.Tomato:
-                    tomatoSFX.Play(0.6f, 0.0f, 0.0f);
+                    tomatoSFX.Play(0.6f*VOLUME, 0.0f, 0.0f);
                     break;
                 case ProjectileType.Turtle:
-                    turtleSFX.Play(0.15f, 0.0f, 0.0f);
+                    turtleSFX.Play(0.15f*VOLUME, 0.0f, 0.0f);
                     break;
                 default:
                     break;

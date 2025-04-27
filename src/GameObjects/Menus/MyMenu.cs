@@ -173,7 +173,7 @@ namespace src.GameObjects{
             grid.Widgets.Add(combo);
             */
             //STARTMENU/GRID
-            MyButton startexit = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit","StartExitButton",0,3,(s,a)=>{
+            MyButton startexit = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit","StartExitButton",0,4,(s,a)=>{
                 game.Exit();
             },startgrid);
 
@@ -182,7 +182,7 @@ namespace src.GameObjects{
                 CloseMenu();
             },startgrid);
 
-            MySpinbutton startNumPlayerSpinButton = new MySpinbutton(menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"StartNumPlayerSpinButton",0,1,startgrid,(c,a)=>{
+            MySpinbutton startNumPlayerSpinButton = new MySpinbutton(menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"StartNumPlayerSpinButton",0,3,startgrid,(c,a)=>{
                 float? nullableFloat = a.NewValue;
                 menuStateManager.NUM_PLAYERS = (int)(nullableFloat ?? 1);
                 gameStateManager.StartNewGame();
@@ -190,13 +190,13 @@ namespace src.GameObjects{
 
             //BASEGRID
             //CLOSEBUTTON
-            MyButton closebutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit","ExitButton",0,4,(s,a)=>{
+            MyButton closebutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit","ExitButton",0,5,(s,a)=>{
                 game.Exit();//HARDCORE CLOSING
             },_grid);
             
             
             //RELOADBUTTON
-            MyButton reloadbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"New Game","ReloadButton",0,2,(s,a)=>{
+            MyButton reloadbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"New Game","ReloadButton",0,3,(s,a)=>{
                 gameStateManager.StartNewGame();//RELOADING
                 CloseMenu();
             },_grid);
@@ -211,32 +211,72 @@ namespace src.GameObjects{
 
             
             //NUM_PLAYERS
-            MySpinbutton NumPlayerSpinButton = new MySpinbutton(menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"NumPlayerSpinButton",0,1,_grid,(c,a) => {
+            MySpinbutton NumPlayerSpinButton = new MySpinbutton(menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"NumPlayerSpinButton",0,2,_grid,(c,a) => {
                 float? nullableFloat = a.NewValue;
                 menuStateManager.NUM_PLAYERS = (int)(nullableFloat ?? 1);
                 gameStateManager.StartNewGame();
             });
 
             //SETTINGS
-            MyButton settingsButton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settings?","SettingsButton",0,3,(s,a)=>{
+            /*MyButton settingsButton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settings?","SettingsButton",0,4,(s,a)=>{
 
-            },_grid);
+            },_grid);*/
+
             //MUSICSLIDER
-            MyHorizontalSlider Volume = new MyHorizontalSlider(0,100,100,2,2,(s,a)=>{
+            MyHorizontalSlider Volume = new MyHorizontalSlider(0,100,45,2,2,(s,a)=>{
                 MediaPlayer.Volume = a.NewValue*0.01f;
             },_grid);
-            
+            MyHorizontalSlider SFXVolume = new MyHorizontalSlider(0,100,100,2,4,(s,a)=>{
+                float? nullableFloat = a.NewValue;
+                MusicAndSoundEffects.VOLUME = (float)(nullableFloat*0.01f ?? 0.5);
+                MusicAndSoundEffects.angrymobInstance.Volume = (float)(nullableFloat*0.001f ?? 0.1f);
+            },_grid);
             /*MyButton VolumePlaceholder = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Volume","VolumePlaceholder",2,1,(s,a)=>{
                 return;
             },_grid);*/
             Label VolumeLabel = new Label{
                 Text = "Music",
                 TextColor = Color.Black,
-                HorizontalAlignment = HorizontalAlignment.Center
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Background = new SolidBrush(Color.Beige),
+                Padding = new Thickness{Top=5,Bottom=5}
             };
             Grid.SetColumn(VolumeLabel,2);
             Grid.SetRow(VolumeLabel,1);
             _grid.Widgets.Add(VolumeLabel);
+
+            Label SFXVolumeLabel = new Label{
+                Text = "SFX",
+                TextColor = Color.Black,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Background = new SolidBrush(Color.Beige),
+                Padding = new Thickness{Top=5,Bottom=5}
+            };
+            Grid.SetColumn(SFXVolumeLabel,2);
+            Grid.SetRow(SFXVolumeLabel,3);
+            _grid.Widgets.Add(SFXVolumeLabel);
+
+            Label StartNumPlayerLabel = new Label{
+                Text = "Number of Players:",
+                TextColor = Color.Black,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Background = new SolidBrush(Color.Beige),
+                Padding = new Thickness{Top=5,Bottom=5}
+            };
+            Grid.SetColumn(StartNumPlayerLabel,0);
+            Grid.SetRow(StartNumPlayerLabel,2);
+            startgrid.Widgets.Add(StartNumPlayerLabel);
+
+            Label NumPlayerLabel = new Label{
+                Text = "Number of Players:",
+                TextColor = Color.Black,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Background = new SolidBrush(Color.Beige),
+                Padding = new Thickness{Top=5,Bottom=5}
+            };
+            Grid.SetColumn(NumPlayerLabel,0);
+            Grid.SetRow(NumPlayerLabel,1);
+            _grid.Widgets.Add(NumPlayerLabel);
             //TEST IN PROGRESS
             /*
             CheckButton checkBox = new CheckButton
@@ -292,7 +332,7 @@ namespace src.GameObjects{
             //desktop.Root = grid;
             //ELEMENTÄRÄIs
             menuElements = new MyMenuElement[]{startstartbutton,startNumPlayerSpinButton,startexit};
-            basemenuElements = new MyMenuElement[]{resumebutton,NumPlayerSpinButton,reloadbutton,settingsButton,closebutton};
+            basemenuElements = new MyMenuElement[]{resumebutton,NumPlayerSpinButton,reloadbutton/*,settingsButton*/,closebutton};
         }
         public void Update(GameTime gameTime, KeyboardState keyboardState, KeyboardState previousKeyboardState, GamePadState gamePadState, GamePadState previousGamePadState){
             if(changegrid){
