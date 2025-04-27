@@ -205,6 +205,7 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Turtle, new DrawModel("../../../Content/turtle_shell.dae", 0.0f, 0.9f, GraphicsDevice));
             projectileModels.Add(ProjectileType.Mjoelnir, new DrawModel("../../../Content/mjoelnir.dae", 0.0f, 0.9f, GraphicsDevice));
             projectileModels.Add(ProjectileType.Spear, new DrawModel("../../../Content/trident.dae", 0.0f, 0.9f, GraphicsDevice));
+            projectileModels.Add(ProjectileType.Chicken, new DrawModel("../../../Content/rooster.dae", 0.0f, 0.9f, GraphicsDevice));
 
             walkingTurtle = new DrawModel("../../../Content/turtle.dae", 0.0f, 0.9f, GraphicsDevice);
 

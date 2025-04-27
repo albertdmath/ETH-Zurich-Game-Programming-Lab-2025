@@ -25,7 +25,7 @@ namespace src.GameObjects
             { ProjectileType.Turtle, 0.3f },
             { ProjectileType.Spear, 0.5f },
             { ProjectileType.Mjoelnir, 0.5f },
-            { ProjectileType.Chicken, 0.5f }
+            { ProjectileType.Chicken, 0.8f }
         };
 
         private int nProjectiles = 0;
