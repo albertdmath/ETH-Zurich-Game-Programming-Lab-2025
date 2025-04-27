@@ -168,6 +168,12 @@
 /processorParam:TextureFormat=Compressed
 /build:frog.dae
 
+#begin FXAA.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:FXAA.fx
+
 #begin GeometryPass.fx
 /importer:EffectImporter
 /processor:EffectProcessor

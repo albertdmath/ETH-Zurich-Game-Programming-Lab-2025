@@ -63,55 +63,55 @@ bool MatricesEqual(float4x4 a, float4x4 b)
     );
 }
 VertexOutput VS(VertexInput input) {
-//         float4x4 compare = float4x4(
-//     0.0, 0.0, 0.0, 0.0,
-//     0.0, 0.0, 0.0, 0.0,
-//     0.0, 0.0, 0.0, 0.0,
-//     0.0, 0.0, 0.0, 0.0
-// );
+        float4x4 compare = float4x4(
+    0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0
+);
 
-//     float4x4 BoneTransform = float4x4(
-//     0.0, 0.0, 0.0, 0.0,
-//     0.0, 0.0, 0.0, 0.0,
-//     0.0, 0.0, 0.0, 0.0,
-//     0.0, 0.0, 0.0, 0.0
-// );
-//     float4 BoneIndices = input.BoneIndices;
-//     float4 BoneWeights = input.BoneWeights;
+    float4x4 BoneTransform = float4x4(
+    0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0
+);
+    float4 BoneIndices = input.BoneIndices;
+    float4 BoneWeights = input.BoneWeights;
 
-// if(BoneIndices.x != -1 && BoneIndices.x < 100){
-//     BoneTransform += MulMatrixScalar(FinalBoneMatrices[(int)BoneIndices.x], BoneWeights.x);
-// }
-// if(BoneIndices.y != -1 && BoneIndices.y < 100){
-//     BoneTransform += MulMatrixScalar(FinalBoneMatrices[(int)BoneIndices.y], BoneWeights.y);
-// }
-// if(BoneIndices.z != -1 && BoneIndices.z < 100){
-//     BoneTransform += MulMatrixScalar(FinalBoneMatrices[(int)BoneIndices.z], BoneWeights.z);
-// }
-// if(BoneIndices.w != -1 && BoneIndices.w < 100){
-//     BoneTransform += MulMatrixScalar(FinalBoneMatrices[(int)BoneIndices.w], BoneWeights.w);
-// }
+if(BoneIndices.x != -1 && BoneIndices.x < 100){
+    BoneTransform += MulMatrixScalar(FinalBoneMatrices[(int)BoneIndices.x], BoneWeights.x);
+}
+if(BoneIndices.y != -1 && BoneIndices.y < 100){
+    BoneTransform += MulMatrixScalar(FinalBoneMatrices[(int)BoneIndices.y], BoneWeights.y);
+}
+if(BoneIndices.z != -1 && BoneIndices.z < 100){
+    BoneTransform += MulMatrixScalar(FinalBoneMatrices[(int)BoneIndices.z], BoneWeights.z);
+}
+if(BoneIndices.w != -1 && BoneIndices.w < 100){
+    BoneTransform += MulMatrixScalar(FinalBoneMatrices[(int)BoneIndices.w], BoneWeights.w);
+}
 
-//     if(MatricesEqual(BoneTransform,compare)) {
-//  BoneTransform = float4x4(
-//     1.0, 0.0, 0.0, 0.0,
-//      0.0, 1.0, 0.0, 0.0,
-//      0.0, 0.0, 1.0, 0.0,
-//      0.0, 0.0, 0.0, 1.0
-// );
-//     }
+    if(MatricesEqual(BoneTransform,compare)) {
+ BoneTransform = float4x4(
+    1.0, 0.0, 0.0, 0.0,
+     0.0, 1.0, 0.0, 0.0,
+     0.0, 0.0, 1.0, 0.0,
+     0.0, 0.0, 0.0, 1.0
+);
+    }
 
 
 
 
     
-    // float4 BonePos = mul(float4(input.Position,1.0f),BoneTransform);
-    // float4 BoneNormal = mul(float4(input.Normal,0.0f),BoneTransform);
-    float4 worldPos = mul(float4(input.Position.xyz,1.0f),World);
+    float4 BonePos = mul(float4(input.Position,1.0f),BoneTransform);
+    float4 BoneNormal = mul(float4(input.Normal,0.0f),BoneTransform);
+    float4 worldPos = mul(float4(BonePos.xyz,1.0f),World);
     float4 viewPos =  mul(worldPos, View);
     VertexOutput output; 
     output.Position = mul(viewPos,Projection); 
-    output.Normal = mul(input.Normal,(float3x3)NormalMatrix);
+    output.Normal = mul(BoneNormal.xyz,(float3x3)NormalMatrix);
     output.TexCoord = input.TexCoord; 
     output.ViewPos = viewPos;
     return output; 
