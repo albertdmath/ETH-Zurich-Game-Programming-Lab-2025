@@ -410,7 +410,7 @@ namespace src.GameObjects
                     Aim(dt);
                     if (input.Action())
                     {
-                        actionPushedDuration += actionPushedDuration >= 2f ? 0f : dt;
+                        actionPushedDuration = actionPushedDuration >= 2f ? 2f : actionPushedDuration;
                         aimIndicator.PlaceIndicator(actionPushedDuration,1f,true);
 
                     }
