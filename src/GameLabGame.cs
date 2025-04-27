@@ -22,7 +22,7 @@ namespace GameLab
         private DrawModel walkingTurtle;
 
         private DrawModel playerHandModel;
-        private DrawModel indicatorModel;
+        private List<DrawModel> indicatorModel;
 
         private DrawModel jesterAnimated;
 
@@ -184,7 +184,16 @@ namespace GameLab
             playerModelShell = new DrawModel("../../../Content/Player/player_body_shell.dae", 0.0f, 0.3f, GraphicsDevice);
             jesterAnimated = new DrawModel("../../../Content/Player/jester_animated.gltf", 0.0f, 0.3f, GraphicsDevice);
             playerHandModel = new DrawModel("../../../Content/Player/hand.dae", 0.0f, 0.3f, GraphicsDevice);
-            indicatorModel = new DrawModel("../../../Content/indicator.dae", 0.0f, 0.3f, GraphicsDevice);
+
+            indicatorModel.Add(new DrawModel("../../../Content/Player/aim_indicator_player1.dae", 0.0f, 0.3f, GraphicsDevice));
+            indicatorModel.Add(new DrawModel("../../../Content/Player/aim_indicator_player2.dae", 0.0f, 0.3f, GraphicsDevice));
+            indicatorModel.Add(new DrawModel("../../../Content/Player/aim_indicator_player3.dae", 0.0f, 0.3f, GraphicsDevice));
+            indicatorModel.Add(new DrawModel("../../../Content/Player/aim_indicator_player4.dae", 0.0f, 0.3f, GraphicsDevice));
+            indicatorModel.Add(new DrawModel("../../../Content/Player/aim_arrow_player1.dae", 0.0f, 0.3f, GraphicsDevice));
+            indicatorModel.Add(new DrawModel("../../../Content/Player/aim_arrow_player2.dae", 0.0f, 0.3f, GraphicsDevice));
+            indicatorModel.Add(new DrawModel("../../../Content/Player/aim_arrow_player3.dae", 0.0f, 0.3f, GraphicsDevice));
+            indicatorModel.Add(new DrawModel("../../../Content/Player/aim_arrow_player4.dae", 0.0f, 0.3f, GraphicsDevice));
+
             playerHatModels.Add(new DrawModel("../../../Content/Player/player1_hat.dae", 0.0f, 0.3f, GraphicsDevice));
             playerHatModels.Add(new DrawModel("../../../Content/Player/player2_hat.dae", 0.0f, 0.3f, GraphicsDevice));
             playerHatModels.Add(new DrawModel("../../../Content/Player/player3_hat.dae", 0.0f, 0.3f, GraphicsDevice));

@@ -52,7 +52,7 @@ namespace src.GameObjects
 
         private GameStateManager gameStateManager;
 
-        public Player(Vector3 position, Input input, int id, Ellipse ellipse, DrawModel model, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel hatModel, DrawModel indicatorModel, float scale) : base(model, scale)
+        public Player(Vector3 position, Input input, int id, Ellipse ellipse, DrawModel model, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel hatModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, float scale) : base(model, scale)
         {
             Position = position;
             Orientation = new Vector3(0, 0, 1f);
@@ -65,7 +65,7 @@ namespace src.GameObjects
             gameStateManager = GameStateManager.GetGameStateManager();
             Hand = new Hand(this, playerHandModel, 0.7f);
             inertiaUp = new Vector3(0, 0, 0);
-            aimIndicator = new AimIndicator(this, indicatorModel, 1f);
+            aimIndicator = new AimIndicator(this, indicatorModel,indicatorArrowModel, 1f);
             playerState = PlayerState.NormalMovement;
             playerModel = model;
             this.playerModelShell = playerModelShell;
@@ -406,7 +406,7 @@ namespace src.GameObjects
                     if (input.Action())
                     {
                         actionPushedDuration += actionPushedDuration >= 4f ? 0f : dt;
-                        aimIndicator.PlaceIndicator(actionPushedDuration,1f);
+                        aimIndicator.PlaceIndicator(actionPushedDuration,1f,true);
                     }
                     else
                     {

@@ -9,17 +9,31 @@ namespace src.GameObjects
     {
         // Private fields:
         private Player player;
+        DrawModel targetModel;
+        DrawModel arrowModel;
         
-        public AimIndicator(Player player, DrawModel model,float scale) : base(model,scale)
+        public AimIndicator(Player player, DrawModel targetModel,DrawModel arrowModel,float scale) : base(arrowModel,scale)
         {
             this.player=player;
+            this.targetModel = targetModel;
+            this.arrowModel = arrowModel;
         }
         // Places the hand next to the body
 
         // Places the indicator
-        public void PlaceIndicator(float timeSpentCharging, float speedOfCharging)
+        public void PlaceIndicator(float timeSpentCharging, float speedOfCharging,bool arrow)
         {
-            Position = player.Position + player.Orientation * timeSpentCharging * speedOfCharging;
+            if(arrow)
+            {
+                UpdateScale(1f+timeSpentCharging * speedOfCharging);
+                this.DrawModel = this.arrowModel;
+                Position = player.Position + player.Orientation * (1f+timeSpentCharging) * speedOfCharging;
+            }else{
+                this.DrawModel = this.targetModel;
+                UpdateScale(1f);
+                Position = player.Position + player.Orientation * timeSpentCharging * speedOfCharging;
+            }
+            
         }
     }
 }
