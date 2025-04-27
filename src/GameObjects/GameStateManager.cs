@@ -391,7 +391,7 @@ namespace src.GameObjects
             foreach (Market market in markets)
             {
                 market.Draw(view, projection, depthShader, graphicsDevice, true);
-                market.DrawFish(depthShader, true);
+                market.DrawFish(view, graphicsDevice, depthShader, true);
             }
 
             // Draw all active projectiles
@@ -426,7 +426,7 @@ namespace src.GameObjects
             graphicsDevice.BlendState = BlendState.Opaque;
             graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
             hBAOShader.setFragPosTexture(PosMap);
-           hBAOShader.setNormalTexture(NormalMap);
+            hBAOShader.setNormalTexture(NormalMap);
             foreach (var pass in hBAOShader.effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
@@ -452,8 +452,8 @@ namespace src.GameObjects
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             foreach (Market market in markets)
             {
-                market.Draw(view, projection, shadowShader, true);
-                market.DrawFish(shadowShader, true);
+                market.Draw(view, projection, shadowShader, graphicsDevice, true);
+                market.DrawFish(view, graphicsDevice, shadowShader, true);
             }
             // jesterGame.Draw(view, projection, shadowShader, graphicsDevice, true);
 
@@ -498,7 +498,7 @@ namespace src.GameObjects
                 geometryShader.setMetallic(market.DrawModel.metallic);
                 geometryShader.setRoughness(market.DrawModel.roughness);
                 market.Draw(view, projection, geometryShader, graphicsDevice, false);
-                market.DrawFish(geometryShader, false);
+                market.DrawFish(view, graphicsDevice, geometryShader, false);
                 //market.Hitbox.DebugDraw(graphicsDevice,view,projection);
             }
 
@@ -613,11 +613,8 @@ public void FilterPass(Filter filterShader, RenderTarget2D inputTexture, RenderT
             projectiles.Clear();
             markets.Clear();
             livingPlayers.Clear();
-            markets.Clear();
-            livingPlayers.Clear();
 
             InitializeMob();
-            InitializeMarkets();
             InitializeMarkets();
             InitializePlayers();
         }

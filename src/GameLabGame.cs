@@ -188,10 +188,10 @@ namespace GameLab
             playerHatModels.Add(new DrawModel("../../../Content/Player/player3_hat.dae", 0.0f, 0.3f, GraphicsDevice));
             playerHatModels.Add(new DrawModel("../../../Content/Player/player4_hat.dae", 0.0f, 0.3f, GraphicsDevice));
 
-            marketModels.Add(new DrawModel("../../../Content/market_1",0.0f,0.3f, GraphicsDevice));
-            marketModels.Add(new DrawModel("../../../Content/market_2",0.0f,0.3f, GraphicsDevice));
-            marketModels.Add(new DrawModel("../../../Content/market_3",0.0f,0.3f, GraphicsDevice));
-            marketModels.Add(new DrawModel("../../../Content/market_4",0.0f,0.3f, GraphicsDevice));
+            marketModels.Add(new DrawModel("../../../Content/market_1.dae",0.0f,0.3f, GraphicsDevice));
+            marketModels.Add(new DrawModel("../../../Content/market_2.dae",0.0f,0.3f, GraphicsDevice));
+            marketModels.Add(new DrawModel("../../../Content/market_3.dae",0.0f,0.3f, GraphicsDevice));
+            marketModels.Add(new DrawModel("../../../Content/market_4.dae",0.0f,0.3f, GraphicsDevice));
 
             mobModels.Add(new DrawModel("../../../Content/mob1.dae", 0.0f, 0.6f, GraphicsDevice));
             mobModels.Add(new DrawModel("../../../Content/mob2.dae", 0.0f, 0.6f, GraphicsDevice));

@@ -66,27 +66,39 @@ namespace src.GameObjects
             return true;
         }
 
-        public void DrawFish(Shader shader, bool shadowDraw)
+        public void DrawFish(Matrix view, GraphicsDevice graphicsDevice, Shader shader, bool shadowDraw)
         {  
             for (int i = 0; i < nProjectiles; i++)
             {
                 Matrix projectileTranslation =  Matrix.CreateTranslation(positions[i], 0.5f, 0f);
 
-                shader.setWorldMatrix(projectileScale * 
-                                      projectileTranslation * 
-                                      marketRotTrans);
+                Matrix finalTransform = projectileTranslation * projectileScale * marketRotTrans;
 
-                for (int j = 0; j < projectileModel.model.Meshes.Count; j++)
-                {
-                    ModelMesh mesh = projectileModel.model.Meshes[j];
-                    foreach(ModelMeshPart part in mesh.MeshParts)
-                    {
-                        part.Effect = shader.effect; 
-                        if(!shadowDraw)
-                            shader.setTexture(projectileModel.textures[j]);
+                foreach (GameMesh mesh in projectileModel.meshes)
+                {   
+                    VertexBuffer buff = mesh.vertexBuffer;
+                    graphicsDevice.SetVertexBuffer(buff);
+                    graphicsDevice.Indices = mesh.indexBuffer;
+                    shader.setWorldMatrix(finalTransform);
+                    if (!shadowDraw)
+                    {   
+                        if(mesh.hasDiffuse){
+                            shader.setTexture(mesh.diffuse);
+                        }
+                        shader.setNormalMatrix(view, finalTransform);
                     }
-                    mesh.Draw();
-                }  
+                    foreach (var pass in shader.effect.CurrentTechnique.Passes)
+                    {
+                        pass.Apply();
+
+                        graphicsDevice.DrawIndexedPrimitives(
+                            PrimitiveType.TriangleList,
+                            baseVertex: 0,
+                            startIndex: 0,
+                            primitiveCount: mesh.indices.Count / 3
+                        );
+                    }
+                }
             }
         }
     }
