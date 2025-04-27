@@ -16,8 +16,10 @@ namespace GameLab
         private KeyboardState _previousKeyboardState;
         // Private fields:
         private DrawModel arenaModel;
+        private List<DrawModel> marketModels = new List<DrawModel>();
         private DrawModel playerModel;
         private DrawModel playerModelShell;
+        private DrawModel walkingTurtle;
 
         private DrawModel playerHandModel;
         private DrawModel indicatorModel;
@@ -188,6 +190,11 @@ namespace GameLab
             playerHatModels.Add(new DrawModel("../../../Content/Player/player3_hat.dae", 0.0f, 0.3f, GraphicsDevice));
             playerHatModels.Add(new DrawModel("../../../Content/Player/player4_hat.dae", 0.0f, 0.3f, GraphicsDevice));
 
+            marketModels.Add(new DrawModel("../../../Content/market_1.dae",0.0f,0.3f, GraphicsDevice));
+            marketModels.Add(new DrawModel("../../../Content/market_2.dae",0.0f,0.3f, GraphicsDevice));
+            marketModels.Add(new DrawModel("../../../Content/market_3.dae",0.0f,0.3f, GraphicsDevice));
+            marketModels.Add(new DrawModel("../../../Content/market_4.dae",0.0f,0.3f, GraphicsDevice));
+
             mobModels.Add(new DrawModel("../../../Content/mob1.dae", 0.0f, 0.6f, GraphicsDevice));
             mobModels.Add(new DrawModel("../../../Content/mob2.dae", 0.0f, 0.6f, GraphicsDevice));
             mobModels.Add(new DrawModel("../../../Content/mob3.dae", 0.0f, 0.6f, GraphicsDevice));
@@ -198,9 +205,11 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Coconut, new DrawModel("../../../Content/coconut.dae", 0.0f, 0.9f, GraphicsDevice));
             projectileModels.Add(ProjectileType.Banana, new DrawModel("../../../Content/bananapeel.dae", 0.0f, 0.9f, GraphicsDevice));
             projectileModels.Add(ProjectileType.Turtle, new DrawModel("../../../Content/turtle_shell.dae", 0.0f, 0.9f, GraphicsDevice));
-            projectileModels.Add(ProjectileType.TurtleWalking, new DrawModel("../../../Content/turtle.dae", 0.0f, 0.9f, GraphicsDevice));
             projectileModels.Add(ProjectileType.Mjoelnir, new DrawModel("../../../Content/mjoelnir.dae", 0.0f, 0.9f, GraphicsDevice));
             projectileModels.Add(ProjectileType.Spear, new DrawModel("../../../Content/trident.dae", 0.0f, 0.9f, GraphicsDevice));
+            projectileModels.Add(ProjectileType.Chicken, new DrawModel("../../../Content/rooster.dae", 0.0f, 0.9f, GraphicsDevice));
+
+            walkingTurtle = new DrawModel("../../../Content/turtle.dae", 0.0f, 0.9f, GraphicsDevice);
 
             areaDamageModels.Add(new DrawModel("../../../Content/hammer_aoe.dae", 0.0f, 0.9f, GraphicsDevice));
             areaDamageModels.Add(new DrawModel("../../../Content/tomato_aoe.dae", 0.0f, 0.3f, GraphicsDevice));
@@ -271,7 +280,7 @@ namespace GameLab
             geometryShader.setOpacityValue(1.0f);
 
             // Initialize gamestate here:
-            gameStateManager.Initialize(arenaModel, playerHatModels, playerModel, playerModelShell, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels);
+            gameStateManager.Initialize(arenaModel, marketModels, playerHatModels, playerModel, playerModelShell, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels, walkingTurtle);
             gameStateManager.StartNewGame();
 
             _menu = new MyMenu(this);

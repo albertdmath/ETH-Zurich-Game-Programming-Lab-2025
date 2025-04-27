@@ -15,15 +15,13 @@ namespace src.GameObjects
             Dashing,
             Aiming,
             Stunned,
-            PartOfMob,
-            PartOfMobHoldingProjectile,
             Crawling,
             JumpingWithTheMightyHammerOfTheThousandThunders,
             DroppingThenNormalMovement
         }
         public int Id { get; set; }
         // Private fields:
-        private float playerSpeed = 2f;
+        private float playerSpeed = 3f;
         public int Life { get; set; } = 3;
         public float Stamina { get; set; } = 3f;
         public Projectile projectileHeld;
@@ -37,7 +35,7 @@ namespace src.GameObjects
         private float timeSinceStartOfCatch = 0f;
         private float friction = 9f;
         public Projectile lastThrownProjectile = null; // Store last thrown projectile
-        private bool armor = false; // Store if player has armor
+        public bool armor = false; // Store if player has armor
         private DrawModel playerModel;
         private DrawModel playerModelShell;
         private float CATCH_COOLDOWN = 1.0f;
@@ -45,6 +43,7 @@ namespace src.GameObjects
         private Ellipse ellipse;
         private Vector3 inertia,inertiaUp;
         private Vector3 gravity = new Vector3(0,-30f,0);
+        private bool outside = false;
         public Hand Hand { get; private set; }
 
         public JesterHat jesterHat;
@@ -100,6 +99,11 @@ namespace src.GameObjects
             {
                 inertiaUp = new Vector3(0, 0, 0);
                 Position = new Vector3(Position.X, 0, Position.Z);
+            }
+            if (outside)
+            {
+                while (ellipse.Inside(Position.X, Position.Z))
+                        Position += ellipse.Normal(Position.X, Position.Z) * dt * -0.1f;
             }
         }
 
@@ -163,7 +167,7 @@ namespace src.GameObjects
             {
                 Hand.IsCatching = true;
                 playerState = PlayerState.Catching;
-                timeSinceStartOfCatch = 0f;
+                timeSinceStartOfCatch = 0f;  
             }
         }
         private void CanDash()
@@ -190,27 +194,21 @@ namespace src.GameObjects
             lastThrownProjectile = projectileHeld;
             lastProjectileImmunity = 1f;
             projectileHeld = null;
-            playerState = Life > 0 ? PlayerState.NormalMovement : PlayerState.PartOfMob;
+            playerState = PlayerState.NormalMovement;
         }
         private void DoActionWithProjectile()
         {
             float speedUp = 1 + 2 * (float)Math.Pow(actionPushedDuration, 2f);
             Console.WriteLine("Throwing projectile with orientation: " + Orientation + " and speedup: " + speedUp);
-            if (projectileHeld.Action(speedUp))
+            if(outside)
+            {
+                projectileHeld.Throw(this.Position, aimIndicator.Position);
+                Throw();
+            }
+            else if (projectileHeld.Action(speedUp, aimIndicator.Position))
                 Throw();
         }
-        // Spawning a projectile in Hand when part of the mob. Currently only swordfish
-        private void Spawn()
-        {
-            if (input.Action() && projectileHeld == null)
-            {
-                projectileHeld = gameStateManager.CreateProjectile(ProjectileType.Swordfish, Position, Orientation);
-                projectileHeld.Catch(this);
-                Stamina -= 3f;
-                playerState = PlayerState.PartOfMobHoldingProjectile;
-            }
-
-        }
+        
         // ---------------------
         // End of private functions to change state of player
         // Start of public functions to change state of player. Meant to be called by projectile, after a collision
@@ -328,6 +326,16 @@ namespace src.GameObjects
                 StunAndSlip(1f, 9f);
             }
         }
+
+        public void MarketCollision(Market market)
+        {
+            Vector3 dir = 0.02f * Vector3.Normalize(new Vector3(Position.X - market.Position.X, 0f, Position.Z - market.Position.Z));
+            while (Hitbox.Intersects(market.Hitbox))
+            {
+                Position += dir;
+                updateHitbox();
+            }
+        }
         // Method to test for a collision with a projectile and potentially grab it:
         public void Catch(Projectile projectile)
         {
@@ -335,8 +343,15 @@ namespace src.GameObjects
             projectileHeld = projectile;
             if(projectile.Holder != null) 
             {
-                (projectile.Holder as Player).projectileHeld = null;
-                (projectile.Holder as Player).playerState = PlayerState.NormalMovement;
+                if(projectile.Holder is Player)
+                {
+                    (projectile.Holder as Player).projectileHeld = null;
+                    (projectile.Holder as Player).playerState = PlayerState.NormalMovement;
+                }
+                else if(projectile.Holder is Zombie)
+                {
+                    (projectile.Holder as Zombie).projectileHeld = null;
+                }
             }
             projectile.Catch(this);
             MusicAndSoundEffects.playProjectileSFX(projectile.Type);
@@ -352,8 +367,7 @@ namespace src.GameObjects
                  Console.WriteLine("Dropping " + projectileHeld.Type);
             }
             projectileHeld = null;
-            playerState = Life > 0 ? PlayerState.NormalMovement : PlayerState.PartOfMob;
-            
+            playerState = PlayerState.NormalMovement;
         }
 
 
@@ -389,10 +403,9 @@ namespace src.GameObjects
                     break;
                 case PlayerState.Aiming:
                     Aim(dt);
-                    actionPushedDuration = actionPushedDuration > 4f ? 4f : actionPushedDuration;
                     if (input.Action())
                     {
-                        actionPushedDuration += dt;
+                        actionPushedDuration += actionPushedDuration >= 4f ? 0f : dt;
                         aimIndicator.PlaceIndicator(actionPushedDuration,1f);
                     }
                     else
@@ -406,29 +419,14 @@ namespace src.GameObjects
                     if (stunDuration < 0f)
                         playerState = (projectileHeld == null) ? PlayerState.NormalMovement : PlayerState.HoldingProjectile;
                     break;
-                case PlayerState.PartOfMob:
-                    Move(dt);
-                    while (ellipse.Inside(Position.X, Position.Z))
-                        Position += ellipse.Normal(Position.X, Position.Z) * dt * -0.1f;
-                    CanDash();
-                    Spawn();
-                    break;
-                case PlayerState.PartOfMobHoldingProjectile:
-                    Move(dt);
-                    while (ellipse.Inside(Position.X, Position.Z))
-                        Position += ellipse.Normal(Position.X, Position.Z) * dt * -0.1f;
-                    if (input.Action() && actionPushedDuration == 0f)
-                        playerState = PlayerState.Aiming;
-                    else
-                        CanDash();
-                    break;
                 case PlayerState.Crawling:
                     Move(dt);
                     if (ellipse.Outside(Position.X, Position.Z))
                     {
                         Position = Position + new Vector3(0, 0.2f, 0);
                         playerSpeed = 2f;
-                        playerState = PlayerState.PartOfMob;
+                        outside = true;
+                        playerState = PlayerState.NormalMovement;
                     }
                     break;
                 case PlayerState.JumpingWithTheMightyHammerOfTheThousandThunders:
@@ -447,6 +445,7 @@ namespace src.GameObjects
                     playerState = PlayerState.NormalMovement;
                     goto case PlayerState.NormalMovement;
             }
+
             actionPushedDuration = input.Action() ? actionPushedDuration + dt : 0f;
             jumpPushedDuration = input.Jump() ? jumpPushedDuration + dt : 0f;
             immunity -= dt;

@@ -10,9 +10,9 @@ public enum ProjectileType
     Coconut,
     Banana,
     Turtle,
-    TurtleWalking,
     Spear,
-    Mjoelnir
+    Mjoelnir,
+    Chicken
 }
 
 /** Class for the projectiles **/
@@ -25,9 +25,10 @@ public class Projectile : GameModel
     protected GameStateManager gameStateManager;
     public bool ToBeDeleted { get; set; } = false;
     public bool DestroysOtherProjectiles { get; set; } = false;
+
     public float Height {get; private set;}
     // Projectile spawn probabilities (can be adjusted via UI)
-    public static Dictionary<ProjectileType, float> ProjectileProbability = new Dictionary<ProjectileType, float>
+    public readonly static Dictionary<ProjectileType, float> ProjectileProbability = new()
     {
         { ProjectileType.Banana, 0.1f },
         { ProjectileType.Coconut, 0.1f },
@@ -64,13 +65,6 @@ public class Projectile : GameModel
         ToBeDeleted = true;
     }
 
-    public virtual void Throw(float chargeUp) {
-        this.Position = Holder.Position + Holder.Orientation;
-        this.Orientation = Holder.Orientation;
-        this.Holder = null;
-        //Console.WriteLine("Projectile thrown with orientation: " + Orientation + " and speedup: " + chargeUp);
-    }
-
     public virtual void Throw(Vector3 origin, Vector3 target) 
     {
         this.Holder = null;
@@ -96,10 +90,9 @@ public class Projectile : GameModel
 
     // Catch the projectile
     public virtual void Catch(GameModel player) { Holder = player; }
-
-    public bool Free() { return Holder == null; } 
-    public virtual bool Action(float chargeUp) {
-        Throw(chargeUp);
+ 
+    public virtual bool Action(float chargeUp, Vector3 aimPoint) {
+        Throw(Position, aimPoint);
         // If it is thrown return true.
         return true;
     }

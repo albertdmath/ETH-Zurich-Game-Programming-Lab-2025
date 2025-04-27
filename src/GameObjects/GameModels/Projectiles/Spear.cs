@@ -16,7 +16,7 @@ public class Spear : Projectile
         Position += Velocity * Orientation * dt;
     }
 
-    public override bool Action(float chargeUp)
+    public override bool Action(float chargeUp, Vector3 aimPoint)
     {
         if(Holder is Player)
         {

@@ -22,6 +22,7 @@ namespace src.GameObjects
         private const float TURTLE_SCALE = 0.3f;
         private const float MJOELNIR_SCALE = 1.5f;
         private const float SPEAR_SCALE = 0.9f;
+        private const float CHICKEN_SCALE = 0.9f;
 
 
         private const float TOMATO_HEIGHT = 0f;
@@ -32,28 +33,31 @@ namespace src.GameObjects
         private const float TURTLE_HEIGHT = 0f;
         private const float MJOELNIR_HEIGHT = 0.2f;
         private const float SPEAR_HEIGHT = 0f;
+        private const float CHICKEN_HEIGHT = 0f;
 
 
         // Model references for initializing the instances
         private DrawModel arenaModel;
+        private List<DrawModel> marketModels;
         private List<DrawModel> playerHatModels;
         private DrawModel playerModel;
         private DrawModel playerModelShell;
         private DrawModel playerHandModel;
         private DrawModel indicatorModel;
-        private DrawModel jester;
 
-        private GameModel jesterGame;
         private List<DrawModel> mobModels;
         private List<DrawModel> areaDamageModels;
         private Dictionary<ProjectileType, DrawModel> projectileModels;
         private GameModel arena;
+        private DrawModel walkingTurtle;
 
         // This is the mob that might or might not be angry
         private Mob mob;
         public readonly List<Player> players = new List<Player>();
         public readonly List<Player> livingPlayers = new List<Player>();
         public readonly List<Projectile> projectiles = new List<Projectile>();
+        public readonly List<Market> markets = new List<Market>();
+
         private MenuStateManager menuStateManager;
         private readonly List<AreaDamage> areaDamages = new List<AreaDamage>();
         // Singleton instancing
@@ -70,10 +74,11 @@ namespace src.GameObjects
             return instance;
         }
 
-        public void Initialize(DrawModel arenaModel, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel, List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels)
+        public void Initialize(DrawModel arenaModel, List<DrawModel> marketModels, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels, DrawModel walkingTurtle)
         {
             this.menuStateManager = MenuStateManager.GetMenuStateManager();
             this.arenaModel = arenaModel;
+            this.marketModels = marketModels;
             this.playerHatModels = playerHatModels;
             this.playerModel = playerModel;
             this.playerHandModel = playerHandModel;
@@ -82,20 +87,7 @@ namespace src.GameObjects
             this.projectileModels = projectileModels;
             this.indicatorModel = indicatorModel;
             this.playerModelShell = playerModelShell;
-            //this.jester = jester;
-            // jesterGame = new GameModel(jester,0.5f);
-            // jesterGame.SwitchAnimation(0,true);
-
-            this.renderingRasterizer = new RasterizerState()
-            {
-                CullMode = CullMode.CullCounterClockwiseFace,
-                MultiSampleAntiAlias = true
-            };
-            this.shadowRasterizer = new RasterizerState()
-            {
-                CullMode = CullMode.CullClockwiseFace,
-                MultiSampleAntiAlias = false
-            };
+            this.walkingTurtle = walkingTurtle;
 
             arena = new GameModel(arenaModel, ARENA_SCALE);
         }
@@ -104,8 +96,6 @@ namespace src.GameObjects
 
         public void InitializePlayers()
         {
-            players.Clear();
-            livingPlayers.Clear();
             float[] playerStartPositions = { -1.5f, -0.5f, 0.5f, 1.5f };
             float scaling = 0.5f;
             /*
@@ -124,6 +114,51 @@ namespace src.GameObjects
 
             foreach (Player player in players)
                 livingPlayers.Add(player);
+        }
+
+        private void InitializeMarkets()
+        {
+            // Market positions (corners)
+            Vector3[] positions = new Vector3[]
+            {
+                new(-6.5f, 0, -3.7f),
+                new(6.5f, 0, -3.7f),
+                new(-5f, 0, 3.7f),
+                new(5f, 0, 3.7f)
+            };
+
+            // Random projectile type selection logic
+            //this should check for throwable
+            List<ProjectileType> availableTypes = Projectile.ProjectileProbability.Keys
+                                                .Where(type => Projectile.ProjectileProbability[type] > 0)
+                                                .ToList();
+            Random rng = new();
+            float totalWeight = availableTypes.Sum(type => Projectile.ProjectileProbability[type]);
+
+            for (int i = 0; i < 4; i++)
+            {
+                // Refill if empty
+                if (!availableTypes.Any()) 
+                    availableTypes = Projectile.ProjectileProbability.Keys
+                                    .Where(type => Projectile.ProjectileProbability[type] > 0)
+                                    .ToList();
+                
+                float randomValue = (float)rng.NextDouble() * totalWeight;
+                ProjectileType selectedType = default;
+
+                foreach (var type in availableTypes)
+                {
+                    randomValue -= Projectile.ProjectileProbability[type];
+                    if (randomValue > 0) continue;
+                    
+                    selectedType = type;
+                    availableTypes.Remove(type);
+                    totalWeight -= Projectile.ProjectileProbability[type];
+                    break;
+                }
+                // Create market with selected type
+                markets.Add(new Market(positions[i], selectedType, marketModels[i%2], projectileModels[selectedType] , 4f));
+            }
         }
 
         public Projectile CreateProjectile(ProjectileType type, Vector3 origin, Vector3 target)
@@ -147,13 +182,16 @@ namespace src.GameObjects
                     projectile = new Banana(type, origin, target, projectileModels[ProjectileType.Banana], BANANA_SCALE, BANANA_HEIGHT);
                     break;
                 case ProjectileType.Turtle:
-                    projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], projectileModels[ProjectileType.TurtleWalking], TURTLE_SCALE, TURTLE_HEIGHT);
+                    projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], walkingTurtle, TURTLE_SCALE, TURTLE_HEIGHT);
                     break;
                 case ProjectileType.Spear:
                     projectile = new Spear(type, origin, target, projectileModels[ProjectileType.Spear], SPEAR_SCALE, SPEAR_HEIGHT);
                     break;
                 case ProjectileType.Mjoelnir:
                     projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Mjoelnir], MJOELNIR_SCALE, MJOELNIR_HEIGHT);
+                    break;
+                case ProjectileType.Chicken:
+                    projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Chicken], CHICKEN_SCALE, CHICKEN_HEIGHT);
                     break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());
@@ -187,6 +225,20 @@ namespace src.GameObjects
                 for (int j = i + 1; j < players.Count; j++)
                     players[i].PlayerCollision(players[j]);
 
+
+            foreach (Player player in players.Where(x => x.Life == 0))
+            {
+                foreach (Market market in markets)
+                {
+                    if (player.Hitbox.Intersects(market.Hitbox))
+                        player.MarketCollision(market);
+                }
+            }
+            
+            // Update markets
+            foreach (Market market in markets)
+                market.Update(dt);
+
             // Update mob
             mob.Update(dt);
 
@@ -217,14 +269,27 @@ namespace src.GameObjects
             projectiles.RemoveAll(x => x.ToBeDeleted);
 
             // Check for projectile-player hand intersections
-            foreach (Projectile projectile in projectiles)
+            foreach (Player player in players.Where(p => p.Hand.IsCatching))
             {
-                foreach (Player player in players)
+                foreach (Projectile projectile in projectiles)
                 {
-                    if (player.Hand.IsCatching && projectile.Hitbox.Intersects(player.Hand.Hitbox))
+                    if (projectile.Hitbox.Intersects(player.Hand.Hitbox))
                         player.Catch(projectile);
                 }
+
+                foreach (Market market in markets)
+                {
+                    if (market.Hitbox.Intersects(player.Hand.Hitbox))
+                    {
+                        if(market.GrabProjectile())
+                        {
+                            Projectile projectile = CreateProjectile(market.Type, player.Position, player.Position);
+                            player.Catch(projectile);
+                        }
+                    }
+                }
             }
+            
             // Check for projectile-player intersections
             foreach (Projectile projectile in projectiles.Where(x => x.Holder == null || x.DestroysOtherProjectiles))
             {
@@ -329,6 +394,11 @@ namespace src.GameObjects
 
             arena.Draw(view, projection, depthShader, graphicsDevice, true);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+            foreach (Market market in markets)
+            {
+                market.Draw(view, projection, depthShader, graphicsDevice, true);
+                market.DrawFish(view, graphicsDevice, depthShader, true);
+            }
 
             // Draw all active projectiles
             foreach (Projectile projectile in projectiles)
@@ -362,7 +432,7 @@ namespace src.GameObjects
             graphicsDevice.BlendState = BlendState.Opaque;
             graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
             hBAOShader.setFragPosTexture(PosMap);
-           hBAOShader.setNormalTexture(NormalMap);
+            hBAOShader.setNormalTexture(NormalMap);
             foreach (var pass in hBAOShader.effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
@@ -386,6 +456,11 @@ namespace src.GameObjects
 
             arena.Draw(view, projection, shadowShader, graphicsDevice, true);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+            foreach (Market market in markets)
+            {
+                market.Draw(view, projection, shadowShader, graphicsDevice, true);
+                market.DrawFish(view, graphicsDevice, shadowShader, true);
+            }
             // jesterGame.Draw(view, projection, shadowShader, graphicsDevice, true);
 
             // Draw all active projectiles
@@ -422,6 +497,16 @@ namespace src.GameObjects
             //     geometryShader.setFinalBoneMatrices(jesterGame.GetFinalBoneMatrices());
             //    jesterGame.Draw(view, projection, geometryShader, graphicsDevice, false);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+            
+            //draw all markets
+            foreach (Market market in markets)
+            {
+                geometryShader.setMetallic(market.DrawModel.metallic);
+                geometryShader.setRoughness(market.DrawModel.roughness);
+                market.Draw(view, projection, geometryShader, graphicsDevice, false);
+                market.DrawFish(view, graphicsDevice, geometryShader, false);
+                //market.Hitbox.DebugDraw(graphicsDevice,view,projection);
+            }
 
             // Draw all active projectiles:
             foreach (Projectile projectile in projectiles)
@@ -540,8 +625,11 @@ public void FilterPass(Filter filterShader, RenderTarget2D inputTexture, RenderT
         {
             players.Clear();
             projectiles.Clear();
+            markets.Clear();
+            livingPlayers.Clear();
 
             InitializeMob();
+            InitializeMarkets();
             InitializePlayers();
         }
     }

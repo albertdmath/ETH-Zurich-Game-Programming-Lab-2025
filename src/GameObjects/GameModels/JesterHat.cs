@@ -46,9 +46,9 @@ namespace src.GameObjects
             {
                 shader.setTexture(mesh.diffuse);
             }
-                if(player.Life == 2 && i == 1) continue;
-                if(player.Life == 1 && (i == 1 || i == 2)) continue;
-                if(player.Life == 0 && (i == 1 || i == 2 || i == 3)) continue;
+                // if(player.Life == 2 && i == 1) continue;
+                // if(player.Life == 1 && (i == 1 || i == 2)) continue;
+                // if(player.Life == 0 && (i == 1 || i == 2 || i == 3)) continue;
             foreach (var pass in shader.effect.CurrentTechnique.Passes)
             {
                 pass.Apply();

@@ -7,6 +7,7 @@ public class Coconut : Projectile
 {
     // Constants
     private const float MAX_VELOCITY = 15;
+    private const float MIN_VELOCITY = 3;
     private const int MAX_BOUNCES = 3;
     private const float TIME_BETWEEN_BOUNCES = 0.5f;
 
@@ -69,17 +70,17 @@ public class Coconut : Projectile
         Bounce();
     }
 
-    public override void Throw(float chargeUp)
+    private static float CalculateVelocity(Vector3 origin, Vector3 target)
     {
-        base.Throw(chargeUp);
-        Velocity = Math.Min(Velocity + chargeUp, MAX_VELOCITY);
-        _bounces = MAX_BOUNCES;
+        float distance = Math.Abs(Vector3.Distance(origin, target));
+        return Math.Clamp(distance, MIN_VELOCITY, MAX_VELOCITY);
     }
-
+    
     public override void Throw(Vector3 origin, Vector3 target) 
     {
-        base.Throw(origin, target);
-        Velocity = 3f;
+        Velocity = (Holder is Player) ? CalculateVelocity(origin, target) : MIN_VELOCITY;
         _bounces = MAX_BOUNCES;
+        _timeSinceBounce = 0.2f;
+        base.Throw(origin, target);
     }
 }

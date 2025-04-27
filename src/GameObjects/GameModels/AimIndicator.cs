@@ -19,7 +19,7 @@ namespace src.GameObjects
         // Places the indicator
         public void PlaceIndicator(float timeSpentCharging, float speedOfCharging)
         {
-            Position = player.Position + player.Orientation * timeSpentCharging * speedOfCharging + new Vector3(0,0.1f,0);
+            Position = player.Position + player.Orientation * timeSpentCharging * speedOfCharging;
         }
     }
 }
