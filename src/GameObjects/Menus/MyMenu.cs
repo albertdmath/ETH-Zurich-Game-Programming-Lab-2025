@@ -81,7 +81,39 @@ namespace src.GameObjects{
                 BorderThickness = new Thickness{Right=2,Left=2,Top=2,Bottom=2},
                 Width=300,
             };
+            SliderStyle ControllerSliderStyle = new SliderStyle{
+                Background = new SolidBrush(Color.Red),
+                FocusedBorder = new SolidBrush(Color.Honeydew),
+                DisabledBackground = new SolidBrush(Color.Aquamarine),
+                DisabledBorder = new SolidBrush(Color.Beige),
+                Border = new SolidBrush(Color.White),
+                Height = 20,
+                //NO IDEA SMTH LIKE PADDING Margin= new Thickness{Right=10,Left=10,Top=10,Bottom=10},
+                //PADDING Padding = new Thickness{Right=0,Left=0,Top=0,Bottom=0},
+                OverBackground = new SolidBrush(Color.Purple),
+                OverBorder = new SolidBrush(Color.Red),
+                FocusedBackground = new SolidBrush(Color.GreenYellow),
+                BorderThickness = new Thickness{Right=2,Left=2,Top=2,Bottom=2},
+                Width=300,
+            };
+            SliderStyle ControllerPressedSliderStyle = new SliderStyle{
+                Background = new SolidBrush(Color.White),
+                FocusedBorder = new SolidBrush(Color.Honeydew),
+                DisabledBackground = new SolidBrush(Color.Aquamarine),
+                DisabledBorder = new SolidBrush(Color.Beige),
+                Border = new SolidBrush(Color.White),
+                Height = 20,
+                //NO IDEA SMTH LIKE PADDING Margin= new Thickness{Right=10,Left=10,Top=10,Bottom=10},
+                //PADDING Padding = new Thickness{Right=0,Left=0,Top=0,Bottom=0},
+                OverBackground = new SolidBrush(Color.Purple),
+                OverBorder = new SolidBrush(Color.Red),
+                FocusedBackground = new SolidBrush(Color.GreenYellow),
+                BorderThickness = new Thickness{Right=2,Left=2,Top=2,Bottom=2},
+                Width=300,
+            };
             Stylesheet.Current.HorizontalSliderStyles["default"] = DefaultSliderStyle;
+            Stylesheet.Current.HorizontalSliderStyles["controller"] = ControllerSliderStyle;
+            Stylesheet.Current.HorizontalSliderStyles["controllerpressed"] = ControllerPressedSliderStyle;
             //ADD CUSTOM STYLES
             Stylesheet.Current.SpinButtonStyles["controller"] = ControllerSpinbuttonStyle;
             Stylesheet.Current.SpinButtonStyles["default"] = DefaultSpinbuttonStyle;
@@ -190,6 +222,9 @@ namespace src.GameObjects{
 
             },_grid);
             
+            MyHorizontalSlider Volume = new MyHorizontalSlider(300,0,100,100,2,2,(s,a)=>{
+                return;
+            },_grid);
             
             //TEST IN PROGRESS
             
@@ -210,6 +245,8 @@ namespace src.GameObjects{
             Grid.SetColumn(checkBox,3);
             Grid.SetRow(checkBox,0);
             _grid.Widgets.Add(checkBox);
+
+
             //SLIDER TESTS
             HorizontalSlider sl = new HorizontalSlider{
                 Width = CENTER_BUTTON_WIDTH,

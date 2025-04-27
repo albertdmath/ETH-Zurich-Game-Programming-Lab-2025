@@ -66,7 +66,7 @@ namespace GameLab
         {
             _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-            _graphics.IsFullScreen = true; // Enable full screen
+            _graphics.IsFullScreen = false; // Enable full screen
             _graphics.ApplyChanges();
 
             // Get Gamestatemanager instance yay and Menustatemanager too wahoo
