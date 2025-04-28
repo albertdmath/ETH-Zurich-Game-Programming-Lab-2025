@@ -26,6 +26,7 @@ public class Projectile : GameModel
     protected GameStateManager gameStateManager;
     public bool ToBeDeleted { get; set; } = false;
     public bool DestroysOtherProjectiles { get; set; } = false;
+    protected bool aimIndicatorIsArrow;
 
     public float Height {get; private set;}
     // Projectile spawn probabilities (can be adjusted via UI)
@@ -97,6 +98,9 @@ public class Projectile : GameModel
         Throw(Position, aimPoint);
         // If it is thrown return true.
         return true;
+    }
+    public bool aimIndicator(){
+        return aimIndicatorIsArrow;
     }
 }
 
