@@ -49,6 +49,7 @@ namespace src.GameObjects
 
         public JesterHat jesterHat;
         public AimIndicator aimIndicator { get; private set; }
+        private const float speedOfCharging = 2f;
         public PlayerState playerState, playerStateBeforeDashing;
 
         private GameStateManager gameStateManager;
@@ -282,7 +283,7 @@ namespace src.GameObjects
         public void StartDashingWithProjectileInHand(float speed)
         {
             dashSpeed = speed;
-            dashTime = actionPushedDuration * 5f / speed;
+            dashTime = actionPushedDuration * speedOfCharging / speed;
             Console.WriteLine("Dashing with projectile for: " + dashTime + " and speed: " + speed);
             playerState = PlayerState.Dashing;
             playerStateBeforeDashing = PlayerState.DroppingThenNormalMovement;
@@ -290,7 +291,7 @@ namespace src.GameObjects
         }
         public void JumpAndStrike()
         {
-            flySpeed = actionPushedDuration * 5f / (15f/30f*2f);
+            flySpeed = actionPushedDuration * speedOfCharging / (15f/30f*2f);
             inertiaUp += new Vector3(0f,15f,0f);
             playerState = PlayerState.JumpingWithTheMightyHammerOfTheThousandThunders;
             
@@ -411,7 +412,7 @@ namespace src.GameObjects
                     if (input.Action())
                     {
                         actionPushedDuration = actionPushedDuration >= 2f ? 2f : actionPushedDuration;
-                        aimIndicator.PlaceIndicator(actionPushedDuration,2f,projectileHeld.aimIndicator());
+                        aimIndicator.PlaceIndicator(actionPushedDuration,speedOfCharging,projectileHeld.aimIndicator());
 
                     }
                     else
