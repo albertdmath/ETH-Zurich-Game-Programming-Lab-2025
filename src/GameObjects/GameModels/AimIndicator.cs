@@ -28,12 +28,12 @@ namespace src.GameObjects
             Target = player.Position + player.Orientation * (0.2f + timeSpentCharging * speedOfCharging);
             if(arrow)
             {
-                UpdateScale(1f+timeSpentCharging * speedOfCharging);
+                UpdateScale(1f+timeSpentCharging);
                 this.DrawModel = this.arrowModel;
                 Position = player.Position;
             }else{
                 this.DrawModel = this.targetModel;
-                //UpdateScale(1f);
+                UpdateScale(1f);
                 Position = Target;
             }
             

@@ -200,7 +200,7 @@ namespace src.GameObjects
         private void DoActionWithProjectile()
         {
             float speedUp = 1 + 2 * (float)Math.Pow(actionPushedDuration, 2f);
-            Console.WriteLine("Throwing projectile with orientation: " + Orientation + " and speedup: " + speedUp);
+            Console.WriteLine("Throwing projectile with orientation: " + Orientation + "and origin:" + this.Position + "and target: " + aimIndicator.Target + " and speedup: " + speedUp);
             if(outside)
             {
                 projectileHeld.Throw(this.Position, aimIndicator.Target);
@@ -411,7 +411,7 @@ namespace src.GameObjects
                     if (input.Action())
                     {
                         actionPushedDuration = actionPushedDuration >= 2f ? 2f : actionPushedDuration;
-                        aimIndicator.PlaceIndicator(actionPushedDuration,1f,projectileHeld.aimIndicator());
+                        aimIndicator.PlaceIndicator(actionPushedDuration,2f,projectileHeld.aimIndicator());
 
                     }
                     else
