@@ -27,6 +27,7 @@ public class Turtle : Projectile
     {
         this.shellModel = model;
         this.walkingModel = walkingModel;
+        aimIndicatorIsArrow = false;
     }
 
 

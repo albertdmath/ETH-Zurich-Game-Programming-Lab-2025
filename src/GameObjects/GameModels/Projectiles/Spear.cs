@@ -9,7 +9,9 @@ public class Spear : Projectile
     private const float MAX_VELOCITY = 20;
 
     // Constructor:
-    public Spear(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) {}
+    public Spear(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) {
+        aimIndicatorIsArrow = false;
+    }
 
     protected override void Move(float dt)
     {

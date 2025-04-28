@@ -245,7 +245,7 @@ namespace src.GameObjects
         }
         public void GainLife()
         {
-            Life += Life == 3 ? 0 : 1;
+            Life += Life >= 5 ? 0 : 1;
         }
         public bool GetHit(Projectile projectile)
         {
@@ -411,7 +411,7 @@ namespace src.GameObjects
                     if (input.Action())
                     {
                         actionPushedDuration = actionPushedDuration >= 2f ? 2f : actionPushedDuration;
-                        aimIndicator.PlaceIndicator(actionPushedDuration,1f,true);
+                        aimIndicator.PlaceIndicator(actionPushedDuration,1f,projectileHeld.aimIndicator());
 
                     }
                     else

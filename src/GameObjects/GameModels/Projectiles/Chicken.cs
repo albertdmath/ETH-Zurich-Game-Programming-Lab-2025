@@ -31,7 +31,9 @@ public class Chicken : Projectile
     }
 
     // Constructor:
-    public Chicken(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) {}
+    public Chicken(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) {
+        aimIndicatorIsArrow = true;
+    }
 
     public override void Update(float dt)
     {
