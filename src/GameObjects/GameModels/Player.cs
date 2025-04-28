@@ -485,7 +485,7 @@ namespace src.GameObjects
                 base.Draw(view, projection, shader, graphicsDevice, shadowDraw);
             Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
             jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
-            if(playerState == PlayerState.Aiming)
+            if(playerState == PlayerState.Aiming && projectileHeld.ShouldDrawIndicator())
                 aimIndicator.Draw(view, projection, shader, graphicsDevice, shadowDraw);
         }
     }

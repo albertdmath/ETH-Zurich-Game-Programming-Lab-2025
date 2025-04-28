@@ -102,5 +102,8 @@ public class Projectile : GameModel
     public bool aimIndicator(){
         return aimIndicatorIsArrow;
     }
+    public virtual bool ShouldDrawIndicator(){
+        return true;
+    }
 }
 
