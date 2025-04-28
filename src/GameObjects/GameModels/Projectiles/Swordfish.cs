@@ -22,7 +22,7 @@ public class Swordfish : Projectile
     private static float CalculateVelocity(Vector3 origin, Vector3 target)
     {
         // Calculate the horizontal distance (XZ-plane)
-        float distance = Vector3.Distance(target, origin);
+        float distance = Math.Abs(Vector3.Distance(target, origin)) * 3;
 
         // Calculate the initial velocity using the simplified formula
         return Math.Clamp(distance, MIN_VELOCITY, MAX_VELOCITY);
@@ -30,7 +30,7 @@ public class Swordfish : Projectile
 
     public override void Throw(Vector3 origin, Vector3 target) 
     {
-        base.Throw(origin, target);
         Velocity = (Holder is Player) ? CalculateVelocity(origin, target) : MIN_VELOCITY;
+        base.Throw(origin, target);
     }
 }
