@@ -482,10 +482,12 @@ namespace src.GameObjects
             if (immunity > 0)
                 shouldDraw = (int)(immunity * 10) % 2 == 0;
 
-            if (shouldDraw)
+            if (shouldDraw) 
+            {
                 base.Draw(view, projection, shader, graphicsDevice, shadowDraw);
-            Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
-            jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+                Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+                jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+            }
             if(playerState == PlayerState.Aiming && projectileHeld.ShouldDrawIndicator())
                 aimIndicator.Draw(view, projection, shader, graphicsDevice, shadowDraw);
         }

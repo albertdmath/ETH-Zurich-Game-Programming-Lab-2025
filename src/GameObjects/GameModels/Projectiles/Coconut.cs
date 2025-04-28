@@ -74,7 +74,7 @@ public class Coconut : Projectile
 
     private static float CalculateVelocity(Vector3 origin, Vector3 target)
     {
-        float distance = Math.Abs(Vector3.Distance(origin, target));
+        float distance = Math.Abs(Vector3.Distance(origin, target)) * 3;
         return Math.Clamp(distance, MIN_VELOCITY, MAX_VELOCITY);
     }
     
