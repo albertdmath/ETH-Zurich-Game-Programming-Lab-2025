@@ -282,7 +282,7 @@ namespace src.GameObjects
         public void StartDashingWithProjectileInHand(float speed)
         {
             dashSpeed = speed;
-            dashTime = actionPushedDuration * 1f / speed;
+            dashTime = actionPushedDuration * 5f / speed;
             Console.WriteLine("Dashing with projectile for: " + dashTime + " and speed: " + speed);
             playerState = PlayerState.Dashing;
             playerStateBeforeDashing = PlayerState.DroppingThenNormalMovement;
@@ -290,7 +290,7 @@ namespace src.GameObjects
         }
         public void JumpAndStrike()
         {
-            flySpeed = actionPushedDuration * 1f / (15f/30f*2f);
+            flySpeed = actionPushedDuration * 5f / (15f/30f*2f);
             inertiaUp += new Vector3(0f,15f,0f);
             playerState = PlayerState.JumpingWithTheMightyHammerOfTheThousandThunders;
             
