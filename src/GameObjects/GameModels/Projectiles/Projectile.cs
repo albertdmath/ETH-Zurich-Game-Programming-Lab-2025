@@ -1,3 +1,4 @@
+using Assimp;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
@@ -31,14 +32,14 @@ public class Projectile : GameModel
     public readonly static Dictionary<ProjectileType, float> ProjectileProbability = new()
     {
         { ProjectileType.Banana, 0.0f },
-        { ProjectileType.Coconut, 0.0f },
+        { ProjectileType.Coconut, 0.5f },
         { ProjectileType.Frog, 0.0f },
         { ProjectileType.Mjoelnir, 0.0f },
         { ProjectileType.Spear, 0.0f },
         { ProjectileType.Swordfish, 0.0f },
         { ProjectileType.Tomato, 0.0f },
         { ProjectileType.Turtle, 0.0f },
-        { ProjectileType.Chicken, 0.5f }
+        { ProjectileType.Chicken, 0.0f }
     };
 
     public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(model, scaling) 
@@ -70,7 +71,7 @@ public class Projectile : GameModel
     {
         this.Holder = null;
         Position = origin;
-        Orientation = Vector3.Normalize(target - origin);
+        Orientation = Vector3.Normalize(new Vector3(target.X, 0f, target.Z) - new Vector3(origin.X, 0f, origin.Z));
     }
 
     // Update the projectile's state

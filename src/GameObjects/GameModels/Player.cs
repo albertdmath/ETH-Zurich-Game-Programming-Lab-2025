@@ -203,10 +203,10 @@ namespace src.GameObjects
             Console.WriteLine("Throwing projectile with orientation: " + Orientation + " and speedup: " + speedUp);
             if(outside)
             {
-                projectileHeld.Throw(this.Position, aimIndicator.Position);
+                projectileHeld.Throw(this.Position, aimIndicator.Target);
                 Throw();
             }
-            else if (projectileHeld.Action(speedUp, aimIndicator.Position))
+            else if (projectileHeld.Action(speedUp, aimIndicator.Target))
                 Throw();
         }
         
