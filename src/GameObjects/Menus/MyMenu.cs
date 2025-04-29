@@ -218,9 +218,9 @@ namespace src.GameObjects{
             });
 
             //SETTINGS
-            /*MyButton settingsButton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settings?","SettingsButton",0,4,(s,a)=>{
+            MyButton settingsButton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settings?","SettingsButton",0,4,(s,a)=>{
 
-            },_grid);*/
+            },_grid);
 
             //MUSICSLIDER
             MyHorizontalSlider Volume = new MyHorizontalSlider(0,100,45,2,2,(s,a)=>{
@@ -332,7 +332,7 @@ namespace src.GameObjects{
             //desktop.Root = grid;
             //ELEMENTÄRÄIs
             menuElements = new MyMenuElement[]{startstartbutton,startNumPlayerSpinButton,startexit};
-            basemenuElements = new MyMenuElement[]{resumebutton,NumPlayerSpinButton,reloadbutton/*,settingsButton*/,closebutton};
+            basemenuElements = new MyMenuElement[]{resumebutton,NumPlayerSpinButton,reloadbutton,settingsButton,closebutton,Volume,SFXVolume};
         }
         public void Update(GameTime gameTime, KeyboardState keyboardState, KeyboardState previousKeyboardState, GamePadState gamePadState, GamePadState previousGamePadState){
             if(changegrid){

@@ -35,6 +35,7 @@ namespace src.GameObjects{
                 Value=VALUE,
                 
             };
+            this.CHANGE=CHANGE;
             slider.ValueChanged += CHANGE;
             Grid.SetColumn(slider,column);
             Grid.SetRow(slider,row);
@@ -54,6 +55,7 @@ namespace src.GameObjects{
         public override void ControllerValueChange(int sign)
         {
             if(sign+slider.Value<=MAXIMUM && sign+slider.Value>=MINIMUM){
+
                 CHANGE.Invoke(slider,new ValueChangedEventArgs<float>(slider.Value,slider.Value+sign));
                 slider.Value+=sign;
             }
