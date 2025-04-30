@@ -12,6 +12,7 @@ using src.GameObjects;
 using Assimp.Unmanaged;
 
 
+
 /** 
 Custom Vertex Struct for GameModel
 **/
@@ -33,8 +34,8 @@ public struct GameModelVertex : IVertexType
         Position = pos;
         Normal = norm;
         this.TexCoord = texCoord;
-        BoneIds = new Vector4(-1,-1,-1,-1); // -1 means no bone assigned
-        BoneWeights = new Vector4(0.0f,0.0f,0.0f,0.0f); // 0 means no weight assigned
+        BoneIds = new Vector4(0,0,0,0); // -1 means no bone assigned
+        BoneWeights = new Vector4(1.0f,1.0f,1.0f,1.0f); // 0 means no weight assigned
     }
 
 
@@ -158,7 +159,16 @@ public class DrawModel
     public int getBoneCount(){
         return this.boneCount; 
     }
-
+    private Matrix AssimpToXna(System.Numerics.Matrix4x4 m)            // row-major
+{   
+    // A1 A2 A3 A4 in Assimp is M11 M12 M13 M14 in XNA, …
+    return new Matrix(
+        m.M11, m.M21, m.M31, m.M41,
+        m.M12, m.M22, m.M32, m.M42,
+     m.M13, m.M23, m.M33, m.M43,
+       m.M14, m.M24, m.M34, m.M44
+    );
+}
     public void incrementBoneCount(){
         this.boneCount++; 
     }
@@ -231,7 +241,7 @@ PostProcessSteps.FlipWindingOrder);
             gameMesh.indices = currMesh.GetIndices().ToList();
             Material material = scene.Materials[currMesh.MaterialIndex];
             extractTextures(material,gameMesh,scene,graphicsDevice);
-            setupBuffers(gameMesh, graphicsDevice);
+
             this.meshes.Add(gameMesh);
             if (currMesh.HasBones) {
                 List<GameModelVertex> vertices = gameMesh.vertices;
@@ -239,7 +249,7 @@ PostProcessSteps.FlipWindingOrder);
                 gameMesh.vertices = vertices; //Update the vertex data in the list
 			}
            
-
+            setupBuffers(gameMesh, graphicsDevice);
 
         }
        
@@ -252,7 +262,7 @@ PostProcessSteps.FlipWindingOrder);
             if(!boneInfoMap.ContainsKey(boneName)){
                 BoneInfo newBoneInfo = new BoneInfo();
                 newBoneInfo.id = boneCount; 
-                newBoneInfo.offset = mesh.Bones[boneIndex].OffsetMatrix;
+                newBoneInfo.offset = AssimpToXna(mesh.Bones[boneIndex].OffsetMatrix);
                 boneInfoMap[boneName] = newBoneInfo;
                 boneID = boneCount;
                 incrementBoneCount();
@@ -296,6 +306,8 @@ PostProcessSteps.FlipWindingOrder);
             vertex.BoneIds.W = boneId; 
             vertex.BoneWeights.W = weight; 
         } 
+
+
     }
 
     //This is OpenGL style: We set up Vertex and Index Buffer for every mesh in the model

@@ -33,7 +33,7 @@ public class GameModel
                 GameAnimation anim = new GameAnimation("Animation " +i, model.scene.Animations[i], model.scene, model);
                 animations.Add(anim);
             }
-            this.animator = new Animator(animations[0], true);
+            this.animator = new Animator(animations[0], false);
         }
 
 
