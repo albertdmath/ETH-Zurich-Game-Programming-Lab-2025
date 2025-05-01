@@ -1,7 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
 using System.Linq;
-using Microsoft.Xna.Framework.Graphics.PackedVector;
 
 namespace src.GameObjects;
 
@@ -15,7 +14,7 @@ public class Turtle : Projectile
     private const float BOUNCE_BACK_TIME = 0.3f;
 
     // Fields
-    private float _bounceBackTime = 0f; // Time to transform from throwing to walking
+    private float bounceBackTime = 0f; // Time to transform from throwing to walking
     private readonly DrawModel walkingModel;
     private readonly DrawModel shellModel;
 
@@ -24,6 +23,50 @@ public class Turtle : Projectile
     {
         this.shellModel = model;
         this.walkingModel = walkingModel;
+        this.velocity = MIN_VELOCITY;
+    }
+
+    private void BounceAfterHit()
+    {
+        velocity = WALKING_VELOCITY;
+        bounceBackTime = BOUNCE_BACK_TIME;
+        Orientation *= -1;
+        DrawModel = walkingModel;
+    }
+
+    public override void OnPlayerHit(Player player) 
+    {    
+        if (bounceBackTime > 0) return;
+
+        if(velocity == WALKING_VELOCITY)
+        {
+            base.OnPlayerHit(player);
+        }
+        else
+        {
+            player.GetHit(this);
+            if(player.GetAffected(this))    
+                BounceAfterHit();
+        }
+    }
+
+    public override void Catch(GameModel player)
+    {
+        base.Catch(player);
+        DrawModel = shellModel;
+    }
+
+    public override bool Action(float chargeUp, Vector3 aimPoint, bool isOutside)
+    {
+        if(isOutside || !(Holder as Player).SetArmor())
+        {
+            velocity = MathHelper.Lerp(MIN_VELOCITY, MAX_VELOCITY, chargeUp);
+            base.Throw(aimPoint);
+            return true;
+        }
+
+        (Holder as Player).Drop();
+        return false;
     }
 
     private void RotateAway(float dt)
@@ -44,35 +87,11 @@ public class Turtle : Projectile
         Orientation = Vector3.Normalize(new(Orientation.X, 0, Orientation.Z));
     }
 
-    private void BounceAfterHit()
-    {
-        velocity = WALKING_VELOCITY;
-        _bounceBackTime = BOUNCE_BACK_TIME;
-        Orientation *= -1;
-        this.DrawModel = this.walkingModel;
-    }
-
-    public override void OnPlayerHit(Player player) 
-    {    
-        if (_bounceBackTime > 0) return;
-
-        if(velocity == WALKING_VELOCITY)
-        {
-            base.OnPlayerHit(player);
-        }
-        else
-        {
-            player.GetHit(this);
-            if(player.GetAffected(this))    
-                BounceAfterHit();
-        }
-    }
-
     protected override void Move(float dt)
     {
-        if((_bounceBackTime -= dt) > 0)
+        if((bounceBackTime -= dt) > 0)
         {
-            float jumpProgress = _bounceBackTime / BOUNCE_BACK_TIME;
+            float jumpProgress = bounceBackTime / BOUNCE_BACK_TIME;
             Position += MIN_VELOCITY * Orientation * dt;
             Position = new Vector3(Position.X, MathF.Sin(jumpProgress * MathF.PI)*0.5f, Position.Z);
         }
@@ -82,38 +101,6 @@ public class Turtle : Projectile
         
             base.Move(dt);
         }
-    }
-
-    public override void Catch(GameModel player)
-    {
-        base.Catch(player);
-        this.DrawModel = this.shellModel;
-    }
-
-    public override bool Action(float chargeUp, Vector3 aimPoint)
-    {
-        if((Holder as Player).SetArmor())
-        {
-            (Holder as Player).Drop();
-            return false;
-        }
-        else
-        {
-            base.Action(chargeUp, aimPoint);
-            return true;
-        }
-    }
-
-    private static float Calculatevelocity(Vector3 origin, Vector3 target)
-    {
-        float distance = Vector3.Distance(target, origin);
-        return Math.Clamp(distance, MIN_VELOCITY, MAX_VELOCITY);
-    }
-
-    public override void Throw(Vector3 origin, Vector3 target) 
-    {
-        velocity = (Holder is Player) ? Calculatevelocity(origin, target) : MIN_VELOCITY;
-        base.Throw(origin, target);
     }
 }
 

@@ -12,17 +12,14 @@ public class Coconut : Projectile
     private const float TIME_BETWEEN_BOUNCES = 0.5f;
 
     // Fields
-    private int _bounces;
-    private float _timeSinceBounce;
+    private int bounces = MAX_BOUNCES;
+    private float timeSinceBounce;
 
 
     // Constructor:
-    public Coconut(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) {}
-
-    protected override void Move(float dt)
+    public Coconut(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) 
     {
-        _timeSinceBounce -= dt;
-        base.Move(dt);
+        this.velocity = MIN_VELOCITY;
     }
 
     private void Bounce()
@@ -43,13 +40,13 @@ public class Coconut : Projectile
     {             
         player.GetHit(this);
         
-        if (_timeSinceBounce > 0 || !player.GetAffected(this)) 
+        if (timeSinceBounce > 0 || !player.GetAffected(this)) 
             return;
     
-        _bounces--;
-        _timeSinceBounce = TIME_BETWEEN_BOUNCES;
+        bounces--;
+        timeSinceBounce = TIME_BETWEEN_BOUNCES;
 
-        if (_bounces <= 0)
+        if (bounces <= 0)
             ToBeDeleted = true;
         else 
             Bounce();
@@ -57,28 +54,28 @@ public class Coconut : Projectile
 
     public override void OnMobHit()
     {
-        if (_timeSinceBounce > 0) 
+        if (timeSinceBounce > 0) 
             return;
     
-        _bounces--;
-        _timeSinceBounce = TIME_BETWEEN_BOUNCES;
+        bounces--;
+        timeSinceBounce = TIME_BETWEEN_BOUNCES;
 
-        if (_bounces <= 0) 
+        if (bounces <= 0) 
             return;
 
         Bounce();
     }
 
-    private static float CalculateVelocity(Vector3 origin, Vector3 target)
+    public override bool Action(float chargeUp, Vector3 aimPoint, bool isOutside) 
     {
-        float distance = Math.Abs(Vector3.Distance(origin, target)) * 3;
-        return Math.Clamp(distance, MIN_VELOCITY, MAX_VELOCITY);
+        velocity = MathHelper.Lerp(MIN_VELOCITY, MAX_VELOCITY, chargeUp);
+        Throw(aimPoint);
+        return true;
     }
-    
-    public override void Throw(Vector3 origin, Vector3 target) 
+
+    protected override void Move(float dt)
     {
-        velocity = (Holder is Player) ? CalculateVelocity(origin, target) : MIN_VELOCITY;
-        _bounces = MAX_BOUNCES;
-        base.Throw(origin, target);
+        base.Move(dt);
+        timeSinceBounce -= dt;
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 
 
@@ -6,17 +5,15 @@ namespace src.GameObjects;
 public class Mjoelnir : Projectile
 {
     // Constants
-    private const float MAX_VELOCITY = 20;
+    private const float MIN_VELOCITY = 2.0f;
+    private const float MAX_VELOCITY = 20f;
+    private const float JUMP_VELOCITY = 3f;
     private bool DestroysOtherProjectiles = false;
 
     // Constructor:
-    public Mjoelnir(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) {}
-
-    public override bool Action(float chargeUp, Vector3 aimPoint)
+    public Mjoelnir(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) 
     {
-        DestroysOtherProjectiles = true;
-        (Holder as Player).JumpAndStrike();
-        return false;
+        this.velocity = MIN_VELOCITY;
     }
 
     public override void OnProjectileHit(Projectile projectile)
@@ -25,10 +22,18 @@ public class Mjoelnir : Projectile
             projectile.ToBeDeleted = true;
     }
 
-    public override void Throw(Vector3 origin, Vector3 target) 
+    public override bool Action(float chargeUp, Vector3 aimPoint, bool isOutside)
     {
-        velocity = 2f;
-        base.Throw(origin, target);
+        if (isOutside)
+        {
+            velocity = MathHelper.Lerp(MIN_VELOCITY, MAX_VELOCITY, chargeUp);
+            Throw(aimPoint);
+            return true;
+        }
+    
+        DestroysOtherProjectiles = true;
+        (Holder as Player).JumpAndStrike();
+        return false;
     }
 
     public override void Update(float dt)

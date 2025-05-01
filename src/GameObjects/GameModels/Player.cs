@@ -72,7 +72,7 @@ public class Player : GameModel
         this.Id = id;
         inertia = new Vector3(0, 0, 0);
         gameStateManager = GameStateManager.GetGameStateManager();
-        Hand = new Hand(this, playerHandModel, 0.7f);
+        Hand = new Hand(this, playerHandModel, 0.6f);
         inertiaUp = new Vector3(0, 0, 0);
         aimIndicator = new AimIndicator(this, indicatorModel,indicatorArrowModel, 1f);
         playerState = PlayerState.NormalMovement;
@@ -212,14 +212,11 @@ public class Player : GameModel
     }
     private void DoActionWithProjectile()
     {
+        
         float speedUp = 1 + 2 * actionPushedDuration * actionPushedDuration;
         //Console.WriteLine("Throwing projectile with orientation: " + Orientation + "and origin:" + this.Position + "and target: " + aimIndicator.Target + " and speedup: " + speedUp);
-        if(outside)
-        {
-            Throw();
-            projectileHeld.Throw(this.Position, aimIndicator.Target);
-        }
-        else if (projectileHeld.Action(speedUp, aimIndicator.Target))
+        //9 is the current maximum of the speedUp
+        if (projectileHeld.Action(speedUp/9, aimIndicator.Target, outside))
             Throw();
     }
     

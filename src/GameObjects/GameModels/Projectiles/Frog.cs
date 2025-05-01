@@ -21,6 +21,28 @@ public class Frog : Projectile
     // Constructor:
     public Frog(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Target) {}
 
+    public override void Throw(Vector3 target) {
+        origin = Position;
+        beingThrown = true;
+        velocity = CalculateVelocity(Position, target);
+        timeAlive = 0f;
+        base.Throw(target);
+    }
+
+    public override bool Action(float chargeUp, Vector3 aimPoint, bool isOutside)
+    {
+        var player = Holder as Player;
+
+        if (isOutside || !player.GainLife())
+        {
+            Throw(aimPoint);
+            return true;
+        }
+
+        player.Drop();
+        return false;
+    }
+    
     protected override void Move(float dt)
     {
         timeAlive += dt;
@@ -80,45 +102,16 @@ public class Frog : Projectile
     private void Hop(float dt)
     {
         float jumpProgress = (timeAlive - HOP_TIME) / HOP_TIME;
-        float position_y = (float)Math.Max(0, Math.Sin(jumpProgress * Math.PI));
+        float position_y = MathF.Max(0, MathF.Sin(jumpProgress * MathF.PI));
 
         // Update the position of the frog
         Position += velocity * Orientation * dt;
         Position = new Vector3(Position.X, position_y, Position.Z);
     }
 
-    public override void Throw(Vector3 origin, Vector3 target) {
-        base.Throw(origin, target);
-        StartThrow(origin, CalculateVelocity(origin, target));
-    }
-
-    private void StartThrow(Vector3 origin, float velocity)
-    {
-        this.origin = origin;
-        beingThrown = true;
-        this.velocity = velocity;
-        timeAlive = 0f;
-    }
-
     private static float CalculateVelocity(Vector3 origin, Vector3 target)
     {
-        // Calculate the horizontal distance (XZ-plane)
         float distance = Vector3.Distance(target, origin);
-
-        // Calculate the initial velocity using the simplified formula
-        return (float)Math.Sqrt((HALF_GRAVITY * distance) / (Math.Cos(THROW_ANGLE) * Math.Sin(THROW_ANGLE)));
-    }
-    public override bool Action(float chargeUp, Vector3 aimPoint)
-    {
-        if ((Holder as Player).GainLife())
-        {
-            (Holder as Player).Drop();
-            return false;
-        }
-        else
-        {
-            base.Action(chargeUp, aimPoint);
-            return true;
-        }    
+        return MathF.Sqrt(HALF_GRAVITY * distance / (MathF.Cos(THROW_ANGLE) * MathF.Sin(THROW_ANGLE)));
     }
 }

@@ -116,7 +116,7 @@ namespace src.GameObjects
                 return;
             }
             //float speedUp = 1f;
-            projectileHeld.Throw(projectileHeld.Position, targetThrow.Position + targetThrow.Orientation * Rng.NextFloat());
+            projectileHeld.Throw(targetThrow.Position + targetThrow.Orientation * Rng.NextFloat());
             projectileHeld = null;
             //Console.WriteLine("Mob throwing projectile with orientation: " + Orientation+ " and speedup: " + speedUp);
         }

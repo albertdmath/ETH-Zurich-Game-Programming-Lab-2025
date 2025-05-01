@@ -10,20 +10,15 @@ public class Swordfish : Projectile
     private const float MIN_VELOCITY = 2.5f;
 
     // Constructor:
-    public Swordfish(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) {}
-
-    private static float CalculateVelocity(Vector3 origin, Vector3 target)
+    public Swordfish(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) 
     {
-        // Calculate the horizontal distance (XZ-plane)
-        float distance = Math.Abs(Vector3.Distance(target, origin)) * 3;
-
-        // Calculate the initial velocity using the simplified formula
-        return Math.Clamp(distance, MIN_VELOCITY, MAX_VELOCITY);
+        velocity = MIN_VELOCITY;
     }
 
-    public override void Throw(Vector3 origin, Vector3 target) 
+    public override bool Action(float chargeUp, Vector3 aimPoint, bool isOutside)
     {
-        velocity = (Holder is Player) ? CalculateVelocity(origin, target) : MIN_VELOCITY;
-        base.Throw(origin, target);
+        velocity = MathHelper.Lerp(MIN_VELOCITY, MAX_VELOCITY, chargeUp);
+        Throw(aimPoint);
+        return true;
     }
 }

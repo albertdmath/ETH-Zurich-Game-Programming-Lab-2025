@@ -20,11 +20,32 @@ public class Tomato : Projectile
 
     private static float CalculateVelocity(Vector3 origin, Vector3 target)
     {
-        // Calculate the horizontal distance (XZ-plane)
         float distance = Vector3.Distance(target, origin);
+        return MathF.Sqrt(HALF_GRAVITY * distance / (cos * sin));
+    }
 
-        // Calculate the initial velocity using the simplified formula
-        return MathF.Sqrt((HALF_GRAVITY * distance) / (cos * sin));
+    public override void OnGroundHit()
+    {
+        base.OnGroundHit();
+        Position = new(Position.X, 0, Position.Z);
+        gameStateManager.CreateAreaDamage(Position, EXPLOSION_RADIUS, null, ProjectileType.Tomato);
+    }
+
+    public override void OnPlayerHit(Player player)
+    {
+        if (player.GetAffected(this))
+        {
+            ToBeDeleted = true;
+            gameStateManager.CreateAreaDamage(Position, EXPLOSION_RADIUS, null, ProjectileType.Tomato);
+        }
+    }
+
+    public override void Throw(Vector3 target)
+    {
+        base.Throw(target);
+        velocity = CalculateVelocity(Position, target);
+        origin = Position;
+        timeAlive = 0f;
     }
 
     protected override void Move(float dt)
@@ -35,34 +56,5 @@ public class Tomato : Projectile
         Vector3 verticalMotion = new(0, velocity * sin - HALF_GRAVITY * timeAlive, 0);
 
         Position = origin + (horizontalMotion + verticalMotion) * timeAlive;
-    }
-
-    public override void OnGroundHit()
-    {
-        Position = new Vector3(Position.X, 0, Position.Z);
-        Explode();
-        base.OnGroundHit();
-    }
-
-    public override void OnPlayerHit(Player player)
-    {
-        if (player.GetAffected(this))
-        {
-            ToBeDeleted = true;
-            Explode();
-        }
-    }
-
-    private void Explode()
-    {
-        gameStateManager.CreateAreaDamage(Position, EXPLOSION_RADIUS, null, ProjectileType.Tomato);
-    }
-
-    public override void Throw(Vector3 origin, Vector3 target)
-    {
-        base.Throw(origin, target);
-        velocity = CalculateVelocity(origin, target);
-        this.origin = origin;
-        timeAlive = 0f;
     }
 }
