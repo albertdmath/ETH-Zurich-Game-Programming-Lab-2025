@@ -27,7 +27,8 @@ namespace src.GameObjects{
         private MyMenuElement[] menuElements;
         private MyMenuElement[] basemenuElements;
         private bool menuopen=true;
-        private bool insubElement=false;
+        private bool controllerlocked = false;
+        private bool insubMenu = false;
         private GameStateManager gameStateManager;
         private MenuStateManager menuStateManager;
         public MyMenu(GameLabGame game, int DisplayWidth, int DisplayHeight){
@@ -348,7 +349,7 @@ namespace src.GameObjects{
                 }
             }
             if(menuopen){
-                if(!insubElement){
+                if(!controllerlocked){
                     //EXTRA EXIT WITH B PER REQUEST
                     if(gamePadState.Buttons.B == ButtonState.Pressed && previousGamePadState.Buttons.B == ButtonState.Released){
                         CloseMenu();
@@ -367,11 +368,11 @@ namespace src.GameObjects{
                         menuElements[controllerselectedbutton].Highlight();
                     }
                     if(gamePadState.Buttons.A == ButtonState.Pressed && previousGamePadState.Buttons.A == ButtonState.Released){
-                        insubElement = menuElements[controllerselectedbutton].Click();
+                        controllerlocked = menuElements[controllerselectedbutton].Click();
                     }
                 }else{//IN SUBELEMENT LOGIC currently spinbutton only, NEED subelements with own navigation
                     if(gamePadState.Buttons.B == ButtonState.Pressed && previousGamePadState.Buttons.B == ButtonState.Released){
-                        insubElement = !menuElements[controllerselectedbutton].LeaveButton();
+                        controllerlocked = !menuElements[controllerselectedbutton].LeaveButton();
                     }
                     if (gamePadState.DPad.Down == ButtonState.Pressed && previousGamePadState.DPad.Down == ButtonState.Released){
                         menuElements[controllerselectedbutton].ControllerValueChange(-1);
