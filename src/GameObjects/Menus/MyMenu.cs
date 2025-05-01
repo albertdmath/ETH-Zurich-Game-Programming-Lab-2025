@@ -20,6 +20,7 @@ namespace src.GameObjects{
     public class MyMenu{
         private bool changegrid = false;
         private int controllerselectedbutton;
+        private int oldcontrollerselectedbutton;
         private int CENTER_BUTTON_HEIGHT = 40;
         private int CENTER_BUTTON_WIDTH = 250;
         private Desktop desktop;
@@ -29,9 +30,11 @@ namespace src.GameObjects{
         private bool menuopen=true;
         private bool controllerlocked = false;
         private bool insubMenu = false;
+        SubMenu subMenu;
         private GameStateManager gameStateManager;
         private MenuStateManager menuStateManager;
         public MyMenu(GameLabGame game, int DisplayWidth, int DisplayHeight){
+            desktop = new Desktop();
             //DEFINE CUSTOM STYLES
             SpinButtonStyle ControllerSpinbuttonStyle = new SpinButtonStyle{
                 Background = new SolidBrush(Color.Black),
@@ -218,9 +221,20 @@ namespace src.GameObjects{
                 gameStateManager.StartNewGame();
             });
 
+
+
+
+
+            //SETTINGS-MENU
+            SettingsMenu settingsMenu = new SettingsMenu(desktop,_grid);
             //SETTINGS
             MyButton settingsButton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settings?","SettingsButton",0,4,(s,a)=>{
-
+                menuElements[controllerselectedbutton].UnHighlight();
+                insubMenu = true;
+                subMenu = settingsMenu;
+                menuElements = settingsMenu.Activate(menuElements);
+                oldcontrollerselectedbutton=controllerselectedbutton;
+                controllerselectedbutton=0;
             },_grid);
 
             //MUSICSLIDER
@@ -328,7 +342,7 @@ namespace src.GameObjects{
             _grid.Widgets.Add(slsfx);*/
 
             //SET DESKTOP FOR STARTMENU
-            desktop = new Desktop();
+            
             desktop.Root = startgrid;
             //desktop.Root = grid;
             //ELEMENTÄRÄIs
@@ -341,18 +355,31 @@ namespace src.GameObjects{
                 changegrid=false;
                 menuElements = basemenuElements;
             }
-            if(keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape) || (gamePadState.Buttons.Start == ButtonState.Pressed && previousGamePadState.Buttons.Start == ButtonState.Released)){
+            
+
+
+            if((keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape)) || (gamePadState.Buttons.Start == ButtonState.Pressed && previousGamePadState.Buttons.Start == ButtonState.Released)){
                 if(menuopen){
-                    CloseMenu();
+                    if(keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape) && insubMenu){
+                        CloseSubMenu();
+                    }else{
+                        CloseMenu();
+                    }
                 }else{
                     OpenMenu();
                 }
             }
+
             if(menuopen){
                 if(!controllerlocked){
                     //EXTRA EXIT WITH B PER REQUEST
                     if(gamePadState.Buttons.B == ButtonState.Pressed && previousGamePadState.Buttons.B == ButtonState.Released){
-                        CloseMenu();
+                        if(insubMenu){
+                            CloseSubMenu();
+                            menuElements[controllerselectedbutton].Highlight();
+                        }else{
+                            CloseMenu();
+                        }
                     }
 
                     //CONTROLLER NAVIGATION
@@ -390,13 +417,26 @@ namespace src.GameObjects{
         private void CloseMenu(){
             menuElements[controllerselectedbutton].LeaveButton();
             menuElements[controllerselectedbutton].UnHighlight();
+            if(insubMenu){
+                CloseSubMenu();
+            }
             controllerselectedbutton=0;
+            controllerlocked=false;
             menuopen=false;
+            
 
             if(menuStateManager.START_MENU_IS_OPEN){
                 menuStateManager.START_MENU_IS_OPEN=false;
                 changegrid = true;
             }
+        }
+        private void CloseSubMenu(){
+            menuElements[controllerselectedbutton].LeaveButton();
+            menuElements[controllerselectedbutton].UnHighlight();
+            menuElements = subMenu.DeActivate();
+            controllerselectedbutton=oldcontrollerselectedbutton;
+            controllerlocked=false;
+            insubMenu=false;
         }
         public void OpenMenu(){
             //menuElements[controllerselectedbutton].Highlight(); //SHOULD FIRST BUTTON BE HIGHLIGHTED IF WE OPEN THE MENU??? I SAY NO

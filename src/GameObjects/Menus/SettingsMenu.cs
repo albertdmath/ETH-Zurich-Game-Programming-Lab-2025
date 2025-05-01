@@ -18,16 +18,32 @@ using Myra.Graphics2D.Brushes;
 
 namespace src.GameObjects{
     public class SettingsMenu : SubMenu{
-        public SettingsMenu(Desktop desktop):base(desktop)
+        public SettingsMenu(Desktop desktop, Grid r):base(desktop,r)
         {
-            
+            _grid = new Grid{
+                RowSpacing = 5,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                ShowGridLines = true
+            };
+            MyButton testbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settingsi eis","sb1",0,0,(s,a)=>{
+                gameStateManager.CreateProjectile(ProjectileType.Mjoelnir, new Vector3(1,2,2), new Vector3(1,0,0));
+            },_grid);
+            menuElements = new MyMenuElement[]{testbutton};
         }
-        public override void ControllerNavigate(){
-            return;
-        }
-        public override void Activate()
+        public override MyMenuElement[] Activate(MyMenuElement[] R)
         {
-            throw new NotImplementedException();
+            oldMenuElements = R;
+            desktop.Root = _grid;
+            menuopen=true;
+            return menuElements;
         }
+        public override MyMenuElement[] DeActivate()
+        {
+            desktop.Root = returnGrid;
+            menuopen=false;
+            return oldMenuElements;
+        }
+        
     }
 }
