@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using System.Linq;
+using Microsoft.Xna.Framework.Graphics.PackedVector;
 
 namespace src.GameObjects;
 
@@ -41,9 +42,8 @@ public class Turtle : Projectile
 
         // Smoothly interpolate (lerp) away from the target direction
         Orientation = Vector3.Lerp(Orientation, targetDirection, ROTATION_SPEED * dt);
-        //sometimes turtles fly around
-        Orientation = new Vector3(Orientation.X, 0, Orientation.Z);
-        Orientation.Normalize(); // Ensure it's a unit vector
+        
+        Orientation = Vector3.Normalize(new(Orientation.X, 0, Orientation.Z));
     }
 
     private void BounceAfterHit()

@@ -525,7 +525,7 @@ namespace src.GameObjects
             // Draw all Players
             foreach (Player player in players)
             {
-                if (player.playerState == Player.PlayerState.Crawling)
+                if (player.IsCrawling())
                 {
                     graphicsDevice.BlendState = BlendState.NonPremultiplied;
                     geometryShader.setOpacityValue(0.4f);
