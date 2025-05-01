@@ -82,16 +82,16 @@ namespace src.GameObjects
         public Vector3 NearestPoint(float x, float y)
         {
             float tx = x - center.X, ty = y - center.Z;
-            float theta = (float)Math.Atan2(a * ty, b * tx); // Initial guess
+            float theta = MathF.Atan2(a * ty, b * tx); // Initial guess
 
             // 1 refinement step (often good enough)
-            float c = (float)Math.Cos(theta), s = (float)Math.Sin(theta);
+            float c = MathF.Cos(theta), s = MathF.Sin(theta);
             float fx = a * c * ty - b * s * tx;
             float dfx = -a * s * ty - b * c * tx - a * b * (s * s + c * c);
             theta -= fx / dfx;
 
-            float nx = center.X + a * (float)Math.Cos(theta);
-            float ny = center.Z + b * (float)Math.Sin(theta);
+            float nx = center.X + a * MathF.Cos(theta);
+            float ny = center.Z + b * MathF.Sin(theta);
             return new Vector3(nx, 0, ny);
         }
     }

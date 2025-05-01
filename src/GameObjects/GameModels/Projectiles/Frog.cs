@@ -9,7 +9,7 @@ public class Frog : Projectile
     // Constants
     private const float HOP_TIME = 1.0f;
     private const float ROTATION_SPEED = 3.0f;
-    private const float THROW_ANGLE = (float)Math.PI / 3;
+    private const float THROW_ANGLE = MathF.PI / 3;
     private const float HALF_GRAVITY = 4.9f;
     private const float WALKING_VELOCITY = 0.7f;
 
@@ -35,8 +35,8 @@ public class Frog : Projectile
     private void ThrownMove()
     {
         // Calculate horizontal and vertical motion
-        Vector3 horizontalMotion = Orientation * velocity * (float)Math.Cos(THROW_ANGLE);
-        Vector3 verticalMotion = new Vector3(0, velocity * (float)Math.Sin(THROW_ANGLE) - HALF_GRAVITY * timeAlive, 0);
+        Vector3 horizontalMotion = Orientation * velocity * MathF.Cos(THROW_ANGLE);
+        Vector3 verticalMotion = new Vector3(0, velocity * MathF.Sin(THROW_ANGLE) - HALF_GRAVITY * timeAlive, 0);
 
         // Update position
         Position = origin + (horizontalMotion + verticalMotion) * timeAlive;

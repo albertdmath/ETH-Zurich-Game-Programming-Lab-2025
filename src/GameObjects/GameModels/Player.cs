@@ -201,8 +201,8 @@ public class Player : GameModel
     }
     private void DoActionWithProjectile()
     {
-        float speedUp = 1 + 2 * (float)Math.Pow(actionPushedDuration, 2f);
-        Console.WriteLine("Throwing projectile with orientation: " + Orientation + "and origin:" + this.Position + "and target: " + aimIndicator.Target + " and speedup: " + speedUp);
+        float speedUp = 1 + 2 * actionPushedDuration * actionPushedDuration;
+        //Console.WriteLine("Throwing projectile with orientation: " + Orientation + "and origin:" + this.Position + "and target: " + aimIndicator.Target + " and speedup: " + speedUp);
         if(outside)
         {
             Throw();

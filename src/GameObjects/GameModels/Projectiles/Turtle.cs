@@ -77,7 +77,7 @@ public class Turtle : Projectile
         {
             float jumpProgress = _bounceBackTime / BOUNCE_BACK_TIME;
             Position += MIN_VELOCITY * Orientation * dt;
-            Position = new Vector3(Position.X, (float)Math.Sin(jumpProgress * Math.PI)*0.5f, Position.Z);
+            Position = new Vector3(Position.X, MathF.Sin(jumpProgress * MathF.PI)*0.5f, Position.Z);
         }
         else
         {

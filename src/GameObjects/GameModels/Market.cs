@@ -39,7 +39,7 @@ namespace src.GameObjects
             this.Orientation = Vector3.Normalize(-Position);
             this.Type = type;
             this.projectileModel = projectile;
-            this.marketRotTrans = Matrix.CreateRotationY((float)Math.Atan2(-Orientation.X, -Orientation.Z))
+            this.marketRotTrans = Matrix.CreateRotationY(MathF.Atan2(-Orientation.X, -Orientation.Z))
                                 * Matrix.CreateRotationY(MathHelper.ToRadians(90))
                                 * Matrix.CreateTranslation(Position);
             this.projectileScale = Matrix.CreateScale(projectileScaling[type]);

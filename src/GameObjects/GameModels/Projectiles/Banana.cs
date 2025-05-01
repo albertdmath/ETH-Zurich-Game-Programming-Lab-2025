@@ -9,8 +9,8 @@ public class Banana : Projectile
     private const float HALF_GRAVITY = 4.9f;
     private const float SLIP_DURATION = 1.0f;
     private const float PLAYER_INERTIA = 1.0f;
-    private static readonly float angle = (float)Math.PI / 3; // angle of throw
-    private static readonly float cos = (float)Math.Cos(angle), sin = (float)Math.Sin(angle);
+    private static readonly float angle = MathF.PI / 3; // angle of throw
+    private static readonly float cos = MathF.Cos(angle), sin = MathF.Sin(angle);
 
     // Fields
     private bool onGround = false;
@@ -27,7 +27,7 @@ public class Banana : Projectile
         float distance = Vector3.Distance(target, origin);
 
         // Calculate the initial velocity using the simplified formula
-        return (float)Math.Sqrt((HALF_GRAVITY * distance) / (cos * sin));
+        return MathF.Sqrt((HALF_GRAVITY * distance) / (cos * sin));
     }
 
     protected override void Move(float dt)

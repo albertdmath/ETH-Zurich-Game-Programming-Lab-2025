@@ -63,7 +63,7 @@ namespace src.GameObjects
                 float x = this.Position.X - zombies[i].Position.X;
                 float y = this.Position.Z - zombies[i].Position.Z;
                 float lengthSquared = (x*x+y*y);
-                float length = (float)Math.Sqrt(lengthSquared);
+                float length = MathF.Sqrt(lengthSquared);
                 if(lengthSquared<0.5f&&zombies[i]!=this){
                     float temp = (0.5f-lengthSquared)/length;
                     ZombieSpeedX += 10f*x*temp;
@@ -77,7 +77,7 @@ namespace src.GameObjects
             float x = this.Position.X - player.Position.X;
             float y = this.Position.Z - player.Position.Z;
             float lengthSquared = (x*x+y*y);
-            float length = (float)Math.Sqrt(lengthSquared);
+            float length = MathF.Sqrt(lengthSquared);
             if(lengthSquared<0.5f){
                 float temp = (0.5f-lengthSquared)/length;
                 ZombieSpeedX += 10f*x*temp;
@@ -88,7 +88,7 @@ namespace src.GameObjects
             float x = this.Position.X - market.Position.X;
             float y = this.Position.Z - market.Position.Z;
             float lengthSquared = (x*x+y*y);
-            float length = (float)Math.Sqrt(lengthSquared);
+            float length = MathF.Sqrt(lengthSquared);
             if(lengthSquared<1.5f){
                 float temp = (1.5f-lengthSquared)/length;
                 ZombieSpeedX += 10f*x*temp;

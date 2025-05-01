@@ -7,8 +7,8 @@ public class Barrel : Projectile
 {
     // Constants
     private const float HALF_GRAVITY = 4.9f; // Gravity effect
-    private static readonly float angle = (float)Math.PI / 3; // angle of throw
-    private static readonly float cos = (float)Math.Cos(angle), sin = (float)Math.Sin(angle);
+    private static readonly float angle = MathF.PI / 3; // angle of throw
+    private static readonly float cos = MathF.Cos(angle), sin = MathF.Sin(angle);
 
     // Fields
     private float timeAlive;
@@ -24,7 +24,7 @@ public class Barrel : Projectile
     private static float CalculateVelocity(Vector3 origin, Vector3 target)
     {
         float distance = Vector3.Distance(target, origin);
-        return (float)Math.Sqrt((HALF_GRAVITY * distance) / (cos * sin));
+        return MathF.Sqrt((HALF_GRAVITY * distance) / (cos * sin));
     }
 
     protected override void Move(float dt)

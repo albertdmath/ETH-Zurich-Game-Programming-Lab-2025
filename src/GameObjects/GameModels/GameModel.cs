@@ -64,7 +64,7 @@ public class GameModel
 
     protected void CalculateTransform()
     {
-        Transform = Scaling * Matrix.CreateRotationY((float)Math.Atan2(-1f * Orientation.X, -1f * Orientation.Z)) * Matrix.CreateTranslation(Position);
+        Transform = Scaling * Matrix.CreateRotationY(MathF.Atan2(-1f * Orientation.X, -1f * Orientation.Z)) * Matrix.CreateTranslation(Position);
     }
     public void updateWrap(float dt)
     {
