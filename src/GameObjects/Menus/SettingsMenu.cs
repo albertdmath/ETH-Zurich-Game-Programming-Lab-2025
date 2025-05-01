@@ -26,6 +26,9 @@ namespace src.GameObjects{
                 VerticalAlignment = VerticalAlignment.Center,
                 ShowGridLines = true
             };
+            _grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+            _grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+            
             MyButton testbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settingsi eis","sb1",0,0,(s,a)=>{
                 gameStateManager.CreateProjectile(ProjectileType.Chicken, new Vector3(1,0,0), new Vector3(1,-1,-1));
             },_grid);
