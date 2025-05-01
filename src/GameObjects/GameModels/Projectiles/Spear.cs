@@ -7,15 +7,14 @@ public class Spear : Projectile
 {
     // Constants
     private const float MAX_VELOCITY = 20;
+    private bool DestroysOtherProjectiles = false;
 
     // Constructor:
-    public Spear(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) {
-        aimIndicatorIsArrow = false;
-    }
+    public Spear(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Arrow) {}
 
     protected override void Move(float dt)
     {
-        Position += Velocity * Orientation * dt;
+        Position += velocity * Orientation * dt;
     }
 
     public override bool Action(float chargeUp, Vector3 aimPoint)
@@ -28,10 +27,16 @@ public class Spear : Projectile
         return false;
     }
 
+    public override void OnProjectileHit(Projectile projectile)
+    {
+        if(DestroysOtherProjectiles)
+            projectile.ToBeDeleted = true;
+    }
+
     public override void Throw(Vector3 origin, Vector3 target) 
     {
         base.Throw(origin, target);
-        Velocity = 2f;
+        velocity = 2f;
     }
 
     public override void Update(float dt)

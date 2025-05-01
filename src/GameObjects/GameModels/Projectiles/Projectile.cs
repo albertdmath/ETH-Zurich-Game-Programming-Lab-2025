@@ -1,4 +1,3 @@
-using Assimp;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
@@ -13,67 +12,71 @@ public enum ProjectileType
     Turtle,
     Spear,
     Mjoelnir,
-    Chicken
+    Chicken,
+    Barrel
 }
 
 /** Class for the projectiles **/
 public class Projectile : GameModel
 {
-    // Projectile properties
-    public ProjectileType Type { get; private set; }
-    protected float Velocity { get; set; }
-    public GameModel Holder { get; set; }
-    protected GameStateManager gameStateManager;
-    public bool ToBeDeleted { get; set; } = false;
-    public bool DestroysOtherProjectiles { get; set; } = false;
-    protected bool aimIndicatorIsArrow;
-
-    public float Height {get; private set;}
     // Projectile spawn probabilities (can be adjusted via UI)
     public readonly static Dictionary<ProjectileType, float> ProjectileProbability = new()
     {
-        { ProjectileType.Banana, 0.1f },
-        { ProjectileType.Coconut, 0.1f },
-        { ProjectileType.Frog, 0.1f },
-        { ProjectileType.Mjoelnir, 0.1f },
-        { ProjectileType.Spear, 0.1f },
-        { ProjectileType.Swordfish, 0.2f },
-        { ProjectileType.Tomato, 0.2f },
-        { ProjectileType.Turtle, 0.1f },
-        { ProjectileType.Chicken, 0.1f }
+        { ProjectileType.Banana, 0.0f },
+        { ProjectileType.Coconut, 0.0f },
+        { ProjectileType.Frog, 0.0f },
+        { ProjectileType.Mjoelnir, 0.0f },
+        { ProjectileType.Spear, 0.0f },
+        { ProjectileType.Swordfish, 0.1f },
+        { ProjectileType.Tomato, 0.0f },
+        { ProjectileType.Turtle, 0.0f },
+        { ProjectileType.Chicken, 0.0f },
+        { ProjectileType.Barrel, 0.1f }
     };
 
-    public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(model, scaling) 
+    // Projectile properties
+    public ProjectileType Type { get; private set; }
+    public GameModel Holder { get; private set; } = null;
+    public bool ToBeDeleted { get; set; } = false;
+    public IndicatorModels IndicatorModel { get; private set; }
+
+    protected readonly GameStateManager gameStateManager;
+    protected float velocity;
+
+    private readonly float height;
+
+    public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height, IndicatorModels indicatorModel) : base(model, scaling) 
     {
-        Height = height;
+        this.height = height;
         Type = type;
         gameStateManager = GameStateManager.GetGameStateManager();
         Throw(origin,target);
+        this.IndicatorModel = indicatorModel;
     }
 
     // Virtual methods for derived classes to override
-    protected virtual void Move(float dt) { }
-
     public virtual void OnPlayerHit(Player player) 
     {             
         ToBeDeleted = ToBeDeleted || player.GetHit(this);  
     }
 
-    public virtual void OnMobHit()
-    {
-        return;
-    }
     public virtual void OnGroundHit()
     {
         ToBeDeleted = true;
     }
 
+    public virtual void OnMobHit() {}
+
+    public virtual void OnProjectileHit(Projectile projectile) {}
+
     public virtual void Throw(Vector3 origin, Vector3 target) 
     {
         this.Holder = null;
-        Position = origin;
+        Position = origin + new Vector3(0f, height, 0f);
         Orientation = Vector3.Normalize(new Vector3(target.X, 0f, target.Z) - new Vector3(origin.X, 0f, origin.Z));
     }
+
+    protected virtual void Move(float dt) {}
 
     // Update the projectile's state
     public override void Update(float dt)
@@ -92,17 +95,15 @@ public class Projectile : GameModel
     }
 
     // Catch the projectile
-    public virtual void Catch(GameModel player) { Holder = player; }
+    public virtual void Catch(GameModel player) 
+    { 
+        Holder = player; 
+    }
  
-    public virtual bool Action(float chargeUp, Vector3 aimPoint) {
+    public virtual bool Action(float chargeUp, Vector3 aimPoint) 
+    {
         Throw(Position, aimPoint);
         // If it is thrown return true.
-        return true;
-    }
-    public bool aimIndicator(){
-        return aimIndicatorIsArrow;
-    }
-    public virtual bool ShouldDrawIndicator(){
         return true;
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using Accord.Math.Geometry;
 using Microsoft.Xna.Framework;
 
 //when you throw you are flying with it
@@ -17,23 +16,14 @@ public class Chicken : Projectile
     private const float FLIGHT_MIN_HEIGHT = 2.5f;
     private const float FALLING_SPEED = 0.7f;
     private const float UPWARD_VELOCITY = 2.5f;
-    
-    private static readonly Random random = new();
 
     private float timeToStandStill = 0f;
     private bool upwards = false;
     private float targetHeight = 0f;
     public float YCoordinate { get; private set;} = 0f;
 
-    private static float RngRange(float minNumber, float maxNumber)
-    {
-        return (float)random.NextDouble() * (maxNumber - minNumber) + minNumber;
-    }
-
     // Constructor:
-    public Chicken(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) {
-        aimIndicatorIsArrow = true;
-    }
+    public Chicken(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Arrow) {}
 
     public override void Update(float dt)
     {
@@ -69,15 +59,15 @@ public class Chicken : Projectile
         if((timeToStandStill -= dt) > 0f)
             return;
     
-        if(random.NextDouble() < 0.995f)
+        if(Rng.NextBool(0.995f))
         {
-            Position += Velocity * Orientation * dt;
+            Position += velocity * Orientation * dt;
         }
         else
         {
-            Velocity = RngRange(MIN_WALKING_VELOCITY, MAX_WALKING_VELOCITY);
-            Orientation = Vector3.Normalize( new(RngRange(-1, 1), 0f, RngRange(-1, 1)) );
-            timeToStandStill = RngRange(MIN_STAND_STILL, MAX_STAND_STILL);
+            velocity = Rng.NextFloat(MIN_WALKING_VELOCITY, MAX_WALKING_VELOCITY);
+            Orientation = Vector3.Normalize( new(Rng.NextFloat(-1, 1), 0f, Rng.NextFloat(-1, 1)) );
+            timeToStandStill = Rng.NextFloat(MIN_STAND_STILL, MAX_STAND_STILL);
         }  
     }
 
@@ -90,7 +80,7 @@ public class Chicken : Projectile
     public override void Throw(Vector3 origin, Vector3 target) 
     {
         base.Throw(origin, target);
-        Velocity = (Holder is Player) ? CalculateVelocity(origin, target) : MIN_THROW_VELOCITY;
+        velocity = (Holder is Player) ? CalculateVelocity(origin, target) : MIN_THROW_VELOCITY;
     }
 
     public override bool Action(float chargeUp, Vector3 aimPoint)

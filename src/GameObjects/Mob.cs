@@ -23,7 +23,6 @@ namespace src.GameObjects
         private float endMajorAxis, endMinorAxis = 3f;
         private Vector3 endCenter;
 
-        private Random random = new();
         private List<DrawModel> models;
         private float closing = 0;
         private float timeUntilNextProjectile;
@@ -49,10 +48,10 @@ namespace src.GameObjects
         public Vector3 GetRandomPointInside()
         {
             // Generate a random angle between 0 and 2π
-            float angle = (float)(random.NextDouble() * 2 * Math.PI);
+            float angle = Rng.NextFloat(2 * MathF.PI);
 
             // Generate a random radius between 0 and 1
-            float radius = (float)Math.Sqrt(random.NextDouble())*0.3f;
+            float radius = MathF.Sqrt(Rng.NextFloat())*0.3f;
 
             // Calculate the x and y coordinates
             float x = radius * startMajorAxis * (float)Math.Cos(angle);
@@ -65,7 +64,7 @@ namespace src.GameObjects
         private void SpawnMob() {
             for(int i = 0; i<N_ZOMBIES; i++)
             {
-                float angle = (float)(random.NextDouble() * 2f * Math.PI);
+                float angle = Rng.NextFloat(2 * MathF.PI);
                 active[i] = new Zombie(
                     new Vector3(startMajorAxis*(float)Math.Sin(angle), 0, startMinorAxis*(float)Math.Cos(angle)) * 1.3f, 
                     Ellipse, 
@@ -182,13 +181,13 @@ namespace src.GameObjects
 
             foreach (var entry in Projectile.ProjectileProbability)
             {
-                if (random.NextDouble() * 100 > entry.Value) continue;
+                if (!Rng.NextBool(entry.Value * 0.01f)) continue;
 
-                Zombie throwingZombie = Mob.active[random.Next(0, Mob.active.Length)];
-                while(throwingZombie.projectileHeld != null) throwingZombie = Mob.active[random.Next(0, Mob.active.Length)];
+                Zombie throwingZombie = Mob.active[Rng.NextInt(active.Length)];
+                while(throwingZombie.projectileHeld != null) throwingZombie = active[Rng.NextInt(active.Length)];
 
-                Player targetPlayer = gameStateManager.players[random.Next(0, gameStateManager.players.Count)];
-                while(targetPlayer.Life <= 0) targetPlayer = gameStateManager.players[random.Next(0, gameStateManager.players.Count)];
+                Player targetPlayer = gameStateManager.players[Rng.NextInt(gameStateManager.players.Count)];
+                while(targetPlayer.Life <= 0) targetPlayer = gameStateManager.players[Rng.NextInt(gameStateManager.players.Count)];
 
                 throwingZombie.Spawn(entry.Key, targetPlayer);
             }

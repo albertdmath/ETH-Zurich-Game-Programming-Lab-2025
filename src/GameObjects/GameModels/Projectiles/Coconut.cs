@@ -12,28 +12,25 @@ public class Coconut : Projectile
     private const float TIME_BETWEEN_BOUNCES = 0.5f;
 
     // Fields
-    private readonly Random random = new();
     private int _bounces;
     private float _timeSinceBounce;
 
 
     // Constructor:
-    public Coconut(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) {
-        aimIndicatorIsArrow = true;
-    }
+    public Coconut(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Arrow) {}
 
     protected override void Move(float dt)
     {
         _timeSinceBounce -= dt;
-        Position += Velocity * Orientation * dt;
+        Position += velocity * Orientation * dt;
     }
 
     private void Bounce()
     {
         // Otherwise bounce the coconut
-        Velocity *= 0.9f;
+        velocity *= 0.9f;
         // Generate a random angle between -30° and +30°
-        float randomAngle = MathHelper.ToRadians(random.Next(150, 210));
+        float randomAngle = MathHelper.ToRadians(Rng.NextInt(150, 210));
 
         // Create a rotation matrix around the Y-axis
         Matrix rotationMatrix = Matrix.CreateRotationY(randomAngle);
@@ -46,7 +43,7 @@ public class Coconut : Projectile
     {             
         player.GetHit(this);
         
-        if (_timeSinceBounce > 0) 
+        if (_timeSinceBounce > 0 || !player.GetAffected(this)) 
             return;
     
         _bounces--;
@@ -80,9 +77,8 @@ public class Coconut : Projectile
     
     public override void Throw(Vector3 origin, Vector3 target) 
     {
-        Velocity = (Holder is Player) ? CalculateVelocity(origin, target) : MIN_VELOCITY;
+        velocity = (Holder is Player) ? CalculateVelocity(origin, target) : MIN_VELOCITY;
         _bounces = MAX_BOUNCES;
-        _timeSinceBounce = 0.2f;
         base.Throw(origin, target);
     }
 }

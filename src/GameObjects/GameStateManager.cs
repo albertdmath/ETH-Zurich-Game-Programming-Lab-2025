@@ -23,17 +23,19 @@ namespace src.GameObjects
         private const float MJOELNIR_SCALE = 1.5f;
         private const float SPEAR_SCALE = 0.9f;
         private const float CHICKEN_SCALE = 0.9f;
+        private const float BARREL_SCALE = 0.5f;
 
 
         private const float TOMATO_HEIGHT = 0f;
         private const float SWORDFISH_HEIGHT = 0f;
-        private const float FROG_HEIGHT = 0f;
+        private const float FROG_HEIGHT = 0.15f;
         private const float COCONUT_HEIGHT = 0f;
         private const float BANANA_HEIGHT = 0f;
         private const float TURTLE_HEIGHT = 0f;
         private const float MJOELNIR_HEIGHT = 0.2f;
         private const float SPEAR_HEIGHT = 0f;
         private const float CHICKEN_HEIGHT = 0f;
+        private const float BARREL_HEIGHT = 0f;
 
 
         // Model references for initializing the instances
@@ -50,6 +52,7 @@ namespace src.GameObjects
         private Dictionary<ProjectileType, DrawModel> projectileModels;
         private GameModel arena;
         private DrawModel walkingTurtle;
+        private DrawModel barrel2;
 
         // This is the mob that might or might not be angry
         private Mob mob;
@@ -60,6 +63,7 @@ namespace src.GameObjects
 
         private MenuStateManager menuStateManager;
         private readonly List<AreaDamage> areaDamages = new List<AreaDamage>();
+
         // Singleton instancing
         private GameStateManager() { }
 
@@ -70,7 +74,7 @@ namespace src.GameObjects
             return instance;
         }
 
-        public void Initialize(DrawModel arenaModel, List<DrawModel> marketModels, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerModelShell, DrawModel playerHandModel, List<DrawModel> indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels, DrawModel walkingTurtle)
+        public void Initialize(DrawModel arenaModel, List<DrawModel> marketModels, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerModelShell, DrawModel playerHandModel, List<DrawModel> indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels, DrawModel walkingTurtle, DrawModel barrel2)
         {
             this.menuStateManager = MenuStateManager.GetMenuStateManager();
             this.arenaModel = arenaModel;
@@ -84,6 +88,7 @@ namespace src.GameObjects
             this.indicatorModel = indicatorModel;
             this.playerModelShell = playerModelShell;
             this.walkingTurtle = walkingTurtle;
+            this.barrel2 = barrel2;
 
             arena = new GameModel(arenaModel, ARENA_SCALE);
         }
@@ -128,7 +133,6 @@ namespace src.GameObjects
             List<ProjectileType> availableTypes = Projectile.ProjectileProbability.Keys
                                                 .Where(type => Projectile.ProjectileProbability[type] > 0)
                                                 .ToList();
-            Random rng = new();
             float totalWeight = availableTypes.Sum(type => Projectile.ProjectileProbability[type]);
 
             for (int i = 0; i < 4; i++)
@@ -139,7 +143,7 @@ namespace src.GameObjects
                                     .Where(type => Projectile.ProjectileProbability[type] > 0)
                                     .ToList();
                 
-                float randomValue = (float)rng.NextDouble() * totalWeight;
+                float randomValue = Rng.NextFloat(totalWeight);
                 ProjectileType selectedType = default;
 
                 foreach (var type in availableTypes)
@@ -189,6 +193,9 @@ namespace src.GameObjects
                 case ProjectileType.Chicken:
                     projectile = new Chicken(type, origin, target, projectileModels[ProjectileType.Chicken], CHICKEN_SCALE, CHICKEN_HEIGHT);
                     break;
+                case ProjectileType.Barrel:
+                    projectile = new Barrel(type, origin, target, projectileModels[ProjectileType.Barrel], barrel2, BARREL_SCALE, BARREL_HEIGHT);
+                    break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());
             }
@@ -227,7 +234,7 @@ namespace src.GameObjects
                 foreach (Market market in markets)
                 {
                     if (player.Hitbox.Intersects(market.Hitbox))
-                        player.MarketCollision(market);
+                        player.ObjectCollision(market);
                 }
             }
             
@@ -249,14 +256,15 @@ namespace src.GameObjects
             {
                 projectile.ToBeDeleted = projectile.ToBeDeleted || MathF.Abs(projectile.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(projectile.Position.Z) > GameLabGame.ARENA_WIDTH;
             }
+
             for (int i = 0; i < projectiles.Count; i++)
             {
                 for (int j = i + 1; j < projectiles.Count; j++)
                 {
                     if (projectiles[i].Hitbox.Intersects(projectiles[j].Hitbox))
                     {
-                        projectiles[i].ToBeDeleted = projectiles[j].DestroysOtherProjectiles;
-                        projectiles[j].ToBeDeleted = projectiles[i].DestroysOtherProjectiles;
+                        projectiles[i].OnProjectileHit(projectiles[j]);
+                        projectiles[j].OnProjectileHit(projectiles[i]);
                     }
                 }
             }
@@ -287,7 +295,7 @@ namespace src.GameObjects
             }
             
             // Check for projectile-player intersections
-            foreach (Projectile projectile in projectiles.Where(x => x.Holder == null || x.DestroysOtherProjectiles))
+            foreach (Projectile projectile in projectiles.Where(x => x.Holder == null))
             {
                 foreach (Player player in players.Where(x => x.Life > 0))
                 {
