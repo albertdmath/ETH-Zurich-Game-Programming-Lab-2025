@@ -1,13 +1,25 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace src.GameObjects;
 
 /** Anything regarding player characters, from movement to the actual Model files goes here. **/
 public class Player : GameModel
 {
-    public enum PlayerState
+    // Public fields:
+    public int Id { get; private set; }
+    public int Life { get; private set; } = 5;
+    public Hand Hand { get; private set; }
+
+    // Private fields:
+    // Consts
+    private const float NORMAL_SPEED = 3f;
+    private const float STAMINA_REGEN = 3f;
+
+    // Variables
+    private enum PlayerState
     {
         NormalMovement,
         Catching,
@@ -20,16 +32,11 @@ public class Player : GameModel
         DroppingThenNormalMovement,
         FloatingWithChicken
     }
-
-    public int Id { get; private set; }
-    public int Life { get; private set; } = 5;
-    public float Stamina { get; private set; } = 3f;
-    public Hand Hand { get; private set; }
-    public Projectile projectileHeld;
-
-    // Private fields:
+    private PlayerState playerState;
+    private float speed = NORMAL_SPEED;
+    private float stamina = STAMINA_REGEN;
+    private Projectile projectileHeld = null;
     private bool armor = false;
-    private float playerSpeed = 3f;
     private float dashTime = 0f,dashSpeed = 12f, flySpeed = 0f;
     private float actionPushedDuration;
     private float jumpPushedDuration=0;
@@ -48,10 +55,10 @@ public class Player : GameModel
     private Vector3 gravity = new(0,-30f,0);
     private bool outside = false;
 
-    public JesterHat jesterHat;
-    public AimIndicator aimIndicator { get; private set; }
+    private readonly JesterHat jesterHat;
+    private readonly AimIndicator aimIndicator;
     private const float speedOfCharging = 2f;
-    public PlayerState playerState, playerStateBeforeDashing;
+    private PlayerState playerStateBeforeDashing;
 
     private readonly GameStateManager gameStateManager;
 
@@ -61,12 +68,11 @@ public class Player : GameModel
         Orientation = new Vector3(0, 0, 1f);
         this.input = input;
         this.ellipse = ellipse;
-        projectileHeld = null;
         this.jesterHat = new JesterHat(this, hatModel, scale);
         this.Id = id;
         inertia = new Vector3(0, 0, 0);
         gameStateManager = GameStateManager.GetGameStateManager();
-        Hand = new Hand(this, playerHandModel, 0.7f);
+        Hand = new Hand(this, playerHandModel, 0.6f);
         inertiaUp = new Vector3(0, 0, 0);
         aimIndicator = new AimIndicator(this, indicatorModel,indicatorArrowModel, 1f);
         playerState = PlayerState.NormalMovement;
@@ -97,7 +103,7 @@ public class Player : GameModel
             Orientation = Vector3.Normalize(inertia);
         }
         // Updating the position of the player
-        Position += playerSpeed * inertia * dt + inertiaUp * dt;
+        Position += speed * inertia * dt + inertiaUp * dt;
         if(Position.Y<=0)
         {
             inertiaUp = new Vector3(0, 0, 0);
@@ -116,14 +122,14 @@ public class Player : GameModel
         inertia -= (friction * dt) * inertia;
 
         // Updating the position of the player
-        Position += playerSpeed * inertia * dt;
+        Position += speed * inertia * dt;
     }
     private void InAir(float dt)
     {
         // Inertia to keep some movement from last update;
         inertiaUp += gravity*dt;
         // Updating the position of the player
-        Position += flySpeed *Orientation * dt + inertiaUp * dt;
+        Position += flySpeed * Orientation * dt + inertiaUp * dt;
     }
 
     private void Aim(float dt)
@@ -160,6 +166,11 @@ public class Player : GameModel
             playerState = playerStateBeforeDashing;
         }
     }
+
+    public bool IsCrawling()
+    {
+        return playerState == PlayerState.Crawling;
+    }
     // ---------------------
     // End of functions for player movement
     // Start of private functions to change state of player
@@ -175,12 +186,12 @@ public class Player : GameModel
     }
     private void CanDash()
     {
-        if (input.Dash() && Stamina >= 3f)
+        if (input.Dash() && stamina >= STAMINA_REGEN)
         {
             playerStateBeforeDashing = playerState;
             playerState = PlayerState.Dashing;
             dashTime = 0.1f;
-            Stamina = 0f;
+            stamina = 0f;
             dashSpeed = 12f;
         }
     }
@@ -201,14 +212,11 @@ public class Player : GameModel
     }
     private void DoActionWithProjectile()
     {
-        float speedUp = 1 + 2 * (float)Math.Pow(actionPushedDuration, 2f);
-        Console.WriteLine("Throwing projectile with orientation: " + Orientation + "and origin:" + this.Position + "and target: " + aimIndicator.Target + " and speedup: " + speedUp);
-        if(outside)
-        {
-            Throw();
-            projectileHeld.Throw(this.Position, aimIndicator.Target);
-        }
-        else if (projectileHeld.Action(speedUp, aimIndicator.Target))
+        
+        float speedUp = 1 + 2 * actionPushedDuration * actionPushedDuration;
+        //Console.WriteLine("Throwing projectile with orientation: " + Orientation + "and origin:" + this.Position + "and target: " + aimIndicator.Target + " and speedup: " + speedUp);
+        //9 is the current maximum of the speedUp
+        if (projectileHeld.Action(speedUp/9, aimIndicator.Target, outside))
             Throw();
     }
     
@@ -239,7 +247,7 @@ public class Player : GameModel
 
                 // For now the player is moved down to indacet crawling. Later done with an animation
                 Position = Position - new Vector3(0, 0.2f, 0);
-                playerSpeed = 1f;
+                speed = 1f;
                 gameStateManager.livingPlayers.Remove(this);
                 playerState = PlayerState.Crawling;
             }
@@ -305,7 +313,7 @@ public class Player : GameModel
     public void FlyWithChicken()
     {
         playerState = PlayerState.FloatingWithChicken;
-        playerSpeed = 1.5f;
+        speed = 1.5f;
     }
 
     // ---------------------
@@ -386,8 +394,8 @@ public class Player : GameModel
     // Update function called each update
     public override void Update(float dt)
     {
-        Stamina += dt;
-        Stamina = (Stamina > 3) ? 3f : Stamina;
+        //this cannot overflow
+        stamina += dt;
         input.EndVibrate(dt);
 
         switch (playerState)
@@ -419,7 +427,6 @@ public class Player : GameModel
                 {
                     actionPushedDuration = actionPushedDuration >= 2f ? 2f : actionPushedDuration;
                     aimIndicator.PlaceIndicator(actionPushedDuration,speedOfCharging,projectileHeld.IndicatorModel);
-
                 }
                 else
                 {
@@ -437,7 +444,7 @@ public class Player : GameModel
                 if (ellipse.Outside(Position.X, Position.Z))
                 {
                     Position = Position + new Vector3(0, 0.2f, 0);
-                    playerSpeed = 2f;
+                    speed = NORMAL_SPEED;
                     outside = true;
                     playerState = PlayerState.NormalMovement;
                 }
@@ -464,7 +471,7 @@ public class Player : GameModel
                 if(height <= 0 || ellipse.Outside(Position.X, Position.Z))
                 {
                     Position = new Vector3(Position.X, 0, Position.Z);
-                    playerSpeed = 3f;
+                    speed = NORMAL_SPEED;
                     Drop();
                 }
                 break;

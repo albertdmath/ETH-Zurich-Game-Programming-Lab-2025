@@ -63,7 +63,7 @@ namespace src.GameObjects
                 float x = this.Position.X - zombies[i].Position.X;
                 float y = this.Position.Z - zombies[i].Position.Z;
                 float lengthSquared = (x*x+y*y);
-                float length = (float)Math.Sqrt(lengthSquared);
+                float length = MathF.Sqrt(lengthSquared);
                 if(lengthSquared<0.5f&&zombies[i]!=this){
                     float temp = (0.5f-lengthSquared)/length;
                     ZombieSpeedX += 10f*x*temp;
@@ -77,7 +77,7 @@ namespace src.GameObjects
             float x = this.Position.X - player.Position.X;
             float y = this.Position.Z - player.Position.Z;
             float lengthSquared = (x*x+y*y);
-            float length = (float)Math.Sqrt(lengthSquared);
+            float length = MathF.Sqrt(lengthSquared);
             if(lengthSquared<0.5f){
                 float temp = (0.5f-lengthSquared)/length;
                 ZombieSpeedX += 10f*x*temp;
@@ -88,7 +88,7 @@ namespace src.GameObjects
             float x = this.Position.X - market.Position.X;
             float y = this.Position.Z - market.Position.Z;
             float lengthSquared = (x*x+y*y);
-            float length = (float)Math.Sqrt(lengthSquared);
+            float length = MathF.Sqrt(lengthSquared);
             if(lengthSquared<1.5f){
                 float temp = (1.5f-lengthSquared)/length;
                 ZombieSpeedX += 10f*x*temp;
@@ -100,22 +100,23 @@ namespace src.GameObjects
             if(projectileHeld == null)
             {
                 targetThrow = target;
-                projectileHeld = gameStateManager.CreateProjectile(type, Position, Orientation);
+                projectileHeld = gameStateManager.CreateProjectile(type);
                 projectileHeld.Catch(this);
                 timeSinceSpawn = 0f;
                 return false;
             }
             return true;
         }
+        
         private void Throw(float dt)
         {
-            if(timeSinceSpawn <= 2f)
+            if(timeSinceSpawn < 2f)
             {
                 timeSinceSpawn += dt;
                 return;
             }
             //float speedUp = 1f;
-            projectileHeld.Throw(projectileHeld.Position, targetThrow.Position + targetThrow.Orientation * Rng.NextFloat());
+            projectileHeld.Throw(targetThrow.Position + targetThrow.Orientation * Rng.NextFloat());
             projectileHeld = null;
             //Console.WriteLine("Mob throwing projectile with orientation: " + Orientation+ " and speedup: " + speedUp);
         }

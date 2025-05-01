@@ -54,8 +54,8 @@ namespace src.GameObjects
             float radius = MathF.Sqrt(Rng.NextFloat())*0.3f;
 
             // Calculate the x and y coordinates
-            float x = radius * startMajorAxis * (float)Math.Cos(angle);
-            float z = radius * startMinorAxis * (float)Math.Sin(angle);
+            float x = radius * startMajorAxis * MathF.Cos(angle);
+            float z = radius * startMinorAxis * MathF.Sin(angle);
 
             return new Vector3(x, 0, z);
         }
@@ -66,7 +66,7 @@ namespace src.GameObjects
             {
                 float angle = Rng.NextFloat(2 * MathF.PI);
                 active[i] = new Zombie(
-                    new Vector3(startMajorAxis*(float)Math.Sin(angle), 0, startMinorAxis*(float)Math.Cos(angle)) * 1.3f, 
+                    new Vector3(startMajorAxis*MathF.Sin(angle), 0, startMinorAxis*MathF.Cos(angle)) * 1.3f, 
                     Ellipse, 
                     models[i%models.Count], 0.7f
                 );
@@ -140,8 +140,8 @@ namespace src.GameObjects
             { 
                 int i = (int)Math.Round(player.Position.X*0.2f)+11;
                 int j = (int)Math.Round(player.Position.Z*0.2f)+11;
-                int iNeighbour = (player.Position.X*0.2f-(float)i) < 0.5f ? -1 : 1;
-                int jNeighbour = (player.Position.Z*0.2f-(float)j) < 0.5f ? -24 : 24;
+                int iNeighbour = (player.Position.X*0.2f-i) < 0.5f ? -1 : 1;
+                int jNeighbour = (player.Position.Z*0.2f-j) < 0.5f ? -24 : 24;
                 if(player.Life<=0)
                 {
                     foreach (Zombie zombie in sortedZombies[i+j*24]) zombie.ForceByPlayer(player);

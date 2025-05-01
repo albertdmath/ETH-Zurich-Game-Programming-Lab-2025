@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 
 
@@ -6,25 +5,15 @@ namespace src.GameObjects;
 public class Mjoelnir : Projectile
 {
     // Constants
-    private const float MAX_VELOCITY = 20;
+    private const float MIN_VELOCITY = 2.0f;
+    private const float MAX_VELOCITY = 20f;
+    private const float JUMP_VELOCITY = 3f;
     private bool DestroysOtherProjectiles = false;
 
     // Constructor:
-    public Mjoelnir(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Arrow) {}
-
-    protected override void Move(float dt)
+    public Mjoelnir(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) 
     {
-        Position += velocity * Orientation * dt;
-    }
-
-    public override bool Action(float chargeUp, Vector3 aimPoint)
-    {
-        if(Holder is Player)
-        {
-            DestroysOtherProjectiles = true;
-            ((Player)Holder).JumpAndStrike();
-        }
-        return false;
+        this.velocity = MIN_VELOCITY;
     }
 
     public override void OnProjectileHit(Projectile projectile)
@@ -33,10 +22,18 @@ public class Mjoelnir : Projectile
             projectile.ToBeDeleted = true;
     }
 
-    public override void Throw(Vector3 origin, Vector3 target) 
+    public override bool Action(float chargeUp, Vector3 aimPoint, bool isOutside)
     {
-        base.Throw(origin, target);
-        velocity = 2f;
+        if (isOutside)
+        {
+            velocity = MathHelper.Lerp(MIN_VELOCITY, MAX_VELOCITY, chargeUp);
+            Throw(aimPoint);
+            return true;
+        }
+    
+        DestroysOtherProjectiles = true;
+        (Holder as Player).JumpAndStrike();
+        return false;
     }
 
     public override void Update(float dt)
@@ -45,7 +42,9 @@ public class Mjoelnir : Projectile
         {
             Position = Holder.Position + Holder.Orientation * 0.3f + new Vector3(0,0.2f,0);
             Orientation = Holder.Orientation;
-        }else{
+        }
+        else
+        {
             base.Update(dt);
         }
     }

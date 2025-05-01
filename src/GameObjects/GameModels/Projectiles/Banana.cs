@@ -9,8 +9,8 @@ public class Banana : Projectile
     private const float HALF_GRAVITY = 4.9f;
     private const float SLIP_DURATION = 1.0f;
     private const float PLAYER_INERTIA = 1.0f;
-    private static readonly float angle = (float)Math.PI / 3; // angle of throw
-    private static readonly float cos = (float)Math.Cos(angle), sin = (float)Math.Sin(angle);
+    private static readonly float angle = MathF.PI / 3; // angle of throw
+    private static readonly float cos = MathF.Cos(angle), sin = MathF.Sin(angle);
 
     // Fields
     private bool onGround = false;
@@ -19,28 +19,7 @@ public class Banana : Projectile
     
 
     // Constructor:
-    public Banana(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Target) {}
-
-    private static float CalculateVelocity(Vector3 origin, Vector3 target)
-    {
-        // Calculate the horizontal distance (XZ-plane)
-        float distance = Vector3.Distance(target, origin);
-
-        // Calculate the initial velocity using the simplified formula
-        return (float)Math.Sqrt((HALF_GRAVITY * distance) / (cos * sin));
-    }
-
-    protected override void Move(float dt)
-    {
-        if (onGround) return;
-
-        timeAlive += dt;
-        
-        Vector3 horizontalMotion = Orientation * velocity * cos;
-        Vector3 verticalMotion = new(0, velocity * sin - HALF_GRAVITY * timeAlive, 0);
-
-        Position = origin + (horizontalMotion + verticalMotion) * timeAlive;
-    }
+    public Banana(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Target) {}
 
     public override void OnPlayerHit(Player player)
     {
@@ -59,12 +38,30 @@ public class Banana : Projectile
         if (onGround) ToBeDeleted = true;
     }
 
-    public override void Throw(Vector3 origin, Vector3 target) 
+    private static float CalculateVelocity(Vector3 origin, Vector3 target)
     {
+        float distance = Vector3.Distance(target, origin);
+        return MathF.Sqrt(HALF_GRAVITY * distance / (cos * sin));
+    }
+
+    public override void Throw(Vector3 target) 
+    {
+        base.Throw(target);
         onGround = false;
-        base.Throw(origin, target);
-        velocity = CalculateVelocity(origin, target);
-        this.origin = origin;
+        velocity = CalculateVelocity(Position, target);
+        origin = Position;
         timeAlive = 0f;
+    }
+
+    protected override void Move(float dt)
+    {
+        if (onGround) return;
+
+        timeAlive += dt;
+        
+        Vector3 horizontalMotion = Orientation * velocity * cos;
+        Vector3 verticalMotion = new(0, velocity * sin - HALF_GRAVITY * timeAlive, 0);
+
+        Position = origin + (horizontalMotion + verticalMotion) * timeAlive;
     }
 }

@@ -8,23 +8,44 @@ public class Tomato : Projectile
     // Constants
     private const float HALF_GRAVITY = 4.9f; // Gravity effect
     private const float EXPLOSION_RADIUS = 1f; // Define the explosion radius
-    private static readonly float angle = (float)Math.PI / 3; // angle of throw
-    private static readonly float cos = (float)Math.Cos(angle), sin = (float)Math.Sin(angle);
+    private static readonly float angle = MathF.PI / 3; // angle of throw
+    private static readonly float cos = MathF.Cos(angle), sin = MathF.Sin(angle);
 
     // Fields
     private float timeAlive;
     private Vector3 origin;
 
     // Constructor:
-    public Tomato(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Target) {}
+    public Tomato(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Target) {}
 
     private static float CalculateVelocity(Vector3 origin, Vector3 target)
     {
-        // Calculate the horizontal distance (XZ-plane)
         float distance = Vector3.Distance(target, origin);
+        return MathF.Sqrt(HALF_GRAVITY * distance / (cos * sin));
+    }
 
-        // Calculate the initial velocity using the simplified formula
-        return (float)Math.Sqrt((HALF_GRAVITY * distance) / (cos * sin));
+    public override void OnGroundHit()
+    {
+        base.OnGroundHit();
+        Position = new(Position.X, 0, Position.Z);
+        gameStateManager.CreateAreaDamage(Position, EXPLOSION_RADIUS, null, ProjectileType.Tomato);
+    }
+
+    public override void OnPlayerHit(Player player)
+    {
+        if (player.GetAffected(this))
+        {
+            ToBeDeleted = true;
+            gameStateManager.CreateAreaDamage(Position, EXPLOSION_RADIUS, null, ProjectileType.Tomato);
+        }
+    }
+
+    public override void Throw(Vector3 target)
+    {
+        base.Throw(target);
+        velocity = CalculateVelocity(Position, target);
+        origin = Position;
+        timeAlive = 0f;
     }
 
     protected override void Move(float dt)
@@ -35,34 +56,5 @@ public class Tomato : Projectile
         Vector3 verticalMotion = new(0, velocity * sin - HALF_GRAVITY * timeAlive, 0);
 
         Position = origin + (horizontalMotion + verticalMotion) * timeAlive;
-    }
-
-    public override void OnGroundHit()
-    {
-        Position = new Vector3(Position.X, 0, Position.Z);
-        Explode();
-        base.OnGroundHit();
-    }
-
-    public override void OnPlayerHit(Player player)
-    {
-        if (player.GetAffected(this))
-        {
-            ToBeDeleted = true;
-            Explode();
-        }
-    }
-
-    private void Explode()
-    {
-        gameStateManager.CreateAreaDamage(Position, EXPLOSION_RADIUS, null, ProjectileType.Tomato);
-    }
-
-    public override void Throw(Vector3 origin, Vector3 target)
-    {
-        base.Throw(origin, target);
-        velocity = CalculateVelocity(origin, target);
-        this.origin = origin;
-        timeAlive = 0f;
     }
 }

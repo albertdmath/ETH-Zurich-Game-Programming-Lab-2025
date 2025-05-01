@@ -21,27 +21,29 @@ public class Chicken : Projectile
     private bool upwards = false;
     private float targetHeight = 0f;
     public float YCoordinate { get; private set;} = 0f;
+     
 
     // Constructor:
-    public Chicken(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Arrow) {}
-
-    public override void Update(float dt)
+    public Chicken(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) 
     {
-        if (Holder == null)
-            Move(dt);
-
-        else if (targetHeight > 0)
-            Fly(dt);
-
-        else 
-            CarriedByPlayer();
+        this.velocity = MIN_THROW_VELOCITY;
     }
 
-    private void CarriedByPlayer()
+    public override bool Action(float chargeUp, Vector3 aimPoint, bool isOutside)
     {
-        Vector3 orthogonalHolderOrientation = new(-Holder.Orientation.Z, Holder.Orientation.Y, Holder.Orientation.X);
-        Position = Holder.Position + orthogonalHolderOrientation * 0.2f + new Vector3(0,0.2f,0);
-        Orientation = Holder.Orientation;
+        if(isOutside)
+        {
+            velocity =  MathHelper.Lerp(MIN_THROW_VELOCITY, MAX_THROW_VELOCITY, chargeUp);
+            base.Throw(aimPoint);
+            return true;
+        }
+        else
+        {
+            (Holder as Player).FlyWithChicken();
+            targetHeight = MathHelper.Lerp(FLIGHT_MIN_HEIGHT, FLIGHT_MAX_HEIGHT, chargeUp);
+            upwards = true;
+            return false;
+        }
     }
 
     private void Fly(float dt)
@@ -71,23 +73,11 @@ public class Chicken : Projectile
         }  
     }
 
-    private static float CalculateVelocity(Vector3 origin, Vector3 target)
+    public override void Update(float dt)
     {
-        float distance = Vector3.Distance(target, origin);
-        return Math.Clamp(distance, MIN_THROW_VELOCITY, MAX_THROW_VELOCITY);
-    }
-
-    public override void Throw(Vector3 origin, Vector3 target) 
-    {
-        base.Throw(origin, target);
-        velocity = (Holder is Player) ? CalculateVelocity(origin, target) : MIN_THROW_VELOCITY;
-    }
-
-    public override bool Action(float chargeUp, Vector3 aimPoint)
-    {
-        (Holder as Player).FlyWithChicken();
-        targetHeight = MathHelper.Lerp(FLIGHT_MIN_HEIGHT, FLIGHT_MAX_HEIGHT, chargeUp/9f);
-        upwards = true;
-        return false;
+        if (targetHeight > 0)
+            Fly(dt);
+        else
+            base.Update(dt);
     }
 }
