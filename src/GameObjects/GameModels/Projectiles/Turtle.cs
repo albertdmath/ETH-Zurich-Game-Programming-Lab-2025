@@ -8,7 +8,7 @@ namespace src.GameObjects;
 public class Turtle : Projectile
 {
     // Constants
-    private const float TIME_TO_WEAR = 0.5f; //the time it takes the player to to wear the turtle
+    //private const float TIME_TO_WEAR = 0.5f; //the time it takes the player to to wear the turtle
     private const float ROTATION_SPEED = 1.5f;
     private const float WALKING_VELOCITY = 0.7f;
     private const float MIN_VELOCITY = 2.0f;
@@ -29,8 +29,6 @@ public class Turtle : Projectile
         this.walkingModel = walkingModel;
         aimIndicatorIsArrow = false;
     }
-
-
 
     private void RotateAway(float dt)
     {
@@ -110,28 +108,22 @@ public class Turtle : Projectile
 
     public override bool Action(float chargeUp, Vector3 aimPoint)
     {
-        if ((Holder as Player).armor)
+        if((Holder as Player).SetArmor())
+        {
+            (Holder as Player).Drop();
+            return false;
+        }
+        else
         {
             _noBounce = 0.5f;
             base.Action(chargeUp, aimPoint);
             return true;
         }
-        else
-        {
-            if (chargeUp < TIME_TO_WEAR) return false;
-            
-            (Holder as Player).SetArmor(true); 
-            (Holder as Player).Drop();
-            return false;
-        }
     }
 
     private static float CalculateVelocity(Vector3 origin, Vector3 target)
     {
-        // Calculate the horizontal distance (XZ-plane)
         float distance = Vector3.Distance(target, origin);
-        Console.WriteLine($"Distance: {distance}");
-        // Calculate the initial velocity using the simplified formula
         return Math.Clamp(distance, MIN_VELOCITY, MAX_VELOCITY);
     }
 

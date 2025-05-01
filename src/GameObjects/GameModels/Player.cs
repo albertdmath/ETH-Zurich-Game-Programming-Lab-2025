@@ -20,39 +20,40 @@ namespace src.GameObjects
             DroppingThenNormalMovement,
             FloatingWithChicken
         }
-        public int Id { get; set; }
-        // Private fields:
-        private float playerSpeed = 3f;
-        public int Life { get; set; } = 5;
-        public float Stamina { get; set; } = 3f;
+
+        public int Id { get; private set; }
+        public int Life { get; private set; } = 5;
+        public float Stamina { get; private set; } = 3f;
+        public Hand Hand { get; private set; }
         public Projectile projectileHeld;
+
+        // Private fields:
+        private bool armor = false;
+        private float playerSpeed = 3f;
         private float dashTime = 0f,dashSpeed = 12f, flySpeed = 0f;
         private float actionPushedDuration;
         private float jumpPushedDuration=0;
         private float stunDuration = 0f;
-        public bool notImportant = false;
         private float immunity = 0f;
         private float lastProjectileImmunity = 0f;
         private float timeSinceStartOfCatch = 0f;
         private float friction = 9f;
-        public Projectile lastThrownProjectile = null; // Store last thrown projectile
-        public bool armor = false; // Store if player has armor
-        private DrawModel playerModel;
-        private DrawModel playerModelShell;
-        private float CATCH_COOLDOWN = 1.0f;
-        private Input input;
-        private Ellipse ellipse;
+        private Projectile lastThrownProjectile = null; // Store last thrown projectile
+        private readonly DrawModel playerModel;
+        private readonly DrawModel playerModelShell;
+        private const float CATCH_COOLDOWN = 1.0f;
+        private readonly Input input;
+        private readonly Ellipse ellipse;
         private Vector3 inertia,inertiaUp;
-        private Vector3 gravity = new Vector3(0,-30f,0);
+        private Vector3 gravity = new(0,-30f,0);
         private bool outside = false;
-        public Hand Hand { get; private set; }
 
         public JesterHat jesterHat;
         public AimIndicator aimIndicator { get; private set; }
         private const float speedOfCharging = 2f;
         public PlayerState playerState, playerStateBeforeDashing;
 
-        private GameStateManager gameStateManager;
+        private readonly GameStateManager gameStateManager;
 
         public Player(Vector3 position, Input input, int id, Ellipse ellipse, DrawModel model, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel hatModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, float scale) : base(model, scale)
         {
@@ -275,10 +276,13 @@ namespace src.GameObjects
             this.stunDuration = stunDuration;
             playerState = PlayerState.Stunned;
         }
-        public void SetArmor(bool armor)
+        public bool SetArmor()
         {
-            this.armor = armor;
+            if(armor) return false;
+
+            this.armor = true;
             this.DrawModel = playerModelShell;
+            return true;
         }
         public void StartDashingWithProjectileInHand(float speed)
         {

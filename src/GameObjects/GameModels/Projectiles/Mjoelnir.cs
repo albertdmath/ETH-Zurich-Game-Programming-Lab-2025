@@ -7,6 +7,7 @@ public class Mjoelnir : Projectile
 {
     // Constants
     private const float MAX_VELOCITY = 20;
+    private bool DestroysOtherProjectiles = false;
 
     // Constructor:
     public Mjoelnir(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) {
@@ -26,6 +27,12 @@ public class Mjoelnir : Projectile
             ((Player)Holder).JumpAndStrike();
         }
         return false;
+    }
+
+    public override void OnProjectileHit(Projectile projectile)
+    {
+        if(DestroysOtherProjectiles)
+            projectile.ToBeDeleted = true;
     }
 
     public override void Throw(Vector3 origin, Vector3 target) 

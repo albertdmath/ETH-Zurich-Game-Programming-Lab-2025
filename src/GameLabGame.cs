@@ -22,6 +22,7 @@ namespace GameLab
         private DrawModel playerModel;
         private DrawModel playerModelShell;
         private DrawModel walkingTurtle;
+        private DrawModel barrel2;
 
         private DrawModel playerHandModel;
         private List<DrawModel> indicatorModel = new List<DrawModel>();
@@ -170,9 +171,6 @@ namespace GameLab
             gameStateManager = GameStateManager.GetGameStateManager();
             MyraEnvironment.Game = this;
 
-           
-
-
             base.Initialize();
         }
 
@@ -222,7 +220,9 @@ namespace GameLab
             projectileModels.Add(ProjectileType.Mjoelnir, new DrawModel("../../../Content/mjoelnir.dae", 0.0f, 0.9f, GraphicsDevice));
             projectileModels.Add(ProjectileType.Spear, new DrawModel("../../../Content/trident.dae", 0.0f, 0.9f, GraphicsDevice));
             projectileModels.Add(ProjectileType.Chicken, new DrawModel("../../../Content/rooster.dae", 0.0f, 0.9f, GraphicsDevice));
+            //projectileModels.Add(ProjectileType.Barrel, new DrawModel("../../../Content/barrel.dae", 0.0f, 0.9f, GraphicsDevice));
 
+            //barrel2 = new DrawModel("../../../Content/barrel2.dae", 0.0f, 0.9f, GraphicsDevice);
             walkingTurtle = new DrawModel("../../../Content/turtle.dae", 0.0f, 0.9f, GraphicsDevice);
 
             areaDamageModels.Add(new DrawModel("../../../Content/hammer_aoe.dae", 0.0f, 0.9f, GraphicsDevice));
@@ -294,7 +294,7 @@ namespace GameLab
             geometryShader.setOpacityValue(1.0f);
 
             // Initialize gamestate here:
-            gameStateManager.Initialize(arenaModel, marketModels, playerHatModels, playerModel, playerModelShell, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels, walkingTurtle);
+            gameStateManager.Initialize(arenaModel, marketModels, playerHatModels, playerModel, playerModelShell, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels, walkingTurtle, barrel2);
             gameStateManager.StartNewGame();
 
             _menu = new MyMenu(this, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);

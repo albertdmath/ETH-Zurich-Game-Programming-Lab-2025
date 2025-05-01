@@ -13,7 +13,8 @@ public enum ProjectileType
     Turtle,
     Spear,
     Mjoelnir,
-    Chicken
+    Chicken,
+    Barrel
 }
 
 /** Class for the projectiles **/
@@ -25,7 +26,6 @@ public class Projectile : GameModel
     public GameModel Holder { get; set; }
     protected GameStateManager gameStateManager;
     public bool ToBeDeleted { get; set; } = false;
-    public bool DestroysOtherProjectiles { get; set; } = false;
     protected bool aimIndicatorIsArrow;
 
     public float Height {get; private set;}
@@ -40,7 +40,8 @@ public class Projectile : GameModel
         { ProjectileType.Swordfish, 0.2f },
         { ProjectileType.Tomato, 0.2f },
         { ProjectileType.Turtle, 0.1f },
-        { ProjectileType.Chicken, 0.1f }
+        { ProjectileType.Chicken, 0.1f },
+        { ProjectileType.Barrel, 0.0f }
     };
 
     public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(model, scaling) 
@@ -66,6 +67,11 @@ public class Projectile : GameModel
     public virtual void OnGroundHit()
     {
         ToBeDeleted = true;
+    }
+
+    public virtual void OnProjectileHit(Projectile projectile) 
+    {
+        return;
     }
 
     public virtual void Throw(Vector3 origin, Vector3 target) 

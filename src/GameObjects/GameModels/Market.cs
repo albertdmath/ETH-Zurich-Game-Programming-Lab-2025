@@ -24,7 +24,8 @@ namespace src.GameObjects
             { ProjectileType.Turtle, 0.3f },
             { ProjectileType.Spear, 0.5f },
             { ProjectileType.Mjoelnir, 0.5f },
-            { ProjectileType.Chicken, 0.8f }
+            { ProjectileType.Chicken, 0.8f },
+            { ProjectileType.Barrel, 0.5f }
         };
 
         private bool projectilesAvailable;
