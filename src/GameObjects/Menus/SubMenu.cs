@@ -4,7 +4,6 @@ using src.GameObjects;
 public abstract class SubMenu{
     protected bool insubElement=false;
     protected bool menuopen=false;
-    public int controllerselectedbutton{get;set;} = 0;
     protected int CENTER_BUTTON_HEIGHT = 40;
     protected int CENTER_BUTTON_WIDTH = 250;
     protected Desktop desktop;
@@ -18,7 +17,6 @@ public abstract class SubMenu{
         this.desktop = desktop;
         gameStateManager = GameStateManager.GetGameStateManager();
         menuStateManager = MenuStateManager.GetMenuStateManager();
-        controllerselectedbutton = 0;
         menuopen = false;
         insubElement = false;
         returnGrid=r;
