@@ -11,5 +11,5 @@ public abstract class MyMenuElement{
     public abstract void UnHighlight();
     public abstract bool Click();//return true if goes down into subelement
     public abstract bool LeaveButton();//return true if leaves subelement
-    public abstract void ControllerValueChange(int sign);
+    public abstract void ControllerValueChange(GamePadState gamePadState, GamePadState previousGamePadState);
 }

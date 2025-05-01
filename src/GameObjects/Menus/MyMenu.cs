@@ -400,12 +400,8 @@ namespace src.GameObjects{
                 }else{//IN SUBELEMENT LOGIC currently spinbutton only, NEED subelements with own navigation
                     if(gamePadState.Buttons.B == ButtonState.Pressed && previousGamePadState.Buttons.B == ButtonState.Released){
                         controllerlocked = !menuElements[controllerselectedbutton].LeaveButton();
-                    }
-                    if (gamePadState.DPad.Down == ButtonState.Pressed && previousGamePadState.DPad.Down == ButtonState.Released){
-                        menuElements[controllerselectedbutton].ControllerValueChange(-1);
-                    }
-                    if (gamePadState.DPad.Up == ButtonState.Pressed && previousGamePadState.DPad.Up == ButtonState.Released){
-                        menuElements[controllerselectedbutton].ControllerValueChange(1);
+                    }else if (gamePadState.DPad.Down == ButtonState.Pressed || gamePadState.DPad.Up == ButtonState.Pressed || gamePadState.DPad.Left == ButtonState.Pressed || gamePadState.DPad.Right == ButtonState.Pressed){
+                        menuElements[controllerselectedbutton].ControllerValueChange(gamePadState, previousGamePadState);
                     }
                 }
             }

@@ -64,7 +64,7 @@ namespace src.GameObjects{
         {//does nothing
             return false;
         }
-        public override void ControllerValueChange(int sign)
+        public override void ControllerValueChange(GamePadState p, GamePadState d)
         {//does nothing
         }
     }

@@ -27,7 +27,7 @@ namespace src.GameObjects{
                 ShowGridLines = true
             };
             MyButton testbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settingsi eis","sb1",0,0,(s,a)=>{
-                gameStateManager.CreateProjectile(ProjectileType.Mjoelnir, new Vector3(1,2,2), new Vector3(1,0,0));
+                gameStateManager.CreateProjectile(ProjectileType.Chicken, new Vector3(1,0,0), new Vector3(1,-1,-1));
             },_grid);
             menuElements = new MyMenuElement[]{testbutton};
         }

@@ -9,6 +9,7 @@ using Myra.Graphics2D.TextureAtlases;
 using Myra.Graphics2D.UI.Styles;
 using info.lundin.math;
 using Myra.Events;
+using System.Reflection.Metadata;
 
 namespace src.GameObjects{
     public class MySpinbutton : MyMenuElement{
@@ -63,9 +64,16 @@ namespace src.GameObjects{
         {
             spinbutton.SetStyle("default");
         }
-        public override void ControllerValueChange(int sign)
+        public override void ControllerValueChange(GamePadState gamePadState, GamePadState previousGamePadState)
         {
-            
+            int sign=0;
+            if(gamePadState.DPad.Down == ButtonState.Pressed && previousGamePadState.DPad.Down == ButtonState.Released){
+                sign=-1;
+            }else if(gamePadState.DPad.Up == ButtonState.Pressed && previousGamePadState.DPad.Up == ButtonState.Released){
+                sign=1;
+            }else{
+                return;
+            }
             //float? oldValue = spinbutton.Value;
             if(sign+spinbutton.Value<=MAXIMUM && sign+spinbutton.Value>=MINIMUM){
                 Valuechanging.Invoke(spinbutton,new ValueChangingEventArgs<float?>(spinbutton.Value,spinbutton.Value+sign));
