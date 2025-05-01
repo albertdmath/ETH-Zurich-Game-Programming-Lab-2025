@@ -8,7 +8,6 @@ namespace src.GameObjects;
 public class Turtle : Projectile
 {
     // Constants
-    //private const float TIME_TO_WEAR = 0.5f; //the time it takes the player to to wear the turtle
     private const float ROTATION_SPEED = 1.5f;
     private const float WALKING_VELOCITY = 0.7f;
     private const float MIN_VELOCITY = 2.0f;
@@ -19,10 +18,9 @@ public class Turtle : Projectile
     private float _bounceBackTime = 0f; // Time to transform from throwing to walking
     private readonly DrawModel walkingModel;
     private readonly DrawModel shellModel;
-    // Fields
 
     // Constructor:
-    public Turtle(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, DrawModel walkingModel, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Arrow) 
+    public Turtle(ProjectileType type, DrawModel model, DrawModel walkingModel, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) 
     {
         this.shellModel = model;
         this.walkingModel = walkingModel;
@@ -51,7 +49,6 @@ public class Turtle : Projectile
         velocity = WALKING_VELOCITY;
         _bounceBackTime = BOUNCE_BACK_TIME;
         Orientation *= -1;
-        this.DrawModel = this.walkingModel;
         this.DrawModel = this.walkingModel;
     }
 
@@ -83,14 +80,13 @@ public class Turtle : Projectile
         {
             if (velocity == WALKING_VELOCITY) RotateAway(dt);
         
-            Position += velocity * Orientation * dt;
+            base.Move(dt);
         }
     }
 
     public override void Catch(GameModel player)
     {
         base.Catch(player);
-        this.DrawModel = this.shellModel;
         this.DrawModel = this.shellModel;
     }
 

@@ -100,16 +100,17 @@ namespace src.GameObjects
             if(projectileHeld == null)
             {
                 targetThrow = target;
-                projectileHeld = gameStateManager.CreateProjectile(type, Position, Orientation);
+                projectileHeld = gameStateManager.CreateProjectile(type);
                 projectileHeld.Catch(this);
                 timeSinceSpawn = 0f;
                 return false;
             }
             return true;
         }
+        
         private void Throw(float dt)
         {
-            if(timeSinceSpawn <= 2f)
+            if(timeSinceSpawn < 2f)
             {
                 timeSinceSpawn += dt;
                 return;

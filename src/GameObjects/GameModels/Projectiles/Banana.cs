@@ -19,7 +19,7 @@ public class Banana : Projectile
     
 
     // Constructor:
-    public Banana(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Target) {}
+    public Banana(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Target) {}
 
     private static float CalculateVelocity(Vector3 origin, Vector3 target)
     {

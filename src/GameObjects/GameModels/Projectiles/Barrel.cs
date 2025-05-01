@@ -16,7 +16,7 @@ public class Barrel : Projectile
     private bool notMoving = false; // Flag to indicate if the barrel is moving
 
     // Constructor:
-    public Barrel(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model1, DrawModel model2, float scaling, float height) : base(type, origin, target, model1, scaling, height, IndicatorModels.Target) 
+    public Barrel(ProjectileType type, DrawModel model1, DrawModel model2, float scaling, float height) : base(type, model1, scaling, height, IndicatorModels.Target) 
     { 
         DrawModel = Rng.NextBool() ? model1 : model2;
     }

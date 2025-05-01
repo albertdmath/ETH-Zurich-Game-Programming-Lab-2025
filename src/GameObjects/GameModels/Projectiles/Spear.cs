@@ -10,20 +10,13 @@ public class Spear : Projectile
     private bool DestroysOtherProjectiles = false;
 
     // Constructor:
-    public Spear(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Arrow) {}
-
-    protected override void Move(float dt)
-    {
-        Position += velocity * Orientation * dt;
-    }
+    public Spear(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) {}
 
     public override bool Action(float chargeUp, Vector3 aimPoint)
     {
-        if(Holder is Player)
-        {
-            DestroysOtherProjectiles = true;
-            ((Player)Holder).StartDashingWithProjectileInHand(4f);
-        }
+        
+        DestroysOtherProjectiles = true;
+        (Holder as Player).StartDashingWithProjectileInHand(4f);
         return false;
     }
 

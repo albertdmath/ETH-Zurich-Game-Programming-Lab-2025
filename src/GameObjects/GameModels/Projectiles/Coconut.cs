@@ -17,12 +17,12 @@ public class Coconut : Projectile
 
 
     // Constructor:
-    public Coconut(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Arrow) {}
+    public Coconut(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) {}
 
     protected override void Move(float dt)
     {
         _timeSinceBounce -= dt;
-        Position += velocity * Orientation * dt;
+        base.Move(dt);
     }
 
     private void Bounce()

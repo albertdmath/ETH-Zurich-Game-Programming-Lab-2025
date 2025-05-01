@@ -23,25 +23,14 @@ public class Chicken : Projectile
     public float YCoordinate { get; private set;} = 0f;
 
     // Constructor:
-    public Chicken(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Arrow) {}
+    public Chicken(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) {}
 
     public override void Update(float dt)
     {
-        if (Holder == null)
-            Move(dt);
-
-        else if (targetHeight > 0)
+        if (targetHeight > 0)
             Fly(dt);
-
-        else 
-            CarriedByPlayer();
-    }
-
-    private void CarriedByPlayer()
-    {
-        Vector3 orthogonalHolderOrientation = new(-Holder.Orientation.Z, Holder.Orientation.Y, Holder.Orientation.X);
-        Position = Holder.Position + orthogonalHolderOrientation * 0.2f + new Vector3(0,0.2f,0);
-        Orientation = Holder.Orientation;
+        else
+            base.Update(dt);
     }
 
     private void Fly(float dt)

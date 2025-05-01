@@ -161,40 +161,40 @@ namespace src.GameObjects
             }
         }
 
-        public Projectile CreateProjectile(ProjectileType type, Vector3 origin, Vector3 target)
+        public Projectile CreateProjectile(ProjectileType type)
         {
             Projectile projectile;
             switch (type)
             {
                 case ProjectileType.Frog:
-                    projectile = new Frog(type, origin, target, projectileModels[ProjectileType.Frog], FROG_SCALE, FROG_HEIGHT);
+                    projectile = new Frog(type, projectileModels[ProjectileType.Frog], FROG_SCALE, FROG_HEIGHT);
                     break;
                 case ProjectileType.Swordfish:
-                    projectile = new Swordfish(type, origin, target, projectileModels[ProjectileType.Swordfish], SWORDFISH_SCALE, SWORDFISH_HEIGHT);
+                    projectile = new Swordfish(type, projectileModels[ProjectileType.Swordfish], SWORDFISH_SCALE, SWORDFISH_HEIGHT);
                     break;
                 case ProjectileType.Tomato:
-                    projectile = new Tomato(type, origin, target, projectileModels[ProjectileType.Tomato], TOMATO_SCALE, TOMATO_HEIGHT);
+                    projectile = new Tomato(type, projectileModels[ProjectileType.Tomato], TOMATO_SCALE, TOMATO_HEIGHT);
                     break;
                 case ProjectileType.Coconut:
-                    projectile = new Coconut(type, origin, target, projectileModels[ProjectileType.Coconut], COCONUT_SCALE, COCONUT_HEIGHT);
+                    projectile = new Coconut(type, projectileModels[ProjectileType.Coconut], COCONUT_SCALE, COCONUT_HEIGHT);
                     break;
                 case ProjectileType.Banana:
-                    projectile = new Banana(type, origin, target, projectileModels[ProjectileType.Banana], BANANA_SCALE, BANANA_HEIGHT);
+                    projectile = new Banana(type, projectileModels[ProjectileType.Banana], BANANA_SCALE, BANANA_HEIGHT);
                     break;
                 case ProjectileType.Turtle:
-                    projectile = new Turtle(type, origin, target, projectileModels[ProjectileType.Turtle], walkingTurtle, TURTLE_SCALE, TURTLE_HEIGHT);
+                    projectile = new Turtle(type, projectileModels[ProjectileType.Turtle], walkingTurtle, TURTLE_SCALE, TURTLE_HEIGHT);
                     break;
                 case ProjectileType.Spear:
-                    projectile = new Spear(type, origin, target, projectileModels[ProjectileType.Spear], SPEAR_SCALE, SPEAR_HEIGHT);
+                    projectile = new Spear(type, projectileModels[ProjectileType.Spear], SPEAR_SCALE, SPEAR_HEIGHT);
                     break;
                 case ProjectileType.Mjoelnir:
-                    projectile = new Mjoelnir(type, origin, target, projectileModels[ProjectileType.Mjoelnir], MJOELNIR_SCALE, MJOELNIR_HEIGHT);
+                    projectile = new Mjoelnir(type, projectileModels[ProjectileType.Mjoelnir], MJOELNIR_SCALE, MJOELNIR_HEIGHT);
                     break;
                 case ProjectileType.Chicken:
-                    projectile = new Chicken(type, origin, target, projectileModels[ProjectileType.Chicken], CHICKEN_SCALE, CHICKEN_HEIGHT);
+                    projectile = new Chicken(type, projectileModels[ProjectileType.Chicken], CHICKEN_SCALE, CHICKEN_HEIGHT);
                     break;
                 case ProjectileType.Barrel:
-                    projectile = new Barrel(type, origin, target, projectileModels[ProjectileType.Barrel], barrel2, BARREL_SCALE, BARREL_HEIGHT);
+                    projectile = new Barrel(type, projectileModels[ProjectileType.Barrel], barrel2, BARREL_SCALE, BARREL_HEIGHT);
                     break;
                 default:
                     throw new ArgumentException("Invalid projectile type: ", type.ToString());
@@ -287,7 +287,7 @@ namespace src.GameObjects
                     {
                         if(market.GrabProjectile())
                         {
-                            Projectile projectile = CreateProjectile(market.Type, player.Position, player.Position);
+                            Projectile projectile = CreateProjectile(market.Type);
                             player.Catch(projectile);
                         }
                     }

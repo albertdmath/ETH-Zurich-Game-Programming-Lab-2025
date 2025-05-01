@@ -10,20 +10,12 @@ public class Mjoelnir : Projectile
     private bool DestroysOtherProjectiles = false;
 
     // Constructor:
-    public Mjoelnir(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Arrow) {}
-
-    protected override void Move(float dt)
-    {
-        Position += velocity * Orientation * dt;
-    }
+    public Mjoelnir(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) {}
 
     public override bool Action(float chargeUp, Vector3 aimPoint)
     {
-        if(Holder is Player)
-        {
-            DestroysOtherProjectiles = true;
-            ((Player)Holder).JumpAndStrike();
-        }
+        DestroysOtherProjectiles = true;
+        (Holder as Player).JumpAndStrike();
         return false;
     }
 
@@ -35,8 +27,8 @@ public class Mjoelnir : Projectile
 
     public override void Throw(Vector3 origin, Vector3 target) 
     {
-        base.Throw(origin, target);
         velocity = 2f;
+        base.Throw(origin, target);
     }
 
     public override void Update(float dt)
@@ -45,7 +37,9 @@ public class Mjoelnir : Projectile
         {
             Position = Holder.Position + Holder.Orientation * 0.3f + new Vector3(0,0.2f,0);
             Orientation = Holder.Orientation;
-        }else{
+        }
+        else
+        {
             base.Update(dt);
         }
     }

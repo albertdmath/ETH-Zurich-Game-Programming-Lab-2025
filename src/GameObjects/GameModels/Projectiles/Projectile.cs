@@ -40,18 +40,16 @@ public class Projectile : GameModel
     public bool ToBeDeleted { get; set; } = false;
     public IndicatorModels IndicatorModel { get; private set; }
 
-    protected readonly GameStateManager gameStateManager;
+    protected static readonly GameStateManager gameStateManager = GameStateManager.GetGameStateManager();
     protected float velocity;
 
     private readonly float height;
 
-    public Projectile(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height, IndicatorModels indicatorModel) : base(model, scaling) 
+    public Projectile(ProjectileType type, DrawModel model, float scaling, float height, IndicatorModels indicatorModel) : base(model, scaling) 
     {
         this.height = height;
-        Type = type;
-        gameStateManager = GameStateManager.GetGameStateManager();
-        Throw(origin,target);
-        this.IndicatorModel = indicatorModel;
+        this.Type = type;
+        this.IndicatorModel = indicatorModel; 
     }
 
     // Virtual methods for derived classes to override
@@ -76,7 +74,10 @@ public class Projectile : GameModel
         Orientation = Vector3.Normalize(new Vector3(target.X, 0f, target.Z) - new Vector3(origin.X, 0f, origin.Z));
     }
 
-    protected virtual void Move(float dt) {}
+    protected virtual void Move(float dt) 
+    {
+        Position += velocity * Orientation * dt;
+    }
 
     // Update the projectile's state
     public override void Update(float dt)

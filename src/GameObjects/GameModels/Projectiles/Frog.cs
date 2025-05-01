@@ -19,7 +19,7 @@ public class Frog : Projectile
     private Vector3 origin;
 
     // Constructor:
-    public Frog(ProjectileType type, Vector3 origin, Vector3 target,DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Target) {}
+    public Frog(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Target) {}
 
     protected override void Move(float dt)
     {
