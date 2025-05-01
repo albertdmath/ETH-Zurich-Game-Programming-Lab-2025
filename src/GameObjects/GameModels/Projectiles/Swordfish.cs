@@ -10,13 +10,11 @@ public class Swordfish : Projectile
     private const float MIN_VELOCITY = 2.5f;
 
     // Constructor:
-    public Swordfish(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) {
-        aimIndicatorIsArrow = true;
-    }
+    public Swordfish(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Arrow) {}
 
     protected override void Move(float dt)
     {
-        Position += Velocity * Orientation * dt;
+        Position += velocity * Orientation * dt;
     }
 
     private static float CalculateVelocity(Vector3 origin, Vector3 target)
@@ -30,7 +28,7 @@ public class Swordfish : Projectile
 
     public override void Throw(Vector3 origin, Vector3 target) 
     {
-        Velocity = (Holder is Player) ? CalculateVelocity(origin, target) : MIN_VELOCITY;
+        velocity = (Holder is Player) ? CalculateVelocity(origin, target) : MIN_VELOCITY;
         base.Throw(origin, target);
     }
 }

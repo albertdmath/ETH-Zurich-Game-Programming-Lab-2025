@@ -11,6 +11,7 @@ public class Frog : Projectile
     private const float ROTATION_SPEED = 3.0f;
     private const float THROW_ANGLE = (float)Math.PI / 3;
     private const float HALF_GRAVITY = 4.9f;
+    private const float WALKING_VELOCITY = 0.7f;
 
     // Fields
     private float timeAlive;
@@ -18,9 +19,7 @@ public class Frog : Projectile
     private Vector3 origin;
 
     // Constructor:
-    public Frog(ProjectileType type, Vector3 origin, Vector3 target,DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) {
-        aimIndicatorIsArrow = false;
-    }
+    public Frog(ProjectileType type, Vector3 origin, Vector3 target,DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Target) {}
 
     protected override void Move(float dt)
     {
@@ -36,8 +35,8 @@ public class Frog : Projectile
     private void ThrownMove()
     {
         // Calculate horizontal and vertical motion
-        Vector3 horizontalMotion = Orientation * Velocity * (float)Math.Cos(THROW_ANGLE);
-        Vector3 verticalMotion = new Vector3(0, Velocity * (float)Math.Sin(THROW_ANGLE) - HALF_GRAVITY * timeAlive, 0);
+        Vector3 horizontalMotion = Orientation * velocity * (float)Math.Cos(THROW_ANGLE);
+        Vector3 verticalMotion = new Vector3(0, velocity * (float)Math.Sin(THROW_ANGLE) - HALF_GRAVITY * timeAlive, 0);
 
         // Update position
         Position = origin + (horizontalMotion + verticalMotion) * timeAlive;
@@ -47,7 +46,7 @@ public class Frog : Projectile
         {
             beingThrown = false;
             timeAlive = 0f;
-            Velocity = 0.7f;
+            velocity = WALKING_VELOCITY;
             Position = new Vector3(Position.X, 0, Position.Z);
         }
     }
@@ -84,7 +83,7 @@ public class Frog : Projectile
         float position_y = (float)Math.Max(0, Math.Sin(jumpProgress * Math.PI));
 
         // Update the position of the frog
-        Position += Velocity * Orientation * dt;
+        Position += velocity * Orientation * dt;
         Position = new Vector3(Position.X, position_y, Position.Z);
     }
 
@@ -97,7 +96,7 @@ public class Frog : Projectile
     {
         this.origin = origin;
         beingThrown = true;
-        Velocity = velocity;
+        this.velocity = velocity;
         timeAlive = 0f;
     }
 
@@ -111,16 +110,15 @@ public class Frog : Projectile
     }
     public override bool Action(float chargeUp, Vector3 aimPoint)
     {
-        if ((Holder as Player).Life == 3)
+        if ((Holder as Player).GainLife())
         {
-            base.Action(chargeUp, aimPoint);
-            return true;
+            (Holder as Player).Drop();
+            return false;
         }
         else
         {
-            (Holder as Player).GainLife();
-            (Holder as Player).Drop();
-            return false;
+            base.Action(chargeUp, aimPoint);
+            return true;
         }    
     }
 }

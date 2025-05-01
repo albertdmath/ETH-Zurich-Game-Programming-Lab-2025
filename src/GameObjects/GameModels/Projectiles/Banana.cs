@@ -19,9 +19,7 @@ public class Banana : Projectile
     
 
     // Constructor:
-    public Banana(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height) {
-        aimIndicatorIsArrow = false;
-    }
+    public Banana(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Target) {}
 
     private static float CalculateVelocity(Vector3 origin, Vector3 target)
     {
@@ -38,8 +36,8 @@ public class Banana : Projectile
 
         timeAlive += dt;
         
-        Vector3 horizontalMotion = Orientation * Velocity * cos;
-        Vector3 verticalMotion = new Vector3(0, Velocity * sin - HALF_GRAVITY * timeAlive, 0);
+        Vector3 horizontalMotion = Orientation * velocity * cos;
+        Vector3 verticalMotion = new(0, velocity * sin - HALF_GRAVITY * timeAlive, 0);
 
         Position = origin + (horizontalMotion + verticalMotion) * timeAlive;
     }
@@ -65,7 +63,7 @@ public class Banana : Projectile
     {
         onGround = false;
         base.Throw(origin, target);
-        Velocity = CalculateVelocity(origin, target);
+        velocity = CalculateVelocity(origin, target);
         this.origin = origin;
         timeAlive = 0f;
     }

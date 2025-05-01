@@ -1,7 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
 using System.Linq;
-using System.Linq.Expressions;
 
 namespace src.GameObjects;
 
@@ -17,17 +16,15 @@ public class Turtle : Projectile
 
     // Fields
     private float _bounceBackTime = 0f; // Time to transform from throwing to walking
-    private float _noBounce = 0f; // Number of bounces before the turtle can be thrown again
     private readonly DrawModel walkingModel;
     private readonly DrawModel shellModel;
     // Fields
 
     // Constructor:
-    public Turtle(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, DrawModel walkingModel, float scaling, float height) : base(type, origin, target, model, scaling, height) 
+    public Turtle(ProjectileType type, Vector3 origin, Vector3 target, DrawModel model, DrawModel walkingModel, float scaling, float height) : base(type, origin, target, model, scaling, height, IndicatorModels.Arrow) 
     {
         this.shellModel = model;
         this.walkingModel = walkingModel;
-        aimIndicatorIsArrow = false;
     }
 
     private void RotateAway(float dt)
@@ -51,7 +48,7 @@ public class Turtle : Projectile
 
     private void BounceAfterHit()
     {
-        Velocity = WALKING_VELOCITY;
+        velocity = WALKING_VELOCITY;
         _bounceBackTime = BOUNCE_BACK_TIME;
         Orientation *= -1;
         this.DrawModel = this.walkingModel;
@@ -62,25 +59,17 @@ public class Turtle : Projectile
     {    
         if (_bounceBackTime > 0) return;
 
-        if(Velocity == WALKING_VELOCITY)
+        if(velocity == WALKING_VELOCITY)
         {
             base.OnPlayerHit(player);
         }
         else
         {
             player.GetHit(this);
-            if(_noBounce <= 0) 
+            if(player.GetAffected(this))    
                 BounceAfterHit();
         }
     }
-
-    /*
-    public override void OnMobHit()
-    {
-        //maybe a check of the orientation is not bad
-        BounceAfterHit();
-    }
-    */
 
     protected override void Move(float dt)
     {
@@ -92,11 +81,10 @@ public class Turtle : Projectile
         }
         else
         {
-            if (Velocity == WALKING_VELOCITY) RotateAway(dt);
+            if (velocity == WALKING_VELOCITY) RotateAway(dt);
         
-            Position += Velocity * Orientation * dt;
+            Position += velocity * Orientation * dt;
         }
-        _noBounce -= dt;
     }
 
     public override void Catch(GameModel player)
@@ -115,13 +103,12 @@ public class Turtle : Projectile
         }
         else
         {
-            _noBounce = 0.5f;
             base.Action(chargeUp, aimPoint);
             return true;
         }
     }
 
-    private static float CalculateVelocity(Vector3 origin, Vector3 target)
+    private static float Calculatevelocity(Vector3 origin, Vector3 target)
     {
         float distance = Vector3.Distance(target, origin);
         return Math.Clamp(distance, MIN_VELOCITY, MAX_VELOCITY);
@@ -129,7 +116,7 @@ public class Turtle : Projectile
 
     public override void Throw(Vector3 origin, Vector3 target) 
     {
-        Velocity = (Holder is Player) ? CalculateVelocity(origin, target) : MIN_VELOCITY;
+        velocity = (Holder is Player) ? Calculatevelocity(origin, target) : MIN_VELOCITY;
         base.Throw(origin, target);
     }
 }

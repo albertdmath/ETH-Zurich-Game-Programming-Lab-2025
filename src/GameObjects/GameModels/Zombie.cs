@@ -17,7 +17,6 @@ namespace src.GameObjects
         private Player targetThrow; // Target for throw
         public Projectile projectileHeld;
         private float timeSinceSpawn = 0f;
-        private Random random = new Random();
         private GameStateManager gameStateManager;
         // Constructor: Only allow to assign position here,
         public Zombie(Vector3 position, Ellipse ellipse, DrawModel model, float scaling) : base(model, scaling)
@@ -116,7 +115,7 @@ namespace src.GameObjects
                 return;
             }
             //float speedUp = 1f;
-            projectileHeld.Throw(new Vector3(Position.X, 0.2f+ projectileHeld.Height,Position.Z)+Orientation , new Vector3(targetThrow.Position.X, 0.2f+ projectileHeld.Height,targetThrow.Position.Z) + targetThrow.Orientation * (float)random.NextDouble());
+            projectileHeld.Throw(projectileHeld.Position, targetThrow.Position + targetThrow.Orientation * Rng.NextFloat());
             projectileHeld = null;
             //Console.WriteLine("Mob throwing projectile with orientation: " + Orientation+ " and speedup: " + speedUp);
         }

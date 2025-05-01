@@ -17,13 +17,13 @@ namespace src.GameObjects
         private readonly static Dictionary<ProjectileType, float> projectileScaling = new()
         {
             { ProjectileType.Banana, 0.7f },
-            { ProjectileType.Coconut, 0.2f },
+            { ProjectileType.Coconut, 0.3f },
             { ProjectileType.Frog, 0.5f },
             { ProjectileType.Swordfish, 0.6f },
             { ProjectileType.Tomato, 0.6f },
             { ProjectileType.Turtle, 0.3f },
             { ProjectileType.Spear, 0.5f },
-            { ProjectileType.Mjoelnir, 0.5f },
+            { ProjectileType.Mjoelnir, 0.9f },
             { ProjectileType.Chicken, 0.8f },
             { ProjectileType.Barrel, 0.5f }
         };

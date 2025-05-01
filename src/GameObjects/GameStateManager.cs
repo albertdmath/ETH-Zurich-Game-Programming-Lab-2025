@@ -28,7 +28,7 @@ namespace src.GameObjects
 
         private const float TOMATO_HEIGHT = 0f;
         private const float SWORDFISH_HEIGHT = 0f;
-        private const float FROG_HEIGHT = 0f;
+        private const float FROG_HEIGHT = 0.15f;
         private const float COCONUT_HEIGHT = 0f;
         private const float BANANA_HEIGHT = 0f;
         private const float TURTLE_HEIGHT = 0f;
@@ -63,6 +63,7 @@ namespace src.GameObjects
 
         private MenuStateManager menuStateManager;
         private readonly List<AreaDamage> areaDamages = new List<AreaDamage>();
+
         // Singleton instancing
         private GameStateManager() { }
 
@@ -132,7 +133,6 @@ namespace src.GameObjects
             List<ProjectileType> availableTypes = Projectile.ProjectileProbability.Keys
                                                 .Where(type => Projectile.ProjectileProbability[type] > 0)
                                                 .ToList();
-            Random rng = new();
             float totalWeight = availableTypes.Sum(type => Projectile.ProjectileProbability[type]);
 
             for (int i = 0; i < 4; i++)
@@ -143,7 +143,7 @@ namespace src.GameObjects
                                     .Where(type => Projectile.ProjectileProbability[type] > 0)
                                     .ToList();
                 
-                float randomValue = (float)rng.NextDouble() * totalWeight;
+                float randomValue = Rng.NextFloat(totalWeight);
                 ProjectileType selectedType = default;
 
                 foreach (var type in availableTypes)
@@ -234,7 +234,7 @@ namespace src.GameObjects
                 foreach (Market market in markets)
                 {
                     if (player.Hitbox.Intersects(market.Hitbox))
-                        player.MarketCollision(market);
+                        player.ObjectCollision(market);
                 }
             }
             

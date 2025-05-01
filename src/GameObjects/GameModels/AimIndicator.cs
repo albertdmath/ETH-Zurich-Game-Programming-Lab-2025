@@ -1,42 +1,47 @@
 using Microsoft.Xna.Framework;
-using System;
 
+namespace src.GameObjects;
 
-namespace src.GameObjects
+public enum IndicatorModels{ Target, Arrow, None };
+
+/** Anything regarding aim indicator for players**/
+public class AimIndicator : GameModel
 {
-    /** Anything regarding aim indicator for players**/
-    public class AimIndicator : GameModel
+    // Private fields:
+    private readonly Player player;
+    private readonly DrawModel targetModel;
+    private readonly DrawModel arrowModel;
+    public Vector3 Target { get; private set; } = Vector3.Zero;
+    
+    public AimIndicator(Player player, DrawModel targetModel,DrawModel arrowModel,float scale) : base(arrowModel,scale)
     {
-        // Private fields:
-        private Player player;
-        DrawModel targetModel;
-        DrawModel arrowModel;
-        public Vector3 Target { get; private set; } = Vector3.Zero;
-        
-        public AimIndicator(Player player, DrawModel targetModel,DrawModel arrowModel,float scale) : base(arrowModel,scale)
-        {
-            this.player=player;
-            this.targetModel = targetModel;
-            this.arrowModel = arrowModel;
-        }
-        // Places the hand next to the body
+        this.player=player;
+        this.targetModel = targetModel;
+        this.arrowModel = arrowModel;
+    }
+    // Places the hand next to the body
 
-        // Places the indicator
-        public void PlaceIndicator(float timeSpentCharging, float speedOfCharging, bool arrow)
+    // Places the indicator
+    public void PlaceIndicator(float timeSpentCharging, float speedOfCharging, IndicatorModels indicatorModel)
+    {
+        Orientation = player.Orientation;
+        Target = player.Position + player.Orientation * (0.2f + timeSpentCharging * speedOfCharging);
+
+        switch(indicatorModel)
         {
-            Orientation = player.Orientation;
-            Target = player.Position + player.Orientation * (0.2f + timeSpentCharging * speedOfCharging);
-            if(arrow)
-            {
-                UpdateScale(1f+timeSpentCharging);
-                this.DrawModel = this.arrowModel;
-                Position = player.Position;
-            }else{
+            case IndicatorModels.Target:
                 this.DrawModel = this.targetModel;
                 UpdateScale(1f);
                 Position = Target;
-            }
-            
+                break;
+            case IndicatorModels.Arrow:
+                this.DrawModel = this.arrowModel;
+                UpdateScale(1f+timeSpentCharging);
+                Position = player.Position;
+                break;
+            default:
+                this.DrawModel = null;
+                break;
         }
     }
 }
