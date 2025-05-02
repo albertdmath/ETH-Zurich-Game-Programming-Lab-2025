@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework;
 namespace src.GameObjects;
 public class Chicken : Projectile
 {
+    public float YCoordinate { get; private set;} = 0f;
+
     // Constants
     private const float MAX_THROW_VELOCITY = 15f;
     private const float MIN_THROW_VELOCITY = 2.5f;
@@ -20,9 +22,7 @@ public class Chicken : Projectile
     private float timeToStandStill = 0f;
     private bool upwards = false;
     private float targetHeight = 0f;
-    public float YCoordinate { get; private set;} = 0f;
      
-
     // Constructor:
     public Chicken(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) 
     {

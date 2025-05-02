@@ -466,14 +466,19 @@ public class Player : GameModel
                 goto case PlayerState.NormalMovement;
             case PlayerState.FloatingWithChicken:
                 Move(dt);
-                float height = (projectileHeld as Chicken).YCoordinate;
-                Position = new(Position.X, height, Position.Z);
-                if(height <= 0 || ellipse.Outside(Position.X, Position.Z))
+                Chicken chicken = projectileHeld as Chicken;
+                Position = new(Position.X, chicken.YCoordinate, Position.Z);
+                if(ellipse.Outside(Position.X, Position.Z))
+                {
+                    speed = NORMAL_SPEED;
+                    Drop();
+                }
+                else if(chicken.YCoordinate <= 0)
                 {
                     Position = new Vector3(Position.X, 0, Position.Z);
                     speed = NORMAL_SPEED;
                     Drop();
-                }
+                } 
                 break;
         }
 

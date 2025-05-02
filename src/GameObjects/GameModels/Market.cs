@@ -11,7 +11,7 @@ namespace src.GameObjects
         
         private readonly DrawModel projectileModel;
         private readonly Matrix marketRotTrans;
-        private readonly Matrix projectileScale;
+        private readonly Matrix projectileScaleTrans;
         //private static readonly float[] positions = new float[MAX_PROJECTILES] { -0.7f, -0.35f, 0f, 0.35f, 0.7f };
         //this are only the throwable projectiles
         private readonly static Dictionary<ProjectileType, float> projectileScaling = new()
@@ -33,7 +33,7 @@ namespace src.GameObjects
 
         public ProjectileType Type { get; private set; }
 
-        public Market(Vector3 position, ProjectileType type, DrawModel model, DrawModel projectile, float scaling) : base(model, scaling)
+        public Market(Vector3 position, ProjectileType type, DrawModel model, DrawModel projectile, float height, float scaling) : base(model, scaling)
         {
             this.Position = position;
             this.Orientation = Vector3.Normalize(-Position);
@@ -42,7 +42,8 @@ namespace src.GameObjects
             this.marketRotTrans = Matrix.CreateRotationY(MathF.Atan2(-Orientation.X, -Orientation.Z))
                                 * Matrix.CreateRotationY(MathHelper.ToRadians(90))
                                 * Matrix.CreateTranslation(Position);
-            this.projectileScale = Matrix.CreateScale(projectileScaling[type]);
+            this.projectileScaleTrans = Matrix.CreateScale(projectileScaling[type])
+                                        * Matrix.CreateTranslation(new Vector3(0, 0.5f+height, 0.15f));
             this.updateHitbox();
         }
 
@@ -65,10 +66,8 @@ namespace src.GameObjects
         public void DrawFish(Matrix view, GraphicsDevice graphicsDevice, Shader shader, bool shadowDraw)
         {  
             if(!projectilesAvailable) return;
-            
-            Matrix projectileTranslation =  Matrix.CreateTranslation(0, 0.5f, 0.15f);
 
-            Matrix finalTransform = projectileScale * projectileTranslation * marketRotTrans;
+            Matrix finalTransform = projectileScaleTrans * marketRotTrans;
 
             foreach (GameMesh mesh in projectileModel.meshes)
             {   
