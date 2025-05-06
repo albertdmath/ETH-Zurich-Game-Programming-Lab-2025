@@ -26,7 +26,7 @@ namespace src.GameObjects
             { ProjectileType.Mjoelnir, (1.5f, 0.2f) },
             { ProjectileType.Spear, (0.9f, 0f) },
             { ProjectileType.Chicken, (0.9f, 0f) },
-            { ProjectileType.Barrel, (0.5f, 0f) }
+            { ProjectileType.Barrel, (1f, 0f) }
         };
 
 
