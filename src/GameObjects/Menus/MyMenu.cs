@@ -21,8 +21,8 @@ namespace src.GameObjects{
         private bool changegrid = false;
         private int controllerselectedbutton;
         private int oldcontrollerselectedbutton;
-        private int CENTER_BUTTON_HEIGHT = 40;
-        private int CENTER_BUTTON_WIDTH = 250;
+        private int CENTER_BUTTON_HEIGHT = 75;
+        private int CENTER_BUTTON_WIDTH = 242;
         private Desktop desktop;
         private Grid _grid;
         private MyMenuElement[] menuElements;
@@ -41,17 +41,20 @@ namespace src.GameObjects{
                 Background = new SolidBrush(Color.Black),
                 OverBackground = new SolidBrush(Color.Gray),
                 DisabledBackground = new SolidBrush(Color.DarkGray),
-                Width = CENTER_BUTTON_WIDTH
+                Width = CENTER_BUTTON_WIDTH/2,
+                //Height = CENTER_BUTTON_HEIGHT
             };
             SpinButtonStyle DefaultSpinbuttonStyle = new SpinButtonStyle{
-                Background = new SolidBrush(Color.DarkSlateGray),
-                Width = CENTER_BUTTON_WIDTH,
-                OverBackground = new SolidBrush(Color.Gray),
+                Background = new SolidBrush(Color.DarkRed),
+                Width = CENTER_BUTTON_WIDTH/2,
+                //Height = CENTER_BUTTON_HEIGHT,
+                OverBackground = new SolidBrush(Color.Red),
                 DisabledBackground = new SolidBrush(Color.DarkGray)
             };
             SpinButtonStyle ControllerPressedSpinbuttonStyle = new SpinButtonStyle{
                 Background = new SolidBrush(Color.LightGray),
-                Width = CENTER_BUTTON_WIDTH
+                Width = CENTER_BUTTON_WIDTH/2,
+                //Height = CENTER_BUTTON_HEIGHT
             };
             ButtonStyle ControllerButtonStyle = new ButtonStyle{
                 Background = new SolidBrush(Color.Black),
@@ -65,9 +68,9 @@ namespace src.GameObjects{
                 Width = CENTER_BUTTON_WIDTH
             };
             ButtonStyle DefaultButtonStyle = new ButtonStyle{
-                Background = new SolidBrush(Color.DarkSlateGray),
-                OverBackground = new SolidBrush(Color.DarkSlateBlue),
-                PressedBackground = new SolidBrush(Color.BlueViolet),
+                Background = new SolidBrush(Color.Gold),
+                OverBackground = new SolidBrush(Color.RoyalBlue),
+                PressedBackground = new SolidBrush(Color.DarkBlue),
                 Height = CENTER_BUTTON_HEIGHT,
                 Width = CENTER_BUTTON_WIDTH
             };
@@ -184,7 +187,7 @@ namespace src.GameObjects{
                 CloseMenu();
             },startgrid);
 
-            MySpinbutton startNumPlayerSpinButton = new MySpinbutton(menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"StartNumPlayerSpinButton",0,3,startgrid,(c,a)=>{
+            MySpinbutton startNumPlayerSpinButton = new MySpinbutton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"StartNumPlayerSpinButton",0,3,startgrid,(c,a)=>{
                 float? nullableFloat = a.NewValue;
                 menuStateManager.NUM_PLAYERS = (int)(nullableFloat ?? 1);
                 gameStateManager.StartNewGame();
@@ -192,13 +195,13 @@ namespace src.GameObjects{
 
             //BASEGRID===================================
             //CLOSEBUTTON
-            MyButton closebutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit","ExitButton",0,5,(s,a)=>{
+            MyButton closebutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit","ExitButton",0,6,(s,a)=>{
                 game.Exit();//HARDCORE CLOSING
             },_grid);
             
             
             //RELOADBUTTON
-            MyButton reloadbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"New Game","ReloadButton",0,3,(s,a)=>{
+            MyButton reloadbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"New Game","ReloadButton",0,4,(s,a)=>{
                 gameStateManager.StartNewGame();//RELOADING
                 CloseMenu();
             },_grid);
@@ -213,7 +216,7 @@ namespace src.GameObjects{
 
             
             //NUM_PLAYERS
-            MySpinbutton NumPlayerSpinButton = new MySpinbutton(menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"NumPlayerSpinButton",0,2,_grid,(c,a) => {
+            MySpinbutton NumPlayerSpinButton = new MySpinbutton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"NumPlayerSpinButton",0,3,_grid,(c,a) => {
                 float? nullableFloat = a.NewValue;
                 menuStateManager.NUM_PLAYERS = (int)(nullableFloat ?? 1);
                 gameStateManager.StartNewGame();
@@ -224,6 +227,7 @@ namespace src.GameObjects{
 
 
             //SETTINGS-SUBMENU
+            //shadows, ambient occlusion, fxaa
             SettingsMenu settingsMenu = new SettingsMenu(desktop,_grid);
             //SETTINGS
             MyButton settingsButton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settings?","SettingsButton",0,4,(s,a)=>{
@@ -249,10 +253,14 @@ namespace src.GameObjects{
             //LABELS
             Label VolumeLabel = new Label{
                 Text = "Music",
-                TextColor = Color.Black,
+                TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Background = new SolidBrush(Color.Beige),
-                Padding = new Thickness{Top=5,Bottom=5}
+                Background = new SolidBrush(Color.Blue),
+                Padding = new Thickness{Top=8,Bottom=5},
+                Height = CENTER_BUTTON_HEIGHT/2,
+                Width = CENTER_BUTTON_WIDTH/2,
+                Scale=new Vector2(2,2),
+                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center
             };
             Grid.SetColumn(VolumeLabel,2);
             Grid.SetRow(VolumeLabel,1);
@@ -260,35 +268,47 @@ namespace src.GameObjects{
 
             Label SFXVolumeLabel = new Label{
                 Text = "SFX",
-                TextColor = Color.Black,
+                TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Background = new SolidBrush(Color.Beige),
-                Padding = new Thickness{Top=5,Bottom=5}
+                Background = new SolidBrush(Color.Blue),
+                Padding = new Thickness{Top=8,Bottom=5},
+                Height = CENTER_BUTTON_HEIGHT/2,
+                Width = CENTER_BUTTON_WIDTH/2,
+                Scale = new Vector2(2,2),
+                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center
             };
             Grid.SetColumn(SFXVolumeLabel,2);
             Grid.SetRow(SFXVolumeLabel,3);
             _grid.Widgets.Add(SFXVolumeLabel);
 
             Label StartNumPlayerLabel = new Label{
-                Text = "Number of Players:",
-                TextColor = Color.Black,
+                Text = "#Players",
+                TextColor = Color.YellowGreen,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Background = new SolidBrush(Color.Beige),
-                Padding = new Thickness{Top=5,Bottom=5}
+                Background = new SolidBrush(Color.Blue),
+                Padding = new Thickness{Top=8,Bottom=5},
+                Height = CENTER_BUTTON_HEIGHT/2,
+                Width = CENTER_BUTTON_WIDTH/2,
+                Scale = new Vector2(2,2),
+                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center
             };
             Grid.SetColumn(StartNumPlayerLabel,0);
             Grid.SetRow(StartNumPlayerLabel,2);
             startgrid.Widgets.Add(StartNumPlayerLabel);//STARTGRID
 
             Label NumPlayerLabel = new Label{
-                Text = "Number of Players:",
-                TextColor = Color.Black,
+                Text = "#Players",
+                TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Background = new SolidBrush(Color.Beige),
-                Padding = new Thickness{Top=5,Bottom=5}
+                Background = new SolidBrush(Color.Blue),
+                Padding = new Thickness{Top=8,Bottom=5},
+                Height = CENTER_BUTTON_HEIGHT/2,
+                Width = CENTER_BUTTON_WIDTH/2,
+                Scale = new Vector2(2,2),
+                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center
             };
             Grid.SetColumn(NumPlayerLabel,0);
-            Grid.SetRow(NumPlayerLabel,1);
+            Grid.SetRow(NumPlayerLabel,2);
             _grid.Widgets.Add(NumPlayerLabel);
             
             //TESTING IN PROGRESS

@@ -38,7 +38,9 @@ namespace src.GameObjects{
               Content = new Label{
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                Text = TEXT
+                Text = TEXT,
+                TextColor = Color.Black,
+                Scale=new Vector2(2,2),
               }  
             };
             Grid.SetColumn(button,COLUMN);

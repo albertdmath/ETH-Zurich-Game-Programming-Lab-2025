@@ -24,7 +24,7 @@ namespace src.GameObjects{
                 RowSpacing = 5,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                ShowGridLines = true
+                ShowGridLines = false
             };
             _grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
             _grid.RowsProportions.Add(new Proportion(ProportionType.Auto));

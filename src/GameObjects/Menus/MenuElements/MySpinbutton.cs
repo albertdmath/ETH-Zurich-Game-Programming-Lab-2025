@@ -26,7 +26,7 @@ namespace src.GameObjects{
         public bool controllerselected {get;set;}=false;
         EventHandler<Myra.Events.ValueChangingEventArgs<float?>> Valuechanging;
 
-        public MySpinbutton(int minimum, int maximum, bool isnullable, int startvalue, bool isinteger, string id, int column, int row, Grid grid, EventHandler<Myra.Events.ValueChangingEventArgs<float?>> Valuechanging){
+        public MySpinbutton(int width, int height, int minimum, int maximum, bool isnullable, int startvalue, bool isinteger, string id, int column, int row, Grid grid, EventHandler<Myra.Events.ValueChangingEventArgs<float?>> Valuechanging){
             this.MINIMUM=minimum;
             this.MAXIMUM=maximum;
             this.ISNULLABLE=isnullable;
@@ -46,7 +46,12 @@ namespace src.GameObjects{
                 Minimum=MINIMUM,
                 Maximum=MAXIMUM,
                 Value=StartValue,
-                Integer=ISINTEGER
+                Integer=ISINTEGER,
+                //Scale = new Vector2(2,2),
+                Width = width,
+                Height=height,
+                Scale = new Vector2(2,2),
+                HorizontalAlignment = HorizontalAlignment.Center
             };
             
             spinbutton.ValueChanging += Valuechanging;
