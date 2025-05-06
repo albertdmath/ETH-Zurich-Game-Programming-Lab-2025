@@ -3,6 +3,7 @@
         "xtree": "cpp",
         "xstring": "cpp",
         "xhash": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "chrono": "cpp"
     }
 }

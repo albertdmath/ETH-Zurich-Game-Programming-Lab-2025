@@ -14,28 +14,20 @@ namespace src.GameObjects
     public class GameStateManager
     {
         private const float ARENA_SCALE = 5f;
-        private const float TOMATO_SCALE = 1;
-        private const float SWORDFISH_SCALE = 0.9f;
-        private const float FROG_SCALE = 0.7f;
-        private const float COCONUT_SCALE = 0.3f;
-        private const float BANANA_SCALE = 1f;
-        private const float TURTLE_SCALE = 0.3f;
-        private const float MJOELNIR_SCALE = 1.5f;
-        private const float SPEAR_SCALE = 0.9f;
-        private const float CHICKEN_SCALE = 0.9f;
-        private const float BARREL_SCALE = 0.5f;
 
-
-        private const float TOMATO_HEIGHT = 0f;
-        private const float SWORDFISH_HEIGHT = 0f;
-        private const float FROG_HEIGHT = 0.15f;
-        private const float COCONUT_HEIGHT = 0f;
-        private const float BANANA_HEIGHT = 0f;
-        private const float TURTLE_HEIGHT = 0f;
-        private const float MJOELNIR_HEIGHT = 0.2f;
-        private const float SPEAR_HEIGHT = 0f;
-        private const float CHICKEN_HEIGHT = 0f;
-        private const float BARREL_HEIGHT = 0f;
+        private static readonly Dictionary<ProjectileType, (float scale, float height)> Properties = new()
+        {
+            { ProjectileType.Tomato, (1f, 0f) },
+            { ProjectileType.Swordfish, (0.9f, 0f) },
+            { ProjectileType.Frog, (0.7f, 0.15f) },
+            { ProjectileType.Coconut, (0.3f, 0f) },
+            { ProjectileType.Banana, (1f, 0f) },
+            { ProjectileType.Turtle, (0.3f, 0f) },
+            { ProjectileType.Mjoelnir, (1.5f, 0.2f) },
+            { ProjectileType.Spear, (0.9f, 0f) },
+            { ProjectileType.Chicken, (0.9f, 0f) },
+            { ProjectileType.Barrel, (0.5f, 0f) }
+        };
 
 
         // Model references for initializing the instances
@@ -91,6 +83,10 @@ namespace src.GameObjects
             this.barrel2 = barrel2;
 
             arena = new GameModel(arenaModel, ARENA_SCALE);
+            // jesterGame = new GameModel(jesterModel,2.0f);
+            // jesterGame.SwitchAnimation(0,true);
+            // jesterGame.Orientation = Vector3.Normalize(new Vector3(0f, 9, 7));
+    
         }
 
         public void InitializeMob() { mob = new Mob(mobModels); }
@@ -157,7 +153,7 @@ namespace src.GameObjects
                     break;
                 }
                 // Create market with selected type
-                markets.Add(new Market(positions[i], selectedType, marketModels[i], projectileModels[selectedType] , 4f));
+                markets.Add(new Market(positions[i], selectedType, marketModels[i], projectileModels[selectedType], Properties[selectedType].height, 4f));
             }
         }
 
@@ -167,37 +163,37 @@ namespace src.GameObjects
             switch (type)
             {
                 case ProjectileType.Frog:
-                    projectile = new Frog(type, projectileModels[ProjectileType.Frog], FROG_SCALE, FROG_HEIGHT);
+                    projectile = new Frog(type, projectileModels[ProjectileType.Frog], Properties[ProjectileType.Frog].scale, Properties[ProjectileType.Frog].height);
                     break;
                 case ProjectileType.Swordfish:
-                    projectile = new Swordfish(type, projectileModels[ProjectileType.Swordfish], SWORDFISH_SCALE, SWORDFISH_HEIGHT);
+                    projectile = new Swordfish(type, projectileModels[ProjectileType.Swordfish], Properties[ProjectileType.Swordfish].scale, Properties[ProjectileType.Swordfish].height);
                     break;
                 case ProjectileType.Tomato:
-                    projectile = new Tomato(type, projectileModels[ProjectileType.Tomato], TOMATO_SCALE, TOMATO_HEIGHT);
+                    projectile = new Tomato(type, projectileModels[ProjectileType.Tomato], Properties[ProjectileType.Tomato].scale, Properties[ProjectileType.Tomato].height);
                     break;
                 case ProjectileType.Coconut:
-                    projectile = new Coconut(type, projectileModels[ProjectileType.Coconut], COCONUT_SCALE, COCONUT_HEIGHT);
+                    projectile = new Coconut(type, projectileModels[ProjectileType.Coconut], Properties[ProjectileType.Coconut].scale, Properties[ProjectileType.Coconut].height);
                     break;
                 case ProjectileType.Banana:
-                    projectile = new Banana(type, projectileModels[ProjectileType.Banana], BANANA_SCALE, BANANA_HEIGHT);
+                    projectile = new Banana(type, projectileModels[ProjectileType.Banana], Properties[ProjectileType.Banana].scale, Properties[ProjectileType.Banana].height);
                     break;
                 case ProjectileType.Turtle:
-                    projectile = new Turtle(type, projectileModels[ProjectileType.Turtle], walkingTurtle, TURTLE_SCALE, TURTLE_HEIGHT);
+                    projectile = new Turtle(type, projectileModels[ProjectileType.Turtle], walkingTurtle, Properties[ProjectileType.Turtle].scale, Properties[ProjectileType.Turtle].height);
                     break;
                 case ProjectileType.Spear:
-                    projectile = new Spear(type, projectileModels[ProjectileType.Spear], SPEAR_SCALE, SPEAR_HEIGHT);
+                    projectile = new Spear(type, projectileModels[ProjectileType.Spear], Properties[ProjectileType.Spear].scale, Properties[ProjectileType.Spear].height);
                     break;
                 case ProjectileType.Mjoelnir:
-                    projectile = new Mjoelnir(type, projectileModels[ProjectileType.Mjoelnir], MJOELNIR_SCALE, MJOELNIR_HEIGHT);
+                    projectile = new Mjoelnir(type, projectileModels[ProjectileType.Mjoelnir], Properties[ProjectileType.Mjoelnir].scale, Properties[ProjectileType.Mjoelnir].height);
                     break;
                 case ProjectileType.Chicken:
-                    projectile = new Chicken(type, projectileModels[ProjectileType.Chicken], CHICKEN_SCALE, CHICKEN_HEIGHT);
+                    projectile = new Chicken(type, projectileModels[ProjectileType.Chicken], Properties[ProjectileType.Chicken].scale, Properties[ProjectileType.Chicken].height);
                     break;
                 case ProjectileType.Barrel:
-                    projectile = new Barrel(type, projectileModels[ProjectileType.Barrel], barrel2, BARREL_SCALE, BARREL_HEIGHT);
+                    projectile = new Barrel(type, projectileModels[ProjectileType.Barrel], barrel2, Properties[ProjectileType.Barrel].scale, Properties[ProjectileType.Barrel].height);
                     break;
                 default:
-                    throw new ArgumentException("Invalid projectile type: ", type.ToString());
+                    throw new ArgumentException("Invalid projectile type: " + type);
             }
             projectiles.Add(projectile);
             return projectile;
@@ -212,7 +208,7 @@ namespace src.GameObjects
 
         public void UpdateGame(float dt)
         {
-           // jesterGame.UpdateAnimation(dt);
+        // jesterGame.UpdateAnimation(dt);
     
             // Update area damage
             foreach (AreaDamage areaDamage in areaDamages)
@@ -456,6 +452,7 @@ namespace src.GameObjects
             graphicsDevice.SetRenderTarget(shadowMap);
             graphicsDevice.Clear(Color.Black);
             graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
+
             // graphicsDevice.RasterizerState = this.shadowRasterizer;
 
             arena.Draw(view, projection, shadowShader, graphicsDevice, true);
@@ -499,10 +496,11 @@ namespace src.GameObjects
             arena.Draw(view, projection, geometryShader, graphicsDevice, false);
             // Matrix[] check = jesterGame.GetFinalBoneMatrices();
             //     geometryShader.setFinalBoneMatrices(jesterGame.GetFinalBoneMatrices());
+            //     geometryShader.setRoughness(jesterGame.DrawModel.roughness);
             //    jesterGame.Draw(view, projection, geometryShader, graphicsDevice, false);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             
-            //draw all markets
+            // //draw all markets
             foreach (Market market in markets)
             {
                 geometryShader.setMetallic(market.DrawModel.metallic);

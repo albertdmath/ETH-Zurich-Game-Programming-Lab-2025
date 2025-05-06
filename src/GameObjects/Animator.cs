@@ -66,6 +66,7 @@ public class Animator {
             int index = boneInfoMap[nodeName].id;
             Matrix offset = boneInfoMap[nodeName].offset;
             finalBoneMatrices[index] = offset * globalTransform;
+
         }
 
         for(int i = 0; i < node.childrenCount; i++){

@@ -158,7 +158,7 @@
 #begin GeometryPass.fx
 /importer:EffectImporter
 /processor:EffectProcessor
-/processorParam:DebugMode=Auto
+/processorParam:DebugMode=Debug
 /build:GeometryPass.fx
 
 #begin hammer_aoe.dae
