@@ -211,19 +211,24 @@ namespace GameLab
             mobModels.Add(new DrawModel("../../../Content/mob2.dae", 0.0f, 0.6f, GraphicsDevice));
             mobModels.Add(new DrawModel("../../../Content/mob3.dae", 0.0f, 0.6f, GraphicsDevice));
 
-            projectileModels.Add(ProjectileType.Frog, new DrawModel("../../../Content/frog.dae", 0.0f, 0.4f, GraphicsDevice));
-            projectileModels.Add(ProjectileType.Swordfish, new DrawModel("../../../Content/swordfish.dae", 0.0f, 0.5f, GraphicsDevice));
-            projectileModels.Add(ProjectileType.Tomato, new DrawModel("../../../Content/tomato.dae", 0.0f, 0.6f, GraphicsDevice));
-            projectileModels.Add(ProjectileType.Coconut, new DrawModel("../../../Content/coconut.dae", 0.0f, 0.9f, GraphicsDevice));
-            projectileModels.Add(ProjectileType.Banana, new DrawModel("../../../Content/bananapeel.dae", 0.0f, 0.9f, GraphicsDevice));
+            // Load animated models:
+            projectileModels.Add(ProjectileType.Banana, new DrawModel("../../../Content/bananapeel_animated_idle.glb", 0.0f, 0.9f, GraphicsDevice));
+            projectileModels.Add(ProjectileType.Chicken, new DrawModel("../../../Content/chicken_animated_flying.glb", 0.0f, 0.9f, GraphicsDevice));
+            projectileModels.Add(ProjectileType.Coconut, new DrawModel("../../../Content/coconut_animated_idle.glb", 0.0f, 0.9f, GraphicsDevice));
+            projectileModels.Add(ProjectileType.Frog, new DrawModel("../../../Content/frog_animated_jumping.glb", 0.0f, 0.4f, GraphicsDevice));
+            //projectileModels.Add(ProjectileType.PalmTree, new DrawModel("../../../Content/palmtree_animated_idle.glb", 0.0f, 0.4f, GraphicsDevice));
+            projectileModels.Add(ProjectileType.Swordfish, new DrawModel("../../../Content/swordfish_animated_swimming.glb", 0.0f, 0.5f, GraphicsDevice));
+            projectileModels.Add(ProjectileType.Tomato, new DrawModel("../../../Content/tomato_animated_idle.glb", 0.0f, 0.6f, GraphicsDevice));
+        
+            
             projectileModels.Add(ProjectileType.Turtle, new DrawModel("../../../Content/turtle_shell.dae", 0.0f, 0.9f, GraphicsDevice));
             projectileModels.Add(ProjectileType.Mjoelnir, new DrawModel("../../../Content/mjoelnir.dae", 0.0f, 0.9f, GraphicsDevice));
             projectileModels.Add(ProjectileType.Spear, new DrawModel("../../../Content/trident.dae", 0.0f, 0.9f, GraphicsDevice));
-            projectileModels.Add(ProjectileType.Chicken, new DrawModel("../../../Content/rooster.dae", 0.0f, 0.9f, GraphicsDevice));
+            
             projectileModels.Add(ProjectileType.Barrel, new DrawModel("../../../Content/frog.dae", 0.0f, 0.9f, GraphicsDevice));
 
             barrel2 = new DrawModel("../../../Content/rooster.dae", 0.0f, 0.9f, GraphicsDevice);
-            walkingTurtle = new DrawModel("../../../Content/turtle.dae", 0.0f, 0.9f, GraphicsDevice);
+            walkingTurtle = new DrawModel("../../../Content/turtle_animated_walking.glb", 0.0f, 0.9f, GraphicsDevice);
 
             areaDamageModels.Add(new DrawModel("../../../Content/hammer_aoe.dae", 0.0f, 0.9f, GraphicsDevice));
             areaDamageModels.Add(new DrawModel("../../../Content/tomato_aoe.dae", 0.0f, 0.3f, GraphicsDevice));

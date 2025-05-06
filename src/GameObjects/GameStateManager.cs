@@ -242,10 +242,11 @@ namespace src.GameObjects
             mob.Update(dt);
 
 
-            // Move the projectiles
-            foreach (Projectile projectile in projectiles)
+            // Move the projectilesu
+            foreach (Projectile projectile in projectiles){
+                projectile.UpdateAnimation(dt);
                 projectile.updateWrap(dt);
-
+            }
 
             // Check for projectile out of bounds and remove
             foreach (Projectile projectile in projectiles)
@@ -515,6 +516,11 @@ namespace src.GameObjects
             {
                 geometryShader.setMetallic(projectile.DrawModel.metallic);
                 geometryShader.setRoughness(projectile.DrawModel.roughness);
+                if(projectile.Type == ProjectileType.Banana){
+                Matrix[] check = projectile.GetFinalBoneMatrices();
+                }
+
+                geometryShader.setFinalBoneMatrices(projectile.GetFinalBoneMatrices());
 
                 projectile.Draw(view, projection, geometryShader, graphicsDevice, false);
                 // projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
