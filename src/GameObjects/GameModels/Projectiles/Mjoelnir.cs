@@ -11,7 +11,7 @@ public class Mjoelnir : Projectile
     private bool DestroysOtherProjectiles = false;
 
     // Constructor:
-    public Mjoelnir(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) 
+    public Mjoelnir(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Target) 
     {
         this.velocity = MIN_VELOCITY;
     }

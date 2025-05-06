@@ -7,11 +7,11 @@ public class Spear : Projectile
     // Constants
     private const float MIN_VELOCITY = 2.0f;
     private const float MAX_VELOCITY = 20f;
-    private const float DASH_VELOCITY = 3f;
+    private const float DASH_VELOCITY = 4f;
     private bool DestroysOtherProjectiles = false;
 
     // Constructor:
-    public Spear(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) 
+    public Spear(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Target) 
     {
         this.velocity = MIN_VELOCITY;
     }
@@ -32,7 +32,7 @@ public class Spear : Projectile
         }
 
         DestroysOtherProjectiles = true;
-        (Holder as Player).StartDashingWithProjectileInHand(4f);
+        (Holder as Player).StartDashingWithProjectileInHand(DASH_VELOCITY);
         return false;
     }
 
