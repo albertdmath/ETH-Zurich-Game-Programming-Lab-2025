@@ -33,7 +33,7 @@ struct VertexInput
     float3 Position: POSITION; 
     float3 Normal: NORMAL0; 
     float2 TexCoord: TEXCOORD0; 
-    float4 BoneIndices: TEXCOORD1;
+    float4 BoneIds: TEXCOORD1;
     float4 BoneWeights: TEXCOORD2;
 };
 
@@ -52,6 +52,16 @@ float4x4 MulMatrixScalar(float4x4 m, float s)
         m[3] * s
     );
 }
+// for(int i = 0; i < 4; i++){
+//     if(BoneIndices[i] < 0 ){
+//         count++;
+//         continue;
+//     } 
+//     if(BoneIndices[i] >= 50){
+//         break;
+//     }
+//     boneTransform += MulMatrixScalar(FinalBoneMatrices[(int)BoneIndices[i]],BoneWeights[i]);
+// }
 
 bool MatricesEqual(float4x4 a, float4x4 b)
 {
@@ -63,37 +73,42 @@ bool MatricesEqual(float4x4 a, float4x4 b)
     );
 }
 VertexOutput VS(VertexInput input) {
-        float4x4 compare = float4x4(
-    0.0, 0.0, 0.0, 0.0,
-    0.0, 0.0, 0.0, 0.0,
-    0.0, 0.0, 0.0, 0.0,
-    0.0, 0.0, 0.0, 0.0
-);
 
-    float4x4 BoneTransform = float4x4(
+
+    float4x4 boneTransform = float4x4(
     0.0, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0
 );
-    float4 BoneIndices = input.BoneIndices;
+    float4 BoneIndices = input.BoneIds;
     float4 BoneWeights = input.BoneWeights;
+int count = 0;
 
-if(BoneIndices.x != -1 && BoneIndices.x < 100){
-    BoneTransform += MulMatrixScalar(FinalBoneMatrices[(int)BoneIndices.x], BoneWeights.x);
+
+if((int)BoneIndices.x > -1 && BoneIndices.x < 100){
+    boneTransform += mul(FinalBoneMatrices[(int)BoneIndices.x], BoneWeights.x);
+} else {
+    count++;
 }
-if(BoneIndices.y != -1 && BoneIndices.y < 100){
-    BoneTransform += MulMatrixScalar(FinalBoneMatrices[(int)BoneIndices.y], BoneWeights.y);
+if((int)BoneIndices.y > -1 && BoneIndices.y < 100){
+    boneTransform += mul(FinalBoneMatrices[(int)BoneIndices.y], BoneWeights.y);
+} else {
+    count++;
 }
-if(BoneIndices.z != -1 && BoneIndices.z < 100){
-    BoneTransform += MulMatrixScalar(FinalBoneMatrices[(int)BoneIndices.z], BoneWeights.z);
+if((int)BoneIndices.z > -1 && BoneIndices.z < 100){
+    boneTransform += mul(FinalBoneMatrices[(int)BoneIndices.z], BoneWeights.z);
+} else {
+    count++;
 }
-if(BoneIndices.w != -1 && BoneIndices.w < 100){
-    BoneTransform += MulMatrixScalar(FinalBoneMatrices[(int)BoneIndices.w], BoneWeights.w);
+if((int)BoneIndices.w > -1 && BoneIndices.w < 100){
+    boneTransform += mul(FinalBoneMatrices[(int)BoneIndices.w], BoneWeights.w);
+} else {
+    count++;
 }
 
-    if(MatricesEqual(BoneTransform,compare)) {
- BoneTransform = float4x4(
+    if(count >= 4) {
+ boneTransform = float4x4(
     1.0, 0.0, 0.0, 0.0,
      0.0, 1.0, 0.0, 0.0,
      0.0, 0.0, 1.0, 0.0,
@@ -102,11 +117,9 @@ if(BoneIndices.w != -1 && BoneIndices.w < 100){
     }
 
 
-
-
     
-    float4 BonePos = mul(float4(input.Position,1.0f),BoneTransform);
-    float4 BoneNormal = mul(float4(input.Normal,0.0f),BoneTransform);
+    float4 BonePos = mul(float4(input.Position,1.0f),boneTransform);
+    float4 BoneNormal = mul(float4(input.Normal,0.0f),boneTransform);
     float4 worldPos = mul(float4(BonePos.xyz,1.0f),World);
     float4 viewPos =  mul(worldPos, View);
     VertexOutput output; 

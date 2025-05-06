@@ -83,6 +83,10 @@ namespace src.GameObjects
             this.barrel2 = barrel2;
 
             arena = new GameModel(arenaModel, ARENA_SCALE);
+            // jesterGame = new GameModel(jesterModel,2.0f);
+            // jesterGame.SwitchAnimation(0,true);
+            // jesterGame.Orientation = Vector3.Normalize(new Vector3(0f, 9, 7));
+    
         }
 
         public void InitializeMob() { mob = new Mob(mobModels); }
@@ -204,7 +208,7 @@ namespace src.GameObjects
 
         public void UpdateGame(float dt)
         {
-           // jesterGame.UpdateAnimation(dt);
+        // jesterGame.UpdateAnimation(dt);
     
             // Update area damage
             foreach (AreaDamage areaDamage in areaDamages)
@@ -448,6 +452,7 @@ namespace src.GameObjects
             graphicsDevice.SetRenderTarget(shadowMap);
             graphicsDevice.Clear(Color.Black);
             graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
+
             // graphicsDevice.RasterizerState = this.shadowRasterizer;
 
             arena.Draw(view, projection, shadowShader, graphicsDevice, true);
@@ -491,10 +496,11 @@ namespace src.GameObjects
             arena.Draw(view, projection, geometryShader, graphicsDevice, false);
             // Matrix[] check = jesterGame.GetFinalBoneMatrices();
             //     geometryShader.setFinalBoneMatrices(jesterGame.GetFinalBoneMatrices());
+            //     geometryShader.setRoughness(jesterGame.DrawModel.roughness);
             //    jesterGame.Draw(view, projection, geometryShader, graphicsDevice, false);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             
-            //draw all markets
+            // //draw all markets
             foreach (Market market in markets)
             {
                 geometryShader.setMetallic(market.DrawModel.metallic);

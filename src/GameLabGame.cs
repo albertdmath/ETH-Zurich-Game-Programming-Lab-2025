@@ -185,7 +185,7 @@ namespace GameLab
             arenaModel = new DrawModel("../../../Content/marketplace.dae", 0.0f, 1.0f, GraphicsDevice);
             playerModel = new DrawModel("../../../Content/Player/player_body.dae", 0.0f, 0.3f, GraphicsDevice);
             playerModelShell = new DrawModel("../../../Content/Player/player_body_shell.dae", 0.0f, 0.3f, GraphicsDevice);
-            jesterAnimated = new DrawModel("../../../Content/Player/jester_animated.gltf", 0.0f, 0.3f, GraphicsDevice);
+            jesterAnimated = new DrawModel("../../../Content/Player/chicken_animated.glb", 0.0f, 0.3f, GraphicsDevice);
             playerHandModel = new DrawModel("../../../Content/Player/hand.dae", 0.0f, 0.3f, GraphicsDevice);
 
             indicatorModel.Add(new DrawModel("../../../Content/Player/aim_indicator_player1.dae", 0.0f, 0.3f, GraphicsDevice));
@@ -338,7 +338,7 @@ namespace GameLab
                 new RenderTargetBinding(roughnessMetallicMap)
             };
             //gameStateManager.DepthMapPass(depthMapShader, view, projection, GraphicsDevice, depthMap, _spriteBatch, true);
-            gameStateManager.GeometryPass(geometryShader, shadowShader, view, projection, GraphicsDevice, shadowMap, targets, _spriteBatch, false);
+            gameStateManager.GeometryPass(geometryShader, shadowShader, view, projection, GraphicsDevice, shadowMap, targets, _spriteBatch, true);
             gameStateManager.HBAOPass(hBAOShader, posMap, normalMap, HBAOmap, fullscreenVertexBuffer, GraphicsDevice, _spriteBatch, false);
             gameStateManager.FilterPass(HBAOFilter, HBAOmap, normalMap, posMap, HBAOBlurredMap, GraphicsDevice, fullscreenVertexBuffer, _spriteBatch, false);
             gameStateManager.DrawGame(FinalImage,lightingShader, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);

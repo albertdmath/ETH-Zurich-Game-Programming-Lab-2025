@@ -47,6 +47,7 @@ public class Bone {
        private Matrix localTransform;
        private string name; 
       private  int id;
+      
 
 
       public Bone(string name, int ID, NodeAnimationChannel channel){
@@ -56,7 +57,6 @@ public class Bone {
         this.NumPositions = (int)channel.PositionKeyCount;
         this.NumRotations = (int)channel.RotationKeyCount;
         this.NumScales = (int)channel.ScalingKeyCount;
-        int structSize = Marshal.SizeOf(typeof(VectorKey));
         this.positions = new List<KeyPosition>();
         this.rotations = new List<KeyRotation>();
         this.scales = new List<KeyScale>();
@@ -70,17 +70,15 @@ public class Bone {
             positions.Add(data);
         }
 
-        structSize = Marshal.SizeOf(typeof(QuaternionKey));
         for(int index = 0; index < NumRotations; index++){
             QuaternionKey key = channel.RotationKeys[index];
             double timeStamp = key.Time;
             KeyRotation data; 
-            data.orientation = new Quaternion(key.Value.W, key.Value.X, key.Value.Y, key.Value.Z);  
+            data.orientation = new Quaternion(key.Value.X, key.Value.Y, key.Value.Z, key.Value.W);  
             data.timeStamp = timeStamp;
             rotations.Add(data);
         }
-        
-           structSize = Marshal.SizeOf(typeof(VectorKey));     
+           
         for(int index = 0; index < NumScales; index++){
            VectorKey key = channel.ScalingKeys[index];
             double timeStamp = key.Time;
@@ -197,6 +195,17 @@ public class GameAnimation {
 
     private Dictionary<string, BoneInfo> boneInfoMap;
 
+    public Matrix AssimpToXna(System.Numerics.Matrix4x4 m)            // row-major
+{   
+    // A1 A2 A3 A4 in Assimp is M11 M12 M13 M14 in XNA, …
+    return new Matrix(
+        m.M11, m.M21, m.M31, m.M41,
+        m.M12, m.M22, m.M32, m.M42,
+     m.M13, m.M23, m.M33, m.M43,
+       m.M14, m.M24, m.M34, m.M44
+    );
+}
+
     public GameAnimation(string name, Animation anim, Scene scene, DrawModel model){
         this.name = name; 
         Animation currAnim = anim;
@@ -227,7 +236,7 @@ public class GameAnimation {
 
     private void ReadAnimNodeHierarchy(ref AssimpNodeData destination, Node currNode){
         destination.name = currNode.Name;
-        destination.transformation = currNode.Transform;
+        destination.transformation = AssimpToXna(currNode.Transform);
         destination.childrenCount = currNode.ChildCount;
         destination.children = new List<AssimpNodeData>();
         for(int index = 0; index < currNode.ChildCount; index++){
