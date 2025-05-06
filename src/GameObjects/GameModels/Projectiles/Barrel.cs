@@ -29,8 +29,11 @@ public class Barrel : Projectile
 
     public override void OnProjectileHit(Projectile projectile)
     {
-        projectile.ToBeDeleted = true;
-        ToBeDeleted = true;
+        if(projectile.Holder == null)
+        {
+            projectile.ToBeDeleted = true;
+            ToBeDeleted = true;
+        }
     }
 
     public override void OnPlayerHit(Player player)

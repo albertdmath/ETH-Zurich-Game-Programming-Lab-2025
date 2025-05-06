@@ -26,7 +26,7 @@ namespace src.GameObjects
             { ProjectileType.Mjoelnir, (1.5f, 0.2f) },
             { ProjectileType.Spear, (0.9f, 0f) },
             { ProjectileType.Chicken, (0.9f, 0f) },
-            { ProjectileType.Barrel, (0.5f, 0f) }
+            { ProjectileType.Barrel, (1f, 0f) }
         };
 
 
@@ -89,7 +89,7 @@ namespace src.GameObjects
     
         }
 
-        public void InitializeMob() { mob = new Mob(mobModels); }
+        public void InitializeMob() { mob = new(mobModels); }
 
         public void InitializePlayers()
         {
@@ -116,7 +116,7 @@ namespace src.GameObjects
         private void InitializeMarkets()
         {
             // Market positions (corners)
-            Vector3[] positions = new Vector3[]
+            Vector3[] positions = 
             {
                 new(-7.8f, 0, -3.5f),
                 new(7.8f, 0, -3.5f),
@@ -129,6 +129,7 @@ namespace src.GameObjects
             List<ProjectileType> availableTypes = Projectile.ProjectileProbability.Keys
                                                 .Where(type => Projectile.ProjectileProbability[type] > 0)
                                                 .ToList();
+                                                
             float totalWeight = availableTypes.Sum(type => Projectile.ProjectileProbability[type]);
 
             for (int i = 0; i < 4; i++)
@@ -213,6 +214,7 @@ namespace src.GameObjects
             // Update area damage
             foreach (AreaDamage areaDamage in areaDamages)
                 areaDamage.updateWrap(dt);
+                
             areaDamages.RemoveAll(x => x.ToBeDeleted);
 
             // Move Players
@@ -251,7 +253,8 @@ namespace src.GameObjects
             // Check for projectile out of bounds and remove
             foreach (Projectile projectile in projectiles)
             {
-                projectile.ToBeDeleted = projectile.ToBeDeleted || MathF.Abs(projectile.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(projectile.Position.Z) > GameLabGame.ARENA_WIDTH;
+                if(MathF.Abs(projectile.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(projectile.Position.Z) > GameLabGame.ARENA_WIDTH)
+                    projectile.ToBeDeleted = true;
             }
 
             for (int i = 0; i < projectiles.Count; i++)
