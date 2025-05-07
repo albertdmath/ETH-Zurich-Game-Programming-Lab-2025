@@ -57,7 +57,7 @@ namespace src.GameObjects{
                 //Height = CENTER_BUTTON_HEIGHT
             };
             ButtonStyle ControllerButtonStyle = new ButtonStyle{
-                Background = new SolidBrush(Color.Black),
+                Background = new SolidBrush(Color.BlueViolet),
                 OverBackground = new SolidBrush(Color.Gray),
                 PressedBackground = new SolidBrush(Color.SeaGreen),
                 DisabledBackground = new SolidBrush(Color.Gray),
@@ -91,7 +91,7 @@ namespace src.GameObjects{
             };
             SliderStyle ControllerSliderStyle = new SliderStyle{
                 Background = new SolidBrush(Color.Red),
-                FocusedBorder = new SolidBrush(Color.Honeydew),
+                FocusedBorder = new SolidBrush(Color.DarkViolet),
                 DisabledBackground = new SolidBrush(Color.Aquamarine),
                 DisabledBorder = new SolidBrush(Color.Beige),
                 Border = new SolidBrush(Color.White),
@@ -105,7 +105,7 @@ namespace src.GameObjects{
                 Width=CENTER_BUTTON_WIDTH,
             };
             SliderStyle ControllerPressedSliderStyle = new SliderStyle{
-                Background = new SolidBrush(Color.White),
+                Background = new SolidBrush(Color.DarkViolet),
                 FocusedBorder = new SolidBrush(Color.Honeydew),
                 DisabledBackground = new SolidBrush(Color.Aquamarine),
                 DisabledBorder = new SolidBrush(Color.Beige),

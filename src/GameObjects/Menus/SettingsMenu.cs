@@ -21,6 +21,7 @@ namespace src.GameObjects{
         private MyButton FXAA;
         private MyButton SHADOWS;
         private MyButton AMBIENT_OCCLUSION;
+        private MyButton FULLSCREEN;
         public SettingsMenu(Desktop desktop, Grid r, MyMenu p):base(desktop,r,p)
         {
             _grid = new Grid{
@@ -92,12 +93,23 @@ namespace src.GameObjects{
                     AMBIENT_OCCLUSION.ChangeText("SSAO: ON");
                 }
             },_grid);
-            MyButton backbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Back","SettingsR",0,/*13*/3,(s,a)=>{
+
+            FULLSCREEN = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"FULLSCREEN","sbFullscreen",0,3,(s,a)=>{
+                if(menuStateManager.FULLSCREEN){
+                    menuStateManager.FULLSCREEN = false;
+                    FULLSCREEN.ChangeText("WINDOW");
+                }else{
+                    menuStateManager.FULLSCREEN = true;
+                    FULLSCREEN.ChangeText("FULLSCREEN");
+                }
+            },_grid);
+
+            MyButton backbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Back","SettingsR",0,/*13*/4,(s,a)=>{
                 ParentMenu.CloseSubMenu();
             },_grid);
 
-            //menuElements = new MyMenuElement[]{testbutton,testbutton1,testbutton2,testbutton3,testbutton4,testbutton5,testbutton6,testbutton7,testbutton8,testbutton9,FXAA,SHADOWS,AMBIENT_OCCLUSION,backbutton};
-            menuElements = new MyMenuElement[]{FXAA,SHADOWS,AMBIENT_OCCLUSION,backbutton};
+            //menuElements = new MyMenuElement[]{testbutton,testbutton1,testbutton2,testbutton3,testbutton4,testbutton5,testbutton6,testbutton7,testbutton8,testbutton9,FXAA,SHADOWS,AMBIENT_OCCLUSION,FULLSCREEN,backbutton};
+            menuElements = new MyMenuElement[]{FXAA,SHADOWS,AMBIENT_OCCLUSION,FULLSCREEN,backbutton};
         }
         public override MyMenuElement[] Activate(MyMenuElement[] R)
         {
