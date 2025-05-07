@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace src.GameObjects;
@@ -45,7 +46,7 @@ public class Player : GameModel
     private float timeSinceStartOfCatch = 0f;
     private float friction = 9f;
     private Projectile lastThrownProjectile = null; // Store last thrown projectile
-    private readonly DrawModel playerModel;
+    private  List<DrawModel> playerModels;
     private readonly DrawModel playerModelShell;
     private const float CATCH_COOLDOWN = 1.0f;
     private readonly Input input;
@@ -54,20 +55,20 @@ public class Player : GameModel
     private Vector3 gravity = new(0,-30f,0);
     private bool outside = false;
 
-    private readonly JesterHat jesterHat;
+    //private readonly JesterHat jesterHat;
     private readonly AimIndicator aimIndicator;
     private const float speedOfCharging = 2f;
     private PlayerState playerStateBeforeDashing;
 
     private readonly GameStateManager gameStateManager;
 
-    public Player(Vector3 position, Input input, int id, Ellipse ellipse, DrawModel model, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel hatModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, float scale) : base(model, scale)
+    public Player(Vector3 position, Input input, int id, Ellipse ellipse, List<DrawModel> models, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, float scale) : base(models[id], scale)
     {
         Position = position;
         Orientation = new Vector3(0, 0, 1f);
         this.input = input;
         this.ellipse = ellipse;
-        this.jesterHat = new JesterHat(this, hatModel, scale);
+        //this.jesterHat = new JesterHat(this, hatModel, scale);
         this.Id = id;
         inertia = new Vector3(0, 0, 0);
         gameStateManager = GameStateManager.GetGameStateManager();
@@ -75,7 +76,7 @@ public class Player : GameModel
         inertiaUp = new Vector3(0, 0, 0);
         aimIndicator = new AimIndicator(this, indicatorModel,indicatorArrowModel, 1f);
         playerState = PlayerState.NormalMovement;
-        playerModel = model;
+        playerModels = models;
         this.playerModelShell = playerModelShell;
     }
 
@@ -224,7 +225,7 @@ public class Player : GameModel
             if(armor)
             {
                 armor = false;
-                this.DrawModel = playerModel;
+                this.DrawModel = playerModels[0];
             }
             else
                 Life--;
@@ -485,7 +486,7 @@ public class Player : GameModel
         immunity -= dt;
         lastProjectileImmunity -= dt;
         Hand.updateWrap(dt);
-        jesterHat.updateWrap(dt);
+        //jesterHat.updateWrap(dt);
     }
 
     public override void Draw(Matrix view, Matrix projection, Shader shader, GraphicsDevice graphicsDevice, bool shadowDraw)
@@ -502,7 +503,7 @@ public class Player : GameModel
         {
             base.Draw(view, projection, shader, graphicsDevice, shadowDraw);
             Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
-            jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+            //jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
         }
         if(playerState == PlayerState.Aiming)
             aimIndicator.Draw(view, projection, shader, graphicsDevice, shadowDraw);
