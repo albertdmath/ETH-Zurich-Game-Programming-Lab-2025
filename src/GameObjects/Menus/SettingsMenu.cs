@@ -18,7 +18,10 @@ using Myra.Graphics2D.Brushes;
 
 namespace src.GameObjects{
     public class SettingsMenu : SubMenu{
-        public SettingsMenu(Desktop desktop, Grid r):base(desktop,r)
+        private MyButton FXAA;
+        private MyButton SHADOWS;
+        private MyButton AMBIENT_OCCLUSION;
+        public SettingsMenu(Desktop desktop, Grid r, MyMenu p):base(desktop,r,p)
         {
             _grid = new Grid{
                 RowSpacing = 5,
@@ -58,6 +61,39 @@ namespace src.GameObjects{
             },_grid);
             MyButton testbutton9 = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Turtle","sb9",0,9,(s,a)=>{
                 gameStateManager.CreateProjectile(ProjectileType.Turtle);
+            },_grid);
+
+            FXAA = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"FXAA: ON","sbFXAA",0,10,(s,a)=>{
+                if(menuStateManager.FXAA_ENABLED){
+                    menuStateManager.FXAA_ENABLED = false;
+                    FXAA.ChangeText("FXAA: OFF");
+                }else{
+                    menuStateManager.FXAA_ENABLED = true;
+                    FXAA.ChangeText("FXAA: ON");
+                }
+            },_grid);
+            
+            SHADOWS = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"SHADOWS: ON","sbSHADOWS",0,11,(s,a)=>{
+                if(menuStateManager.SHADOWS_ENABLED){
+                    menuStateManager.SHADOWS_ENABLED = false;
+                    SHADOWS.ChangeText("SHADOWS: OFF");
+                }else{
+                    menuStateManager.SHADOWS_ENABLED = true;
+                    SHADOWS.ChangeText("SHADOWS: ON");
+                }
+            },_grid);
+
+            AMBIENT_OCCLUSION = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"SSAO: ON","sbSSAO",0,12,(s,a)=>{
+                if(menuStateManager.AMBIENT_OCCLUSION_ENABLED){
+                    menuStateManager.AMBIENT_OCCLUSION_ENABLED = false;
+                    AMBIENT_OCCLUSION.ChangeText("SSAO: OFF");
+                }else{
+                    menuStateManager.AMBIENT_OCCLUSION_ENABLED = true;
+                    AMBIENT_OCCLUSION.ChangeText("SSAO: ON");
+                }
+            },_grid);
+            MyButton backbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Back","SettingsR",0,13,(s,a)=>{
+                ParentMenu.CloseSubMenu();
             },_grid);
 
             menuElements = new MyMenuElement[]{testbutton,testbutton1,testbutton2,testbutton3,testbutton4,testbutton5,testbutton6,testbutton7,testbutton8,testbutton9};

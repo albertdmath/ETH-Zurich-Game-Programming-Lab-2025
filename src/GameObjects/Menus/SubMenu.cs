@@ -13,8 +13,10 @@ public abstract class SubMenu{
     protected MyMenuElement[] oldMenuElements;
     protected GameStateManager gameStateManager;
     protected MenuStateManager menuStateManager;
-    public SubMenu(Desktop desktop, Grid r){
+    protected MyMenu ParentMenu;
+    public SubMenu(Desktop desktop, Grid r, MyMenu P){
         this.desktop = desktop;
+        this.ParentMenu = P;
         gameStateManager = GameStateManager.GetGameStateManager();
         menuStateManager = MenuStateManager.GetMenuStateManager();
         menuopen = false;

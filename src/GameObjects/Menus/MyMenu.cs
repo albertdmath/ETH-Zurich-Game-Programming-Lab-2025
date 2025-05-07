@@ -22,7 +22,7 @@ namespace src.GameObjects{
         private int controllerselectedbutton;
         private int oldcontrollerselectedbutton;
         private int CENTER_BUTTON_HEIGHT = 75;
-        private int CENTER_BUTTON_WIDTH = 242;
+        private int CENTER_BUTTON_WIDTH = 260;
         private Desktop desktop;
         private Grid _grid;
         private MyMenuElement[] menuElements;
@@ -228,9 +228,9 @@ namespace src.GameObjects{
 
             //SETTINGS-SUBMENU
             //shadows, ambient occlusion, fxaa
-            SettingsMenu settingsMenu = new SettingsMenu(desktop,_grid);
+            SettingsMenu settingsMenu = new SettingsMenu(desktop,_grid,this);
             //SETTINGS
-            MyButton settingsButton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settings?","SettingsButton",0,4,(s,a)=>{
+            MyButton settingsButton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settings?","SettingsButton",0,5,(s,a)=>{
                 menuElements[controllerselectedbutton].UnHighlight();
                 insubMenu = true;
                 subMenu = settingsMenu;
@@ -450,7 +450,7 @@ namespace src.GameObjects{
                 changegrid = true;
             }
         }
-        private void CloseSubMenu(){
+        public void CloseSubMenu(){
             //CHANGE CONTROLLERSELECTED BUTTONS TO DEFAULT STYLE
             menuElements[controllerselectedbutton].LeaveButton();
             menuElements[controllerselectedbutton].UnHighlight();
