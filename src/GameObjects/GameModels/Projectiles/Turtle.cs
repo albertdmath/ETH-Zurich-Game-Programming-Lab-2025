@@ -24,6 +24,14 @@ public class Turtle : Projectile
         this.shellModel = model;
         this.walkingModel = walkingModel;
         this.velocity = MIN_VELOCITY;
+        if(walkingModel.hasAnimations){
+             hasAnimation = true; 
+            for(int i = 0; i < walkingModel.scene.AnimationCount; i++){
+                GameAnimation anim = new GameAnimation("Animation " +i, walkingModel.scene.Animations[i], walkingModel.scene, walkingModel);
+                animations.Add(anim);
+            }
+            this.animator = new Animator(animations[0], true);
+        }
     }
 
     private void BounceAfterHit()

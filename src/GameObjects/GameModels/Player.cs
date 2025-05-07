@@ -39,7 +39,6 @@ public class Player : GameModel
     private bool armor = false;
     private float dashTime = 0f,dashSpeed = 12f, flySpeed = 0f;
     private float actionPushedDuration;
-    private float jumpPushedDuration=0;
     private float stunDuration = 0f;
     private float immunity = 0f;
     private float lastProjectileImmunity = 0f;
@@ -195,13 +194,6 @@ public class Player : GameModel
             dashSpeed = 12f;
         }
     }
-    private void CanJump()
-    {
-        if (input.Jump() && jumpPushedDuration == 0f)
-        {
-            inertiaUp += new Vector3(0f,15f,0f);
-        }
-    }
     // Method to throw an object:
     private void Throw()
     {
@@ -305,7 +297,7 @@ public class Player : GameModel
     }
     public void JumpAndStrike()
     {
-        flySpeed = actionPushedDuration * speedOfCharging / (15f/30f*2f);
+        flySpeed = actionPushedDuration * speedOfCharging;
         inertiaUp += new Vector3(0f,15f,0f);
         playerState = PlayerState.JumpingWithTheMightyHammerOfTheThousandThunders;
         
@@ -314,6 +306,13 @@ public class Player : GameModel
     {
         playerState = PlayerState.FloatingWithChicken;
         speed = 1.5f;
+    }
+
+    public void CatchDrunkMan(DrunkMan drunkMan)
+    {
+        Orientation = Vector3.Normalize(new Vector3(drunkMan.Position.X, 0f, drunkMan.Position.Z) - new Vector3(Position.X, 0f, Position.Z));
+        Drop();
+        playerState = PlayerState.Stunned;
     }
 
     // ---------------------
@@ -347,7 +346,7 @@ public class Player : GameModel
         }
     }
 
-    public void ObjectCollision (GameModel obj)
+    public void ObjectCollision(GameModel obj)
     {
         Vector3 dir = 0.02f * Vector3.Normalize(new Vector3(Position.X - obj.Position.X, 0f, Position.Z - obj.Position.Z));
         while (Hitbox.Intersects(obj.Hitbox))
@@ -483,7 +482,6 @@ public class Player : GameModel
         }
 
         actionPushedDuration = input.Action() ? actionPushedDuration + dt : 0f;
-        jumpPushedDuration = input.Jump() ? jumpPushedDuration + dt : 0f;
         immunity -= dt;
         lastProjectileImmunity -= dt;
         Hand.updateWrap(dt);
