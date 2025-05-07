@@ -200,18 +200,7 @@ namespace src.GameObjects
         }
 
         public void UpdateGame(float dt)
-        {
-            foreach (Player player in players)
-                player.updateWrap(dt);
-            
-            foreach (Market market in markets)
-                market.updateWrap(dt);
-            
-            foreach (Projectile projectile in projectiles)
-                projectile.updateWrap(dt);
-
-            mob.updateWrap(dt);
-            
+        {        
             //PROJECTILE COLLISION CHECKS WITH...
             for (int i = projectiles.Count - 1; i >= 0; i--)
             {
@@ -244,7 +233,7 @@ namespace src.GameObjects
                 }
 
                 // PLAYER
-                if(projectile.Holder != null)
+                if(projectile.Holder == null)
                 {
                     foreach (Player player in players)
                     {
@@ -306,6 +295,18 @@ namespace src.GameObjects
             }
 
             projectiles.RemoveAll(x => x.ToBeDeleted);
+            
+            // UPDATES
+            mob.updateWrap(dt);
+
+            foreach (Player player in players)
+                player.updateWrap(dt);
+            
+            foreach (Market market in markets)
+                market.updateWrap(dt);
+            
+            foreach (Projectile projectile in projectiles)
+                projectile.updateWrap(dt);
         }
 
 
