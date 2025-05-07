@@ -19,7 +19,7 @@ namespace GameLab
         // Private fields:
         private DrawModel arenaModel;
         private List<DrawModel> marketModels = new List<DrawModel>();
-        private DrawModel playerModel;
+        private List<DrawModel> playerModels = new List<DrawModel>();
         private DrawModel playerModelShell;
         private DrawModel walkingTurtle;
         private DrawModel barrel2;
@@ -183,9 +183,13 @@ namespace GameLab
             generateFullScreenVertexBuffer();
             // Load all of the models
             arenaModel = new DrawModel("../../../Content/marketplace.dae", 0.0f, 1.0f, GraphicsDevice);
-            playerModel = new DrawModel("../../../Content/Player/player_body.dae", 0.0f, 0.3f, GraphicsDevice);
+            playerModels.Add(new DrawModel("../../../Content/Player/player1_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
+            playerModels.Add(new DrawModel("../../../Content/Player/player2_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
+            playerModels.Add(new DrawModel("../../../Content/Player/player2_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
+            playerModels.Add(new DrawModel("../../../Content/Player/player2_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
+        
             playerModelShell = new DrawModel("../../../Content/Player/player_body_shell.dae", 0.0f, 0.3f, GraphicsDevice);
-            jesterAnimated = new DrawModel("../../../Content/Player/chicken_animated.glb", 0.0f, 0.3f, GraphicsDevice);
+            //jesterAnimated = new DrawModel("../../../Content/Player/chicken_animated.glb", 0.0f, 0.3f, GraphicsDevice);
             playerHandModel = new DrawModel("../../../Content/Player/hand.dae", 0.0f, 0.3f, GraphicsDevice);
 
             indicatorModel.Add(new DrawModel("../../../Content/Player/aim_indicator_player1.dae", 0.0f, 0.3f, GraphicsDevice));
@@ -197,10 +201,10 @@ namespace GameLab
             indicatorModel.Add(new DrawModel("../../../Content/Player/aim_arrow_player3.dae", 0.0f, 0.3f, GraphicsDevice));
             indicatorModel.Add(new DrawModel("../../../Content/Player/aim_arrow_player4.dae", 0.0f, 0.3f, GraphicsDevice));
 
-            playerHatModels.Add(new DrawModel("../../../Content/Player/player1_hat.dae", 0.0f, 0.3f, GraphicsDevice));
-            playerHatModels.Add(new DrawModel("../../../Content/Player/player2_hat.dae", 0.0f, 0.3f, GraphicsDevice));
-            playerHatModels.Add(new DrawModel("../../../Content/Player/player3_hat.dae", 0.0f, 0.3f, GraphicsDevice));
-            playerHatModels.Add(new DrawModel("../../../Content/Player/player4_hat.dae", 0.0f, 0.3f, GraphicsDevice));
+            // playerHatModels.Add(new DrawModel("../../../Content/Player/player1_hat.dae", 0.0f, 0.3f, GraphicsDevice));
+            // playerHatModels.Add(new DrawModel("../../../Content/Player/player2_hat.dae", 0.0f, 0.3f, GraphicsDevice));
+            // playerHatModels.Add(new DrawModel("../../../Content/Player/player3_hat.dae", 0.0f, 0.3f, GraphicsDevice));
+            // playerHatModels.Add(new DrawModel("../../../Content/Player/player4_hat.dae", 0.0f, 0.3f, GraphicsDevice));
 
             marketModels.Add(new DrawModel("../../../Content/market_1.dae",0.0f,0.3f, GraphicsDevice));
             marketModels.Add(new DrawModel("../../../Content/market_2.dae",0.0f,0.3f, GraphicsDevice));
@@ -303,7 +307,7 @@ namespace GameLab
             geometryShader.setOpacityValue(1.0f);
 
             // Initialize gamestate here:
-            gameStateManager.Initialize(arenaModel, marketModels, playerHatModels, playerModel, playerModelShell, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels, walkingTurtle, barrel2);
+            gameStateManager.Initialize(arenaModel, marketModels, playerModels, playerModelShell, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels, walkingTurtle, barrel2);
             gameStateManager.StartNewGame();
 
             _menu = new MyMenu(this, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
