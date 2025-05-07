@@ -107,6 +107,7 @@ namespace src.GameObjects
             for (int i = 1; i < menuStateManager.NUM_PLAYERS; ++i)
             {
                 players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(), i, mob.Ellipse, playerModels, playerModelShell, playerHandModel, indicatorModel[i], indicatorModel[i+4], scaling));
+                players[i].SwitchAnimation(0,true);
             }
 
             foreach (Player player in players)
@@ -218,8 +219,10 @@ namespace src.GameObjects
             areaDamages.RemoveAll(x => x.ToBeDeleted);
 
             // Move Players
-            foreach (Player player in players)
+            foreach (Player player in players){
                 player.updateWrap(dt);
+                player.UpdateAnimation(dt);
+            }
 
             // Players bumping into each other
             for (int i = 0; i < players.Count; i++)
@@ -496,8 +499,9 @@ namespace src.GameObjects
 
             geometryShader.setMetallic(arena.DrawModel.metallic);
             geometryShader.setRoughness(arena.DrawModel.roughness);
-
+            geometryShader.setFinalBoneMatrices(arena.GetFinalBoneMatrices());
             arena.Draw(view, projection, geometryShader, graphicsDevice, false);
+            
             // Matrix[] check = jesterGame.GetFinalBoneMatrices();
             //     geometryShader.setFinalBoneMatrices(jesterGame.GetFinalBoneMatrices());
             //     geometryShader.setRoughness(jesterGame.DrawModel.roughness);
@@ -532,6 +536,7 @@ namespace src.GameObjects
             // Draw all Players
             foreach (Player player in players)
             {
+
                 if (player.IsCrawling())
                 {
                     graphicsDevice.BlendState = BlendState.NonPremultiplied;
@@ -546,7 +551,7 @@ namespace src.GameObjects
 
                 geometryShader.setMetallic(player.DrawModel.metallic);
                 geometryShader.setRoughness(player.DrawModel.roughness);
-
+                geometryShader.setFinalBoneMatrices(player.GetFinalBoneMatrices());
                 player.Draw(view, projection, geometryShader, graphicsDevice, false);
                 //player.Hitbox.DebugDraw(graphicsDevice, view, projection);
             }
@@ -561,6 +566,7 @@ namespace src.GameObjects
             {
                 geometryShader.setMetallic(areaDamage.DrawModel.metallic);
                 geometryShader.setRoughness(areaDamage.DrawModel.roughness);
+                geometryShader.setFinalBoneMatrices(areaDamage.GetFinalBoneMatrices());
                 areaDamage.Draw(view, projection, geometryShader, graphicsDevice, false);
             }
 

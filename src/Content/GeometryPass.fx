@@ -107,6 +107,19 @@ if((int)BoneIndices.w > -1 && BoneIndices.w < 100){
     count++;
 }
 
+float3x3 boneRotation = float3x3(0,0,0, 0,0,0, 0,0,0);
+
+if((int)BoneIndices.x > -1 && BoneIndices.x < 100)
+    boneRotation += mul((float3x3)FinalBoneMatrices[(int)BoneIndices.x],BoneWeights.x);
+if((int)BoneIndices.y > -1 && BoneIndices.y < 100)
+    boneRotation += mul((float3x3)FinalBoneMatrices[(int)BoneIndices.y],BoneWeights.y);
+if((int)BoneIndices.z > -1 && BoneIndices.z < 100)
+    boneRotation += mul((float3x3)FinalBoneMatrices[(int)BoneIndices.z],BoneWeights.z);
+if((int)BoneIndices.w > -1 && BoneIndices.w < 100)
+    boneRotation += mul((float3x3)FinalBoneMatrices[(int)BoneIndices.w],BoneWeights.w);
+
+
+
     if(count >= 4) {
  boneTransform = float4x4(
     1.0, 0.0, 0.0, 0.0,
@@ -114,12 +127,16 @@ if((int)BoneIndices.w > -1 && BoneIndices.w < 100){
      0.0, 0.0, 1.0, 0.0,
      0.0, 0.0, 0.0, 1.0
 );
+ boneRotation = float4x4(
+    1.0, 0.0, 0.0, 0.0,
+     0.0, 1.0, 0.0, 0.0,
+     0.0, 0.0, 1.0, 0.0,
+     0.0, 0.0, 0.0, 1.0
+);
     }
 
-
-    
     float4 BonePos = mul(float4(input.Position,1.0f),boneTransform);
-    float4 BoneNormal = mul(float4(input.Normal,0.0f),boneTransform);
+    float3 BoneNormal = mul(input.Normal,boneRotation);
     float4 worldPos = mul(float4(BonePos.xyz,1.0f),World);
     float4 viewPos =  mul(worldPos, View);
     VertexOutput output; 
