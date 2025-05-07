@@ -185,8 +185,8 @@ namespace GameLab
             arenaModel = new DrawModel("../../../Content/marketplace.dae", 0.0f, 1.0f, GraphicsDevice);
             playerModels.Add(new DrawModel("../../../Content/Player/player1_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
             playerModels.Add(new DrawModel("../../../Content/Player/player2_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
-            playerModels.Add(new DrawModel("../../../Content/Player/player2_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
-            playerModels.Add(new DrawModel("../../../Content/Player/player2_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
+            playerModels.Add(new DrawModel("../../../Content/Player/player3_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
+            playerModels.Add(new DrawModel("../../../Content/Player/player4_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
         
             playerModelShell = new DrawModel("../../../Content/Player/player_body_shell.dae", 0.0f, 0.3f, GraphicsDevice);
             //jesterAnimated = new DrawModel("../../../Content/Player/chicken_animated.glb", 0.0f, 0.3f, GraphicsDevice);
