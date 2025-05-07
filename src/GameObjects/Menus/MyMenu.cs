@@ -22,7 +22,7 @@ namespace src.GameObjects{
         private int controllerselectedbutton;
         private int oldcontrollerselectedbutton;
         private int CENTER_BUTTON_HEIGHT = 75;
-        private int CENTER_BUTTON_WIDTH = 260;
+        private int CENTER_BUTTON_WIDTH = 262;
         private Desktop desktop;
         private Grid _grid;
         private MyMenuElement[] menuElements;
@@ -283,7 +283,7 @@ namespace src.GameObjects{
 
             Label StartNumPlayerLabel = new Label{
                 Text = "#Players:",
-                TextColor = Color.YellowGreen,
+                TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Background = new SolidBrush(Color.Blue),
                 Padding = new Thickness{Top=8,Bottom=5},
