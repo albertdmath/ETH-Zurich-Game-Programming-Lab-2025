@@ -197,9 +197,9 @@ float4 PS(VertexOutput input) : SV_Target
     float shadow = ShadowCalc(LightViewPos); 
     float3 Lo =  (kD * albedo / PI + specular) * radiance * NdotL * shadow;
     float occlusion = 1.0f;
-    float occlusionCheck = OcclusionTexture.Sample(OcclusionSampler,input.TexCoord.xy).r;
+    //float occlusionCheck = OcclusionTexture.Sample(OcclusionSampler,input.TexCoord.xy).r;
 
-    occlusion = occlusionCheck;
+    //occlusion = occlusionCheck;
 
 
     float3 ambient = float3(0.2f,0.2f,0.2f) * albedo;

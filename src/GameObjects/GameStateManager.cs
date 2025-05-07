@@ -54,7 +54,6 @@ namespace src.GameObjects
         public readonly List<Market> markets = new List<Market>();
 
         private MenuStateManager menuStateManager;
-        private readonly List<AreaDamage> areaDamages = new List<AreaDamage>();
 
         // Singleton instancing
         private GameStateManager() { }
@@ -170,7 +169,7 @@ namespace src.GameObjects
                     projectile = new Swordfish(type, projectileModels[ProjectileType.Swordfish], Properties[ProjectileType.Swordfish].scale, Properties[ProjectileType.Swordfish].height);
                     break;
                 case ProjectileType.Tomato:
-                    projectile = new Tomato(type, projectileModels[ProjectileType.Tomato], Properties[ProjectileType.Tomato].scale, Properties[ProjectileType.Tomato].height);
+                    projectile = new Tomato(type, projectileModels[ProjectileType.Tomato], areaDamageModels[1], Properties[ProjectileType.Tomato].scale, Properties[ProjectileType.Tomato].height);
                     break;
                 case ProjectileType.Coconut:
                     projectile = new Coconut(type, projectileModels[ProjectileType.Coconut], Properties[ProjectileType.Coconut].scale, Properties[ProjectileType.Coconut].height);
@@ -185,7 +184,7 @@ namespace src.GameObjects
                     projectile = new Spear(type, projectileModels[ProjectileType.Spear], Properties[ProjectileType.Spear].scale, Properties[ProjectileType.Spear].height);
                     break;
                 case ProjectileType.Mjoelnir:
-                    projectile = new Mjoelnir(type, projectileModels[ProjectileType.Mjoelnir], Properties[ProjectileType.Mjoelnir].scale, Properties[ProjectileType.Mjoelnir].height);
+                    projectile = new Mjoelnir(type, projectileModels[ProjectileType.Mjoelnir], areaDamageModels[0], Properties[ProjectileType.Mjoelnir].scale, Properties[ProjectileType.Mjoelnir].height);
                     break;
                 case ProjectileType.Chicken:
                     projectile = new Chicken(type, projectileModels[ProjectileType.Chicken], Properties[ProjectileType.Chicken].scale, Properties[ProjectileType.Chicken].height);
@@ -199,92 +198,105 @@ namespace src.GameObjects
             projectiles.Add(projectile);
             return projectile;
         }
-        public void CreateAreaDamage(Vector3 position, float scale, Player player, ProjectileType type)
-        {
-            if (type == ProjectileType.Mjoelnir)
-                areaDamages.Add(new AreaDamage(position, player, areaDamageModels[0], scale));
-            else
-                areaDamages.Add(new AreaDamage(position, player, areaDamageModels[1], scale));
-        }
 
         public void UpdateGame(float dt)
         {
-        // jesterGame.UpdateAnimation(dt);
-    
-            // Update area damage
-            foreach (AreaDamage areaDamage in areaDamages)
-                areaDamage.updateWrap(dt);
-                
-            areaDamages.RemoveAll(x => x.ToBeDeleted);
-
-            // Move Players
             foreach (Player player in players)
                 player.updateWrap(dt);
+            
+            foreach (Market market in markets)
+                market.updateWrap(dt);
+            
+            foreach (Projectile projectile in projectiles)
+                projectile.updateWrap(dt);
 
-            // Players bumping into each other
-            for (int i = 0; i < players.Count; i++)
-                for (int j = i + 1; j < players.Count; j++)
-                    players[i].PlayerCollision(players[j]);
-
-
-            foreach (Player player in players)
+            mob.updateWrap(dt);
+            
+            //PROJECTILE COLLISION CHECKS WITH...
+            for (int i = projectiles.Count - 1; i >= 0; i--)
             {
+                Projectile projectile = projectiles[i];
+
+                //OUT OF BOUNDS
+                if (MathF.Abs(projectile.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(projectile.Position.Z) > GameLabGame.ARENA_WIDTH)
+                {
+                    projectiles.RemoveAt(i);
+                    continue;
+                }
+
+                //GROUND
+                if (projectile.Position.Y < 0f)
+                    projectile.OnGroundHit();
+                
+                // ELLIPSES
+                if (mob.Ellipse.Outside(projectile.Position.X, projectile.Position.Z))
+                    projectile.OnMobHit();
+                
+                // PROJECTILE
+                for (int j = i-1; j >= 0; j--)
+                {
+                    Projectile projectile1 = projectiles[j];
+                    if (projectile.Hitbox.Intersects(projectile1.Hitbox))
+                    {
+                        projectile.OnProjectileHit(projectile1);
+                        projectile1.OnProjectileHit(projectile);
+                    }
+                }
+
+                // PLAYER
+                if(projectile.Holder != null)
+                {
+                    foreach (Player player in players)
+                    {
+                        if(player.Life > 0 && projectile.Hitbox.Intersects(player.Hitbox))
+                        {
+                            projectile.OnPlayerHit(player);
+                        }
+                    }
+                }
+            }
+
+            projectiles.RemoveAll(x => x.ToBeDeleted);
+
+            // PLAYER COLLISION CHECKS WITH...
+            for (int i = 0; i < players.Count; i++)
+            {
+                Player player = players[i];
+
+                //OUT OF BOUNDS
+                //if (MathF.Abs(player.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(player.Position.Z) > GameLabGame.ARENA_WIDTH)
+                    //player.onBoundsHit();
+
+                //ELLIPSES
+                //if (mob.Ellipse.Outside(projectile.Position.X, projectile.Position.Z))
+                    //player.OnMobHit();
+
+                //MARKET
                 foreach (Market market in markets)
                 {
                     if (player.Hitbox.Intersects(market.Hitbox))
                         player.ObjectCollision(market);
                 }
-            }
-            
-            // Update markets
-            foreach (Market market in markets)
-                market.Update(dt);
 
-            // Update mob
-            mob.Update(dt);
-
-
-            // Move the projectiles
-            foreach (Projectile projectile in projectiles)
-                projectile.updateWrap(dt);
-
-
-            // Check for projectile out of bounds and remove
-            foreach (Projectile projectile in projectiles)
-            {
-                if(MathF.Abs(projectile.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(projectile.Position.Z) > GameLabGame.ARENA_WIDTH)
-                    projectile.ToBeDeleted = true;
-            }
-
-            for (int i = 0; i < projectiles.Count; i++)
-            {
-                for (int j = i + 1; j < projectiles.Count; j++)
+                // PLAYER
+                for (int j = i + 1; j < players.Count; j++)
+                    player.PlayerCollision(players[j]);
+                
+                // CATCHING
+                Hand hand = player.Hand;
+                if(hand.IsCatching)
                 {
-                    if (projectiles[i].Hitbox.Intersects(projectiles[j].Hitbox))
+                    // PROJECTILE
+                    foreach (Projectile projectile in projectiles)
                     {
-                        projectiles[i].OnProjectileHit(projectiles[j]);
-                        projectiles[j].OnProjectileHit(projectiles[i]);
+                        if (hand.Hitbox.Intersects(projectile.Hitbox))
+                            player.Catch(projectile);
                     }
-                }
-            }
 
-            // Early delete projectiles for efficiency
-            projectiles.RemoveAll(x => x.ToBeDeleted);
-
-            // Check for projectile-player hand intersections
-            foreach (Player player in players.Where(p => p.Hand.IsCatching))
-            {
-                foreach (Projectile projectile in projectiles)
-                {
-                    if (projectile.Hitbox.Intersects(player.Hand.Hitbox))
-                        player.Catch(projectile);
-                }
-
-                foreach (Market market in markets)
-                {
-                    if (market.Hitbox.Intersects(player.Hand.Hitbox))
+                    // MARKET
+                    foreach (Market market in markets)
                     {
-                        if(market.GrabProjectile())
+                        if (hand.Hitbox.Intersects(market.Hitbox) && market.GrabProjectile())
                         {
                             Projectile projectile = CreateProjectile(market.Type);
                             player.Catch(projectile);
@@ -292,40 +304,7 @@ namespace src.GameObjects
                     }
                 }
             }
-            
-            // Check for projectile-player intersections
-            foreach (Projectile projectile in projectiles.Where(x => x.Holder == null))
-            {
-                foreach (Player player in players.Where(x => x.Life > 0))
-                {
-                    if (projectile.Hitbox.Intersects(player.Hitbox))
-                        projectile.OnPlayerHit(player);
-                }
-            }
-            // Check for areaDamage-player intersections
-            foreach (AreaDamage areaDamage in areaDamages.Where(x => x.timeSinceCreation <= 0.1f))
-            {
-                foreach (Player player in players.Where(x => x.Life > 0))
-                {
-                    if (areaDamage.Intersects(player))
-                        player.LoseLife();
-                }
-            }
-            // Check for projectile-mob intersection TODO
-            foreach (Projectile projectile in projectiles)
-            {
-                if (mob.Ellipse.Outside(projectile.Position.X, projectile.Position.Z))
-                    projectile.OnMobHit();
-            }
 
-            // Check for projectile-ground intersection
-            foreach (Projectile projectile in projectiles)
-            {
-                if (projectile.Position.Y < 0f)
-                    projectile.OnGroundHit();
-            }
-
-            // Delete stuff again
             projectiles.RemoveAll(x => x.ToBeDeleted);
         }
 
@@ -551,12 +530,6 @@ namespace src.GameObjects
             mob.Draw(view, projection, geometryShader, graphicsDevice, false);
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
             geometryShader.setOpacityValue(0.2f);
-            foreach (AreaDamage areaDamage in areaDamages)
-            {
-                geometryShader.setMetallic(areaDamage.DrawModel.metallic);
-                geometryShader.setRoughness(areaDamage.DrawModel.roughness);
-                areaDamage.Draw(view, projection, geometryShader, graphicsDevice, false);
-            }
 
             graphicsDevice.BlendState = BlendState.Opaque;
             geometryShader.setOpacityValue(1.0f);

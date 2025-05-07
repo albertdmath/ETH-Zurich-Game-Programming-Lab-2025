@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Microsoft.Xna.Framework;
 
 
@@ -8,12 +9,14 @@ public class Mjoelnir : Projectile
     private const float MIN_VELOCITY = 2.0f;
     private const float MAX_VELOCITY = 20f;
     private const float JUMP_VELOCITY = 3f;
+    private readonly DrawModel explosion;
     private bool DestroysOtherProjectiles = false;
 
     // Constructor:
-    public Mjoelnir(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Target) 
+    public Mjoelnir(ProjectileType type, DrawModel model, DrawModel explosion, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Target) 
     {
         this.velocity = MIN_VELOCITY;
+        this.explosion = explosion;
     }
 
     public override void OnProjectileHit(Projectile projectile)

@@ -73,7 +73,7 @@ namespace src.GameObjects
             }
         }
 
-        public void Update (float dt) {
+        public void updateWrap (float dt) {
             CloseRing(dt);
             MobPhysics();
             MobPlayerInteraction();

@@ -454,7 +454,7 @@ public class Player : GameModel
                 {
                     inertiaUp = new Vector3(0, 0, 0);
                     Position = new Vector3(Position.X, 0, Position.Z);
-                    gameStateManager.CreateAreaDamage(projectileHeld.Position,3f,this,ProjectileType.Mjoelnir);
+                    //gameStateManager.CreateAreaDamage(projectileHeld.Position,3f,this,ProjectileType.Mjoelnir);
                     Drop();
                     playerState = PlayerState.NormalMovement;
                 }

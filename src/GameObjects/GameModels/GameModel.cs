@@ -66,7 +66,7 @@ public class GameModel
     {
         Transform = Scaling * Matrix.CreateRotationY(MathF.Atan2(-1f * Orientation.X, -1f * Orientation.Z)) * Matrix.CreateTranslation(Position);
     }
-    public void updateWrap(float dt)
+    public virtual void updateWrap(float dt)
     {
         Update(dt);
         updateHitbox();
