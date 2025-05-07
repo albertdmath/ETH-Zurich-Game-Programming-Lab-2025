@@ -103,11 +103,12 @@ namespace src.GameObjects
                 players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), inputs[i], 0, mob.Ellipse, playerModels[i], scaling));
             SRY BOUT THAT*/
             players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, mob.Ellipse, playerModels, playerModelShell, playerHandModel, indicatorModel[0], indicatorModel[4], scaling));
+            players[0].SetAnimation(1,true);
             //players.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, mob.Ellipse, playerModels[1], scaling));
             for (int i = 1; i < menuStateManager.NUM_PLAYERS; ++i)
             {
                 players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(), i, mob.Ellipse, playerModels, playerModelShell, playerHandModel, indicatorModel[i], indicatorModel[i+4], scaling));
-                players[i].SwitchAnimation(0,true);
+                players[i].SetAnimation(0,true);
             }
 
             foreach (Player player in players)
@@ -461,11 +462,12 @@ namespace src.GameObjects
             graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
 
             // graphicsDevice.RasterizerState = this.shadowRasterizer;
-
+             shadowShader.setFinalBoneMatrices(arena.GetFinalBoneMatrices());
             arena.Draw(view, projection, shadowShader, graphicsDevice, true);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             foreach (Market market in markets)
             {
+                shadowShader.setFinalBoneMatrices(market.GetFinalBoneMatrices());
                 market.Draw(view, projection, shadowShader, graphicsDevice, true);
                 market.DrawFish(view, graphicsDevice, shadowShader, true);
             }
@@ -474,13 +476,16 @@ namespace src.GameObjects
             // Draw all active projectiles
             foreach (Projectile projectile in projectiles)
             {
+                shadowShader.setFinalBoneMatrices(projectile.GetFinalBoneMatrices());
                 projectile.Draw(view, projection, shadowShader, graphicsDevice, true);
+            
                 // projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             }
 
             // Draw all players
             foreach (Player player in players)
             {
+                shadowShader.setFinalBoneMatrices(player.GetFinalBoneMatrices());
                 player.Draw(view, projection, shadowShader, graphicsDevice, true);
                 //player.Hitbox.DebugDraw(graphicsDevice, view, projection);
             }

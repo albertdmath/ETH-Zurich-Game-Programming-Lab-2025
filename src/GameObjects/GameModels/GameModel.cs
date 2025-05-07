@@ -61,10 +61,15 @@ public class GameModel
     
     }
 
+    public void SetAnimation(int index, bool loop = false){
+          if(this.animator != null && index < animations.Count){
+            this.animator.SetAnimation(animations[index], loop);
+        } 
+    }
 
-    public void SwitchAnimation(int index, bool loop = false){
+    public void SwitchAnimation(int index, bool loop = false, float blendSpeed = 0.0001f){
         if(this.animator != null && index < animations.Count){
-            this.animator.PlayAnimation(animations[index], loop);
+            this.animator.SwitchAnimation(animations[index], loop,blendSpeed);
         } 
     }
 

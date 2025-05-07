@@ -22,6 +22,7 @@ public class Player : GameModel
     // Variables
     private enum PlayerState
     {
+        Idle,
         NormalMovement,
         Catching,
         HoldingProjectile,
@@ -75,7 +76,7 @@ public class Player : GameModel
         Hand = new Hand(this, playerHandModel, 0.6f);
         inertiaUp = new Vector3(0, 0, 0);
         aimIndicator = new AimIndicator(this, indicatorModel,indicatorArrowModel, 1f);
-        playerState = PlayerState.NormalMovement;
+        playerState = PlayerState.Idle;
         playerModels = models;
         this.playerModelShell = playerModelShell;
     }
@@ -85,6 +86,7 @@ public class Player : GameModel
     // ---------------------
     private void Move(float dt)
     {
+
         Vector3 dir = input.Direction();
         //inertia to keep some movement from last update;
         inertia -= (9f * dt) * inertia;
@@ -366,7 +368,7 @@ public class Player : GameModel
             if(projectile.Holder is Player)
             {
                 (projectile.Holder as Player).projectileHeld = null;
-                (projectile.Holder as Player).playerState = PlayerState.NormalMovement;
+                (projectile.Holder as Player).playerState = PlayerState.Idle;
             }
             else if(projectile.Holder is Zombie)
             {
@@ -397,11 +399,22 @@ public class Player : GameModel
         //this cannot overflow
         stamina += dt;
         input.EndVibrate(dt);
+        if(input.Direction().Length() > 0){
+            this.playerState = PlayerState.NormalMovement;
+        } else {
+            this.playerState = PlayerState.Idle;
+        }
 
         switch (playerState)
         {
+            case PlayerState.Idle: 
+                this.SwitchAnimation(1, true, 0.2f);
+                CanCatch();
+                CanDash();
+                break;
             case PlayerState.NormalMovement:
                 Move(dt);
+                this.SwitchAnimation(2, true, 0.05f);
                 CanCatch();
                 CanDash();
                 break;
