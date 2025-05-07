@@ -252,7 +252,7 @@ namespace src.GameObjects{
 
             //LABELS
             Label VolumeLabel = new Label{
-                Text = "Music",
+                Text = "Music:",
                 TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Background = new SolidBrush(Color.Blue),
@@ -267,7 +267,7 @@ namespace src.GameObjects{
             _grid.Widgets.Add(VolumeLabel);
 
             Label SFXVolumeLabel = new Label{
-                Text = "SFX",
+                Text = "SFX:",
                 TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Background = new SolidBrush(Color.Blue),
@@ -282,7 +282,7 @@ namespace src.GameObjects{
             _grid.Widgets.Add(SFXVolumeLabel);
 
             Label StartNumPlayerLabel = new Label{
-                Text = "#Players",
+                Text = "#Players:",
                 TextColor = Color.YellowGreen,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Background = new SolidBrush(Color.Blue),
@@ -297,7 +297,7 @@ namespace src.GameObjects{
             startgrid.Widgets.Add(StartNumPlayerLabel);//STARTGRID
 
             Label NumPlayerLabel = new Label{
-                Text = "#Players",
+                Text = "#Players:",
                 TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Background = new SolidBrush(Color.Blue),
