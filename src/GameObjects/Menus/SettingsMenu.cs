@@ -118,6 +118,7 @@ namespace src.GameObjects{
         }
         public override MyMenuElement[] Activate(MyMenuElement[] R)
         {
+            returnGrid = (Grid) desktop.Root;
             oldMenuElements = R;
             desktop.Root = _grid;
             menuopen=true;
