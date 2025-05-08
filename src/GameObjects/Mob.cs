@@ -209,6 +209,7 @@ namespace src.GameObjects
                 if(!shadowDraw){
                 shader.setRoughness(zombie.DrawModel.roughness);
                 shader.setMetallic(zombie.DrawModel.metallic);
+                shader.setFinalBoneMatrices(zombie.GetFinalBoneMatrices());
                 }
                 zombie.Draw(view, projection, shader, graphicsDevice, shadowDraw);
         }

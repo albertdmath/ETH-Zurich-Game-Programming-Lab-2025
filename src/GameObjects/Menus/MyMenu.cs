@@ -315,6 +315,8 @@ namespace src.GameObjects{
             Grid.SetRow(NumPlayerLabel,2);
             _grid.Widgets.Add(NumPlayerLabel);
             
+            //FONTS
+            NumPlayerLabel.Font = MedievalFont.GetFont(16);
             //TESTING IN PROGRESS
             /*
             CheckButton checkBox = new CheckButton
