@@ -18,6 +18,8 @@ float4x4 ViewInverse;
 float4x4 LightViewProjection;
 float4x4 View;
 
+float ShadowsEnabled;
+float OcclusionEnabled;
 
 
 
@@ -193,13 +195,16 @@ float4 PS(VertexOutput input) : SV_Target
 
     kD *= 1.0 - metallic; 
 
-    float NdotL = max(dot(Normal, wi), 0.0);        
-    float shadow = ShadowCalc(LightViewPos); 
+    float NdotL = max(dot(Normal, wi), 0.0);     
+    float shadow = 1.0f; 
+    float interShadow = ShadowCalc(LightViewPos); 
+    shadow = lerp(1.0f, interShadow, ShadowsEnabled);
+
     float3 Lo =  (kD * albedo / PI + specular) * radiance * NdotL * shadow;
     float occlusion = 1.0f;
-    float occlusionCheck = OcclusionTexture.Sample(OcclusionSampler,input.TexCoord.xy).r;
-
-    occlusion = occlusionCheck;
+ float occlusionCheck = OcclusionTexture.Sample(OcclusionSampler, input.TexCoord.xy).r;
+    
+    occlusion = lerp(1.0f, occlusionCheck, OcclusionEnabled);
 
 
     float3 ambient = float3(0.2f,0.2f,0.2f) * albedo;

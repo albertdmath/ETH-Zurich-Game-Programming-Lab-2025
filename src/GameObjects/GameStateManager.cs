@@ -346,6 +346,8 @@ namespace src.GameObjects
         }
         public void DrawGame(RenderTarget2D output, PBR lightingShader, GraphicsDevice graphicsDevice, VertexBuffer fullScreenQuad, RenderTarget2D FragPosMap, RenderTarget2D NormalMap, RenderTarget2D AlbedoMap, RenderTarget2D RoughnessMetallicMap, RenderTarget2D ShadowMap, RenderTarget2D OcclusionMap, SpriteBatch spriteBatch, bool test)
         {
+            lightingShader.setOcclusionEnabled(menuStateManager.AMBIENT_OCCLUSION_ENABLED ? 1.0f : 0.0f);
+            lightingShader.setShadowsEnabled(menuStateManager.SHADOWS_ENABLED ? 1.0f : 0.0f);
             graphicsDevice.SetRenderTarget(output);
             graphicsDevice.SetVertexBuffer(fullScreenQuad);
             graphicsDevice.Clear(Color.White);
@@ -456,12 +458,14 @@ namespace src.GameObjects
         }
         public void GeometryPass(Shader geometryShader, Shader shadowShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D shadowMap, RenderTargetBinding[] targets, SpriteBatch spriteBatch, bool test)
         {
-            graphicsDevice.SetRenderTarget(shadowMap);
-            graphicsDevice.Clear(Color.Black);
-            graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
+
 
             // graphicsDevice.RasterizerState = this.shadowRasterizer;
 
+            if(menuStateManager.SHADOWS_ENABLED){
+            graphicsDevice.SetRenderTarget(shadowMap);
+            graphicsDevice.Clear(Color.Black);
+            graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
             arena.Draw(view, projection, shadowShader, graphicsDevice, true);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             foreach (Market market in markets)
@@ -486,6 +490,7 @@ namespace src.GameObjects
             }
             mob.Draw(view, projection, shadowShader, graphicsDevice, true);
             
+            }
             graphicsDevice.SetRenderTargets(targets);
             graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
              graphicsDevice.DepthStencilState = DepthStencilState.Default;
