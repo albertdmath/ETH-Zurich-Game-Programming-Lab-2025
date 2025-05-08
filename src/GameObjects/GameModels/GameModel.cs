@@ -26,6 +26,7 @@ public class GameModel
         Scaling = Matrix.CreateScale(scale);
         CalculateTransform();
         Hitbox = (hitboxType == HitboxType.OBB) ? new OBB(this.DrawModel, Transform) : new Sphere(Transform);
+        
         this.animations = new List<GameAnimation>();
         if(model.hasAnimations){
             hasAnimation = true; 
@@ -36,8 +37,9 @@ public class GameModel
             this.animator = new Animator(animations[0], false);
         }
     }
-    public void UpdateScale(float scale){
-        Scaling = Matrix.CreateScale(scale,1f,scale);
+    public void UpdateScale(float scale)
+    {
+        Scaling = Matrix.CreateScale(scale);
     }
 
     public void UpdateAnimation(float dt){
@@ -60,8 +62,9 @@ public class GameModel
 
     protected void CalculateTransform()
     {
-        Transform = Scaling * Matrix.CreateRotationY(MathF.Atan2(-1f * Orientation.X, -1f * Orientation.Z)) * Matrix.CreateTranslation(Position);
+        Transform = Scaling * Matrix.CreateRotationY(MathF.Atan2(-Orientation.X, -Orientation.Z)) * Matrix.CreateTranslation(Position);
     }
+
     public virtual void updateWrap(float dt)
     {
         Update(dt);

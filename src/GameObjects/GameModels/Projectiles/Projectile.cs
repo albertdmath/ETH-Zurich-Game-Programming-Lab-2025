@@ -23,9 +23,9 @@ public class Projectile : GameModel
     public readonly static Dictionary<ProjectileType, float> ProjectileProbability = new()
     {
         { ProjectileType.Banana, 0.0f },
-        { ProjectileType.Coconut, 0.5f },
+        { ProjectileType.Coconut, 0.0f },
         { ProjectileType.Frog, 0.0f },
-        { ProjectileType.Mjoelnir, 0.0f },
+        { ProjectileType.Mjoelnir, 0.5f },
         { ProjectileType.Spear, 0.0f },
         { ProjectileType.Swordfish, 0.0f },
         { ProjectileType.Tomato, 0.0f },

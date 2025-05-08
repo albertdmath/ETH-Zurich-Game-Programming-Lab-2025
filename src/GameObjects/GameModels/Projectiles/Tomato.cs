@@ -36,7 +36,7 @@ public class Tomato : Projectile
         timeAlive = EXPLOSION_TIME;
         Position = new(Position.X, 0, Position.Z);
         this.DrawModel = explodedModel;
-        updateHitbox();
+        this.Hitbox = new Sphere(Matrix.CreateScale(EXPLOSION_RADIUS) * Matrix.CreateTranslation(Position));
         currStatus = status.exploded;
     }
 

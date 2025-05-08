@@ -10,7 +10,7 @@ public class Mjoelnir : Projectile
     // Constants
     private const float MIN_VELOCITY = 2.0f;
     private const float MAX_VELOCITY = 20f;
-    private const float EXPLOSION_TIME = 100f;
+    private const float EXPLOSION_TIME = 0.5f;
     private const float EXPLOSION_RADIUS = 5f;
     private readonly DrawModel explosionModel;
 
@@ -29,8 +29,7 @@ public class Mjoelnir : Projectile
         explodeTime = EXPLOSION_TIME;
         Position = new(Position.X, 0, Position.Z);
         this.DrawModel = explosionModel;
-        UpdateScale(EXPLOSION_RADIUS);
-        updateHitbox();
+        this.Hitbox = new Sphere(Matrix.CreateScale(EXPLOSION_RADIUS) * Matrix.CreateTranslation(Position));
         Holder = null;
     }
 
@@ -38,7 +37,6 @@ public class Mjoelnir : Projectile
     {  
         if(DrawModel == explosionModel && player.GetAffected(this))
         {
-            player.Orientation = new(player.Position.X-Position.X, 0, player.Position.Z-Position.Z);
             player.StunAndSlip(0.8f, 0);
             player.GetHit(this); 
         }
