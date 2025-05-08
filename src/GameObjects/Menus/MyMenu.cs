@@ -15,14 +15,17 @@ using System;
 using Myra.Graphics2D.UI.Styles;
 using Myra.Graphics2D;
 using Myra.Graphics2D.Brushes;
+using System.IO;
+using FontStashSharp;
 //CLASS NOT USED
 namespace src.GameObjects{
     public class MyMenu{
+        private int TEXTSIZE = 42;
         private bool changegrid = false;
         private int controllerselectedbutton;
         private int oldcontrollerselectedbutton;
-        private int CENTER_BUTTON_HEIGHT = 75;
-        private int CENTER_BUTTON_WIDTH = 262;
+        private int CENTER_BUTTON_HEIGHT = 100;
+        private int CENTER_BUTTON_WIDTH = 320;
         private Desktop desktop;
         private Grid _grid;
         private MyMenuElement[] menuElements;
@@ -35,7 +38,10 @@ namespace src.GameObjects{
         private MenuStateManager menuStateManager;
         public MyMenu(GameLabGame game, int DisplayWidth, int DisplayHeight){
             desktop = new Desktop();
-            
+            FontSystem MedievalFont = new FontSystem();
+            byte[] ttfData = File.ReadAllBytes("./Content/OldLondon.ttf");
+            MedievalFont.AddFont(ttfData);
+
             //DEFINE CUSTOM STYLES
             SpinButtonStyle ControllerSpinbuttonStyle = new SpinButtonStyle{
                 Background = new SolidBrush(Color.Black),
@@ -180,12 +186,12 @@ namespace src.GameObjects{
             //STARTMENU-GRID============================
             MyButton startexit = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit","StartExitButton",0,4,(s,a)=>{
                 game.Exit();
-            },startgrid);
+            },startgrid,MedievalFont,TEXTSIZE);
 
             MyButton startstartbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Start Game","StartButton",0,0,(s,a)=>{
                 gameStateManager.StartNewGame();
                 CloseMenu();
-            },startgrid);
+            },startgrid,MedievalFont,TEXTSIZE);
 
             MySpinbutton startNumPlayerSpinButton = new MySpinbutton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"StartNumPlayerSpinButton",0,3,startgrid,(c,a)=>{
                 float? nullableFloat = a.NewValue;
@@ -197,14 +203,14 @@ namespace src.GameObjects{
             //CLOSEBUTTON
             MyButton closebutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit","ExitButton",0,6,(s,a)=>{
                 game.Exit();//HARDCORE CLOSING
-            },_grid);
+            },_grid,MedievalFont,TEXTSIZE);
             
             
             //RELOADBUTTON
             MyButton reloadbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"New Game","ReloadButton",0,4,(s,a)=>{
                 gameStateManager.StartNewGame();//RELOADING
                 CloseMenu();
-            },_grid);
+            },_grid,MedievalFont,TEXTSIZE);
             
             //RESUMEBUTTON
             MyButton resumebutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Resume","ResumeButton",0,0,(s,a) => {
@@ -212,7 +218,7 @@ namespace src.GameObjects{
                     gameStateManager.StartNewGame();
                 }
                 CloseMenu();
-            },_grid);
+            },_grid,MedievalFont,TEXTSIZE);
 
             
             //NUM_PLAYERS
@@ -228,7 +234,7 @@ namespace src.GameObjects{
 
             //SETTINGS-SUBMENU
             //shadows, ambient occlusion, fxaa
-            SettingsMenu settingsMenu = new SettingsMenu(desktop,_grid,this);
+            SettingsMenu settingsMenu = new SettingsMenu(desktop,_grid,this,MedievalFont,TEXTSIZE);
             //SETTINGS
             MyButton settingsButton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settings?","SettingsButton",0,5,(s,a)=>{
                 menuElements[controllerselectedbutton].UnHighlight();
@@ -237,7 +243,7 @@ namespace src.GameObjects{
                 menuElements = settingsMenu.Activate(menuElements);
                 oldcontrollerselectedbutton=controllerselectedbutton;
                 controllerselectedbutton=0;
-            },_grid);
+            },_grid,MedievalFont,TEXTSIZE);
 
             //MUSIC/SFX-SLIDER
             MyHorizontalSlider Volume = new MyHorizontalSlider(0,100,45,2,2,(s,a)=>{
@@ -255,12 +261,12 @@ namespace src.GameObjects{
                 Text = "Music:",
                 TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Background = new SolidBrush(Color.Blue),
+                //Background = new SolidBrush(Color.Blue),
                 Padding = new Thickness{Top=8,Bottom=5},
-                Height = CENTER_BUTTON_HEIGHT/2,
-                Width = CENTER_BUTTON_WIDTH/2,
-                Scale=new Vector2(2,2),
-                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center
+                Height = CENTER_BUTTON_HEIGHT,
+                Width = CENTER_BUTTON_WIDTH,
+                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center,
+                Font = MedievalFont.GetFont(TEXTSIZE)
             };
             Grid.SetColumn(VolumeLabel,2);
             Grid.SetRow(VolumeLabel,1);
@@ -270,12 +276,12 @@ namespace src.GameObjects{
                 Text = "SFX:",
                 TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Background = new SolidBrush(Color.Blue),
+                //Background = new SolidBrush(Color.Blue),
                 Padding = new Thickness{Top=8,Bottom=5},
-                Height = CENTER_BUTTON_HEIGHT/2,
-                Width = CENTER_BUTTON_WIDTH/2,
-                Scale = new Vector2(2,2),
-                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center
+                Height = CENTER_BUTTON_HEIGHT,
+                Width = CENTER_BUTTON_WIDTH,
+                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center,
+                Font = MedievalFont.GetFont(TEXTSIZE)
             };
             Grid.SetColumn(SFXVolumeLabel,2);
             Grid.SetRow(SFXVolumeLabel,3);
@@ -285,12 +291,11 @@ namespace src.GameObjects{
                 Text = "#Players:",
                 TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Background = new SolidBrush(Color.Blue),
                 Padding = new Thickness{Top=8,Bottom=5},
                 Height = CENTER_BUTTON_HEIGHT/2,
                 Width = CENTER_BUTTON_WIDTH/2,
-                Scale = new Vector2(2,2),
-                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center
+                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center,
+                Font = MedievalFont.GetFont(TEXTSIZE)
             };
             Grid.SetColumn(StartNumPlayerLabel,0);
             Grid.SetRow(StartNumPlayerLabel,2);
@@ -300,12 +305,11 @@ namespace src.GameObjects{
                 Text = "#Players:",
                 TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Background = new SolidBrush(Color.Blue),
                 Padding = new Thickness{Top=8,Bottom=5},
                 Height = CENTER_BUTTON_HEIGHT/2,
                 Width = CENTER_BUTTON_WIDTH/2,
-                Scale = new Vector2(2,2),
-                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center
+                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center,
+                Font = MedievalFont.GetFont(TEXTSIZE)
             };
             Grid.SetColumn(NumPlayerLabel,0);
             Grid.SetRow(NumPlayerLabel,2);

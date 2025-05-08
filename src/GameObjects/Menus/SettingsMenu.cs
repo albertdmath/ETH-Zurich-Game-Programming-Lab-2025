@@ -15,15 +15,20 @@ using System;
 using Myra.Graphics2D.UI.Styles;
 using Myra.Graphics2D;
 using Myra.Graphics2D.Brushes;
+using FontStashSharp;
 
 namespace src.GameObjects{
     public class SettingsMenu : SubMenu{
+        private FontSystem fontSystem;
+        private int TEXTSIZE;
         private MyButton FXAA;
         private MyButton SHADOWS;
         private MyButton AMBIENT_OCCLUSION;
         private MyButton FULLSCREEN;
-        public SettingsMenu(Desktop desktop, Grid r, MyMenu p):base(desktop,r,p)
+        public SettingsMenu(Desktop desktop, Grid r, MyMenu p, FontSystem fontSystem, int textsize):base(desktop,r,p)
         {
+            this.fontSystem=fontSystem;
+            TEXTSIZE=textsize;
             _grid = new Grid{
                 RowSpacing = 5,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -72,7 +77,7 @@ namespace src.GameObjects{
                     menuStateManager.FXAA_ENABLED = true;
                     FXAA.ChangeText("FXAA: ON");
                 }
-            },_grid);
+            },_grid,fontSystem,TEXTSIZE);
             
             SHADOWS = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"SHADOWS: ON","sbSHADOWS",0,/*11*/1,(s,a)=>{
                 if(menuStateManager.SHADOWS_ENABLED){
@@ -82,7 +87,7 @@ namespace src.GameObjects{
                     menuStateManager.SHADOWS_ENABLED = true;
                     SHADOWS.ChangeText("SHADOWS: ON");
                 }
-            },_grid);
+            },_grid,fontSystem,TEXTSIZE);
 
             AMBIENT_OCCLUSION = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"SSAO: ON","sbSSAO",0,/*12*/2,(s,a)=>{
                 if(menuStateManager.AMBIENT_OCCLUSION_ENABLED){
@@ -92,7 +97,7 @@ namespace src.GameObjects{
                     menuStateManager.AMBIENT_OCCLUSION_ENABLED = true;
                     AMBIENT_OCCLUSION.ChangeText("SSAO: ON");
                 }
-            },_grid);
+            },_grid,fontSystem,TEXTSIZE);
 
             FULLSCREEN = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"FULLSCREEN","sbFullscreen",0,3,(s,a)=>{
                 if(menuStateManager.FULLSCREEN){
@@ -102,11 +107,11 @@ namespace src.GameObjects{
                     menuStateManager.FULLSCREEN = true;
                     FULLSCREEN.ChangeText("FULLSCREEN");
                 }
-            },_grid);
+            },_grid,fontSystem,TEXTSIZE);
 
             MyButton backbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Back","SettingsR",0,/*13*/4,(s,a)=>{
                 ParentMenu.CloseSubMenu();
-            },_grid);
+            },_grid,fontSystem,TEXTSIZE);
 
             //menuElements = new MyMenuElement[]{testbutton,testbutton1,testbutton2,testbutton3,testbutton4,testbutton5,testbutton6,testbutton7,testbutton8,testbutton9,FXAA,SHADOWS,AMBIENT_OCCLUSION,FULLSCREEN,backbutton};
             menuElements = new MyMenuElement[]{FXAA,SHADOWS,AMBIENT_OCCLUSION,FULLSCREEN,backbutton};

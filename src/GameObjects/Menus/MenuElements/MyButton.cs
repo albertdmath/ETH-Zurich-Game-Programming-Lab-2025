@@ -9,9 +9,11 @@ using Myra.Graphics2D.TextureAtlases;
 using Myra.Graphics2D.UI.Styles;
 using System.Reflection.Metadata;
 using Accord;
+using FontStashSharp;
 
 namespace src.GameObjects{
     public class MyButton : MyMenuElement{
+        private int TEXTSIZE;
         private int WIDTH;
         private int HEIGHT;
         private string ID;
@@ -20,8 +22,11 @@ namespace src.GameObjects{
         private Action<object?,EventArgs> CLICK;
         private Grid GRID;
         private Button button;
+        private FontSystem fontSystem;
 
-        public MyButton(int width, int height, string text, string id, int column, int row, Action<object?,EventArgs> Click, Grid grid){
+        public MyButton(int width, int height, string text, string id, int column, int row, Action<object?,EventArgs> Click, Grid grid, FontSystem fontSystem, int textsize){
+            TEXTSIZE = textsize;
+            this.fontSystem=fontSystem;
             WIDTH=width;
             HEIGHT=height;
             ID=id;
@@ -38,7 +43,7 @@ namespace src.GameObjects{
                 VerticalAlignment = VerticalAlignment.Center,
                 Text = text,
                 TextColor = Color.Black,
-                Scale=new Vector2(2,2),
+                Font = fontSystem.GetFont(TEXTSIZE)
               }  
             };
             Grid.SetColumn(button,COLUMN);
@@ -73,7 +78,7 @@ namespace src.GameObjects{
                 VerticalAlignment = VerticalAlignment.Center,
                 Text = t,
                 TextColor = Color.Black,
-                Scale=new Vector2(2,2),
+                Font = fontSystem.GetFont(TEXTSIZE)
             };
         }
     }

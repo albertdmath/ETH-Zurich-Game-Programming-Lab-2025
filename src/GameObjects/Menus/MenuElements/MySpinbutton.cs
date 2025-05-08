@@ -48,8 +48,7 @@ namespace src.GameObjects{
                 Value=StartValue,
                 Integer=ISINTEGER,
                 //Scale = new Vector2(2,2),
-                Width = width,
-                Height=height,
+                
                 Scale = new Vector2(2,2),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 AcceptsKeyboardFocus=false
