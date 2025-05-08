@@ -369,7 +369,7 @@ namespace GameLab
             if(menuStateManager.START_MENU_IS_OPEN){
                 double camX = Math.Sin(gameTime.TotalGameTime.TotalSeconds/2) * this.cameraRadius;
                 double camZ = Math.Cos(gameTime.TotalGameTime.TotalSeconds/2) * this.cameraRadius;
-                cameraPosRadius = new Vector3((float)camX*1.1f, 5.5f, (float)camZ*1.1f);
+                cameraPosRadius = new Vector3((float)camX*1.1f*1.2f, 5.5f*1.3f, (float)camZ*1.1f*1.2f);
                 view = Matrix.CreateLookAt(cameraPosRadius, new Vector3(0, 0, 0.7f), Vector3.Up);
                 viewInverse = Matrix.Invert(view);
             }
@@ -398,7 +398,7 @@ namespace GameLab
                gameStateManager.DrawGame(null,lightingShader, view,viewInverse, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
             }
         
-            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            _spriteBatch.Begin(samplerState: SamplerState.AnisotropicClamp);
             GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
             hud.DrawPlayerHud(_spriteBatch);
             if(hud.DrawWin(_spriteBatch, GraphicsDevice)){
@@ -413,7 +413,7 @@ namespace GameLab
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap; // or whatever your 3D renderer expects
+            GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp; // or whatever your 3D renderer expects
             GraphicsDevice.SetRenderTarget(null); // go back to backbuffer
 
             base.Draw(gameTime);
