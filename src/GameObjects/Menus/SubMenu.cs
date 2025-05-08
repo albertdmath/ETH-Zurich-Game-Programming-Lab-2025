@@ -4,8 +4,8 @@ using src.GameObjects;
 public abstract class SubMenu{
     protected bool insubElement=false;
     protected bool menuopen=false;
-    protected int CENTER_BUTTON_HEIGHT = 40;
-    protected int CENTER_BUTTON_WIDTH = 250;
+    protected int CENTER_BUTTON_HEIGHT = 100;
+    protected int CENTER_BUTTON_WIDTH = 400;
     protected Desktop desktop;
     protected Grid _grid;
     protected Grid returnGrid;
