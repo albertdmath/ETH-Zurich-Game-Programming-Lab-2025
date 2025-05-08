@@ -1,5 +1,7 @@
+using System;
 using System.ComponentModel;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 
 namespace src.GameObjects;
@@ -8,15 +10,40 @@ public class Mjoelnir : Projectile
     // Constants
     private const float MIN_VELOCITY = 2.0f;
     private const float MAX_VELOCITY = 20f;
-    private const float JUMP_VELOCITY = 3f;
-    private readonly DrawModel explosion;
+    private const float EXPLOSION_TIME = 100f;
+    private const float EXPLOSION_RADIUS = 5f;
+    private readonly DrawModel explosionModel;
+
+    private float explodeTime = 0f;
     private bool DestroysOtherProjectiles = false;
 
     // Constructor:
     public Mjoelnir(ProjectileType type, DrawModel model, DrawModel explosion, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Target) 
     {
         this.velocity = MIN_VELOCITY;
-        this.explosion = explosion;
+        this.explosionModel = explosion;
+    }
+
+    public void Explode()
+    {
+        explodeTime = EXPLOSION_TIME;
+        Position = new(Position.X, 0, Position.Z);
+        this.DrawModel = explosionModel;
+        UpdateScale(EXPLOSION_RADIUS);
+        updateHitbox();
+        Holder = null;
+    }
+
+    public override void OnPlayerHit(Player player) 
+    {  
+        if(DrawModel == explosionModel && player.GetAffected(this))
+        {
+            player.Orientation = new(player.Position.X-Position.X, 0, player.Position.Z-Position.Z);
+            player.StunAndSlip(0.8f, 0);
+            player.GetHit(this); 
+        }
+        else
+            ToBeDeleted = player.GetHit(this);  
     }
 
     public override void OnProjectileHit(Projectile projectile)
@@ -35,20 +62,22 @@ public class Mjoelnir : Projectile
         }
     
         DestroysOtherProjectiles = true;
+        Orientation = Holder.Orientation;
         (Holder as Player).JumpAndStrike();
         return false;
     }
 
     public override void Update(float dt)
     {
-        if (DestroysOtherProjectiles) 
-        {
+        explodeTime -= dt;
+        if(explodeTime > 0) 
+            return;
+
+        if(DrawModel == explosionModel)
+            ToBeDeleted = true;
+        else if (DestroysOtherProjectiles) 
             Position = Holder.Position + Holder.Orientation * 0.3f + new Vector3(0,0.2f,0);
-            Orientation = Holder.Orientation;
-        }
         else
-        {
             base.Update(dt);
-        }
     }
 }

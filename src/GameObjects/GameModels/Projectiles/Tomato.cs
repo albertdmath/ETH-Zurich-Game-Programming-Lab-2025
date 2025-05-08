@@ -20,7 +20,7 @@ public class Tomato : Projectile
     private status currStatus = status.normal;
 
     // Constructor:
-    public Tomato(ProjectileType type, DrawModel model, DrawModel exploded, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Target) 
+    public Tomato(ProjectileType type, DrawModel model, DrawModel exploded, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Target, HitboxType.Sphere) 
     {
         this.explodedModel = exploded;
     }
@@ -40,9 +40,10 @@ public class Tomato : Projectile
         currStatus = status.exploded;
     }
 
-    public override void OnGroundHit()
+    public override void OnGroundHit(bool touching)
     {
-        Explode();
+        if(touching)
+            Explode();
     }
 
     public override void OnPlayerHit(Player player)

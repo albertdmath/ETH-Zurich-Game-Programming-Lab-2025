@@ -16,13 +16,15 @@ public class Barrel : Projectile
     private bool notMoving = false;
 
     // Constructor:
-    public Barrel(ProjectileType type, DrawModel model1, DrawModel model2, float scaling, float height) : base(type, model1, scaling, height, IndicatorModels.Target) 
+    public Barrel(ProjectileType type, DrawModel model1, DrawModel model2, float scaling, float height) : base(type, model1, scaling, height, IndicatorModels.Target, HitboxType.Sphere) 
     { 
         this.DrawModel = Rng.NextBool() ? model1 : model2;
     }
 
-    public override void OnGroundHit()
+    public override void OnGroundHit(bool touching)
     {
+        if(!touching) return;
+        
         Position = new Vector3(Position.X, 0, Position.Z);
         notMoving = true;
     }
@@ -39,7 +41,7 @@ public class Barrel : Projectile
     public override void OnPlayerHit(Player player)
     {
         if (notMoving)
-            player.ObjectCollision(this);
+            player.OnObjectHit(this);
         else
             base.OnPlayerHit(player);
     }

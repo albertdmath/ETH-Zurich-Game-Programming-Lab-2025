@@ -22,7 +22,7 @@ namespace src.GameObjects
             { ProjectileType.Frog, (0.7f, 0.15f) },
             { ProjectileType.Coconut, (0.3f, 0f) },
             { ProjectileType.Banana, (1f, 0f) },
-            { ProjectileType.Turtle, (0.3f, 0f) },
+            { ProjectileType.Turtle, (0.3f, 0.0f) },
             { ProjectileType.Mjoelnir, (1.5f, 0.2f) },
             { ProjectileType.Spear, (0.9f, 0f) },
             { ProjectileType.Chicken, (0.9f, 0f) },
@@ -101,11 +101,11 @@ namespace src.GameObjects
             for(int i = 0; i<MenuStateManager.GetMenuStateManager().NUM_PLAYERS; ++i)
                 players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), inputs[i], 0, mob.Ellipse, playerModels[i], scaling));
             SRY BOUT THAT*/
-            players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, mob.Ellipse, playerModel, playerModelShell, playerHandModel, playerHatModels[0], indicatorModel[0], indicatorModel[4], scaling));
+            players.Add(new Player(new(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, playerModel, playerModelShell, playerHandModel, playerHatModels[0], indicatorModel[0], indicatorModel[4], scaling));
             //players.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, mob.Ellipse, playerModels[1], scaling));
             for (int i = 1; i < menuStateManager.NUM_PLAYERS; ++i)
             {
-                players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(), i, mob.Ellipse, playerModel, playerModelShell, playerHandModel, playerHatModels[i], indicatorModel[i], indicatorModel[i+4], scaling));
+                players.Add(new Player(new(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(), i, playerModel, playerModelShell, playerHandModel, playerHatModels[i], indicatorModel[i], indicatorModel[i+4], scaling));
             }
 
             foreach (Player player in players)
@@ -214,12 +214,10 @@ namespace src.GameObjects
                 }
 
                 //GROUND
-                if (projectile.Position.Y < 0f)
-                    projectile.OnGroundHit();
+                projectile.OnGroundHit(projectile.Position.Y < 0f);
                 
                 // ELLIPSES
-                if (mob.Ellipse.Outside(projectile.Position.X, projectile.Position.Z))
-                    projectile.OnMobHit();
+                projectile.OnMobHit(mob.Ellipse);
                 
                 // PROJECTILE
                 for (int j = i-1; j >= 0; j--)
@@ -237,7 +235,7 @@ namespace src.GameObjects
                 {
                     foreach (Player player in players)
                     {
-                        if(player.Life > 0 && projectile.Hitbox.Intersects(player.Hitbox))
+                        if(projectile.Hitbox.Intersects(player.Hitbox))
                         {
                             projectile.OnPlayerHit(player);
                         }
@@ -257,19 +255,25 @@ namespace src.GameObjects
                     //player.onBoundsHit();
 
                 //ELLIPSES
-                //if (mob.Ellipse.Outside(projectile.Position.X, projectile.Position.Z))
-                    //player.OnMobHit();
+                player.OnMobHit(mob.Ellipse);
 
                 //MARKET
                 foreach (Market market in markets)
                 {
-                    if (player.Hitbox.Intersects(market.Hitbox))
-                        player.ObjectCollision(market);
+                    while (player.Hitbox.Intersects(market.Hitbox))
+                        player.OnObjectHit(market);
                 }
 
                 // PLAYER
                 for (int j = i + 1; j < players.Count; j++)
-                    player.PlayerCollision(players[j]);
+                {
+                    Player player1 = players[j];
+                    while(player.Hitbox.Intersects(player1.Hitbox))
+                    {
+                        player.OnObjectHit(player1);
+                        player1.OnObjectHit(player);
+                    }
+                }
                 
                 // CATCHING
                 Hand hand = player.Hand;
@@ -294,8 +298,6 @@ namespace src.GameObjects
                 }
             }
 
-            projectiles.RemoveAll(x => x.ToBeDeleted);
-            
             // UPDATES
             mob.updateWrap(dt);
 
@@ -307,6 +309,8 @@ namespace src.GameObjects
             
             foreach (Projectile projectile in projectiles)
                 projectile.updateWrap(dt);
+            
+            projectiles.RemoveAll(x => x.ToBeDeleted);
         }
 
 
@@ -387,7 +391,7 @@ namespace src.GameObjects
             foreach (Projectile projectile in projectiles)
             {
                 projectile.Draw(view, projection, depthShader, graphicsDevice, true);
-                // projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+                //projectile.Hitbox.DebugDraw(graphicsDevice,view,projection);
             }
 
             // Draw all players
@@ -613,7 +617,7 @@ public void FilterPass(Filter filterShader, RenderTarget2D inputTexture, RenderT
         }
 
         public bool GameIsOver(){
-            return livingPlayers.Count() == 1 && !(menuStateManager.NUM_PLAYERS==1);
+            return (livingPlayers.Count() == 1 && !(menuStateManager.NUM_PLAYERS==1));
         }
     }
 }

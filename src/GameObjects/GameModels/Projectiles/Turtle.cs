@@ -19,7 +19,7 @@ public class Turtle : Projectile
     private readonly DrawModel shellModel;
 
     // Constructor:
-    public Turtle(ProjectileType type, DrawModel model, DrawModel walkingModel, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) 
+    public Turtle(ProjectileType type, DrawModel model, DrawModel walkingModel, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow, HitboxType.Sphere) 
     {
         this.shellModel = model;
         this.walkingModel = walkingModel;

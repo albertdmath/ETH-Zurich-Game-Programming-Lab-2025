@@ -27,15 +27,12 @@ public class Banana : Projectile
         if(onGround) player.StunAndSlip(SLIP_DURATION, PLAYER_INERTIA);
     }
 
-    public override void OnGroundHit()
+    public override void OnGroundHit(bool touching)
     {
+        if(!touching) return;
+
         Position = new Vector3(Position.X, 0.1f, Position.Z);
         onGround = true;
-    }
-
-    public override void OnMobHit()
-    {
-        if (onGround) ToBeDeleted = true;
     }
 
     private static float CalculateVelocity(Vector3 origin, Vector3 target)

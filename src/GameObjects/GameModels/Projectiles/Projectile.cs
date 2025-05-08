@@ -23,12 +23,12 @@ public class Projectile : GameModel
     public readonly static Dictionary<ProjectileType, float> ProjectileProbability = new()
     {
         { ProjectileType.Banana, 0.0f },
-        { ProjectileType.Coconut, 0.0f },
+        { ProjectileType.Coconut, 0.5f },
         { ProjectileType.Frog, 0.0f },
         { ProjectileType.Mjoelnir, 0.0f },
         { ProjectileType.Spear, 0.0f },
-        { ProjectileType.Swordfish, 1.0f },
-        { ProjectileType.Tomato, 1.0f },
+        { ProjectileType.Swordfish, 0.0f },
+        { ProjectileType.Tomato, 0.0f },
         { ProjectileType.Turtle, 0.0f },
         { ProjectileType.Chicken, 0.0f },
         { ProjectileType.Barrel, 0.0f }
@@ -36,7 +36,7 @@ public class Projectile : GameModel
 
     // Projectile properties
     public ProjectileType Type { get; private set; }
-    public GameModel Holder { get; private set; } = null;
+    public GameModel Holder { get; protected set; } = null;
     public bool ToBeDeleted { get; set; } = false;
     public IndicatorModels IndicatorModel { get; private set; }
 
@@ -45,7 +45,7 @@ public class Projectile : GameModel
 
     private readonly float height;
 
-    public Projectile(ProjectileType type, DrawModel model, float scaling, float height, IndicatorModels indicatorModel) : base(model, scaling) 
+    public Projectile(ProjectileType type, DrawModel model, float scaling, float height, IndicatorModels indicatorModel, HitboxType hitboxType = HitboxType.OBB) : base(model, scaling, hitboxType) 
     {
         this.height = height;
         this.Type = type;
@@ -55,15 +55,15 @@ public class Projectile : GameModel
     // Hit detection for the projectile
     public virtual void OnPlayerHit(Player player) 
     {             
-        ToBeDeleted = ToBeDeleted || player.GetHit(this);  
+        ToBeDeleted = player.GetHit(this);  
     }
 
-    public virtual void OnGroundHit()
+    public virtual void OnGroundHit(bool touching)
     {
-        ToBeDeleted = true;
+        ToBeDeleted = touching;
     }
 
-    public virtual void OnMobHit() {}
+    public virtual void OnMobHit(Ellipse ellipse) {}
 
     public virtual void OnProjectileHit(Projectile projectile) {}
 

@@ -13,7 +13,7 @@ namespace src.GameObjects
         private Player player;
         private const float CATCH_DURATION = 0.25f; 
         private const float CATCH_RADIUS = 0.6f;
-        public Hand(Player player, DrawModel model,float scale) : base(model,scale)
+        public Hand(Player player, DrawModel model, float scale) : base(model,scale, HitboxType.Sphere)
         {
             this.player=player;
             OnBody();

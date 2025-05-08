@@ -20,32 +20,28 @@ public class GameModel
     public List<GameAnimation> animations {get; set;}
     protected Matrix Scaling;
 
-    public GameModel(DrawModel model, float scale)
+    public GameModel(DrawModel model, float scale, HitboxType hitboxType = HitboxType.OBB)
     {
         DrawModel = model;
         Scaling = Matrix.CreateScale(scale);
         CalculateTransform();
-        Hitbox = new Hitbox(this.DrawModel, Transform);
+        Hitbox = (hitboxType == HitboxType.OBB) ? new OBB(this.DrawModel, Transform) : new Sphere(Transform);
         this.animations = new List<GameAnimation>();
         if(model.hasAnimations){
             hasAnimation = true; 
             for(int i = 0; i < model.scene.AnimationCount; i++){
-                GameAnimation anim = new GameAnimation("Animation " +i, model.scene.Animations[i], model.scene, model);
+                GameAnimation anim = new("Animation " +i, model.scene.Animations[i], model.scene, model);
                 animations.Add(anim);
             }
             this.animator = new Animator(animations[0], false);
         }
-
-
     }
     public void UpdateScale(float scale){
         Scaling = Matrix.CreateScale(scale,1f,scale);
     }
 
     public void UpdateAnimation(float dt){
-        if(this.animator != null){
-            this.animator.UpdateAnimation(dt);
-        }
+        this.animator?.UpdateAnimation(dt);
     }
 
     public Matrix[] GetFinalBoneMatrices(){
@@ -76,6 +72,7 @@ public class GameModel
         CalculateTransform();
         Hitbox.Transform(Transform);
     }
+    
     public virtual void Update(float dt) { }
 
     public virtual void Draw(Matrix view, Matrix projection, Shader shader, GraphicsDevice graphicsDevice, bool shadowDraw)
@@ -109,24 +106,5 @@ public class GameModel
             }
         }
     }
-
-    
-    // public virtual void Draw(Matrix view, Matrix projection, Shader shader, GraphicsDevice graphicsDevice, bool shadowDraw){
-    //     CalculateTransform();
-    //     int i = 0; 
-    //     foreach (ModelMesh mesh in DrawModel.model.Meshes)
-    //     {
-    //         foreach(ModelMeshPart part in mesh.MeshParts){
-    //             part.Effect = shader.effect; 
-    //            shader.setWorldMatrix(Transform);
-
-    //             if(!shadowDraw){
-    //             shader.setTexture(this.DrawModel.textures[i]);
-    //             }
-    //         }
-    //         i++;
-    //         mesh.Draw();
-    //     }
-    // }
 }
 

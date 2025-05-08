@@ -28,7 +28,7 @@ public class Player : GameModel
         Aiming,
         Stunned,
         Crawling,
-        JumpingWithTheMightyHammerOfTheThousandThunders,
+        MjoelnirJump,
         DroppingThenNormalMovement,
         FloatingWithChicken
     }
@@ -49,7 +49,6 @@ public class Player : GameModel
     private readonly DrawModel playerModelShell;
     private const float CATCH_COOLDOWN = 1.0f;
     private readonly Input input;
-    private readonly Ellipse ellipse;
     private Vector3 inertia,inertiaUp;
     private Vector3 gravity = new(0,-30f,0);
     private bool outside = false;
@@ -61,12 +60,11 @@ public class Player : GameModel
 
     private readonly GameStateManager gameStateManager;
 
-    public Player(Vector3 position, Input input, int id, Ellipse ellipse, DrawModel model, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel hatModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, float scale) : base(model, scale)
+    public Player(Vector3 position, Input input, int id, DrawModel model, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel hatModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, float scale) : base(model, scale)
     {
         Position = position;
         Orientation = new Vector3(0, 0, 1f);
         this.input = input;
-        this.ellipse = ellipse;
         this.jesterHat = new JesterHat(this, hatModel, scale);
         this.Id = id;
         inertia = new Vector3(0, 0, 0);
@@ -107,11 +105,6 @@ public class Player : GameModel
         {
             inertiaUp = new Vector3(0, 0, 0);
             Position = new Vector3(Position.X, 0, Position.Z);
-        }
-        if (outside)
-        {
-            while (ellipse.Inside(Position.X, Position.Z))
-                    Position += ellipse.Normal(Position.X, Position.Z) * dt * -0.1f;
         }
     }
 
@@ -217,7 +210,7 @@ public class Player : GameModel
     // Start of public functions to change state of player. Meant to be called by projectile, after a collision
     // ---------------------
     public void LoseLife(){
-        if (gameStateManager.livingPlayers.Count != 1 && immunity <= 0)
+        if (gameStateManager.livingPlayers.Count != 1 && immunity <= 0 && Life > 0)
         {
             input.Vibrate();
             MusicAndSoundEffects.playHitSFX();
@@ -238,7 +231,6 @@ public class Player : GameModel
                 }
 
                 // For now the player is moved down to indacet crawling. Later done with an animation
-                Position = Position - new Vector3(0, 0.2f, 0);
                 speed = 1f;
                 gameStateManager.livingPlayers.Remove(this);
                 playerState = PlayerState.Crawling;
@@ -271,6 +263,7 @@ public class Player : GameModel
         // check for general immunity
         return true;
     }
+
     public void StunAndSlip(float stunDuration, float friction) // advised value for normal behaviour is friction = 9f
     {
         Drop();
@@ -286,20 +279,18 @@ public class Player : GameModel
         this.DrawModel = playerModelShell;
         return true;
     }
-    public void StartDashingWithProjectileInHand(float speed)
+    public void UseSpear(float speed)
     {
         dashSpeed = speed;
         dashTime = actionPushedDuration * speedOfCharging / speed;
-        Console.WriteLine("Dashing with projectile for: " + dashTime + " and speed: " + speed);
         playerState = PlayerState.Dashing;
-        playerStateBeforeDashing = PlayerState.DroppingThenNormalMovement;
-
+        playerStateBeforeDashing = PlayerState.NormalMovement;
     }
     public void JumpAndStrike()
     {
         flySpeed = actionPushedDuration * speedOfCharging;
         inertiaUp += new Vector3(0f,15f,0f);
-        playerState = PlayerState.JumpingWithTheMightyHammerOfTheThousandThunders;
+        playerState = PlayerState.MjoelnirJump;
         
     }
     public void FlyWithChicken()
@@ -308,53 +299,50 @@ public class Player : GameModel
         speed = 1.5f;
     }
 
-    public void CatchDrunkMan(DrunkMan drunkMan)
-    {
-        Orientation = Vector3.Normalize(new Vector3(drunkMan.Position.X, 0f, drunkMan.Position.Z) - new Vector3(Position.X, 0f, Position.Z));
-        Drop();
-        playerState = PlayerState.Stunned;
-    }
-
     // ---------------------
     // End of public functions to change state of player. Meant to be called by projectile, after a collision
     // Start of public functions to change state of player. Meant to be called by GameStateManager. Handles mainly collisions
     // ---------------------
-    public void PlayerCollision(Player player)
+    public void OnMobHit(Ellipse ellipse)
     {
-        Vector3 dir = 0.02f * Vector3.Normalize(new Vector3(Position.X - player.Position.X, 0f, Position.Z - player.Position.Z));
-        while (Hitbox.Intersects(player.Hitbox))
+        bool isOutside = ellipse.Outside(Position.X, Position.Z);
+
+        // from outside to inside
+        if(outside && !isOutside)
         {
-            Position += dir;
-            player.Position -= dir;
-            updateHitbox();
-            player.updateHitbox();
+            while (ellipse.Inside(Position.X, Position.Z))
+                    Position += ellipse.Normal(Position.X, Position.Z) * -0.1f;
         }
-    }
-    public void MobCollision(Zombie zombie)
-    {
-        Vector3 dir = 0.02f * Vector3.Normalize(new Vector3(Position.X - zombie.Position.X, 0f, Position.Z - zombie.Position.Z));
-        if (Hitbox.Intersects(zombie.Hitbox))
+        // from inside to outside
+        else if(isOutside && !outside)
         {
-            while (Hitbox.Intersects(zombie.Hitbox))
+            if(playerState == PlayerState.Crawling)
             {
-                Position += dir;
-                updateHitbox();
+                speed = NORMAL_SPEED;
+                outside = true;
+                playerState = PlayerState.NormalMovement;
             }
-            Orientation = ellipse.Normal(Position.X, Position.Z);
-            inertia = 1.6f * Orientation;
-            StunAndSlip(1f, 9f);
-        }
+            else
+            { 
+                if(playerState == PlayerState.FloatingWithChicken || playerState == PlayerState.MjoelnirJump)
+                {
+                    speed = NORMAL_SPEED;
+                    Position = new(Position.X, 0, Position.Z);
+                    Drop();
+                }
+                inertia = 3f * ellipse.Normal(Position.X, Position.Z);
+                StunAndSlip(1f, 9f);
+            }
+        } 
     }
 
-    public void ObjectCollision(GameModel obj)
+    public void OnObjectHit(GameModel obj)
     {
         Vector3 dir = 0.02f * Vector3.Normalize(new Vector3(Position.X - obj.Position.X, 0f, Position.Z - obj.Position.Z));
-        while (Hitbox.Intersects(obj.Hitbox))
-        {
-            Position += dir;
-            updateHitbox();
-        }
+        Position += dir;
+        updateHitbox();
     }
+
     // Method to test for a collision with a projectile and potentially grab it:
     public void Catch(Projectile projectile)
     {
@@ -440,22 +428,17 @@ public class Player : GameModel
                 break;
             case PlayerState.Crawling:
                 Move(dt);
-                if (ellipse.Outside(Position.X, Position.Z))
-                {
-                    Position = Position + new Vector3(0, 0.2f, 0);
-                    speed = NORMAL_SPEED;
-                    outside = true;
-                    playerState = PlayerState.NormalMovement;
-                }
                 break;
-            case PlayerState.JumpingWithTheMightyHammerOfTheThousandThunders:
+            case PlayerState.MjoelnirJump:
                 InAir(dt);
                 if(Position.Y<=0)
                 {
-                    inertiaUp = new Vector3(0, 0, 0);
-                    Position = new Vector3(Position.X, 0, Position.Z);
-                    //gameStateManager.CreateAreaDamage(projectileHeld.Position,3f,this,ProjectileType.Mjoelnir);
-                    Drop();
+                    inertiaUp = new(0, 0, 0);
+                    Position = new(Position.X, 0, Position.Z);
+                    (projectileHeld as Mjoelnir).Explode();
+                    lastProjectileImmunity = 1f;
+                    lastThrownProjectile = projectileHeld;
+                    projectileHeld = null;
                     playerState = PlayerState.NormalMovement;
                 }
                 break;
@@ -467,12 +450,7 @@ public class Player : GameModel
                 Move(dt);
                 Chicken chicken = projectileHeld as Chicken;
                 Position = new(Position.X, chicken.YCoordinate, Position.Z);
-                if(ellipse.Outside(Position.X, Position.Z))
-                {
-                    speed = NORMAL_SPEED;
-                    Drop();
-                }
-                else if(chicken.YCoordinate <= 0)
+                if(chicken.YCoordinate <= 0)
                 {
                     Position = new Vector3(Position.X, 0, Position.Z);
                     speed = NORMAL_SPEED;

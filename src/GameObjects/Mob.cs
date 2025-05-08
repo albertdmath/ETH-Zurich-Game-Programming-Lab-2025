@@ -66,7 +66,7 @@ namespace src.GameObjects
             {
                 float angle = Rng.NextFloat(2 * MathF.PI);
                 active[i] = new Zombie(
-                    new Vector3(startMajorAxis*MathF.Sin(angle), 0, startMinorAxis*MathF.Cos(angle)) * 1.3f, 
+                    new Vector3(startMajorAxis*MathF.Sin(angle), 0, startMinorAxis*MathF.Cos(angle)) * 1.1f, 
                     Ellipse, 
                     models[i%models.Count], 0.7f
                 );
@@ -76,8 +76,6 @@ namespace src.GameObjects
         public void updateWrap (float dt) {
             CloseRing(dt);
             MobPhysics();
-            MobPlayerInteraction();
-            MobMarketInteraction();
             foreach (Zombie zombie in active) zombie.updateWrap(dt);
             NewMobProjectile(dt);
         }
@@ -131,45 +129,6 @@ namespace src.GameObjects
                         tempList[k].Force(sortedZombies[i+j*24+24],-1);
                         tempList[k].Force(sortedZombies[i+j*24+25],-1);
                     }
-                }
-            }
-        }
-        private void MobPlayerInteraction(){
-
-            foreach (Player player in gameStateManager.players)
-            { 
-                int i = (int)Math.Round(player.Position.X*0.2f)+11;
-                int j = (int)Math.Round(player.Position.Z*0.2f)+11;
-                int iNeighbour = (player.Position.X*0.2f-i) < 0.5f ? -1 : 1;
-                int jNeighbour = (player.Position.Z*0.2f-j) < 0.5f ? -24 : 24;
-                if(player.Life<=0)
-                {
-                    foreach (Zombie zombie in sortedZombies[i+j*24]) zombie.ForceByPlayer(player);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour]) zombie.ForceByPlayer(player);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+jNeighbour]) zombie.ForceByPlayer(player);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour+jNeighbour]) zombie.ForceByPlayer(player);
-                }else{
-                    foreach (Zombie zombie in sortedZombies[i+j*24]) 
-                        if((player.Position-endCenter).LengthSquared()<(zombie.Position-endCenter).LengthSquared())
-                            player.MobCollision(zombie);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour]) 
-                        if((player.Position-endCenter).LengthSquared()<(zombie.Position-endCenter).LengthSquared())
-                            player.MobCollision(zombie);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+jNeighbour])  
-                        if((player.Position-endCenter).LengthSquared()<(zombie.Position-endCenter).LengthSquared())
-                            player.MobCollision(zombie);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour+jNeighbour])  
-                        if((player.Position-endCenter).LengthSquared()<(zombie.Position-endCenter).LengthSquared())
-                            player.MobCollision(zombie);
-                }
-            }
-        }
-        private void MobMarketInteraction(){
-
-            foreach (Zombie zombie in active)
-            { 
-                foreach(Market market in gameStateManager.markets){
-                    if(zombie.Hitbox.Intersects(market.Hitbox))zombie.ForceByMarket(market);
                 }
             }
         }

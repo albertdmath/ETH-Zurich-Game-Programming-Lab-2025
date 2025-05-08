@@ -32,7 +32,7 @@ public class Spear : Projectile
         }
 
         DestroysOtherProjectiles = true;
-        (Holder as Player).StartDashingWithProjectileInHand(DASH_VELOCITY);
+        (Holder as Player).UseSpear(DASH_VELOCITY);
         return false;
     }
 
