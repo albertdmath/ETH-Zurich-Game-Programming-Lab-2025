@@ -51,7 +51,8 @@ namespace src.GameObjects{
                 Width = width,
                 Height=height,
                 Scale = new Vector2(2,2),
-                HorizontalAlignment = HorizontalAlignment.Center
+                HorizontalAlignment = HorizontalAlignment.Center,
+                AcceptsKeyboardFocus=false
             };
             
             spinbutton.ValueChanging += Valuechanging;
