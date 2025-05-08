@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MLEM.Input;
 using Myra;
 using src.GameObjects;
 
@@ -10,6 +11,7 @@ namespace GameLab
 {
     public class GameLabGame : Game
     {
+        private InputHandler InputHandler;
         private MyMenu _menu;
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;

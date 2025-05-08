@@ -15,6 +15,8 @@ using System;
 using Myra.Graphics2D.UI.Styles;
 using Myra.Graphics2D;
 using Myra.Graphics2D.Brushes;
+using System.IO;
+using FontStashSharp;
 //CLASS NOT USED
 namespace src.GameObjects{
     public class MyMenu{
@@ -35,6 +37,10 @@ namespace src.GameObjects{
         private MenuStateManager menuStateManager;
         public MyMenu(GameLabGame game, int DisplayWidth, int DisplayHeight){
             desktop = new Desktop();
+
+            byte[] ttfData = File.ReadAllBytes("./Content/OldLondon.ttf");
+            FontSystem MedievalFont = new FontSystem();
+            MedievalFont.AddFont(ttfData);
             
             //DEFINE CUSTOM STYLES
             SpinButtonStyle ControllerSpinbuttonStyle = new SpinButtonStyle{
@@ -311,6 +317,8 @@ namespace src.GameObjects{
             Grid.SetRow(NumPlayerLabel,2);
             _grid.Widgets.Add(NumPlayerLabel);
             
+            //FONTS
+            NumPlayerLabel.Font = MedievalFont.GetFont(16);
             //TESTING IN PROGRESS
             /*
             CheckButton checkBox = new CheckButton
