@@ -292,8 +292,8 @@ namespace src.GameObjects{
                 TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Padding = new Thickness{Top=8,Bottom=5},
-                Height = CENTER_BUTTON_HEIGHT/2,
-                Width = CENTER_BUTTON_WIDTH/2,
+                Height = CENTER_BUTTON_HEIGHT,
+                Width = CENTER_BUTTON_WIDTH,
                 TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center,
                 Font = MedievalFont.GetFont(TEXTSIZE)
             };
@@ -306,8 +306,8 @@ namespace src.GameObjects{
                 TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Padding = new Thickness{Top=8,Bottom=5},
-                Height = CENTER_BUTTON_HEIGHT/2,
-                Width = CENTER_BUTTON_WIDTH/2,
+                Height = CENTER_BUTTON_HEIGHT,
+                Width = CENTER_BUTTON_WIDTH,
                 TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center,
                 Font = MedievalFont.GetFont(TEXTSIZE)
             };
@@ -315,8 +315,45 @@ namespace src.GameObjects{
             Grid.SetRow(NumPlayerLabel,2);
             _grid.Widgets.Add(NumPlayerLabel);
             
-            //FONTS
-            NumPlayerLabel.Font = MedievalFont.GetFont(16);
+
+            /*VerticalStackPanel panel = new VerticalStackPanel();
+
+            CheckButton c1 = new CheckButton{Content = new Label{
+                Text = "option"
+            }};
+            CheckButton c2 = new CheckButton{Content = new Label{
+                Text = "option1"
+            }};
+            CheckButton c3 = new CheckButton{Content = new Label{
+                Text = "option2",
+                TextColor = Color.Coral,
+                DisabledTextColor = Color.White,
+            }};
+            List<CheckButton> radioGroup = new List<CheckButton>{c1,c2,c3};
+
+            foreach(CheckButton cb in radioGroup){
+                cb.PressedChanged += (s,a)=>{
+                    if(cb.IsChecked){
+                        foreach(CheckButton other in radioGroup){
+                            if(other!=cb){
+                                other.IsChecked = false;
+                            }
+                        }
+                    }else{
+                        bool test = false;
+                        foreach(CheckButton cb in radioGroup){
+                            test = cb.IsChecked || test;
+                        }
+                        if(!test){
+                            cb.IsChecked=true;
+                        }
+                    }
+                };
+                panel.Widgets.Add(cb);
+            }
+            Grid.SetColumn(panel,4);
+            _grid.Widgets.Add(panel);*/
+            
             //TESTING IN PROGRESS
             /*
             CheckButton checkBox = new CheckButton
