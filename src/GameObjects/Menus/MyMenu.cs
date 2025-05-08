@@ -455,6 +455,7 @@ namespace src.GameObjects{
             //STARTMENU SHENANIGANS
             if(menuStateManager.START_MENU_IS_OPEN){
                 menuStateManager.START_MENU_IS_OPEN=false;
+                menuStateManager.TRANSITION = true;
                 changegrid = true;
             }
         }

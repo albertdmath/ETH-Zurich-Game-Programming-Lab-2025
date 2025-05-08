@@ -6,6 +6,8 @@ namespace src.GameObjects
     public class MenuStateManager
     {
         public bool START_MENU_IS_OPEN {get;set;} = true;
+
+        public bool TRANSITION {get; set;} = false;
         public bool SOUND_ENABLED { get ; set; } = true;
         public int NUM_PLAYERS { get ; set; } = 2;
         public int MAX_NUM_PLAYER {get;} = 4;

@@ -89,6 +89,9 @@ namespace GameLab
 
         // Camera settings
         private Vector3 cameraPosition = new Vector3(0f, 9, 7);
+        private Vector3 cameraPosRadius =  new Vector3(0f, 9, 7);
+        private Vector3 cameraTarget = new Vector3(0, 0, 0.7f);
+        private float cameraRadius;
         private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 9, 7), new Vector3(0, 0, 0.7f), Vector3.Up);
         private Matrix projection = Matrix.CreatePerspectiveFieldOfView(
             MathHelper.ToRadians(45f), // Field of view in radians (e.g., 45 degrees)
@@ -181,7 +184,8 @@ namespace GameLab
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            Vector3 offset = cameraPosition - cameraTarget;
+            cameraRadius = new Vector2(offset.X, offset.Z).Length();
             generateFullScreenVertexBuffer();
             // Load all of the models
             arenaModel = new DrawModel("../../../Content/marketplace.dae", 0.0f, 1.0f, GraphicsDevice);
@@ -327,17 +331,21 @@ namespace GameLab
             KeyboardState keyboardState = Keyboard.GetState();
             GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
             _menu.Update(gameTime, keyboardState, _previousKeyboardState, gamePadState, _previousGamePadState);
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (_menu.menuisopen())
             {
                 _previousKeyboardState = keyboardState;
                 _previousGamePadState = gamePadState;
-                base.Update(gameTime);
+                if(menuStateManager.START_MENU_IS_OPEN){
+                 gameStateManager.UpdateGame(dt,true);
+                }
+
                 return;
             }
 
-            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            gameStateManager.UpdateGame(dt);
+
+            gameStateManager.UpdateGame(dt,false);
 
             _previousKeyboardState = keyboardState;
             _previousGamePadState = gamePadState;
@@ -358,6 +366,25 @@ namespace GameLab
                 _graphics.IsFullScreen = menuStateManager.FULLSCREEN;
                 _graphics.ApplyChanges();
             }
+            if(menuStateManager.START_MENU_IS_OPEN){
+                double camX = Math.Sin(gameTime.TotalGameTime.TotalSeconds/2) * this.cameraRadius;
+                double camZ = Math.Cos(gameTime.TotalGameTime.TotalSeconds/2) * this.cameraRadius;
+                cameraPosRadius = new Vector3((float)camX*1.1f, 5.5f, (float)camZ*1.1f);
+                view = Matrix.CreateLookAt(cameraPosRadius, new Vector3(0, 0, 0.7f), Vector3.Up);
+                viewInverse = Matrix.Invert(view);
+            }
+
+            if(menuStateManager.TRANSITION){
+                cameraPosRadius = Vector3.Lerp(cameraPosRadius,cameraPosition,0.05f);
+                view = Matrix.CreateLookAt(cameraPosRadius, new Vector3(0, 0, 0.7f), Vector3.Up);
+                viewInverse = Matrix.Invert(view);
+                if((cameraPosition - cameraPosRadius).Length() < 0.01f){
+                    view =  Matrix.CreateLookAt(cameraPosition, new Vector3(0, 0, 0.7f), Vector3.Up);
+                    viewInverse = Matrix.Invert(view);
+                    menuStateManager.TRANSITION = false;
+                }
+                
+            }
             //gameStateManager.DepthMapPass(depthMapShader, view, projection, GraphicsDevice, depthMap, _spriteBatch, true);
             gameStateManager.GeometryPass(geometryShader, shadowShader, view, projection, GraphicsDevice, shadowMap, targets, _spriteBatch, false);
             if(menuStateManager.AMBIENT_OCCLUSION_ENABLED){
@@ -365,10 +392,10 @@ namespace GameLab
             gameStateManager.FilterPass(HBAOFilter, HBAOmap, normalMap, posMap, HBAOBlurredMap, GraphicsDevice, fullscreenVertexBuffer, _spriteBatch, false);
             }
             if(menuStateManager.FXAA_ENABLED){
-                gameStateManager.DrawGame(FinalImage,lightingShader, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
+                gameStateManager.DrawGame(FinalImage,lightingShader, view, viewInverse, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
                 gameStateManager.FilterPass(FXAAShader,FinalImage,null,null,null,GraphicsDevice,fullscreenVertexBuffer,_spriteBatch,false);
             } else{
-               gameStateManager.DrawGame(null,lightingShader, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
+               gameStateManager.DrawGame(null,lightingShader, view,viewInverse, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
             }
         
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);

@@ -208,10 +208,10 @@ namespace src.GameObjects
                 areaDamages.Add(new AreaDamage(position, player, areaDamageModels[1], scale));
         }
 
-        public void UpdateGame(float dt)
+        public void UpdateGame(float dt, bool MainMenuMode)
         {
         // jesterGame.UpdateAnimation(dt);
-    
+        if(!MainMenuMode){
             // Update area damage
             foreach (AreaDamage areaDamage in areaDamages)
                 areaDamage.updateWrap(dt);
@@ -244,8 +244,10 @@ namespace src.GameObjects
                 market.Update(dt);
 
             // Update mob
-            mob.Update(dt);
+        }
+        mob.Update(dt,MainMenuMode);
 
+        if(!MainMenuMode){
 
             // Move the projectilesu
             foreach (Projectile projectile in projectiles){
@@ -332,6 +334,7 @@ namespace src.GameObjects
             // Delete stuff again
             projectiles.RemoveAll(x => x.ToBeDeleted);
         }
+        }
 
 
         public void ShaderTest(Shader testShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice)
@@ -344,8 +347,10 @@ namespace src.GameObjects
             testShader.setProjectionMatrix(projection);
             arena.Draw(view, projection, testShader, graphicsDevice, false);
         }
-        public void DrawGame(RenderTarget2D output, PBR lightingShader, GraphicsDevice graphicsDevice, VertexBuffer fullScreenQuad, RenderTarget2D FragPosMap, RenderTarget2D NormalMap, RenderTarget2D AlbedoMap, RenderTarget2D RoughnessMetallicMap, RenderTarget2D ShadowMap, RenderTarget2D OcclusionMap, SpriteBatch spriteBatch, bool test)
+        public void DrawGame(RenderTarget2D output, PBR lightingShader, Matrix view, Matrix viewInverse, GraphicsDevice graphicsDevice, VertexBuffer fullScreenQuad, RenderTarget2D FragPosMap, RenderTarget2D NormalMap, RenderTarget2D AlbedoMap, RenderTarget2D RoughnessMetallicMap, RenderTarget2D ShadowMap, RenderTarget2D OcclusionMap, SpriteBatch spriteBatch, bool test)
         {
+            lightingShader.setViewInverse(viewInverse);
+            lightingShader.setViewMatrix(view);
             lightingShader.setOcclusionEnabled(menuStateManager.AMBIENT_OCCLUSION_ENABLED ? 1.0f : 0.0f);
             lightingShader.setShadowsEnabled(menuStateManager.SHADOWS_ENABLED ? 1.0f : 0.0f);
             graphicsDevice.SetRenderTarget(output);
@@ -459,7 +464,7 @@ namespace src.GameObjects
         public void GeometryPass(Shader geometryShader, Shader shadowShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D shadowMap, RenderTargetBinding[] targets, SpriteBatch spriteBatch, bool test)
         {
 
-
+            geometryShader.setViewMatrix(view);
             // graphicsDevice.RasterizerState = this.shadowRasterizer;
 
             if(menuStateManager.SHADOWS_ENABLED){

@@ -73,13 +73,20 @@ namespace src.GameObjects
             }
         }
 
-        public void Update (float dt) {
-            CloseRing(dt);
+        public void Update (float dt, bool MainMenuMode) {
+            if(!MainMenuMode){
+                CloseRing(dt);
+            }
             MobPhysics();
+            if(!MainMenuMode){
             MobPlayerInteraction();
+            }
             MobMarketInteraction();
             foreach (Zombie zombie in active) zombie.updateWrap(dt);
-            NewMobProjectile(dt);
+            if(!MainMenuMode){
+                NewMobProjectile(dt);
+            }
+
         }
 
         private void CloseRing(float dt)
