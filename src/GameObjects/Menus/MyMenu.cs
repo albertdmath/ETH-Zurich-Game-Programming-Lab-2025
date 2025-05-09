@@ -29,12 +29,13 @@ namespace src.GameObjects{
         private Desktop desktop;
         private Grid PauseGrid;
         private Grid MainMenuGrid;
-        private MyMenuElement[] menuElements;
-        private MyMenuElement[] basemenuElements;
+        private MyMenuElement[] activeElements;
+        private MyMenuElement[] pauseElements;
         private bool menuopen=true;
         private bool controllerlocked = false;
         private bool insubMenu = false;
         SubMenu subMenu;
+        EndMenu endMenu;
         private GameStateManager gameStateManager;
         private MenuStateManager menuStateManager;
         public MyMenu(GameLabGame game, int DisplayWidth, int DisplayHeight){
@@ -163,7 +164,6 @@ namespace src.GameObjects{
             controllerselectedbutton=0;
 
             
-
             //MENU-GRID            
             PauseGrid = new Grid
             {
@@ -179,6 +179,7 @@ namespace src.GameObjects{
             //SETTINGS-SUBMENU
             //shadows, ambient occlusion, fxaa
             SettingsMenu settingsMenu = new SettingsMenu(desktop,PauseGrid,this,MedievalFont,TEXTSIZE);
+            endMenu = new EndMenu(desktop,MainMenuGrid,this,MedievalFont,TEXTSIZE);
             
             //MAIN-MENU-GRID
             MainMenuGrid = new Grid{
@@ -196,7 +197,7 @@ namespace src.GameObjects{
 
             
             
-            //MainMenu-GRID============================
+            //MainMenu-GRID-CONTENT============================
             MyButton MainMenuExit = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit",0,3,(s,a)=>{
                 game.Exit();
             },MainMenuGrid,MedievalFont,TEXTSIZE);
@@ -207,10 +208,10 @@ namespace src.GameObjects{
             },MainMenuGrid,MedievalFont,TEXTSIZE);
 
             MyButton MainSettings = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settings",0,1,(s,a)=>{
-                menuElements[controllerselectedbutton].UnHighlight();
+                activeElements[controllerselectedbutton].UnHighlight();
                 insubMenu = true;
                 subMenu = settingsMenu;
-                menuElements = settingsMenu.Activate(menuElements);
+                activeElements = settingsMenu.Activate(activeElements);
                 oldcontrollerselectedbutton=controllerselectedbutton;
                 controllerselectedbutton=0;
             },MainMenuGrid,MedievalFont,TEXTSIZE);
@@ -221,7 +222,7 @@ namespace src.GameObjects{
                 menuStateManager.TUTORIAL_IS_OPEN=true;
             },MainMenuGrid,MedievalFont,TEXTSIZE);
 
-            //BASEGRID===================================
+            //BASEGRID-CONTENT===================================
             //CLOSEBUTTON
             MyButton closebutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Close Game",0,4,(s,a)=>{
                 game.Exit();//HARDCORE CLOSING
@@ -259,10 +260,10 @@ namespace src.GameObjects{
 
             //SETTINGS
             MyButton settingsButton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settings",0,2,(s,a)=>{
-                menuElements[controllerselectedbutton].UnHighlight();
+                activeElements[controllerselectedbutton].UnHighlight();
                 insubMenu = true;
                 subMenu = settingsMenu;
-                menuElements = settingsMenu.Activate(menuElements);
+                activeElements = settingsMenu.Activate(activeElements);
                 oldcontrollerselectedbutton=controllerselectedbutton;
                 controllerselectedbutton=0;
             },PauseGrid,MedievalFont,TEXTSIZE);
@@ -421,16 +422,17 @@ namespace src.GameObjects{
             //desktop.Root = grid;
 
             //ELEMENTÄRÄIs
-            menuElements = new MyMenuElement[]{MainMenuStart,MainSettings,MainMenuExit};
-            basemenuElements = new MyMenuElement[]{resumebutton,reloadbutton,settingsButton,closebutton,Volume,SFXVolume};
+            activeElements = new MyMenuElement[]{MainMenuStart,MainSettings,MainMenuExit};
+            pauseElements = new MyMenuElement[]{resumebutton,reloadbutton,settingsButton,closebutton,Volume,SFXVolume};
         }
         public void Update(GameTime gameTime, KeyboardState keyboardState, KeyboardState previousKeyboardState, GamePadState gamePadState, GamePadState previousGamePadState){
             //STARTMENU CHANGE
             if(changegrid){
                 desktop.Root = PauseGrid;
                 changegrid=false;
-                menuElements = basemenuElements;
+                activeElements = pauseElements;
             }
+
             
 
             //OPEN AND CLOSE (SUB)MENU
@@ -439,7 +441,11 @@ namespace src.GameObjects{
                     if(keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape) && insubMenu){
                         CloseSubMenu();
                     }else{
-                        CloseMenu();
+                        if(endMenu.Isopen()){
+                            endMenu.Close();
+                        }else{
+                            CloseMenu();
+                        }
                     }
                 }else{
                     OpenMenu();
@@ -453,7 +459,7 @@ namespace src.GameObjects{
                     if(gamePadState.Buttons.B == ButtonState.Pressed && previousGamePadState.Buttons.B == ButtonState.Released){
                         if(insubMenu){
                             CloseSubMenu();
-                            menuElements[controllerselectedbutton].Highlight();
+                            activeElements[controllerselectedbutton].Highlight();
                         }else{
                             CloseMenu();
                         }
@@ -462,23 +468,23 @@ namespace src.GameObjects{
                     //ACTUAL NAVIGATION
                     if (gamePadState.DPad.Down == ButtonState.Pressed && previousGamePadState.DPad.Down == ButtonState.Released)
                     {
-                        menuElements[controllerselectedbutton].UnHighlight();
-                        controllerselectedbutton = mod(controllerselectedbutton + 1,menuElements.Length);
-                        menuElements[controllerselectedbutton].Highlight();
+                        activeElements[controllerselectedbutton].UnHighlight();
+                        controllerselectedbutton = mod(controllerselectedbutton + 1,activeElements.Length);
+                        activeElements[controllerselectedbutton].Highlight();
                     }
                     if(gamePadState.DPad.Up == ButtonState.Pressed && previousGamePadState.DPad.Up == ButtonState.Released){
-                        menuElements[controllerselectedbutton].UnHighlight();
-                        controllerselectedbutton = mod(controllerselectedbutton - 1,menuElements.Length);
-                        menuElements[controllerselectedbutton].Highlight();
+                        activeElements[controllerselectedbutton].UnHighlight();
+                        controllerselectedbutton = mod(controllerselectedbutton - 1,activeElements.Length);
+                        activeElements[controllerselectedbutton].Highlight();
                     }
                     if(gamePadState.Buttons.A == ButtonState.Pressed && previousGamePadState.Buttons.A == ButtonState.Released){
-                        controllerlocked = menuElements[controllerselectedbutton].Click();
+                        controllerlocked = activeElements[controllerselectedbutton].Click();
                     }
                 }else{//IN SUBELEMENT NAVIGATION
                     if(gamePadState.Buttons.B == ButtonState.Pressed && previousGamePadState.Buttons.B == ButtonState.Released){
-                        controllerlocked = !menuElements[controllerselectedbutton].LeaveButton();
+                        controllerlocked = !activeElements[controllerselectedbutton].LeaveButton();
                     }else if (gamePadState.DPad.Down == ButtonState.Pressed || gamePadState.DPad.Up == ButtonState.Pressed || gamePadState.DPad.Left == ButtonState.Pressed || gamePadState.DPad.Right == ButtonState.Pressed){
-                        menuElements[controllerselectedbutton].ControllerValueChange(gamePadState, previousGamePadState);
+                        activeElements[controllerselectedbutton].ControllerValueChange(gamePadState, previousGamePadState);
                     }
                 }
             }
@@ -487,10 +493,10 @@ namespace src.GameObjects{
         public bool menuisopen(){
             return menuopen;
         }
-        private void CloseMenu(){
+        public void CloseMenu(){
             //CHANGE CONTROLLERSELECTED BUTTONS TO DEFAULT STYLE
-            menuElements[controllerselectedbutton].LeaveButton();
-            menuElements[controllerselectedbutton].UnHighlight();
+            activeElements[controllerselectedbutton].LeaveButton();
+            activeElements[controllerselectedbutton].UnHighlight();
             //CLOSE ALL SUBMENUS
             if(insubMenu){
                 CloseSubMenu();
@@ -506,13 +512,23 @@ namespace src.GameObjects{
                 changegrid = true;
             }
         }
+        public void CloseEndMenu(){
+            activeElements[controllerselectedbutton].LeaveButton();
+            activeElements[controllerselectedbutton].UnHighlight();
+
+            activeElements = endMenu.DeActivate();
+
+            controllerselectedbutton=0;
+            controllerlocked=false;
+            insubMenu=false;
+        }
         public void CloseSubMenu(){
             //CHANGE CONTROLLERSELECTED BUTTONS TO DEFAULT STYLE
-            menuElements[controllerselectedbutton].LeaveButton();
-            menuElements[controllerselectedbutton].UnHighlight();
+            activeElements[controllerselectedbutton].LeaveButton();
+            activeElements[controllerselectedbutton].UnHighlight();
 
             //CHANGE DESKTOP-GRID
-            menuElements = subMenu.DeActivate();
+            activeElements = subMenu.DeActivate();
 
             //REMEMBER OLD CONTROLLER-POSITION
             controllerselectedbutton=oldcontrollerselectedbutton;
@@ -520,8 +536,16 @@ namespace src.GameObjects{
             insubMenu=false;
         }
         public void OpenMenu(){
-            //menuElements[controllerselectedbutton].Highlight(); //SHOULD THE FIRST BUTTON BE HIGHLIGHTED IF WE OPEN THE MENU??? I SAY NO
+            //activeElements[controllerselectedbutton].Highlight(); //SHOULD THE FIRST BUTTON BE HIGHLIGHTED IF WE OPEN THE MENU??? I SAY NO
             menuopen=true;
+        }
+        public void OpenWinMenu(){
+            menuopen=true;
+            activeElements[controllerselectedbutton].UnHighlight();
+                
+                activeElements = endMenu.Activate(activeElements);
+                oldcontrollerselectedbutton=controllerselectedbutton;
+                controllerselectedbutton=0;
         }
         public void Draw(){
             if(menuopen){
@@ -535,9 +559,11 @@ namespace src.GameObjects{
         
         
         private int mod(int k, int n) {  return ((k %= n) < 0) ? k+n : k;  }
-        private void SpinChangesValue(float? nullableFloat){
-            menuStateManager.NUM_PLAYERS = (int)(nullableFloat ?? 1);
-            gameStateManager.StartNewGame();
+        public Grid ToMainMenu(){
+            return MainMenuGrid;
+        }
+        public void setMenuElements(MyMenuElement[] m){
+            activeElements = m;
         }
     }
 }

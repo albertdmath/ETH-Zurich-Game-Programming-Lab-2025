@@ -375,7 +375,7 @@ namespace GameLab
             GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
             hud.DrawPlayerHud(_spriteBatch);
             if(hud.DrawWin(_spriteBatch, GraphicsDevice)){
-                _menu.OpenMenu();
+                _menu.OpenWinMenu();
             }
             // Draw menu
             

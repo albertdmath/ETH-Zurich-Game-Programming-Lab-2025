@@ -18,7 +18,6 @@ namespace src.GameObjects{
         private int TEXTSIZE;
         private int WIDTH;
         private int HEIGHT;
-        private string ID;
         private int COLUMN;
         private int ROW;
         private Action<object?,EventArgs> CLICK;
