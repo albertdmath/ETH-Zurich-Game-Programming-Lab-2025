@@ -63,6 +63,8 @@ namespace src.GameObjects{
                 
               },
               Background = new SolidBrush(Color.Transparent),
+              OverBackground = new SolidBrush(Color.Transparent),
+              PressedBackground = new SolidBrush(Color.Transparent),
               HorizontalAlignment = HorizontalAlignment.Center,
               VerticalAlignment = VerticalAlignment.Center
             };

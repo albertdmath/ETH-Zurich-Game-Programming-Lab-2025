@@ -109,16 +109,18 @@ namespace src.GameObjects{
                 }
             },_grid,fontSystem,TEXTSIZE);
 
-            MyButton backbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Back",0,/*13*/4,(s,a)=>{
+            MySpinbutton NumPlayerSpinButton = new MySpinbutton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,2,true,"whatever",0,4,_grid,fontSystem,textsize);
+
+            MyButton backbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Back",0,/*13*/5,(s,a)=>{
                 ParentMenu.CloseSubMenu();
             },_grid,fontSystem,TEXTSIZE);
 
             //menuElements = new MyMenuElement[]{testbutton,testbutton1,testbutton2,testbutton3,testbutton4,testbutton5,testbutton6,testbutton7,testbutton8,testbutton9,FXAA,SHADOWS,AMBIENT_OCCLUSION,FULLSCREEN,backbutton};
-            menuElements = new MyMenuElement[]{FXAA,SHADOWS,AMBIENT_OCCLUSION,FULLSCREEN,backbutton};
+            menuElements = new MyMenuElement[]{FXAA,SHADOWS,AMBIENT_OCCLUSION,FULLSCREEN,NumPlayerSpinButton,backbutton};
         }
         public override MyMenuElement[] Activate(MyMenuElement[] R)
         {
-            returnGrid = (Grid) desktop.Root;
+            returnGrid = (Grid) desktop.Root; //Dangerous
             oldMenuElements = R;
             desktop.Root = _grid;
             menuopen=true;

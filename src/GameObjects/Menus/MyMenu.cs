@@ -52,11 +52,28 @@ namespace src.GameObjects{
                 //Height = CENTER_BUTTON_HEIGHT
             };
             SpinButtonStyle DefaultSpinbuttonStyle = new SpinButtonStyle{
-                Background = new SolidBrush(Color.DarkRed),
+                Background = new SolidBrush(Color.Transparent),
                 Width = CENTER_BUTTON_WIDTH/2,
-                //Height = CENTER_BUTTON_HEIGHT,
+                Height = CENTER_BUTTON_HEIGHT,
                 OverBackground = new SolidBrush(Color.Red),
-                DisabledBackground = new SolidBrush(Color.DarkGray)
+                DisabledBackground = new SolidBrush(Color.DarkGray),
+                Border = new SolidBrush(Color.White),
+                BorderThickness = new Myra.Graphics2D.Thickness{
+                    Top=2,Left=2,Bottom=2,Right=2
+                },
+                TextBoxStyle = new TextBoxStyle{
+                    Font = MedievalFont.GetFont(TEXTSIZE-5),
+                    TextColor = Color.Black,
+                    MessageFont = MedievalFont.GetFont(TEXTSIZE),
+                    MaxHeight=100,
+                    Height=CENTER_BUTTON_HEIGHT,
+                },
+                UpButtonStyle = new ImageButtonStyle{
+                    LabelStyle = new LabelStyle{
+                        
+                        
+                    }
+                }
             };
             SpinButtonStyle ControllerPressedSpinbuttonStyle = new SpinButtonStyle{
                 Background = new SolidBrush(Color.LightGray),
@@ -180,7 +197,7 @@ namespace src.GameObjects{
             
             
             //MainMenu-GRID============================
-            MyButton MainMenuExit = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit",0,2,(s,a)=>{
+            MyButton MainMenuExit = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit",0,3,(s,a)=>{
                 game.Exit();
             },MainMenuGrid,MedievalFont,TEXTSIZE);
 
@@ -196,6 +213,12 @@ namespace src.GameObjects{
                 menuElements = settingsMenu.Activate(menuElements);
                 oldcontrollerselectedbutton=controllerselectedbutton;
                 controllerselectedbutton=0;
+            },MainMenuGrid,MedievalFont,TEXTSIZE);
+
+            MyButton MainTutorial = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Tutorial",0,2,(s,a)=>{
+                //TUTORIAL-CALL
+                CloseMenu();
+                menuStateManager.TUTORIAL_IS_OPEN=true;
             },MainMenuGrid,MedievalFont,TEXTSIZE);
 
             //BASEGRID===================================

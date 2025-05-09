@@ -658,5 +658,8 @@ public void FilterPass(Filter filterShader, RenderTarget2D inputTexture, RenderT
         public bool GameIsOver(){
             return livingPlayers.Count() == 1 && !(menuStateManager.NUM_PLAYERS==1);
         }
+        public void Tutorial(){
+            
+        }
     }
 }
