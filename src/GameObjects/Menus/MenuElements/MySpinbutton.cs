@@ -116,6 +116,7 @@ namespace src.GameObjects{
                 Width = 40
             };
             plus.MouseEntered +=(s,a)=>{
+                MusicAndSoundEffects.playUIHoverSFX();
                 plus.Content = new Label{
                     Text = "more",
                     TextColor = Color.Black,
@@ -152,6 +153,7 @@ namespace src.GameObjects{
                 };
             };
             plus.Click += (s,a)=>{
+                MusicAndSoundEffects.playUIClickSFX();
                 if(VALUE+1<=menuStateManager.MAX_NUM_PLAYER){
                     ++VALUE;
                     
@@ -204,6 +206,7 @@ namespace src.GameObjects{
             };
 
             minus.MouseEntered +=(s,a)=>{
+                MusicAndSoundEffects.playUIHoverSFX();
                 minus.Content = new Label{
                     Text = "less",
                     TextColor = Color.Black,
@@ -240,6 +243,7 @@ namespace src.GameObjects{
                 };
             };
             minus.Click += (s,a)=>{
+                MusicAndSoundEffects.playUIClickSFX();
                 if(VALUE-1>=menuStateManager.MIN_NUM_PLAYER){
                     --VALUE;
                     
