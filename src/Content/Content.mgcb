@@ -31,6 +31,12 @@
 /processorParam:Quality=Best
 /build:Audio/coconutSFX.wav
 
+#begin Audio/djscratchSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/djscratchSFX.wav
+
 #begin Audio/EpicMedievalVibes.wav
 /importer:WavImporter
 /processor:SongProcessor
@@ -78,6 +84,18 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Audio/turtleSFX.wav
+
+#begin Audio/uiClickSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/uiClickSFX.wav
+
+#begin Audio/uiHoverSFX.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/uiHoverSFX.wav
 
 #begin bananapeel.dae
 /importer:FbxImporter
