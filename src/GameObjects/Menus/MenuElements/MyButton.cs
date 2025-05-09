@@ -76,11 +76,15 @@ namespace src.GameObjects{
             Grid.SetColumn(button,COLUMN);
             Grid.SetRow(button,ROW);
             button.Click += new EventHandler(CLICK);
+            button.Click += (c,a)=>{
+                MusicAndSoundEffects.playUIClickSFX();
+            };
             button.SetStyle("default");
             GRID.Widgets.Add(button);
 
 
             button.MouseEntered +=(s,a)=>{
+                MusicAndSoundEffects.playUIHoverSFX();
                 button.Content = new Label{
                 Text = TEXT,
                 Font = fontSystem.GetFont(TEXTSIZE),
