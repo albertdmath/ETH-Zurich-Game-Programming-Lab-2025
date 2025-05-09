@@ -108,10 +108,10 @@ float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
 
 float ShadowCalc(float4 FragLightPosSpace){
     
-    float shadow = 20.0f;
+    float shadow = 1.0f;
     float2 projCoords = FragLightPosSpace.xy/FragLightPosSpace.w;
     if (projCoords.x > -1.0 && projCoords.x<1.0 && projCoords.y>-1.0 && projCoords.y < 1.0){
-        
+    shadow = 20.0f;
     projCoords = mad(0.5f, projCoords, float2(0.5f,0.5f)); 
 
     projCoords.y = 1.0 - projCoords.y;
