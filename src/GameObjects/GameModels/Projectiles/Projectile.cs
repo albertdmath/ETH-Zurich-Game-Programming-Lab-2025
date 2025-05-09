@@ -25,13 +25,13 @@ public class Projectile : GameModel
         { ProjectileType.Banana, 0.0f },
         { ProjectileType.Coconut, 0.0f },
         { ProjectileType.Frog, 0.0f },
-        { ProjectileType.Mjoelnir, 0.5f },
+        { ProjectileType.Mjoelnir, 0.0f },
         { ProjectileType.Spear, 0.0f },
         { ProjectileType.Swordfish, 0.0f },
         { ProjectileType.Tomato, 0.0f },
         { ProjectileType.Turtle, 0.0f },
         { ProjectileType.Chicken, 0.0f },
-        { ProjectileType.Barrel, 0.0f }
+        { ProjectileType.Barrel, 0.5f }
     };
 
     // Projectile properties
@@ -45,7 +45,7 @@ public class Projectile : GameModel
 
     private readonly float height;
 
-    public Projectile(ProjectileType type, DrawModel model, float scaling, float height, IndicatorModels indicatorModel, HitboxType hitboxType = HitboxType.OBB) : base(model, scaling, hitboxType) 
+    public Projectile(ProjectileType type, DrawModel model, float scaling, float height, IndicatorModels indicatorModel, float radius = -1) : base(model, scaling, radius) 
     {
         this.height = height;
         this.Type = type;

@@ -12,6 +12,7 @@ public class Coconut : Projectile
     private const float MIN_VELOCITY = 3;
     private const int MAX_BOUNCES = 3;
     private const float TIME_BETWEEN_BOUNCES = 0.5f;
+    private const float RADIUS = 0.25f; // Radius of the coconut
 
     // Fields
     private int bounces;
@@ -20,7 +21,7 @@ public class Coconut : Projectile
 
 
     // Constructor:
-    public Coconut(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow, HitboxType.Sphere) 
+    public Coconut(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow, RADIUS) 
     {
         this.velocity = MIN_VELOCITY;
     }

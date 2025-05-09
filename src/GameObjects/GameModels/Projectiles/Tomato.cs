@@ -9,6 +9,8 @@ public class Tomato : Projectile
     private const float HALF_GRAVITY = 4.9f; // Gravity effect
     private const float EXPLOSION_RADIUS = 1f; // Define the explosion radius
     private const float EXPLOSION_TIME = 0.5f;
+    private const float RATIO = 1.765f;
+    private const float RADIUS = 0.15f;
     private static readonly float angle = MathF.PI / 3; // angle of throw
     private static readonly float cos = MathF.Cos(angle), sin = MathF.Sin(angle);
     private readonly DrawModel explodedModel;
@@ -20,7 +22,7 @@ public class Tomato : Projectile
     private status currStatus = status.normal;
 
     // Constructor:
-    public Tomato(ProjectileType type, DrawModel model, DrawModel exploded, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Target, HitboxType.Sphere) 
+    public Tomato(ProjectileType type, DrawModel model, DrawModel exploded, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Target, RADIUS) 
     {
         this.explodedModel = exploded;
     }
@@ -35,8 +37,9 @@ public class Tomato : Projectile
     {
         timeAlive = EXPLOSION_TIME;
         Position = new(Position.X, 0, Position.Z);
-        this.DrawModel = explodedModel;
-        this.Hitbox = new Sphere(Matrix.CreateScale(EXPLOSION_RADIUS) * Matrix.CreateTranslation(Position));
+        DrawModel = explodedModel;
+        Scaling = Matrix.CreateScale(EXPLOSION_RADIUS * RATIO);
+        Hitbox = new Sphere(Position, EXPLOSION_RADIUS);
         currStatus = status.exploded;
     }
 

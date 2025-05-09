@@ -221,7 +221,7 @@ public class OrientedBoundingBox
         return true;
     }
 
-    public bool Intersects(BoundingSphere other)
+    public bool Intersects(Sphere other)
     {
         // Step 1: Transform the sphere's center into the OBB's local space
         Vector3 sphereCenterLocal = other.Center - this.Center;

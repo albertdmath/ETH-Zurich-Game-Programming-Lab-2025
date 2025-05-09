@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 
 namespace src.GameObjects;
@@ -25,18 +26,17 @@ public class AimIndicator : GameModel
     public void PlaceIndicator(float timeSpentCharging, float speedOfCharging, IndicatorModels indicatorModel)
     {
         Orientation = player.Orientation;
-        Target = player.Position + player.Orientation * (0.2f + timeSpentCharging * speedOfCharging);
+        Target = player.Position + Orientation * (0.2f + timeSpentCharging * speedOfCharging);
 
         switch(indicatorModel)
         {
             case IndicatorModels.Target:
                 this.DrawModel = this.targetModel;
-                UpdateScale(1f);
                 Position = Target;
                 break;
             case IndicatorModels.Arrow:
                 this.DrawModel = this.arrowModel;
-                UpdateScale(1f+timeSpentCharging);
+                Scaling = Matrix.CreateScale(1f + timeSpentCharging, 1f, 1f + timeSpentCharging);
                 Position = player.Position;
                 break;
             default:

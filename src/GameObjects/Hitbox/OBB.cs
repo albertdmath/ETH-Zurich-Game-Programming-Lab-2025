@@ -41,7 +41,7 @@ public class OBB : Hitbox
     {
         foreach(OrientedBoundingBox box in BoundingBoxes) 
         {
-            if (box.Intersects(other.BoundingSphere)) 
+            if (box.Intersects(other)) 
                 return true;
         }
         return false;

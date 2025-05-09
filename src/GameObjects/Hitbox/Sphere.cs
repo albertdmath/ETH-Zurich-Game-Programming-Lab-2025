@@ -8,11 +8,13 @@ using Microsoft.Xna.Framework;
 public class Sphere : Hitbox {
 
     // Axis-aligned bounding boxes
-    public BoundingSphere BoundingSphere { get; private set;} = new BoundingSphere(Vector3.Zero, 1f);
+    public Vector3 Center { get; private set; }
+    public float Radius { get; set; }
 
-    public Sphere(Matrix transformation) 
+    public Sphere(Vector3 center, float radius) 
     {
-        this.BoundingSphere = BoundingSphere.Transform(transformation);
+        this.Center = center;
+        this.Radius = radius;
     }
 
     public bool Intersects(Hitbox other)
@@ -24,7 +26,7 @@ public class Sphere : Hitbox {
     {
         foreach(OrientedBoundingBox box in other.BoundingBoxes) 
         {
-            if (box.Intersects(BoundingSphere)) 
+            if (box.Intersects(this)) 
                 return true;
         }
         return false;
@@ -32,11 +34,11 @@ public class Sphere : Hitbox {
 
     public bool IntersectsWith(Sphere other) 
     {
-        return other.BoundingSphere.Intersects(BoundingSphere);
+        return Vector3.DistanceSquared(this.Center, other.Center) <= (this.Radius + other.Radius) * (this.Radius + other.Radius);
     }
 
-    public void Transform(Matrix transformation) 
+    public void Transform(Vector3 position) 
     {
-        this.BoundingSphere = this.BoundingSphere.Transform(transformation);
+        this.Center = position;
     }
 }

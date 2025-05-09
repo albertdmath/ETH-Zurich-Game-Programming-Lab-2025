@@ -1,4 +1,5 @@
 using System;
+using System.Reflection.Metadata;
 using Microsoft.Xna.Framework;
 
 namespace src.GameObjects;
@@ -6,6 +7,7 @@ namespace src.GameObjects;
 public class Barrel : Projectile
 {
     // Constants
+    private const float RADIUS = 0.3f;
     private const float HALF_GRAVITY = 4.9f; // Gravity effect
     private static readonly float angle = MathF.PI / 3; // angle of throw
     private static readonly float cos = MathF.Cos(angle), sin = MathF.Sin(angle);
@@ -16,9 +18,16 @@ public class Barrel : Projectile
     private bool notMoving = false;
 
     // Constructor:
-    public Barrel(ProjectileType type, DrawModel model1, DrawModel model2, float scaling, float height) : base(type, model1, scaling, height, IndicatorModels.Target, HitboxType.Sphere) 
+    public Barrel(ProjectileType type, DrawModel model1, DrawModel model2, float scaling, float height) : base(type, model1, scaling, height, IndicatorModels.Target, RADIUS) 
     { 
-        this.DrawModel = Rng.NextBool() ? model1 : model2;
+        if(Rng.NextBool())
+            DrawModel = model2;
+        else
+        {
+            DrawModel = model1;
+            Scaling = Matrix.CreateScale(0.75f);
+        }
+
     }
 
     public override void OnGroundHit(bool touching)
@@ -31,11 +40,8 @@ public class Barrel : Projectile
 
     public override void OnProjectileHit(Projectile projectile)
     {
-        if(projectile.Holder == null)
-        {
-            projectile.ToBeDeleted = true;
-            ToBeDeleted = true;
-        }
+        projectile.ToBeDeleted = true;
+        ToBeDeleted = true;
     }
 
     public override void OnPlayerHit(Player player)

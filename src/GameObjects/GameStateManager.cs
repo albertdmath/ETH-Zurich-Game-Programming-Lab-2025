@@ -205,6 +205,8 @@ namespace src.GameObjects
             for (int i = projectiles.Count - 1; i >= 0; i--)
             {
                 Projectile projectile = projectiles[i];
+                if (projectile.Holder != null)
+                    continue;
 
                 //OUT OF BOUNDS
                 if (MathF.Abs(projectile.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(projectile.Position.Z) > GameLabGame.ARENA_WIDTH)
@@ -223,6 +225,9 @@ namespace src.GameObjects
                 for (int j = i-1; j >= 0; j--)
                 {
                     Projectile projectile1 = projectiles[j];
+                    if (projectile1.Holder != null)
+                        continue;
+                    
                     if (projectile.Hitbox.Intersects(projectile1.Hitbox))
                     {
                         projectile.OnProjectileHit(projectile1);
@@ -231,16 +236,14 @@ namespace src.GameObjects
                 }
 
                 // PLAYER
-                if(projectile.Holder == null)
+                foreach (Player player in players)
                 {
-                    foreach (Player player in players)
+                    if(projectile.Hitbox.Intersects(player.Hitbox))
                     {
-                        if(projectile.Hitbox.Intersects(player.Hitbox))
-                        {
-                            projectile.OnPlayerHit(player);
-                        }
+                        projectile.OnPlayerHit(player);
                     }
                 }
+                
             }
 
             projectiles.RemoveAll(x => x.ToBeDeleted);

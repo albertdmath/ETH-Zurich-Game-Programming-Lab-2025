@@ -13,19 +13,19 @@ public class GameModel
     public DrawModel DrawModel { get; set; }
     public Hitbox Hitbox { get; set; }
     public Matrix Transform { get; set; }
+    public Matrix Scaling { get; set; }
 
     public bool hasAnimation {get; set;} = false;
 
     public Animator animator {get; set;} = null;
     public List<GameAnimation> animations {get; set;}
-    protected Matrix Scaling;
 
-    public GameModel(DrawModel model, float scale, HitboxType hitboxType = HitboxType.OBB)
+    public GameModel(DrawModel model, float scale, float radius = -1)
     {
         DrawModel = model;
         Scaling = Matrix.CreateScale(scale);
         CalculateTransform();
-        Hitbox = (hitboxType == HitboxType.OBB) ? new OBB(this.DrawModel, Transform) : new Sphere(Transform);
+        Hitbox = (radius == -1) ? new OBB(this.DrawModel, Transform) : new Sphere(Position, radius);
         
         this.animations = new List<GameAnimation>();
         if(model.hasAnimations){
@@ -36,10 +36,6 @@ public class GameModel
             }
             this.animator = new Animator(animations[0], false);
         }
-    }
-    public void UpdateScale(float scale)
-    {
-        Scaling = Matrix.CreateScale(scale);
     }
 
     public void UpdateAnimation(float dt){
@@ -72,8 +68,15 @@ public class GameModel
     }
     public void updateHitbox()
     {
-        CalculateTransform();
-        Hitbox.Transform(Transform);
+        if (Hitbox is OBB obb)
+        {
+            CalculateTransform();
+            obb.Transform(Transform);
+        }
+        else if (Hitbox is Sphere sphere)
+        {
+            sphere.Transform(Position);
+        }
     }
     
     public virtual void Update(float dt) { }
