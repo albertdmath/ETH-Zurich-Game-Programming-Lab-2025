@@ -19,6 +19,11 @@ public class MusicAndSoundEffects
     private static SoundEffect hitSFX;
     private static SoundEffect angrymobSFX;
     public static SoundEffectInstance angrymobInstance;
+    public static SoundEffect uiClickSFX;
+    public static SoundEffect uiHoverSFX;
+    public static SoundEffect djscratchSFX;
+
+
     // Backing track:
     private static Song bgMusic;
     private static MenuStateManager menuStateManager;
@@ -40,6 +45,9 @@ public class MusicAndSoundEffects
         angrymobInstance.IsLooped = true;
         angrymobInstance.Volume = 0.1f;
         hitSFX = Content.Load<SoundEffect>("Audio/hitSFX");
+        uiClickSFX = Content.Load<SoundEffect>("Audio/uiClickSFX");
+        uiHoverSFX = Content.Load<SoundEffect>("Audio/uiHoverSFX");        
+        djscratchSFX = Content.Load<SoundEffect>("Audio/djscratchSFX");
         
         // Loading the background music:
         bgMusic = Content.Load<Song>("Audio/EpicMedievalVibes");
@@ -52,6 +60,21 @@ public class MusicAndSoundEffects
             MediaPlayer.Play(bgMusic);
             angrymobInstance.Play();
         }
+    }
+
+    public static void playUIClickSFX() {
+        if(menuStateManager.SOUND_ENABLED)
+            uiClickSFX.Play(0.1f*VOLUME, 0.0f, 0.0f);
+    }
+
+    public static void playUIHoverSFX() {
+        if(menuStateManager.SOUND_ENABLED)
+            uiHoverSFX.Play(0.1f*VOLUME, 0.0f, 0.0f);
+    }
+
+    public static void playDJScratchSFX() {
+        if(menuStateManager.SOUND_ENABLED)
+            djscratchSFX.Play(0.1f*VOLUME, 0.0f, 0.0f);
     }
 
     public static void playHitSFX() {
