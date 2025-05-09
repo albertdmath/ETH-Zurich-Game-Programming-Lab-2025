@@ -111,7 +111,7 @@ float ShadowCalc(float4 FragLightPosSpace){
     float shadow = 1.0f;
     float2 projCoords = FragLightPosSpace.xy/FragLightPosSpace.w;
     if (projCoords.x > -1.0 && projCoords.x<1.0 && projCoords.y>-1.0 && projCoords.y < 1.0){
-    shadow = 20.0f;
+    shadow = 0.0f;
     projCoords = mad(0.5f, projCoords, float2(0.5f,0.5f)); 
 
     projCoords.y = 1.0 - projCoords.y;
@@ -198,7 +198,10 @@ float4 PS(VertexOutput input) : SV_Target
     float NdotL = max(dot(Normal, wi), 0.0);     
     float shadow = 1.0f; 
     float interShadow = ShadowCalc(LightViewPos); 
+    interShadow = lerp(1.0f - 0.6, 1.0f, interShadow);
     shadow = lerp(1.0f, interShadow, ShadowsEnabled);
+
+
 
     float3 Lo =  (kD * albedo / PI + specular) * radiance * NdotL * shadow;
     float occlusion = 1.0f;
