@@ -28,10 +28,10 @@ public class Projectile : GameModel
         { ProjectileType.Mjoelnir, 0.0f },
         { ProjectileType.Spear, 0.0f },
         { ProjectileType.Swordfish, 0.0f },
-        { ProjectileType.Tomato, 0.0f },
+        { ProjectileType.Tomato, 0.5f },
         { ProjectileType.Turtle, 0.0f },
         { ProjectileType.Chicken, 0.0f },
-        { ProjectileType.Barrel, 0.5f }
+        { ProjectileType.Barrel, 0.0f }
     };
 
     // Projectile properties

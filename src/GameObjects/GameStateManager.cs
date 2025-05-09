@@ -341,7 +341,7 @@ namespace src.GameObjects
             lightingShader.setShadowTexture(ShadowMap);
             lightingShader.setRoughnessTexture(RoughnessMetallicMap);
             if (OcclusionMap != null){
-            lightingShader.setOcclusionTexture(OcclusionMap);
+                lightingShader.setOcclusionTexture(OcclusionMap);
             }
 
             // You don’t need an index buffer for this simple triangle list

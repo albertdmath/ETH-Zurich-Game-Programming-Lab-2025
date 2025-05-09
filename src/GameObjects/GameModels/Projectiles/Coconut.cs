@@ -12,7 +12,7 @@ public class Coconut : Projectile
     private const float MIN_VELOCITY = 3;
     private const int MAX_BOUNCES = 3;
     private const float TIME_BETWEEN_BOUNCES = 0.5f;
-    private const float RADIUS = 0.25f; // Radius of the coconut
+    private const float RADIUS = 0.2f; // Radius of the coconut
 
     // Fields
     private int bounces;

@@ -7,7 +7,6 @@ namespace src.GameObjects;
 public class Barrel : Projectile
 {
     // Constants
-    private const float RADIUS = 0.3f;
     private const float HALF_GRAVITY = 4.9f; // Gravity effect
     private static readonly float angle = MathF.PI / 3; // angle of throw
     private static readonly float cos = MathF.Cos(angle), sin = MathF.Sin(angle);
@@ -18,7 +17,7 @@ public class Barrel : Projectile
     private bool notMoving = false;
 
     // Constructor:
-    public Barrel(ProjectileType type, DrawModel model1, DrawModel model2, float scaling, float height) : base(type, model1, scaling, height, IndicatorModels.Target, RADIUS) 
+    public Barrel(ProjectileType type, DrawModel model1, DrawModel model2, float scaling, float height) : base(type, model1, scaling, height, IndicatorModels.Target) 
     { 
         if(Rng.NextBool())
             DrawModel = model2;
