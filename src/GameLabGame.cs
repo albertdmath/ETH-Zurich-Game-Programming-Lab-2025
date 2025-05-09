@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MLEM.Input;
 using Myra;
 using src.GameObjects;
 
@@ -10,6 +11,7 @@ namespace GameLab
 {
     public class GameLabGame : Game
     {
+        private InputHandler InputHandler;
         private MyMenu _menu;
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -295,6 +297,8 @@ namespace GameLab
             lightingShader.setViewInverse(viewInverse);
             lightingShader.setLightSpaceMatrix(Sun.lightSpaceMatrix);
             lightingShader.setViewMatrix(view);
+            lightingShader.setOcclusionEnabled(menuStateManager.AMBIENT_OCCLUSION_ENABLED ? 1.0f : 0.0f);
+            lightingShader.setShadowsEnabled(menuStateManager.SHADOWS_ENABLED ? 1.0f : 0.0f);
 
             testShader.setCameraPosition(cameraPosition);
             testShader.setViewMatrix(view);
@@ -350,17 +354,28 @@ namespace GameLab
                 new RenderTargetBinding(albedoMap),
                 new RenderTargetBinding(roughnessMetallicMap)
             };
+            if(_graphics.IsFullScreen != menuStateManager.FULLSCREEN){
+                _graphics.IsFullScreen = menuStateManager.FULLSCREEN;
+                _graphics.ApplyChanges();
+            }
             //gameStateManager.DepthMapPass(depthMapShader, view, projection, GraphicsDevice, depthMap, _spriteBatch, true);
-            gameStateManager.GeometryPass(geometryShader, shadowShader, view, projection, GraphicsDevice, shadowMap, targets, _spriteBatch, true);
+            gameStateManager.GeometryPass(geometryShader, shadowShader, view, projection, GraphicsDevice, shadowMap, targets, _spriteBatch, false);
+            if(menuStateManager.AMBIENT_OCCLUSION_ENABLED){
             gameStateManager.HBAOPass(hBAOShader, posMap, normalMap, HBAOmap, fullscreenVertexBuffer, GraphicsDevice, _spriteBatch, false);
             gameStateManager.FilterPass(HBAOFilter, HBAOmap, normalMap, posMap, HBAOBlurredMap, GraphicsDevice, fullscreenVertexBuffer, _spriteBatch, false);
-            gameStateManager.DrawGame(FinalImage,lightingShader, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
-            gameStateManager.FilterPass(FXAAShader,FinalImage,null,null,null,GraphicsDevice,fullscreenVertexBuffer,_spriteBatch,false);
+            }
+            if(menuStateManager.FXAA_ENABLED){
+                gameStateManager.DrawGame(FinalImage,lightingShader, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
+                gameStateManager.FilterPass(FXAAShader,FinalImage,null,null,null,GraphicsDevice,fullscreenVertexBuffer,_spriteBatch,false);
+            } else{
+               gameStateManager.DrawGame(null,lightingShader, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
+            }
+        
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
             GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
             hud.DrawPlayerHud(_spriteBatch);
             if(hud.DrawWin(_spriteBatch, GraphicsDevice)){
-                _menu.OpenMenu();
+                _menu.OpenWinMenu();
             }
             // Draw menu
             

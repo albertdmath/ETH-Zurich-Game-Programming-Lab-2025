@@ -15,15 +15,20 @@ using System;
 using Myra.Graphics2D.UI.Styles;
 using Myra.Graphics2D;
 using Myra.Graphics2D.Brushes;
+using FontStashSharp;
 
 namespace src.GameObjects{
     public class SettingsMenu : SubMenu{
+        private FontSystem fontSystem;
+        private int TEXTSIZE;
         private MyButton FXAA;
         private MyButton SHADOWS;
         private MyButton AMBIENT_OCCLUSION;
         private MyButton FULLSCREEN;
-        public SettingsMenu(Desktop desktop, Grid r, MyMenu p):base(desktop,r,p)
+        public SettingsMenu(Desktop desktop, Grid r, MyMenu p, FontSystem fontSystem, int textsize):base(desktop,r,p)
         {
+            this.fontSystem=fontSystem;
+            TEXTSIZE=textsize;
             _grid = new Grid{
                 RowSpacing = 5,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -64,55 +69,58 @@ namespace src.GameObjects{
                 gameStateManager.CreateProjectile(ProjectileType.Turtle);
             },_grid);*/
 
-            FXAA = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"FXAA: ON","sbFXAA",0,/*10*/0,(s,a)=>{
+            FXAA = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"FXAA: on",0,/*10*/0,(s,a)=>{
                 if(menuStateManager.FXAA_ENABLED){
                     menuStateManager.FXAA_ENABLED = false;
-                    FXAA.ChangeText("FXAA: OFF");
+                    FXAA.ChangeText("FXAA: off");
                 }else{
                     menuStateManager.FXAA_ENABLED = true;
-                    FXAA.ChangeText("FXAA: ON");
+                    FXAA.ChangeText("FXAA: on");
                 }
-            },_grid);
+            },_grid,fontSystem,TEXTSIZE);
             
-            SHADOWS = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"SHADOWS: ON","sbSHADOWS",0,/*11*/1,(s,a)=>{
+            SHADOWS = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Shadows: on",0,/*11*/1,(s,a)=>{
                 if(menuStateManager.SHADOWS_ENABLED){
                     menuStateManager.SHADOWS_ENABLED = false;
-                    SHADOWS.ChangeText("SHADOWS: OFF");
+                    SHADOWS.ChangeText("Shadows: off");
                 }else{
                     menuStateManager.SHADOWS_ENABLED = true;
-                    SHADOWS.ChangeText("SHADOWS: ON");
+                    SHADOWS.ChangeText("Shadows: on");
                 }
-            },_grid);
+            },_grid,fontSystem,TEXTSIZE);
 
-            AMBIENT_OCCLUSION = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"SSAO: ON","sbSSAO",0,/*12*/2,(s,a)=>{
+            AMBIENT_OCCLUSION = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"SSAO: on",0,/*12*/2,(s,a)=>{
                 if(menuStateManager.AMBIENT_OCCLUSION_ENABLED){
                     menuStateManager.AMBIENT_OCCLUSION_ENABLED = false;
-                    AMBIENT_OCCLUSION.ChangeText("SSAO: OFF");
+                    AMBIENT_OCCLUSION.ChangeText("SSAO: off");
                 }else{
                     menuStateManager.AMBIENT_OCCLUSION_ENABLED = true;
-                    AMBIENT_OCCLUSION.ChangeText("SSAO: ON");
+                    AMBIENT_OCCLUSION.ChangeText("SSAO: on");
                 }
-            },_grid);
+            },_grid,fontSystem,TEXTSIZE);
 
-            FULLSCREEN = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"FULLSCREEN","sbFullscreen",0,3,(s,a)=>{
+            FULLSCREEN = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Fullscreen",0,3,(s,a)=>{
                 if(menuStateManager.FULLSCREEN){
                     menuStateManager.FULLSCREEN = false;
-                    FULLSCREEN.ChangeText("WINDOW");
+                    FULLSCREEN.ChangeText("Window");
                 }else{
                     menuStateManager.FULLSCREEN = true;
-                    FULLSCREEN.ChangeText("FULLSCREEN");
+                    FULLSCREEN.ChangeText("Fullscreen");
                 }
-            },_grid);
+            },_grid,fontSystem,TEXTSIZE);
 
-            MyButton backbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Back","SettingsR",0,/*13*/4,(s,a)=>{
+            MySpinbutton NumPlayerSpinButton = new MySpinbutton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,2,true,"whatever",0,4,_grid,fontSystem,textsize);
+
+            MyButton backbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Back",0,/*13*/5,(s,a)=>{
                 ParentMenu.CloseSubMenu();
-            },_grid);
+            },_grid,fontSystem,TEXTSIZE);
 
             //menuElements = new MyMenuElement[]{testbutton,testbutton1,testbutton2,testbutton3,testbutton4,testbutton5,testbutton6,testbutton7,testbutton8,testbutton9,FXAA,SHADOWS,AMBIENT_OCCLUSION,FULLSCREEN,backbutton};
-            menuElements = new MyMenuElement[]{FXAA,SHADOWS,AMBIENT_OCCLUSION,FULLSCREEN,backbutton};
+            menuElements = new MyMenuElement[]{FXAA,SHADOWS,AMBIENT_OCCLUSION,FULLSCREEN,NumPlayerSpinButton,backbutton};
         }
         public override MyMenuElement[] Activate(MyMenuElement[] R)
         {
+            returnGrid = (Grid) desktop.Root; //Dangerous
             oldMenuElements = R;
             desktop.Root = _grid;
             menuopen=true;
