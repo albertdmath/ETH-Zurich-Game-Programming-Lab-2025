@@ -13,9 +13,9 @@ namespace src.GameObjects
         public int MAX_NUM_PLAYER {get;} = 4;
         public int MIN_NUM_PLAYER {get;} = 1;
         //GRAPHX SETTINGS
-        public bool SHADOWS_ENABLED { get ; set; } = false;
-        public bool AMBIENT_OCCLUSION_ENABLED{get;set;}=false;
-        public bool FXAA_ENABLED {get;set;} = false;
+        public bool SHADOWS_ENABLED { get ; set; } = true;
+        public bool AMBIENT_OCCLUSION_ENABLED{get;set;}= true;
+        public bool FXAA_ENABLED {get;set;} = true;
         public bool FULLSCREEN {get;set;} = true;
 
         public float HUD_SCALE { get; set; } = 0.15f;
