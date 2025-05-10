@@ -41,7 +41,7 @@ namespace src.GameObjects{
         public MyMenu(GameLabGame game, int DisplayWidth, int DisplayHeight){
             desktop = new Desktop();
             FontSystem MedievalFont = new FontSystem();
-            byte[] ttfData = File.ReadAllBytes("./Content/OldLondon.ttf");
+            byte[] ttfData = File.ReadAllBytes("../../../Content/OldLondon.ttf");
             MedievalFont.AddFont(ttfData);
 
             //DEFINE CUSTOM STYLES
