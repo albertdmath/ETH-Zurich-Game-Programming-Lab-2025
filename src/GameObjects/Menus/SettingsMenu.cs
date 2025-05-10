@@ -119,11 +119,12 @@ namespace src.GameObjects{
 
 
 
-            //SOUNDS
+            //SOUNDLABELS
             Label VolumeLabel = new Label{
                 Text = "Music:",
                 TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
                 //Background = new SolidBrush(Color.Blue),
                 Padding = new Thickness{Top=8,Bottom=5},
                 Height = CENTER_BUTTON_HEIGHT,
@@ -133,12 +134,13 @@ namespace src.GameObjects{
             };
             Grid.SetColumn(VolumeLabel,2);
             Grid.SetRow(VolumeLabel,1);
-            _grid.Widgets.Add(VolumeLabel);
+            
 
             Label SFXVolumeLabel = new Label{
                 Text = "SFX:",
                 TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
                 //Background = new SolidBrush(Color.Blue),
                 Padding = new Thickness{Top=8,Bottom=5},
                 Height = CENTER_BUTTON_HEIGHT,
@@ -148,6 +150,37 @@ namespace src.GameObjects{
             };
             Grid.SetColumn(SFXVolumeLabel,2);
             Grid.SetRow(SFXVolumeLabel,3);
+            
+
+            //SHADOWLABELS
+            Label shadowLabelVolume = new Label{
+                Text = "Music:",
+                Font = fontSystem.GetFont(TEXTSIZE),
+                TextColor = Color.Black,
+                Left = VolumeLabel.Left+2,
+                Top = VolumeLabel.Top-16, //THESE ARE HIGHLY EXPERIMENTAL
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            Grid.SetColumn(shadowLabelVolume,2);
+            Grid.SetRow(shadowLabelVolume,1);
+            _grid.Widgets.Add(shadowLabelVolume);
+
+            Label shadowLabelSFX = new Label{
+                Text = "SFX:",
+                Font = fontSystem.GetFont(TEXTSIZE),
+                TextColor = Color.Black,
+                Left = SFXVolumeLabel.Left+2,
+                Top = SFXVolumeLabel.Top-16, //THESE ARE HIGHLY EXPERIMENTAL
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            Grid.SetColumn(shadowLabelSFX,2);
+            Grid.SetRow(shadowLabelSFX,3);
+            _grid.Widgets.Add(shadowLabelSFX);
+
+
+            _grid.Widgets.Add(VolumeLabel);
             _grid.Widgets.Add(SFXVolumeLabel);
 
             //MUSIC/SFX-SLIDER
