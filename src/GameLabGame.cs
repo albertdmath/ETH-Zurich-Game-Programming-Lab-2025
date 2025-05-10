@@ -25,6 +25,7 @@ namespace GameLab
         private DrawModel barrel2;
 
         private DrawModel playerHandModel;
+        private DrawModel staminaModel;
         private List<DrawModel> indicatorModel = new List<DrawModel>();
 
         private DrawModel jesterAnimated;
@@ -187,6 +188,7 @@ namespace GameLab
             playerModelShell = new DrawModel("../../../Content/Player/player_body_shell.dae", 0.0f, 0.3f, GraphicsDevice);
             jesterAnimated = new DrawModel("../../../Content/Player/chicken_animated.glb", 0.0f, 0.3f, GraphicsDevice);
             playerHandModel = new DrawModel("../../../Content/Player/hand.dae", 0.0f, 0.3f, GraphicsDevice);
+            staminaModel = new DrawModel("../../../Content/Player/dash_semicircle.dae", 0.0f, 0.3f, GraphicsDevice);
 
             indicatorModel.Add(new DrawModel("../../../Content/Player/aim_indicator_player1.dae", 0.0f, 0.3f, GraphicsDevice));
             indicatorModel.Add(new DrawModel("../../../Content/Player/aim_indicator_player2.dae", 0.0f, 0.3f, GraphicsDevice));
@@ -294,7 +296,7 @@ namespace GameLab
             geometryShader.setOpacityValue(1.0f);
 
             // Initialize gamestate here:
-            gameStateManager.Initialize(arenaModel, marketModels, playerHatModels, playerModel, playerModelShell, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels, walkingTurtle, barrel2);
+            gameStateManager.Initialize(arenaModel, marketModels, playerHatModels, playerModel, playerModelShell, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels, walkingTurtle, barrel2, staminaModel);
             gameStateManager.StartNewGame();
 
             _menu = new MyMenu(this, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);

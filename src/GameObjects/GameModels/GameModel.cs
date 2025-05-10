@@ -106,9 +106,7 @@ public class GameModel
                     baseVertex: 0,
                     startIndex: 0,
                     primitiveCount: mesh.indices.Count / 3
-                );
-
-               
+                ); 
             }
         }
     }

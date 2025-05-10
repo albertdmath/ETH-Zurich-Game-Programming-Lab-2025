@@ -16,7 +16,6 @@ public class Player : GameModel
     // Private fields:
     // Consts
     private const float NORMAL_SPEED = 3f;
-    private const float STAMINA_REGEN = 3f;
 
     // Variables
     private enum PlayerState
@@ -34,7 +33,6 @@ public class Player : GameModel
     }
     private PlayerState playerState;
     private float speed = NORMAL_SPEED;
-    private float stamina = STAMINA_REGEN;
     private Projectile projectileHeld = null;
     private bool armor = false;
     private float dashTime = 0f,dashSpeed = 12f, flySpeed = 0f;
@@ -57,10 +55,11 @@ public class Player : GameModel
     private readonly AimIndicator aimIndicator;
     private const float speedOfCharging = 2f;
     private PlayerState playerStateBeforeDashing;
+    private readonly Stamina Stamina;
 
     private readonly GameStateManager gameStateManager;
 
-    public Player(Vector3 position, Input input, int id, DrawModel model, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel hatModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, float scale) : base(model, scale)
+    public Player(Vector3 position, Input input, int id, DrawModel model, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel hatModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, DrawModel staminaModel, float scale) : base(model, scale)
     {
         Position = position;
         Orientation = new Vector3(0, 0, 1f);
@@ -75,6 +74,7 @@ public class Player : GameModel
         playerState = PlayerState.NormalMovement;
         playerModel = model;
         this.playerModelShell = playerModelShell;
+        this.Stamina = new Stamina(this, staminaModel);
     }
 
     // ---------------------
@@ -178,12 +178,11 @@ public class Player : GameModel
     }
     private void CanDash()
     {
-        if (input.Dash() && stamina >= STAMINA_REGEN)
+        if (input.Dash() && Stamina.Dash())
         {
             playerStateBeforeDashing = playerState;
             playerState = PlayerState.Dashing;
             dashTime = 0.1f;
-            stamina = 0f;
             dashSpeed = 12f;
         }
     }
@@ -382,7 +381,6 @@ public class Player : GameModel
     public override void Update(float dt)
     {
         //this cannot overflow
-        stamina += dt;
         input.EndVibrate(dt);
 
         switch (playerState)
@@ -462,8 +460,10 @@ public class Player : GameModel
         actionPushedDuration = input.Action() ? actionPushedDuration + dt : 0f;
         immunity -= dt;
         lastProjectileImmunity -= dt;
+
         Hand.updateWrap(dt);
         jesterHat.updateWrap(dt);
+        Stamina.Update(dt);
     }
 
     public override void Draw(Matrix view, Matrix projection, Shader shader, GraphicsDevice graphicsDevice, bool shadowDraw)
@@ -482,6 +482,9 @@ public class Player : GameModel
             Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
             jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
         }
+
+        Stamina.Draw(view, shader, graphicsDevice, shadowDraw);
+
         if(playerState == PlayerState.Aiming)
             aimIndicator.Draw(view, projection, shader, graphicsDevice, shadowDraw);
     }
