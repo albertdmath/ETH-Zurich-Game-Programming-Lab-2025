@@ -4,12 +4,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Assimp;
 using System;
 using Microsoft.Xna.Framework;
-using Assimp.Configs;
 using System.Linq;
 using System.IO;
 using System.Runtime.InteropServices;
-using src.GameObjects;
-using Assimp.Unmanaged;
 
 
 
@@ -149,7 +146,6 @@ public class DrawModel
         this.textures = new List<Texture2D>();
         this.metallic = metallic;
         this.roughness = roughness;
-  
     }
 
     public Dictionary<string,BoneInfo> getBoneInfoMap(){

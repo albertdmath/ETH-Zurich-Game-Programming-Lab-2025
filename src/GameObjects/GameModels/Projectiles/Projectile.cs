@@ -22,30 +22,30 @@ public class Projectile : GameModel
     // Projectile spawn probabilities (can be adjusted via UI)
     public readonly static Dictionary<ProjectileType, float> ProjectileProbability = new()
     {
-        { ProjectileType.Banana, 0.1f },
-        { ProjectileType.Coconut, 0.1f },
-        { ProjectileType.Frog, 0.1f },
-        { ProjectileType.Mjoelnir, 0.1f },
-        { ProjectileType.Spear, 0.1f },
-        { ProjectileType.Swordfish, 0.1f },
-        { ProjectileType.Tomato, 0.1f },
-        { ProjectileType.Turtle, 0.1f },
-        { ProjectileType.Chicken, 0.1f },
-        { ProjectileType.Barrel, 0.1f }
+        { ProjectileType.Banana, 0.0f },
+        { ProjectileType.Coconut, 0.0f },
+        { ProjectileType.Frog, 0.0f },
+        { ProjectileType.Mjoelnir, 0.0f },
+        { ProjectileType.Spear, 0.5f },
+        { ProjectileType.Swordfish, 0.0f },
+        { ProjectileType.Tomato, 0.0f },
+        { ProjectileType.Turtle, 0.0f },
+        { ProjectileType.Chicken, 0.0f },
+        { ProjectileType.Barrel, 0.0f }
     };
 
     // Projectile properties
     public ProjectileType Type { get; private set; }
-    public GameModel Holder { get; private set; } = null;
+    public GameModel Holder { get; protected set; } = null;
     public bool ToBeDeleted { get; set; } = false;
     public IndicatorModels IndicatorModel { get; private set; }
 
     protected static readonly GameStateManager gameStateManager = GameStateManager.GetGameStateManager();
     protected float velocity;
 
-    private readonly float height;
+    protected readonly float height;
 
-    public Projectile(ProjectileType type, DrawModel model, float scaling, float height, IndicatorModels indicatorModel) : base(model, scaling) 
+    public Projectile(ProjectileType type, DrawModel model, float scaling, float height, IndicatorModels indicatorModel, float radius = -1) : base(model, scaling, radius) 
     {
         this.height = height;
         this.Type = type;
@@ -55,15 +55,15 @@ public class Projectile : GameModel
     // Hit detection for the projectile
     public virtual void OnPlayerHit(Player player) 
     {             
-        ToBeDeleted = ToBeDeleted || player.GetHit(this);  
+        ToBeDeleted = player.GetHit(this);  
     }
 
-    public virtual void OnGroundHit()
+    public virtual void OnGroundHit(bool touching)
     {
-        ToBeDeleted = true;
+        ToBeDeleted = touching;
     }
 
-    public virtual void OnMobHit() {}
+    public virtual void OnMobHit(Ellipse ellipse) {}
 
     public virtual void OnProjectileHit(Projectile projectile) {}
 
@@ -101,9 +101,9 @@ public class Projectile : GameModel
         else 
         {
             // Ensures projectile is held in right hand for a more realistic look:
-            Vector3 orthogonalHolderOrientation = new(-Holder.Orientation.Z, Holder.Orientation.Y, Holder.Orientation.X);
-            Position = Holder.Position + orthogonalHolderOrientation * 0.2f + new Vector3(0,0.2f,0);
             Orientation = Holder.Orientation;
+            Vector3 orthogonalHolderOrientation = new(-Orientation.Z, Orientation.Y, Orientation.X);
+            Position = Holder.Position + orthogonalHolderOrientation * 0.2f + new Vector3(0,0.2f,0);
         }
     }
 }

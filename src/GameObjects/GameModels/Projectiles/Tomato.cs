@@ -8,15 +8,24 @@ public class Tomato : Projectile
     // Constants
     private const float HALF_GRAVITY = 4.9f; // Gravity effect
     private const float EXPLOSION_RADIUS = 1f; // Define the explosion radius
+    private const float EXPLOSION_TIME = 0.5f;
+    private const float RATIO = 1.765f;
+    private const float RADIUS = 0.15f;
     private static readonly float angle = MathF.PI / 3; // angle of throw
     private static readonly float cos = MathF.Cos(angle), sin = MathF.Sin(angle);
+    private readonly DrawModel explodedModel;
 
     // Fields
     private float timeAlive;
     private Vector3 origin;
+    private enum status{normal, exploded}
+    private status currStatus = status.normal;
 
     // Constructor:
-    public Tomato(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Target) {}
+    public Tomato(ProjectileType type, DrawModel model, DrawModel exploded, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Target, RADIUS) 
+    {
+        this.explodedModel = exploded;
+    }
 
     private static float CalculateVelocity(Vector3 origin, Vector3 target)
     {
@@ -24,20 +33,28 @@ public class Tomato : Projectile
         return MathF.Sqrt(HALF_GRAVITY * distance / (cos * sin));
     }
 
-    public override void OnGroundHit()
+    private void Explode()
     {
-        base.OnGroundHit();
+        timeAlive = EXPLOSION_TIME;
         Position = new(Position.X, 0, Position.Z);
-        gameStateManager.CreateAreaDamage(Position, EXPLOSION_RADIUS, null, ProjectileType.Tomato);
+        DrawModel = explodedModel;
+        Scaling = Matrix.CreateScale(EXPLOSION_RADIUS * RATIO);
+        Hitbox = new Sphere(Position, EXPLOSION_RADIUS);
+        currStatus = status.exploded;
+    }
+
+    public override void OnGroundHit(bool touching)
+    {
+        if(touching)
+            Explode();
     }
 
     public override void OnPlayerHit(Player player)
     {
-        if (player.GetAffected(this))
-        {
-            ToBeDeleted = true;
-            gameStateManager.CreateAreaDamage(Position, EXPLOSION_RADIUS, null, ProjectileType.Tomato);
-        }
+        if (currStatus == status.exploded)
+            player.LoseLife();
+        else if (player.GetAffected(this))
+            Explode();
     }
 
     public override void Throw(Vector3 target)
@@ -56,5 +73,17 @@ public class Tomato : Projectile
         Vector3 verticalMotion = new(0, velocity * sin - HALF_GRAVITY * timeAlive, 0);
 
         Position = origin + (horizontalMotion + verticalMotion) * timeAlive;
+    }
+
+    public override void Update(float dt)
+    {
+        if(currStatus == status.normal)
+            base.Update(dt);
+        else
+        {
+            timeAlive -= dt;
+            if(timeAlive <= 0)
+                ToBeDeleted = true;
+        }
     }
 }

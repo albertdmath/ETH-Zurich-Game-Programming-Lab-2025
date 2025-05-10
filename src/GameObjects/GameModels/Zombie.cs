@@ -73,6 +73,7 @@ namespace src.GameObjects
                 }
             }
         }
+
         public void ForceByPlayer(Player player){
             float x = this.Position.X - player.Position.X;
             float y = this.Position.Z - player.Position.Z;
@@ -95,6 +96,7 @@ namespace src.GameObjects
                 ZombieSpeedY += 10f*y*temp;
             }
         }
+        
         public bool Spawn(ProjectileType type, Player target)
         {
             if(projectileHeld == null)

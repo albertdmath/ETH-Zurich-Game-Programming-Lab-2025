@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MLEM.Input;
 using Myra;
 using src.GameObjects;
 
@@ -10,6 +11,7 @@ namespace GameLab
 {
     public class GameLabGame : Game
     {
+        private InputHandler InputHandler;
         private MyMenu _menu;
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -25,6 +27,7 @@ namespace GameLab
         private DrawModel barrel2;
 
         private DrawModel playerHandModel;
+        private DrawModel staminaModel;
         private List<DrawModel> indicatorModel = new List<DrawModel>();
 
         private DrawModel jesterAnimated;
@@ -87,6 +90,9 @@ namespace GameLab
 
         // Camera settings
         private Vector3 cameraPosition = new Vector3(0f, 9, 7);
+        private Vector3 cameraPosRadius =  new Vector3(0f, 9, 7);
+        private Vector3 cameraTarget = new Vector3(0, 0, 0.7f);
+        private float cameraRadius;
         private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 9, 7), new Vector3(0, 0, 0.7f), Vector3.Up);
         private Matrix projection = Matrix.CreatePerspectiveFieldOfView(
             MathHelper.ToRadians(45f), // Field of view in radians (e.g., 45 degrees)
@@ -179,7 +185,8 @@ namespace GameLab
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            Vector3 offset = cameraPosition - cameraTarget;
+            cameraRadius = new Vector2(offset.X, offset.Z).Length();
             generateFullScreenVertexBuffer();
             // Load all of the models
             arenaModel = new DrawModel("../../../Content/marketplace.dae", 0.0f, 1.0f, GraphicsDevice);
@@ -191,6 +198,7 @@ namespace GameLab
             playerModelShell = new DrawModel("../../../Content/Player/player_body_shell.dae", 0.0f, 0.3f, GraphicsDevice);
             //jesterAnimated = new DrawModel("../../../Content/Player/chicken_animated.glb", 0.0f, 0.3f, GraphicsDevice);
             playerHandModel = new DrawModel("../../../Content/Player/hand.dae", 0.0f, 0.3f, GraphicsDevice);
+            staminaModel = new DrawModel("../../../Content/Player/dash_semicircle.dae", 0.0f, 0.3f, GraphicsDevice);
 
             indicatorModel.Add(new DrawModel("../../../Content/Player/aim_indicator_player1.dae", 0.0f, 0.3f, GraphicsDevice));
             indicatorModel.Add(new DrawModel("../../../Content/Player/aim_indicator_player2.dae", 0.0f, 0.3f, GraphicsDevice));
@@ -295,6 +303,8 @@ namespace GameLab
             lightingShader.setViewInverse(viewInverse);
             lightingShader.setLightSpaceMatrix(Sun.lightSpaceMatrix);
             lightingShader.setViewMatrix(view);
+            lightingShader.setOcclusionEnabled(menuStateManager.AMBIENT_OCCLUSION_ENABLED ? 1.0f : 0.0f);
+            lightingShader.setShadowsEnabled(menuStateManager.SHADOWS_ENABLED ? 1.0f : 0.0f);
 
             testShader.setCameraPosition(cameraPosition);
             testShader.setViewMatrix(view);
@@ -307,7 +317,7 @@ namespace GameLab
             geometryShader.setOpacityValue(1.0f);
 
             // Initialize gamestate here:
-            gameStateManager.Initialize(arenaModel, marketModels, playerHatModels, playerModels, playerModelShell, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels, walkingTurtle, barrel2);
+            gameStateManager.Initialize(arenaModel, marketModels, playerModels, playerModelShell, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels, walkingTurtle, barrel2, staminaModel);
             gameStateManager.StartNewGame();
 
             _menu = new MyMenu(this, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
@@ -323,17 +333,21 @@ namespace GameLab
             KeyboardState keyboardState = Keyboard.GetState();
             GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
             _menu.Update(gameTime, keyboardState, _previousKeyboardState, gamePadState, _previousGamePadState);
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (_menu.menuisopen())
             {
                 _previousKeyboardState = keyboardState;
                 _previousGamePadState = gamePadState;
-                base.Update(gameTime);
+                if(menuStateManager.START_MENU_IS_OPEN){
+                 gameStateManager.UpdateGame(dt,true);
+                }
+
                 return;
             }
 
-            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            gameStateManager.UpdateGame(dt);
+
+            gameStateManager.UpdateGame(dt,false);
 
             _previousKeyboardState = keyboardState;
             _previousGamePadState = gamePadState;
@@ -350,13 +364,43 @@ namespace GameLab
                 new RenderTargetBinding(albedoMap),
                 new RenderTargetBinding(roughnessMetallicMap)
             };
+            if(_graphics.IsFullScreen != menuStateManager.FULLSCREEN){
+                _graphics.IsFullScreen = menuStateManager.FULLSCREEN;
+                _graphics.ApplyChanges();
+            }
+            if(menuStateManager.START_MENU_IS_OPEN){
+                double camX = Math.Sin(gameTime.TotalGameTime.TotalSeconds/2) * this.cameraRadius;
+                double camZ = Math.Cos(gameTime.TotalGameTime.TotalSeconds/2) * this.cameraRadius;
+                cameraPosRadius = new Vector3((float)camX*1.1f*1.2f, 5.5f*1.3f, (float)camZ*1.1f*1.2f);
+                view = Matrix.CreateLookAt(cameraPosRadius, new Vector3(0, 0, 0.7f), Vector3.Up);
+                viewInverse = Matrix.Invert(view);
+            }
+
+            if(menuStateManager.TRANSITION){
+                cameraPosRadius = Vector3.Lerp(cameraPosRadius,cameraPosition,0.05f);
+                view = Matrix.CreateLookAt(cameraPosRadius, new Vector3(0, 0, 0.7f), Vector3.Up);
+                viewInverse = Matrix.Invert(view);
+                if((cameraPosition - cameraPosRadius).Length() < 0.01f){
+                    view =  Matrix.CreateLookAt(cameraPosition, new Vector3(0, 0, 0.7f), Vector3.Up);
+                    viewInverse = Matrix.Invert(view);
+                    menuStateManager.TRANSITION = false;
+                }
+                
+            }
             //gameStateManager.DepthMapPass(depthMapShader, view, projection, GraphicsDevice, depthMap, _spriteBatch, true);
-            gameStateManager.GeometryPass(geometryShader, shadowShader, view, projection, GraphicsDevice, shadowMap, targets, _spriteBatch, true);
+            gameStateManager.GeometryPass(geometryShader, shadowShader, view, projection, GraphicsDevice, shadowMap, targets, _spriteBatch, false);
+            if(menuStateManager.AMBIENT_OCCLUSION_ENABLED){
             gameStateManager.HBAOPass(hBAOShader, posMap, normalMap, HBAOmap, fullscreenVertexBuffer, GraphicsDevice, _spriteBatch, false);
             gameStateManager.FilterPass(HBAOFilter, HBAOmap, normalMap, posMap, HBAOBlurredMap, GraphicsDevice, fullscreenVertexBuffer, _spriteBatch, false);
-            gameStateManager.DrawGame(FinalImage,lightingShader, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
-            gameStateManager.FilterPass(FXAAShader,FinalImage,null,null,null,GraphicsDevice,fullscreenVertexBuffer,_spriteBatch,false);
-            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            }
+            if(menuStateManager.FXAA_ENABLED){
+                gameStateManager.DrawGame(FinalImage,lightingShader, view, viewInverse, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
+                gameStateManager.FilterPass(FXAAShader,FinalImage,null,null,null,GraphicsDevice,fullscreenVertexBuffer,_spriteBatch,false);
+            } else{
+               gameStateManager.DrawGame(null,lightingShader, view,viewInverse, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
+            }
+        
+            _spriteBatch.Begin(samplerState: SamplerState.AnisotropicClamp);
             GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
             hud.DrawPlayerHud(_spriteBatch);
             if(hud.DrawWin(_spriteBatch, GraphicsDevice)){
@@ -371,7 +415,7 @@ namespace GameLab
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap; // or whatever your 3D renderer expects
+            GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp; // or whatever your 3D renderer expects
             GraphicsDevice.SetRenderTarget(null); // go back to backbuffer
 
             base.Draw(gameTime);

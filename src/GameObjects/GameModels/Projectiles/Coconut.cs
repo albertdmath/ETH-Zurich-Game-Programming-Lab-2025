@@ -1,4 +1,6 @@
 using System;
+using System.Runtime.CompilerServices;
+using Accord.Math.Optimization;
 using Microsoft.Xna.Framework;
 
 namespace src.GameObjects;
@@ -10,14 +12,16 @@ public class Coconut : Projectile
     private const float MIN_VELOCITY = 3;
     private const int MAX_BOUNCES = 3;
     private const float TIME_BETWEEN_BOUNCES = 0.5f;
+    private const float RADIUS = 0.2f; // Radius of the coconut
 
     // Fields
-    private int bounces = MAX_BOUNCES;
+    private int bounces;
     private float timeSinceBounce;
+    private bool isInside = false;
 
 
     // Constructor:
-    public Coconut(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) 
+    public Coconut(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow, RADIUS) 
     {
         this.velocity = MIN_VELOCITY;
     }
@@ -52,18 +56,26 @@ public class Coconut : Projectile
             Bounce();
     }
 
-    public override void OnMobHit()
+    public override void OnMobHit(Ellipse ellipse)
     {
-        if (timeSinceBounce > 0) 
-            return;
-    
-        bounces--;
-        timeSinceBounce = TIME_BETWEEN_BOUNCES;
+        bool isInsideEll = ellipse.Inside(Position.X, Position.Z);
+        // From outside to inside
+        if(!isInside && isInsideEll)
+            isInside = true;
 
-        if (bounces <= 0) 
-            return;
+        //From inside to outside
+        else if(!isInsideEll && isInside && timeSinceBounce <= 0 && bounces >= 1)
+        {
+            bounces--;
+            timeSinceBounce = TIME_BETWEEN_BOUNCES;
+            Bounce();
+        }
+    }
 
-        Bounce();
+    public override void Throw(Vector3 target)
+    {
+        bounces = MAX_BOUNCES;
+        base.Throw(target);
     }
 
     public override bool Action(float chargeUp, Vector3 aimPoint, bool isOutside) 

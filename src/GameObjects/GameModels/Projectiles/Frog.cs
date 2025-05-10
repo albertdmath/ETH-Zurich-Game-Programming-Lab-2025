@@ -51,7 +51,6 @@ public class Frog : Projectile
             ThrownMove();
         else
             HopMove(dt);
-        
     }
 
     private void ThrownMove()

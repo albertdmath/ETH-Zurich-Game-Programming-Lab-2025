@@ -19,10 +19,10 @@ namespace src.GameObjects
         {
             { ProjectileType.Tomato, (1f, 0f) },
             { ProjectileType.Swordfish, (0.9f, 0f) },
-            { ProjectileType.Frog, (0.7f, 0.15f) },
+            { ProjectileType.Frog, (0.7f, 0.3f) },
             { ProjectileType.Coconut, (0.3f, 0f) },
             { ProjectileType.Banana, (1f, 0f) },
-            { ProjectileType.Turtle, (0.3f, 0f) },
+            { ProjectileType.Turtle, (0.3f, 0.0f) },
             { ProjectileType.Mjoelnir, (1.5f, 0.2f) },
             { ProjectileType.Spear, (0.9f, 0f) },
             { ProjectileType.Chicken, (0.9f, 0f) },
@@ -45,6 +45,7 @@ namespace src.GameObjects
         private GameModel arena;
         private DrawModel walkingTurtle;
         private DrawModel barrel2;
+        private DrawModel staminaModel;
 
         // This is the mob that might or might not be angry
         private Mob mob;
@@ -54,7 +55,6 @@ namespace src.GameObjects
         public readonly List<Market> markets = new List<Market>();
 
         private MenuStateManager menuStateManager;
-        private readonly List<AreaDamage> areaDamages = new List<AreaDamage>();
 
         // Singleton instancing
         private GameStateManager() { }
@@ -66,7 +66,7 @@ namespace src.GameObjects
             return instance;
         }
 
-        public void Initialize(DrawModel arenaModel, List<DrawModel> marketModels, List<DrawModel> playerHatModels, List<DrawModel> playerModels, DrawModel playerModelShell, DrawModel playerHandModel, List<DrawModel> indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels, DrawModel walkingTurtle, DrawModel barrel2)
+        public void Initialize(DrawModel arenaModel, List<DrawModel> marketModels, List<DrawModel> playerModels, DrawModel playerModelShell, DrawModel playerHandModel, List<DrawModel> indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels, DrawModel walkingTurtle, DrawModel barrel2, DrawModel staminaModel)
         {
             this.menuStateManager = MenuStateManager.GetMenuStateManager();
             this.arenaModel = arenaModel;
@@ -81,6 +81,7 @@ namespace src.GameObjects
             this.playerModelShell = playerModelShell;
             this.walkingTurtle = walkingTurtle;
             this.barrel2 = barrel2;
+            this.staminaModel = staminaModel;
 
             arena = new GameModel(arenaModel, ARENA_SCALE);
             // jesterGame = new GameModel(jesterModel,2.0f);
@@ -102,13 +103,12 @@ namespace src.GameObjects
             for(int i = 0; i<MenuStateManager.GetMenuStateManager().NUM_PLAYERS; ++i)
                 players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), inputs[i], 0, mob.Ellipse, playerModels[i], scaling));
             SRY BOUT THAT*/
-            players.Add(new Player(new Vector3(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, mob.Ellipse, playerModels, playerModelShell, playerHandModel, playerHatModels[0], indicatorModel[0], indicatorModel[4], scaling));
-            players[0].SetAnimation(1,true);
+            players.Add(new Player(new(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, playerModels, playerModelShell, playerHandModel, indicatorModel[0], indicatorModel[4],  staminaModel, scaling));
             //players.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, mob.Ellipse, playerModels[1], scaling));
             for (int i = 1; i < menuStateManager.NUM_PLAYERS; ++i)
             {
-                players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(), i, mob.Ellipse, playerModels, playerModelShell, playerHandModel, playerHatModels[i], indicatorModel[i], indicatorModel[i+4], scaling));
-                players[i].SetAnimation(0,true);
+                players.Add(new Player(new(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(), i, playerModels, playerModelShell, playerHandModel, indicatorModel[i], indicatorModel[i+4], staminaModel, scaling));
+                players[i].SwitchAnimation(0,true);
             }
 
             foreach (Player player in players)
@@ -172,7 +172,7 @@ namespace src.GameObjects
                     projectile = new Swordfish(type, projectileModels[ProjectileType.Swordfish], Properties[ProjectileType.Swordfish].scale, Properties[ProjectileType.Swordfish].height);
                     break;
                 case ProjectileType.Tomato:
-                    projectile = new Tomato(type, projectileModels[ProjectileType.Tomato], Properties[ProjectileType.Tomato].scale, Properties[ProjectileType.Tomato].height);
+                    projectile = new Tomato(type, projectileModels[ProjectileType.Tomato], areaDamageModels[1], Properties[ProjectileType.Tomato].scale, Properties[ProjectileType.Tomato].height);
                     break;
                 case ProjectileType.Coconut:
                     projectile = new Coconut(type, projectileModels[ProjectileType.Coconut], Properties[ProjectileType.Coconut].scale, Properties[ProjectileType.Coconut].height);
@@ -187,7 +187,7 @@ namespace src.GameObjects
                     projectile = new Spear(type, projectileModels[ProjectileType.Spear], Properties[ProjectileType.Spear].scale, Properties[ProjectileType.Spear].height);
                     break;
                 case ProjectileType.Mjoelnir:
-                    projectile = new Mjoelnir(type, projectileModels[ProjectileType.Mjoelnir], Properties[ProjectileType.Mjoelnir].scale, Properties[ProjectileType.Mjoelnir].height);
+                    projectile = new Mjoelnir(type, projectileModels[ProjectileType.Mjoelnir], areaDamageModels[0], Properties[ProjectileType.Mjoelnir].scale, Properties[ProjectileType.Mjoelnir].height);
                     break;
                 case ProjectileType.Chicken:
                     projectile = new Chicken(type, projectileModels[ProjectileType.Chicken], Properties[ProjectileType.Chicken].scale, Properties[ProjectileType.Chicken].height);
@@ -201,95 +201,107 @@ namespace src.GameObjects
             projectiles.Add(projectile);
             return projectile;
         }
-        public void CreateAreaDamage(Vector3 position, float scale, Player player, ProjectileType type)
-        {
-            if (type == ProjectileType.Mjoelnir)
-                areaDamages.Add(new AreaDamage(position, player, areaDamageModels[0], scale));
-            else
-                areaDamages.Add(new AreaDamage(position, player, areaDamageModels[1], scale));
-        }
 
-        public void UpdateGame(float dt)
-        {
-        // jesterGame.UpdateAnimation(dt);
-    
-            // Update area damage
-            foreach (AreaDamage areaDamage in areaDamages)
-                areaDamage.updateWrap(dt);
-                
-            areaDamages.RemoveAll(x => x.ToBeDeleted);
-
-            // Move Players
-            foreach (Player player in players){
-                player.updateWrap(dt);
-                player.UpdateAnimation(dt);
+        public void UpdateGame(float dt, bool MainMenuMode)
+        { 
+            if(MainMenuMode)
+            {
+                mob.updateWrap(dt, true);
+                return;
             }
 
-            // Players bumping into each other
-            for (int i = 0; i < players.Count; i++)
-                for (int j = i + 1; j < players.Count; j++)
-                    players[i].PlayerCollision(players[j]);
-
-
-            foreach (Player player in players)
+            //PROJECTILE COLLISION CHECKS WITH...
+            for (int i = projectiles.Count - 1; i >= 0; i--)
             {
-                foreach (Market market in markets)
+                Projectile projectile = projectiles[i];
+                if (projectile.Holder != null)
+                    continue;
+
+                //OUT OF BOUNDS
+                if (MathF.Abs(projectile.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(projectile.Position.Z) > GameLabGame.ARENA_WIDTH)
                 {
-                    if (player.Hitbox.Intersects(market.Hitbox))
-                        player.ObjectCollision(market);
+                    projectiles.RemoveAt(i);
+                    continue;
                 }
-            }
-            
-            // Update markets
-            foreach (Market market in markets)
-                market.Update(dt);
 
-            // Update mob
-            mob.Update(dt);
-
-
-            // Move the projectilesu
-            foreach (Projectile projectile in projectiles){
-                projectile.UpdateAnimation(dt);
-                projectile.updateWrap(dt);
-            }
-
-            // Check for projectile out of bounds and remove
-            foreach (Projectile projectile in projectiles)
-            {
-                if(MathF.Abs(projectile.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(projectile.Position.Z) > GameLabGame.ARENA_WIDTH)
-                    projectile.ToBeDeleted = true;
-            }
-
-            for (int i = 0; i < projectiles.Count; i++)
-            {
-                for (int j = i + 1; j < projectiles.Count; j++)
+                //GROUND
+                projectile.OnGroundHit(projectile.Position.Y < 0f);
+                
+                // ELLIPSES
+                projectile.OnMobHit(mob.Ellipse);
+                
+                // PROJECTILE
+                for (int j = i-1; j >= 0; j--)
                 {
-                    if (projectiles[i].Hitbox.Intersects(projectiles[j].Hitbox))
+                    Projectile projectile1 = projectiles[j];
+                    if (projectile1.Holder != null)
+                        continue;
+                    
+                    if (projectile.Hitbox.Intersects(projectile1.Hitbox))
                     {
-                        projectiles[i].OnProjectileHit(projectiles[j]);
-                        projectiles[j].OnProjectileHit(projectiles[i]);
+                        projectile.OnProjectileHit(projectile1);
+                        projectile1.OnProjectileHit(projectile);
                     }
                 }
+
+                // PLAYER
+                foreach (Player player in players)
+                {
+                    if(projectile.Hitbox.Intersects(player.Hitbox))
+                    {
+                        projectile.OnPlayerHit(player);
+                    }
+                }
+                
             }
 
-            // Early delete projectiles for efficiency
             projectiles.RemoveAll(x => x.ToBeDeleted);
 
-            // Check for projectile-player hand intersections
-            foreach (Player player in players.Where(p => p.Hand.IsCatching))
+            // PLAYER COLLISION CHECKS WITH...
+            for (int i = 0; i < players.Count; i++)
             {
-                foreach (Projectile projectile in projectiles)
-                {
-                    if (projectile.Hitbox.Intersects(player.Hand.Hitbox))
-                        player.Catch(projectile);
-                }
+                Player player = players[i];
 
+                //OUT OF BOUNDS
+                //if (MathF.Abs(player.Position.X) > GameLabGame.ARENA_HEIGHT || MathF.Abs(player.Position.Z) > GameLabGame.ARENA_WIDTH)
+                    //player.onBoundsHit();
+
+                //ELLIPSES
+                player.OnMobHit(mob.Ellipse);
+
+                //MARKET
                 foreach (Market market in markets)
                 {
-                    if (market.Hitbox.Intersects(player.Hand.Hitbox))
+                    while (player.Hitbox.Intersects(market.Hitbox))
+                        player.OnObjectHit(market);
+                }
+
+                // PLAYER
+                for (int j = i + 1; j < players.Count; j++)
+                {
+                    Player player1 = players[j];
+                    while(player.Hitbox.Intersects(player1.Hitbox))
                     {
-                        if(market.GrabProjectile())
+                        player.OnObjectHit(player1);
+                        player1.OnObjectHit(player);
+                    }
+                }
+                
+                // CATCHING
+                Hand hand = player.Hand;
+                if(hand.IsCatching)
+                {
+                    // PROJECTILE
+                    foreach (Projectile projectile in projectiles)
+                    {
+                        if (hand.Hitbox.Intersects(projectile.Hitbox))
+                            player.Catch(projectile);
+                    }
+
+                    // MARKET
+                    foreach (Market market in markets)
+                    {
+                        if (hand.Hitbox.Intersects(market.Hitbox) && market.GrabProjectile())
                         {
                             Projectile projectile = CreateProjectile(market.Type);
                             player.Catch(projectile);
@@ -297,42 +309,28 @@ namespace src.GameObjects
                     }
                 }
             }
+
+            // UPDATES
+            mob.updateWrap(dt, false);
+
+            foreach (Player player in players)
+            {
+                player.UpdateAnimation(dt);
+                player.updateWrap(dt);
+            }
             
-            // Check for projectile-player intersections
-            foreach (Projectile projectile in projectiles.Where(x => x.Holder == null))
-            {
-                foreach (Player player in players.Where(x => x.Life > 0))
-                {
-                    if (projectile.Hitbox.Intersects(player.Hitbox))
-                        projectile.OnPlayerHit(player);
-                }
-            }
-            // Check for areaDamage-player intersections
-            foreach (AreaDamage areaDamage in areaDamages.Where(x => x.timeSinceCreation <= 0.1f))
-            {
-                foreach (Player player in players.Where(x => x.Life > 0))
-                {
-                    if (areaDamage.Intersects(player))
-                        player.LoseLife();
-                }
-            }
-            // Check for projectile-mob intersection TODO
+            foreach (Market market in markets)
+                market.updateWrap(dt);
+            
             foreach (Projectile projectile in projectiles)
             {
-                if (mob.Ellipse.Outside(projectile.Position.X, projectile.Position.Z))
-                    projectile.OnMobHit();
+                projectile.UpdateAnimation(dt);
+                projectile.updateWrap(dt);
             }
-
-            // Check for projectile-ground intersection
-            foreach (Projectile projectile in projectiles)
-            {
-                if (projectile.Position.Y < 0f)
-                    projectile.OnGroundHit();
-            }
-
-            // Delete stuff again
+            
             projectiles.RemoveAll(x => x.ToBeDeleted);
         }
+        
 
 
         public void ShaderTest(Shader testShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice)
@@ -345,8 +343,12 @@ namespace src.GameObjects
             testShader.setProjectionMatrix(projection);
             arena.Draw(view, projection, testShader, graphicsDevice, false);
         }
-        public void DrawGame(RenderTarget2D output, PBR lightingShader, GraphicsDevice graphicsDevice, VertexBuffer fullScreenQuad, RenderTarget2D FragPosMap, RenderTarget2D NormalMap, RenderTarget2D AlbedoMap, RenderTarget2D RoughnessMetallicMap, RenderTarget2D ShadowMap, RenderTarget2D OcclusionMap, SpriteBatch spriteBatch, bool test)
+        public void DrawGame(RenderTarget2D output, PBR lightingShader, Matrix view, Matrix viewInverse, GraphicsDevice graphicsDevice, VertexBuffer fullScreenQuad, RenderTarget2D FragPosMap, RenderTarget2D NormalMap, RenderTarget2D AlbedoMap, RenderTarget2D RoughnessMetallicMap, RenderTarget2D ShadowMap, RenderTarget2D OcclusionMap, SpriteBatch spriteBatch, bool test)
         {
+            lightingShader.setViewInverse(viewInverse);
+            lightingShader.setViewMatrix(view);
+            lightingShader.setOcclusionEnabled(menuStateManager.AMBIENT_OCCLUSION_ENABLED ? 1.0f : 0.0f);
+            lightingShader.setShadowsEnabled(menuStateManager.SHADOWS_ENABLED ? 1.0f : 0.0f);
             graphicsDevice.SetRenderTarget(output);
             graphicsDevice.SetVertexBuffer(fullScreenQuad);
             graphicsDevice.Clear(Color.White);
@@ -359,7 +361,7 @@ namespace src.GameObjects
             lightingShader.setShadowTexture(ShadowMap);
             lightingShader.setRoughnessTexture(RoughnessMetallicMap);
             if (OcclusionMap != null){
-            lightingShader.setOcclusionTexture(OcclusionMap);
+                lightingShader.setOcclusionTexture(OcclusionMap);
             }
 
             // You don’t need an index buffer for this simple triangle list
@@ -412,7 +414,7 @@ namespace src.GameObjects
             foreach (Projectile projectile in projectiles)
             {
                 projectile.Draw(view, projection, depthShader, graphicsDevice, true);
-                // projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
+                //projectile.Hitbox.DebugDraw(graphicsDevice,view,projection);
             }
 
             // Draw all players
@@ -457,6 +459,11 @@ namespace src.GameObjects
         }
         public void GeometryPass(Shader geometryShader, Shader shadowShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D shadowMap, RenderTargetBinding[] targets, SpriteBatch spriteBatch, bool test)
         {
+
+            geometryShader.setViewMatrix(view);
+            // graphicsDevice.RasterizerState = this.shadowRasterizer;
+
+            if(menuStateManager.SHADOWS_ENABLED){
             graphicsDevice.SetRenderTarget(shadowMap);
             graphicsDevice.Clear(Color.Black);
             graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
@@ -491,6 +498,7 @@ namespace src.GameObjects
             }
             mob.Draw(view, projection, shadowShader, graphicsDevice, true);
             
+            }
             graphicsDevice.SetRenderTargets(targets);
             graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
              graphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -567,13 +575,6 @@ namespace src.GameObjects
             mob.Draw(view, projection, geometryShader, graphicsDevice, false);
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
             geometryShader.setOpacityValue(0.2f);
-            foreach (AreaDamage areaDamage in areaDamages)
-            {
-                geometryShader.setMetallic(areaDamage.DrawModel.metallic);
-                geometryShader.setRoughness(areaDamage.DrawModel.roughness);
-                geometryShader.setFinalBoneMatrices(areaDamage.GetFinalBoneMatrices());
-                areaDamage.Draw(view, projection, geometryShader, graphicsDevice, false);
-            }
 
             graphicsDevice.BlendState = BlendState.Opaque;
             geometryShader.setOpacityValue(1.0f);
@@ -656,7 +657,7 @@ public void FilterPass(Filter filterShader, RenderTarget2D inputTexture, RenderT
         }
 
         public bool GameIsOver(){
-            return livingPlayers.Count() == 1 && !(menuStateManager.NUM_PLAYERS==1);
+            return (livingPlayers.Count() == 1 && !(menuStateManager.NUM_PLAYERS==1));
         }
     }
 }

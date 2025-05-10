@@ -47,7 +47,7 @@ namespace src.GameObjects
             this.updateHitbox();
         }
 
-        public override void Update(float dt)
+        public override void updateWrap(float dt)
         {   
             projectileTime -= dt;
             projectilesAvailable = projectileTime <= 0f;

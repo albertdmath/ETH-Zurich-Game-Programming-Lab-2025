@@ -12,6 +12,7 @@ public class Turtle : Projectile
     private const float MIN_VELOCITY = 2.0f;
     private const float MAX_VELOCITY = 20.0f;
     private const float BOUNCE_BACK_TIME = 0.3f;
+    private const float RADIUS = 0.3f; // Radius of the turtle
 
     // Fields
     private float bounceBackTime = 0f; // Time to transform from throwing to walking
@@ -19,7 +20,7 @@ public class Turtle : Projectile
     private readonly DrawModel shellModel;
 
     // Constructor:
-    public Turtle(ProjectileType type, DrawModel model, DrawModel walkingModel, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) 
+    public Turtle(ProjectileType type, DrawModel model, DrawModel walkingModel, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow, RADIUS) 
     {
         this.shellModel = model;
         this.walkingModel = walkingModel;

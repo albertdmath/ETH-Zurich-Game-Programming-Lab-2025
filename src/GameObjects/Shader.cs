@@ -66,6 +66,12 @@ public class Shader {
     effect.Parameters["FinalBoneMatrices"].SetValue(matrices);
   }
 
+  public void setOcclusionEnabled(float enabled){
+     effect.Parameters["OcclusionEnabled"].SetValue(enabled);
+  }
+  public void setShadowsEnabled(float enabled){
+     effect.Parameters["ShadowsEnabled"].SetValue(enabled);
+  }
 
 }
 
