@@ -21,9 +21,10 @@ namespace src.GameObjects{
     public class EndMenu : SubMenu{
         private FontSystem fontSystem;
         private int TEXTSIZE;
-        public EndMenu(Desktop desktop, Grid r, MyMenu p, FontSystem fontSystem, int textsize):base(desktop,r,p){
-            this.fontSystem = fontSystem;
+        public EndMenu(Desktop desktop, Grid r, MyMenu p, FontSystem FontSystem, int textsize, MyMenuElement[] main):base(desktop,r,p){
+            fontSystem = FontSystem;
             TEXTSIZE = textsize;
+            this.oldMenuElements = main;
             _grid = new Grid{
                 RowSpacing = 5,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -35,22 +36,27 @@ namespace src.GameObjects{
 
             MyButton reload = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Restart",0,0,(s,a)=>{
                 gameStateManager.StartNewGame();//RELOADING
+                p.CloseEndMenu();
                 p.CloseMenu();
             },_grid,fontSystem,TEXTSIZE);
 
             MyButton backtomain = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Main Menu",0,1,(s,a)=>{
-                menuStateManager.MAIN_MENU_IS_OPEN=true;
+                
                 returnGrid = p.ToMainMenu();
-                p.setMenuElements(oldMenuElements);
+                //p.setMenuElements(oldMenuElements);
                 p.CloseEndMenu();
                 gameStateManager.StartNewGame();
+                menuStateManager.MAIN_MENU_IS_OPEN=true;
             },_grid,fontSystem,TEXTSIZE);
+            
+
             menuElements = new MyMenuElement[]{reload,backtomain};
+
         }
         public override MyMenuElement[] Activate(MyMenuElement[] R)
         {
-            returnGrid = (Grid) desktop.Root;
-            oldMenuElements = R;
+            //returnGrid = (Grid) desktop.Root;
+            //oldMenuElements = R;
             desktop.Root = _grid;
             menuopen = true;
             return menuElements;

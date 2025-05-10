@@ -334,6 +334,10 @@ namespace GameLab
                 base.Update(gameTime);
                 return;
             }
+            if(gameStateManager.GameIsOver() && !menuStateManager.ONWIN){
+                menuStateManager.ONWIN=true;
+                _menu.OpenWinMenu();
+            }
 
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -375,7 +379,7 @@ namespace GameLab
             GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
             hud.DrawPlayerHud(_spriteBatch);
             if(hud.DrawWin(_spriteBatch, GraphicsDevice)){
-                _menu.OpenWinMenu();
+                //_menu.OpenWinMenu();YEAH THIS IS AS RETARDED AS IT LOOKS
             }
             // Draw menu
             

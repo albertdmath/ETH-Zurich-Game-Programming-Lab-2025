@@ -188,7 +188,7 @@ namespace src.GameObjects{
             //SETTINGS-SUBMENU
             //shadows, ambient occlusion, fxaa
             SettingsMenu settingsMenu = new SettingsMenu(desktop,PauseGrid,this,MedievalFont,TEXTSIZE);
-            endMenu = new EndMenu(desktop,MainMenuGrid,this,MedievalFont,TEXTSIZE);
+            
             
             //MAIN-MENU-GRID
             MainMenuGrid = new Grid{
@@ -444,6 +444,7 @@ namespace src.GameObjects{
             mainElements = new MyMenuElement[]{MainMenuStart,MainSettings,MainTutorial,MainMenuExit};
             pauseElements = new MyMenuElement[]{resumebutton,reloadbutton,settingsButton,BacktoMainMenu,closebutton};
             activeElements = mainElements;
+            endMenu = new EndMenu(desktop,MainMenuGrid,this,MedievalFont,TEXTSIZE,mainElements);
         }
         public void Update(GameTime gameTime, KeyboardState keyboardState, KeyboardState previousKeyboardState, GamePadState gamePadState, GamePadState previousGamePadState){
             //STARTMENU CHANGE
@@ -481,7 +482,11 @@ namespace src.GameObjects{
                             CloseSubMenu();
                             activeElements[controllerselectedbutton].Highlight();
                         }else{
+                            if(endMenu.Isopen()){
+                            endMenu.Close();
+                        }else{
                             CloseMenu();
+                        }
                         }
                     }
 
@@ -521,6 +526,7 @@ namespace src.GameObjects{
             if(insubMenu){
                 CloseSubMenu();
             }
+            menuStateManager.ONWIN=false;
             //RESET CONTROLLER-SELECTION
             controllerselectedbutton=0;
             controllerlocked=false;
@@ -561,11 +567,12 @@ namespace src.GameObjects{
         }
         public void OpenWinMenu(){
             menuopen=true;
-            activeElements[controllerselectedbutton].UnHighlight();
+            //activeElements[controllerselectedbutton].UnHighlight();
                 
                 activeElements = endMenu.Activate(activeElements);
-                oldcontrollerselectedbutton=controllerselectedbutton;
                 controllerselectedbutton=0;
+                oldcontrollerselectedbutton=controllerselectedbutton;
+                activeElements[controllerselectedbutton].Highlight();
         }
         public void Draw(){
             if(menuopen){

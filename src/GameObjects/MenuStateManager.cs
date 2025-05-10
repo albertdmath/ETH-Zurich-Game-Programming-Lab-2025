@@ -7,6 +7,7 @@ namespace src.GameObjects
      */
     public class MenuStateManager
     {
+        public bool ONWIN {get;set;}=false;
         public bool TUTORIAL_IS_OPEN {get;set;} = false;
         public bool MAIN_MENU_IS_OPEN {get;set;} = true;
         public bool SOUND_ENABLED { get ; set; } = true;
