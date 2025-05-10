@@ -12,6 +12,7 @@ using Myra.Events;
 using System.Reflection.Metadata;
 using Myra.Graphics2D.Brushes;
 using FontStashSharp;
+using System.Linq.Expressions;
 
 namespace src.GameObjects{
     public class MySpinbutton : MyMenuElement{
@@ -34,6 +35,10 @@ namespace src.GameObjects{
         private GameStateManager gameStateManager;
         private Label Label;
         private Label shadowLabel;
+        private Button plus;
+        private Button minus;
+        private Button shadowplus;
+        private Button shadowminus;
 
         public MySpinbutton(int width, int height, int minimum, int maximum, bool isnullable, int startvalue, bool isinteger, string id, int column, int row, Grid grid,FontSystem fontSystem,int textsize){
             this.MINIMUM=minimum;
@@ -62,7 +67,10 @@ namespace src.GameObjects{
                 Font = fontSystem.GetFont(TEXTSIZE),
                 TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
+                VerticalAlignment = VerticalAlignment.Center,
+                Padding = new Myra.Graphics2D.Thickness{
+                    Left = 10
+                }
             };
             shadowLabel = new Label{
                 Text = $" Players: {VALUE}",
@@ -71,7 +79,10 @@ namespace src.GameObjects{
                 Left = Label.Left+2,
                 Top = Label.Top+2,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
+                VerticalAlignment = VerticalAlignment.Center,
+                Padding = new Myra.Graphics2D.Thickness{
+                    Left = 10
+                }
             };
 
             Grid.SetColumn(Label,0);
@@ -85,7 +96,7 @@ namespace src.GameObjects{
             layout.Widgets.Add(Label);
 
             //PLUS+++++++++++++++++++++++++++++++++++++++++++++
-            Button plus = new Button{
+            plus = new Button{
                 Background = new SolidBrush(Color.Transparent),
                 OverBackground = new SolidBrush(Color.Transparent),
                 PressedBackground = new SolidBrush(Color.Transparent),
@@ -97,9 +108,17 @@ namespace src.GameObjects{
                     Font = fontSystem.GetFont(TEXTSIZE/2)
                 },
                 Height = 40,
-                Width = 40
+                Width = 40,
+                VerticalAlignment=VerticalAlignment.Top,
+                Border = new SolidBrush(Color.Transparent),
+                BorderThickness = new Myra.Graphics2D.Thickness{
+                    Left = 7
+                },
+                Padding = new Myra.Graphics2D.Thickness{
+                    Left = 5
+                }
             };
-            Button shadowplus = new Button{
+            shadowplus = new Button{
                 Background = new SolidBrush(Color.Transparent),
                 OverBackground = new SolidBrush(Color.Transparent),
                 PressedBackground = new SolidBrush(Color.Transparent),
@@ -113,7 +132,15 @@ namespace src.GameObjects{
                     Top = plus.Top+2,
                 },
                 Height = 40,
-                Width = 40
+                Width = 40,
+                VerticalAlignment=VerticalAlignment.Top,
+                Border = new SolidBrush(Color.Transparent),
+                BorderThickness = new Myra.Graphics2D.Thickness{
+                    Left = 7
+                },
+                Padding = new Myra.Graphics2D.Thickness{
+                    Left = 5
+                }
             };
             plus.MouseEntered +=(s,a)=>{
                 MusicAndSoundEffects.playUIHoverSFX();
@@ -157,8 +184,8 @@ namespace src.GameObjects{
                 if(VALUE+1<=menuStateManager.MAX_NUM_PLAYER){
                     ++VALUE;
                     
-                    Label.Text = $" Players : {VALUE}";
-                    shadowLabel.Text = $" Players : {VALUE}";
+                    Label.Text = $" Players: {VALUE}";
+                    shadowLabel.Text = $" Players: {VALUE}";
                     menuStateManager.NUM_PLAYERS=VALUE;
                     gameStateManager.StartNewGame();
                 }else{
@@ -173,7 +200,7 @@ namespace src.GameObjects{
             };
             //PLUS+++++++++++++++++++++++++++++++++++++++++++++
             //MINUS--------------------------------------------
-            Button minus = new Button{
+            minus = new Button{
                 Background = new SolidBrush(Color.Transparent),
                 OverBackground = new SolidBrush(Color.Transparent),
                 PressedBackground = new SolidBrush(Color.Transparent),
@@ -186,9 +213,16 @@ namespace src.GameObjects{
                 },
                 Height = 40,
                 Width = 40,
-                
+                VerticalAlignment=VerticalAlignment.Top,
+                Border = new SolidBrush(Color.Transparent),
+                BorderThickness = new Myra.Graphics2D.Thickness{
+                    Left = 7
+                },
+                Padding = new Myra.Graphics2D.Thickness{
+                    Left = 5
+                }
             };
-            Button shadowminus = new Button{
+            shadowminus = new Button{
                 Background = new SolidBrush(Color.Transparent),
                 OverBackground = new SolidBrush(Color.Transparent),
                 PressedBackground = new SolidBrush(Color.Transparent),
@@ -202,7 +236,15 @@ namespace src.GameObjects{
                     Left = minus.Left+2
                 },
                 Height = 40,
-                Width = 40
+                Width = 40,
+                VerticalAlignment=VerticalAlignment.Top,
+                Border = new SolidBrush(Color.Transparent),
+                BorderThickness = new Myra.Graphics2D.Thickness{
+                    Left = 7
+                },
+                Padding = new Myra.Graphics2D.Thickness{
+                    Left = 5
+                }
             };
 
             minus.MouseEntered +=(s,a)=>{
@@ -247,8 +289,8 @@ namespace src.GameObjects{
                 if(VALUE-1>=menuStateManager.MIN_NUM_PLAYER){
                     --VALUE;
                     
-                    Label.Text = $" Players : {VALUE}";
-                    shadowLabel.Text = $" Players : {VALUE}";
+                    Label.Text = $" Players: {VALUE}";
+                    shadowLabel.Text = $" Players: {VALUE}";
                     menuStateManager.NUM_PLAYERS=VALUE;
                     gameStateManager.StartNewGame();
                 }else{
@@ -288,21 +330,74 @@ namespace src.GameObjects{
         public override void Highlight()
         {
             //spinbutton.SetStyle("controller");
+            minus.Border = new SolidBrush(Color.Blue);
+            plus.Border = new SolidBrush(Color.Blue);
         }
         public override void UnHighlight()
         {
-            //spinbutton.SetStyle("default");
+            minus.Border = new SolidBrush(Color.Transparent);
+            plus.Border = new SolidBrush(Color.Transparent);
         }
         public override void ControllerValueChange(GamePadState gamePadState, GamePadState previousGamePadState)
         {
-            int sign=0;
             if(gamePadState.DPad.Down == ButtonState.Pressed && previousGamePadState.DPad.Down == ButtonState.Released){
-                sign=-1;
+                MusicAndSoundEffects.playUIClickSFX();
+                if(VALUE-1>=menuStateManager.MIN_NUM_PLAYER){
+                    if(VALUE==menuStateManager.MAX_NUM_PLAYER){
+                        plus.Content = new Label{
+                    Text = "more",
+                    TextColor = Color.White,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Font = fontSystem.GetFont(TEXTSIZE/2)
+                };
+                    }
+                    --VALUE;
+                    
+                    Label.Text = $" Players: {VALUE}";
+                    shadowLabel.Text = $" Players: {VALUE}";
+                    menuStateManager.NUM_PLAYERS=VALUE;
+                    gameStateManager.StartNewGame();
+                }else{
+                    minus.Content = new Label{
+                    Text = "less",
+                    TextColor = Color.Red,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Font = fontSystem.GetFont(TEXTSIZE/2)
+                };
+                }
             }else if(gamePadState.DPad.Up == ButtonState.Pressed && previousGamePadState.DPad.Up == ButtonState.Released){
-                sign=1;
+                MusicAndSoundEffects.playUIClickSFX();
+                if(VALUE+1<=menuStateManager.MAX_NUM_PLAYER){
+                    if(VALUE==menuStateManager.MIN_NUM_PLAYER){
+                        minus.Content = new Label{
+                    Text = "less",
+                    TextColor = Color.White,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Font = fontSystem.GetFont(TEXTSIZE/2)
+                };
+                    }
+                    ++VALUE;
+                    
+                    Label.Text = $" Players: {VALUE}";
+                    shadowLabel.Text = $" Players: {VALUE}";
+                    menuStateManager.NUM_PLAYERS=VALUE;
+                    gameStateManager.StartNewGame();
+                }else{
+                    plus.Content = new Label{
+                    Text = "more",
+                    TextColor = Color.Red,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Font = fontSystem.GetFont(TEXTSIZE/2)
+                };
+                }
             }else{
                 return;
             }
+            
             //float? oldValue = spinbutton.Value;
             //if(sign+spinbutton.Value<=MAXIMUM && sign+spinbutton.Value>=MINIMUM){
             //    Valuechanging.Invoke(spinbutton,new ValueChangingEventArgs<float?>(spinbutton.Value,spinbutton.Value+sign));
@@ -311,14 +406,32 @@ namespace src.GameObjects{
         }
         public override bool Click()
         {
-         controllerselected=true;
-         //spinbutton.SetStyle("controllerpressed");
-         return true;   
+            controllerselected=true;
+            minus.Border = new SolidBrush(Color.Yellow);
+            plus.Border = new SolidBrush(Color.Yellow);
+            return true;   
         }
         public override bool LeaveButton()
         {
             controllerselected=false;
-            //spinbutton.SetStyle("controller");
+            minus.Border = new SolidBrush(Color.Blue);
+            plus.Border = new SolidBrush(Color.Blue);
+            
+            plus.Content = new Label{
+                    Text = "more",
+                    TextColor = Color.White,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Font = fontSystem.GetFont(TEXTSIZE/2)
+                };
+            minus.Content = new Label{
+                    Text = "less",
+                    TextColor = Color.White,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Font = fontSystem.GetFont(TEXTSIZE/2)
+                };
+
             return true;
         }
     }
