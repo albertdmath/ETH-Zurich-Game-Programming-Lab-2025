@@ -25,12 +25,12 @@ public class Projectile : GameModel
         { ProjectileType.Banana, 0.0f },
         { ProjectileType.Coconut, 0.0f },
         { ProjectileType.Frog, 0.0f },
-        { ProjectileType.Mjoelnir, 0.0f },
-        { ProjectileType.Spear, 0.1f },
+        { ProjectileType.Mjoelnir, 0.1f },
+        { ProjectileType.Spear, 0.0f },
         { ProjectileType.Swordfish, 0.0f },
         { ProjectileType.Tomato, 0.0f },
         { ProjectileType.Turtle, 0.0f },
-        { ProjectileType.Chicken, 0.0f },
+        { ProjectileType.Chicken, 0.1f },
         { ProjectileType.Barrel, 0.0f }
     };
 

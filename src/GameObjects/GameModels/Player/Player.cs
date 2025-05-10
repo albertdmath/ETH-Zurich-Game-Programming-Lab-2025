@@ -108,14 +108,32 @@ public class Player : GameModel
         }
     }
 
-    private void Slide(float dt)
+        private void Slide(float dt)
     {
-        // Inertia to keep some movement from last update;
+        // Apply friction to horizontal movement
         inertia -= (friction * dt) * inertia;
 
-        // Updating the position of the player
-        Position += speed * inertia * dt;
+        // If airborne, apply gravity
+        if (Position.Y > 0)
+        {
+            inertiaUp += gravity * dt;
+            // Update position with both horizontal slide and vertical gravity
+            Position += speed * inertia * dt + inertiaUp * dt;
+            
+            // Ground collision check
+            if (Position.Y <= 0)
+            {
+                Position = new Vector3(Position.X, 0, Position.Z);
+                inertiaUp = Vector3.Zero;
+            }
+        }
+        else
+        {
+            // Standard ground sliding
+            Position += speed * inertia * dt;
+        }
     }
+    
     private void InAir(float dt)
     {
         // Inertia to keep some movement from last update;
@@ -323,12 +341,9 @@ public class Player : GameModel
             }
             else
             { 
-                if(playerState == PlayerState.FloatingWithChicken || playerState == PlayerState.MjoelnirJump)
-                {
+                if(Position.Y > 0)
                     speed = NORMAL_SPEED;
-                    Position = new(Position.X, 0, Position.Z);
-                    Drop();
-                }
+                
                 inertia = 3f * ellipse.Normal(Position.X, Position.Z);
                 StunAndSlip(1f, 9f);
             }
@@ -362,7 +377,6 @@ public class Player : GameModel
         projectile.Catch(this);
         MusicAndSoundEffects.playProjectileSFX(projectile.Type);
         playerState = PlayerState.HoldingProjectile;
-        Console.WriteLine("Grabbing " + projectile.Type);
     }
     // Method to tdrop the current projectile
     public void Drop()
@@ -370,9 +384,9 @@ public class Player : GameModel
         if(projectileHeld != null)
         {
             projectileHeld.ToBeDeleted = true;
-            Console.WriteLine("Dropping " + projectileHeld.Type);
+            projectileHeld = null;
         }
-        projectileHeld = null;
+        
         playerState = PlayerState.NormalMovement;
     }
 
@@ -450,7 +464,7 @@ public class Player : GameModel
                 Position = new(Position.X, chicken.YCoordinate, Position.Z);
                 if(chicken.YCoordinate <= 0)
                 {
-                    Position = new Vector3(Position.X, 0, Position.Z);
+                    Position = new(Position.X, 0, Position.Z);
                     speed = NORMAL_SPEED;
                     Drop();
                 } 
