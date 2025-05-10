@@ -408,13 +408,13 @@ public class Player : GameModel
         switch (playerState)
         {
             case PlayerState.Idle: 
-                this.SwitchAnimation(1, true, 0.2f);
+                this.SwitchAnimation(3, true, 0.2f);
                 CanCatch();
                 CanDash();
                 break;
             case PlayerState.NormalMovement:
                 Move(dt);
-                this.SwitchAnimation(2, true, 0.05f);
+                this.SwitchAnimation(5, true, 0.05f);
                 CanCatch();
                 CanDash();
                 break;
