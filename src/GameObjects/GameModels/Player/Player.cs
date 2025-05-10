@@ -425,6 +425,7 @@ public class Player : GameModel
                 CanDash();
                 break;
             case PlayerState.Catching:
+                this.SwitchAnimation(0, true, 0.2f);
                 timeSinceStartOfCatch += dt;
 
                 Move(dt);
@@ -439,6 +440,7 @@ public class Player : GameModel
                     CanDash();
                 break;
             case PlayerState.Dashing:
+                this.SwitchAnimation(5, true, 0.2f);
                 Dash(dt);
                 break;
             case PlayerState.Aiming:
@@ -454,6 +456,7 @@ public class Player : GameModel
                 }
                 break;
             case PlayerState.Stunned:
+                this.SwitchAnimation(3, true, 0.2f);
                 Slide(dt);
                 stunDuration -= dt;
                 if (stunDuration < 0f)
