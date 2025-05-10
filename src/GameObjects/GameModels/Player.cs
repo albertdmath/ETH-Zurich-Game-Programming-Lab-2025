@@ -159,6 +159,7 @@ public class Player : GameModel
     {
         if (dashTime > 0f)
         {
+            this.SwitchAnimation(5, false, 0.05f);
             Position += dashSpeed * Orientation * dt;
             dashTime -= dt;
             //Console.WriteLine("Dashing in dash with projectile for: " + dashTime + " and speed: " + dashSpeed);
@@ -175,12 +176,13 @@ public class Player : GameModel
     }
     // ---------------------
     // End of functions for player movement
-    // Start of private functions to change state of player
+    // Start of private functions to change state of playeraaaw
     // ---------------------
     private void CanCatch()
     {
         if (input.Action())
         {
+            this.SwitchAnimation(0, false, 0.05f);
             Hand.IsCatching = true;
             playerState = PlayerState.Catching;
             timeSinceStartOfCatch = 0f;  
@@ -190,6 +192,7 @@ public class Player : GameModel
     {
         if (input.Dash() && stamina >= STAMINA_REGEN)
         {
+
             playerStateBeforeDashing = playerState;
             playerState = PlayerState.Dashing;
             dashTime = 0.1f;
@@ -408,18 +411,19 @@ public class Player : GameModel
         switch (playerState)
         {
             case PlayerState.Idle: 
-                this.SwitchAnimation(3, true, 0.2f);
+                this.SwitchAnimation(6, true, 0.2f);
                 CanCatch();
                 CanDash();
                 break;
             case PlayerState.NormalMovement:
                 Move(dt);
-                this.SwitchAnimation(5, true, 0.05f);
+                this.SwitchAnimation(8, true, 0.05f);
                 CanCatch();
                 CanDash();
                 break;
             case PlayerState.Catching:
                 timeSinceStartOfCatch += dt;
+
                 Move(dt);
                 if (timeSinceStartOfCatch > CATCH_COOLDOWN)
                     playerState = PlayerState.NormalMovement;
@@ -479,6 +483,7 @@ public class Player : GameModel
                 goto case PlayerState.NormalMovement;
             case PlayerState.FloatingWithChicken:
                 Move(dt);
+                this.SwitchAnimation(6, false, 0.2f, 0.5f);
                 Chicken chicken = projectileHeld as Chicken;
                 Position = new(Position.X, chicken.YCoordinate, Position.Z);
                 if(ellipse.Outside(Position.X, Position.Z))

@@ -67,9 +67,9 @@ public class GameModel
         } 
     }
 
-    public void SwitchAnimation(int index, bool loop = false, float blendSpeed = 0.0001f){
+    public void SwitchAnimation(int index, bool loop = false,  float blendSpeed = 0.0001f, float breakPoint = 0.0f){
         if(this.animator != null && index < animations.Count){
-            this.animator.SwitchAnimation(animations[index], loop,blendSpeed);
+            this.animator.SwitchAnimation(animations[index], loop,blendSpeed, breakPoint);
         } 
     }
 
