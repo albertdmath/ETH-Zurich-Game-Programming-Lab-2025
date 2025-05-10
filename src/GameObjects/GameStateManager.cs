@@ -19,7 +19,7 @@ namespace src.GameObjects
         {
             { ProjectileType.Tomato, (1f, 0f) },
             { ProjectileType.Swordfish, (0.9f, 0f) },
-            { ProjectileType.Frog, (0.7f, 0.15f) },
+            { ProjectileType.Frog, (0.7f, 0.3f) },
             { ProjectileType.Coconut, (0.3f, 0f) },
             { ProjectileType.Banana, (1f, 0f) },
             { ProjectileType.Turtle, (0.3f, 0.0f) },

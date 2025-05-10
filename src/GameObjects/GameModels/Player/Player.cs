@@ -283,7 +283,7 @@ public class Player : GameModel
         dashSpeed = speed;
         dashTime = actionPushedDuration * speedOfCharging / speed;
         playerState = PlayerState.Dashing;
-        playerStateBeforeDashing = PlayerState.NormalMovement;
+        playerStateBeforeDashing = PlayerState.DroppingThenNormalMovement;
     }
     public void JumpAndStrike()
     {

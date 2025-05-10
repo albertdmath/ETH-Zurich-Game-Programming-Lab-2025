@@ -32,6 +32,7 @@ public class AimIndicator : GameModel
         {
             case IndicatorModels.Target:
                 this.DrawModel = this.targetModel;
+                Scaling = Matrix.CreateScale(1f);
                 Position = Target;
                 break;
             case IndicatorModels.Arrow:

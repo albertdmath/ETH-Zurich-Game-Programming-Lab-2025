@@ -40,8 +40,9 @@ public class Spear : Projectile
     {
         if (DestroysOtherProjectiles) 
         {
-            Position = Holder.Position + Holder.Orientation * 0.3f + new Vector3(0,0.2f,0);
             Orientation = Holder.Orientation;
+            Vector3 orthogonalHolderOrientation = new(-Orientation.Z, Orientation.Y, Orientation.X);
+            Position = Holder.Position + Orientation * 0.5f + orthogonalHolderOrientation * 0.2f + new Vector3(0,0.2f,0);
         }
         else
         {

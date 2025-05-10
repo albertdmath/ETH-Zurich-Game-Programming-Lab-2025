@@ -1,6 +1,6 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Myra.Graphics2D;
 
 
 namespace src.GameObjects
@@ -10,12 +10,12 @@ namespace src.GameObjects
     {
         public bool DashReady { get; private set; } = true;
 
-        private const float TIME_CHARGE = 5f; // Time to charge the stamina
-        private const int N_MODELS = 3; // Number of models to draw
+        private const float TIME_CHARGE = 3f; // Time to charge the stamina
+        private const int N_MODELS = 5; // Number of models to draw
         private const float SLICE_DURATION = TIME_CHARGE/N_MODELS; //How many slices to complete circle
         private readonly Player player;
         private readonly DrawModel[] models = new DrawModel[N_MODELS];
-        private readonly float[] angles = new float[N_MODELS]; // Angles of the slices
+        private readonly Matrix[] sizeAngles = new Matrix[N_MODELS]; // Angles of the slices
 
         private float timeSpentCatching = TIME_CHARGE; // Time spent catching
 
@@ -25,7 +25,7 @@ namespace src.GameObjects
             for (int i = 0; i < N_MODELS; i++)
             {
                 models[i] = model;
-                angles[i] = MathHelper.ToRadians(360f / N_MODELS * i);
+                sizeAngles[i] = Matrix.CreateScale(0.45f) * Matrix.CreateRotationY(MathHelper.ToRadians(360f / N_MODELS * i));
             }
         }       
 
@@ -59,7 +59,7 @@ namespace src.GameObjects
                 if(timeSpentCatching < SLICE_DURATION * i)
                     continue;
         
-                Matrix Transform = Matrix.CreateRotationY(angles[i]) * Matrix.CreateTranslation(player.Position);
+                Matrix Transform = sizeAngles[i] * Matrix.CreateTranslation(player.Position);
                 
                 foreach (GameMesh mesh in model.meshes)
                 {   
