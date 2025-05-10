@@ -103,11 +103,11 @@ namespace src.GameObjects
             for(int i = 0; i<MenuStateManager.GetMenuStateManager().NUM_PLAYERS; ++i)
                 players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), inputs[i], 0, mob.Ellipse, playerModels[i], scaling));
             SRY BOUT THAT*/
-            players.Add(new Player(new(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, playerModels, playerModelShell, playerHandModel, indicatorModel[0], indicatorModel[4],  staminaModel, scaling));
+            players.Add(new Player(new(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, playerModels, playerModelShell, playerHandModel, indicatorModel[0], indicatorModel[4],  staminaModel, scaling, playerHatModels[0]));
             //players.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, mob.Ellipse, playerModels[1], scaling));
             for (int i = 1; i < menuStateManager.NUM_PLAYERS; ++i)
             {
-                players.Add(new Player(new(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(), i, playerModels, playerModelShell, playerHandModel, indicatorModel[i], indicatorModel[i+4], staminaModel, scaling));
+                players.Add(new Player(new(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(), i, playerModels, playerModelShell, playerHandModel, indicatorModel[i], indicatorModel[i+4], staminaModel, scaling, playerHatModels[i]));
                 players[i].SwitchAnimation(0,true);
             }
 

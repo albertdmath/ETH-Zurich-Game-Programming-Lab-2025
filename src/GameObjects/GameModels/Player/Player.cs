@@ -63,7 +63,7 @@ public class Player : GameModel
 
     private readonly GameStateManager gameStateManager;
 
-    public Player(Vector3 position, Input input, int id, List<DrawModel> models, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, DrawModel staminaModel, float scale) : base(models[id], scale)
+    public Player(Vector3 position, Input input, int id, List<DrawModel> models, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, DrawModel staminaModel, float scale, DrawModel jesterHeadModel) : base(models[id], scale)
     {
         Position = position;
         Orientation = new Vector3(0, 0, 1f);
@@ -76,6 +76,8 @@ public class Player : GameModel
         aimIndicator = new AimIndicator(this, indicatorModel,indicatorArrowModel, 1f);
         playerState = PlayerState.Idle;
         playerModels = models;
+        this.playerModels.Add(jesterHeadModel);
+        this.jesterHat = new JesterHat(this,jesterHeadModel,0.5f);
         this.playerModelShell = playerModelShell;
         this.Stamina = new Stamina(this, staminaModel);
     }
