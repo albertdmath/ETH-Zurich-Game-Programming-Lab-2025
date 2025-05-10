@@ -84,7 +84,15 @@ namespace src.GameObjects{
 
 
             button.MouseEntered +=(s,a)=>{
-                MusicAndSoundEffects.playUIHoverSFX();
+                MouseEnters();
+            };
+
+            button.MouseLeft +=(s,a)=>{
+                MouseLeaves();
+            };
+        }
+        private void MouseEnters(){
+            MusicAndSoundEffects.playUIHoverSFX();
                 button.Content = new Label{
                 Text = TEXT,
                 Font = fontSystem.GetFont(TEXTSIZE),
@@ -92,25 +100,25 @@ namespace src.GameObjects{
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
-            };
-
-            button.MouseLeft +=(s,a)=>{
-                button.Content = new Label{
+        }
+        private void MouseLeaves(){
+            button.Content = new Label{
                 Text = TEXT,
                 Font = fontSystem.GetFont(TEXTSIZE),
                 TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
-            };
         }
         public override void Highlight(){
             button.SetStyle("controller");
+            MouseEnters();
         }
 
         public override void UnHighlight()
         {
             button.SetStyle("default");
+            MouseLeaves();
         }
         public override bool Click()
         {

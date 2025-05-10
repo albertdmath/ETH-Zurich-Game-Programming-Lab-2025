@@ -115,8 +115,53 @@ namespace src.GameObjects{
                 ParentMenu.CloseSubMenu();
             },_grid,fontSystem,TEXTSIZE);
 
+
+
+
+
+            //SOUNDS
+            Label VolumeLabel = new Label{
+                Text = "Music:",
+                TextColor = Color.White,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                //Background = new SolidBrush(Color.Blue),
+                Padding = new Thickness{Top=8,Bottom=5},
+                Height = CENTER_BUTTON_HEIGHT,
+                Width = CENTER_BUTTON_WIDTH,
+                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center,
+                Font = fontSystem.GetFont(TEXTSIZE)
+            };
+            Grid.SetColumn(VolumeLabel,2);
+            Grid.SetRow(VolumeLabel,1);
+            _grid.Widgets.Add(VolumeLabel);
+
+            Label SFXVolumeLabel = new Label{
+                Text = "SFX:",
+                TextColor = Color.White,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                //Background = new SolidBrush(Color.Blue),
+                Padding = new Thickness{Top=8,Bottom=5},
+                Height = CENTER_BUTTON_HEIGHT,
+                Width = CENTER_BUTTON_WIDTH,
+                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center,
+                Font = fontSystem.GetFont(TEXTSIZE)
+            };
+            Grid.SetColumn(SFXVolumeLabel,2);
+            Grid.SetRow(SFXVolumeLabel,3);
+            _grid.Widgets.Add(SFXVolumeLabel);
+
+            //MUSIC/SFX-SLIDER
+            MyHorizontalSlider Volume = new MyHorizontalSlider(0,100,45,2,2,(s,a)=>{
+                MediaPlayer.Volume = a.NewValue*0.01f;
+            },_grid);
+            MyHorizontalSlider SFXVolume = new MyHorizontalSlider(0,100,100,2,4,(s,a)=>{
+                float? nullableFloat = a.NewValue;
+                MusicAndSoundEffects.VOLUME = (float)(nullableFloat*0.01f ?? 0.5);
+                MusicAndSoundEffects.angrymobInstance.Volume = (float)(nullableFloat*0.001f ?? 0.1f);
+            },_grid);
+
             //menuElements = new MyMenuElement[]{testbutton,testbutton1,testbutton2,testbutton3,testbutton4,testbutton5,testbutton6,testbutton7,testbutton8,testbutton9,FXAA,SHADOWS,AMBIENT_OCCLUSION,FULLSCREEN,backbutton};
-            menuElements = new MyMenuElement[]{FXAA,SHADOWS,AMBIENT_OCCLUSION,FULLSCREEN,NumPlayerSpinButton,backbutton};
+            menuElements = new MyMenuElement[]{FXAA,SHADOWS,AMBIENT_OCCLUSION,FULLSCREEN,NumPlayerSpinButton,backbutton,Volume,SFXVolume};
         }
         public override MyMenuElement[] Activate(MyMenuElement[] R)
         {

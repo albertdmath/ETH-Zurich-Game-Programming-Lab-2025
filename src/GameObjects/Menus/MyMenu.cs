@@ -31,6 +31,7 @@ namespace src.GameObjects{
         private Grid MainMenuGrid;
         private MyMenuElement[] activeElements;
         private MyMenuElement[] pauseElements;
+        private MyMenuElement[] mainElements;
         private bool menuopen=true;
         private bool controllerlocked = false;
         private bool insubMenu = false;
@@ -81,13 +82,16 @@ namespace src.GameObjects{
                 Width = CENTER_BUTTON_WIDTH/2,
                 //Height = CENTER_BUTTON_HEIGHT
             };
+
+
+
+
+
             ButtonStyle ControllerButtonStyle = new ButtonStyle{
                 Background = new SolidBrush(Color.Transparent),
                 OverBackground = new SolidBrush(Color.Transparent),
                 PressedBackground = new SolidBrush(Color.Transparent),
-                LabelStyle = new LabelStyle{
-                    TextColor = Color.White
-                },
+                
                 Border = new SolidBrush(Color.Black),
                 BorderThickness = new Thickness{
                     Left=5,Right=5,Top=5,Bottom=5
@@ -100,8 +104,13 @@ namespace src.GameObjects{
                 OverBackground = new SolidBrush(Color.Transparent),
                 PressedBackground = new SolidBrush(Color.Transparent),
                 Height = CENTER_BUTTON_HEIGHT,
-                Width = CENTER_BUTTON_WIDTH
+                Width = CENTER_BUTTON_WIDTH,
             };
+
+
+
+
+
             SliderStyle DefaultSliderStyle = new SliderStyle{
                 Background = new SolidBrush(Color.White),
                 FocusedBorder = new SolidBrush(Color.Honeydew),
@@ -230,6 +239,14 @@ namespace src.GameObjects{
             //BACK TO MAIN MENU
             MyButton BacktoMainMenu = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Main Menu",0,3,(s,a)=>{
                 menuStateManager.MAIN_MENU_IS_OPEN=true;
+                activeElements[controllerselectedbutton].LeaveButton();
+                activeElements[controllerselectedbutton].UnHighlight();
+
+                controllerselectedbutton=0;
+                controllerlocked=false;
+
+                activeElements = mainElements;
+
                 desktop.Root = MainMenuGrid;
                 gameStateManager.StartNewGame();
             },PauseGrid,MedievalFont,TEXTSIZE);
@@ -269,6 +286,7 @@ namespace src.GameObjects{
             },PauseGrid,MedievalFont,TEXTSIZE);
 
             //MUSIC/SFX-SLIDER
+            /*
             MyHorizontalSlider Volume = new MyHorizontalSlider(0,100,45,2,2,(s,a)=>{
                 MediaPlayer.Volume = a.NewValue*0.01f;
             },PauseGrid);
@@ -276,10 +294,11 @@ namespace src.GameObjects{
                 float? nullableFloat = a.NewValue;
                 MusicAndSoundEffects.VOLUME = (float)(nullableFloat*0.01f ?? 0.5);
                 MusicAndSoundEffects.angrymobInstance.Volume = (float)(nullableFloat*0.001f ?? 0.1f);
-            },PauseGrid);
+            },PauseGrid);*/
             
 
             //LABELS
+            /*
             Label VolumeLabel = new Label{
                 Text = "Music:",
                 TextColor = Color.White,
@@ -308,7 +327,7 @@ namespace src.GameObjects{
             };
             Grid.SetColumn(SFXVolumeLabel,2);
             Grid.SetRow(SFXVolumeLabel,3);
-            PauseGrid.Widgets.Add(SFXVolumeLabel);
+            PauseGrid.Widgets.Add(SFXVolumeLabel);*/
 
             
 /*
@@ -422,8 +441,9 @@ namespace src.GameObjects{
             //desktop.Root = grid;
 
             //ELEMENTÄRÄIs
-            activeElements = new MyMenuElement[]{MainMenuStart,MainSettings,MainMenuExit};
-            pauseElements = new MyMenuElement[]{resumebutton,reloadbutton,settingsButton,closebutton,Volume,SFXVolume};
+            mainElements = new MyMenuElement[]{MainMenuStart,MainSettings,MainTutorial,MainMenuExit};
+            pauseElements = new MyMenuElement[]{resumebutton,reloadbutton,settingsButton,BacktoMainMenu,closebutton};
+            activeElements = mainElements;
         }
         public void Update(GameTime gameTime, KeyboardState keyboardState, KeyboardState previousKeyboardState, GamePadState gamePadState, GamePadState previousGamePadState){
             //STARTMENU CHANGE
