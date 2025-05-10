@@ -20,6 +20,8 @@ public class GameModel
     public Animator animator {get; set;} = null;
     public List<GameAnimation> animations {get; set;}
 
+    private Matrix[] boneMatrices = new Matrix[100];
+
     public GameModel(DrawModel model, float scale, float radius = -1)
     {
         DrawModel = model;
@@ -28,13 +30,16 @@ public class GameModel
         Hitbox = (radius == -1) ? new OBB(this.DrawModel, Transform) : new Sphere(Position, radius);
         
         this.animations = new List<GameAnimation>();
+         for (int i = 0; i < 100; i++){
+            this.boneMatrices[i] = Matrix.Identity;
+        }
         if(model.hasAnimations){
             hasAnimation = true; 
             for(int i = 0; i < model.scene.AnimationCount; i++){
                 GameAnimation anim = new("Animation " +i, model.scene.Animations[i], model.scene, model);
                 animations.Add(anim);
             }
-            this.animator = new Animator(animations[0], false);
+            this.animator = new Animator(animations[0], true);
         }
     }
 
@@ -46,7 +51,8 @@ public class GameModel
         if(this.animator != null){
             return this.animator.finalBoneMatrices;
         }
-        return new Matrix[]{}; 
+        return boneMatrices;
+    
     }
 
 

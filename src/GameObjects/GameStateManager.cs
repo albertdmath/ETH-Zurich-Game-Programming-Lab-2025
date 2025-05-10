@@ -34,7 +34,7 @@ namespace src.GameObjects
         private DrawModel arenaModel;
         private List<DrawModel> marketModels;
         private List<DrawModel> playerHatModels;
-        private DrawModel playerModel;
+        private List<DrawModel> playerModels;
         private DrawModel playerModelShell;
         private DrawModel playerHandModel;
         private List<DrawModel> indicatorModel;
@@ -66,13 +66,13 @@ namespace src.GameObjects
             return instance;
         }
 
-        public void Initialize(DrawModel arenaModel, List<DrawModel> marketModels, List<DrawModel> playerHatModels, DrawModel playerModel, DrawModel playerModelShell, DrawModel playerHandModel, List<DrawModel> indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels, DrawModel walkingTurtle, DrawModel barrel2, DrawModel staminaModel)
+        public void Initialize(DrawModel arenaModel, List<DrawModel> marketModels, List<DrawModel> playerModels, DrawModel playerModelShell, DrawModel playerHandModel, List<DrawModel> indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels, DrawModel walkingTurtle, DrawModel barrel2, DrawModel staminaModel)
         {
             this.menuStateManager = MenuStateManager.GetMenuStateManager();
             this.arenaModel = arenaModel;
             this.marketModels = marketModels;
-            this.playerHatModels = playerHatModels;
-            this.playerModel = playerModel;
+            //this.playerHatModels = playerHatModels;
+            this.playerModels = playerModels;
             this.playerHandModel = playerHandModel;
             this.mobModels = mobModels;
             this.areaDamageModels = areaDamageModels;
@@ -103,11 +103,12 @@ namespace src.GameObjects
             for(int i = 0; i<MenuStateManager.GetMenuStateManager().NUM_PLAYERS; ++i)
                 players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), inputs[i], 0, mob.Ellipse, playerModels[i], scaling));
             SRY BOUT THAT*/
-            players.Add(new Player(new(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, playerModel, playerModelShell, playerHandModel, playerHatModels[0], indicatorModel[0], indicatorModel[4], staminaModel, scaling));
+            players.Add(new Player(new(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, playerModels, playerModelShell, playerHandModel, indicatorModel[0], indicatorModel[4],  staminaModel, scaling));
             //players.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, mob.Ellipse, playerModels[1], scaling));
             for (int i = 1; i < menuStateManager.NUM_PLAYERS; ++i)
             {
-                players.Add(new Player(new(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(), i, playerModel, playerModelShell, playerHandModel, playerHatModels[i], indicatorModel[i], indicatorModel[i+4], staminaModel, scaling));
+                players.Add(new Player(new(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(), i, playerModels, playerModelShell, playerHandModel, indicatorModel[i], indicatorModel[i+4], staminaModel, scaling));
+                players[i].SwitchAnimation(0,true);
             }
 
             foreach (Player player in players)
@@ -201,8 +202,14 @@ namespace src.GameObjects
             return projectile;
         }
 
-        public void UpdateGame(float dt)
-        {        
+        public void UpdateGame(float dt, bool MainMenuMode)
+        { 
+            if(MainMenuMode)
+            {
+                mob.updateWrap(dt, true);
+                return;
+            }
+
             //PROJECTILE COLLISION CHECKS WITH...
             for (int i = projectiles.Count - 1; i >= 0; i--)
             {
@@ -304,19 +311,26 @@ namespace src.GameObjects
             }
 
             // UPDATES
-            mob.updateWrap(dt);
+            mob.updateWrap(dt, false);
 
             foreach (Player player in players)
+            {
+                player.UpdateAnimation(dt);
                 player.updateWrap(dt);
+            }
             
             foreach (Market market in markets)
                 market.updateWrap(dt);
             
             foreach (Projectile projectile in projectiles)
+            {
+                projectile.UpdateAnimation(dt);
                 projectile.updateWrap(dt);
+            }
             
             projectiles.RemoveAll(x => x.ToBeDeleted);
         }
+        
 
 
         public void ShaderTest(Shader testShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice)
@@ -329,8 +343,12 @@ namespace src.GameObjects
             testShader.setProjectionMatrix(projection);
             arena.Draw(view, projection, testShader, graphicsDevice, false);
         }
-        public void DrawGame(RenderTarget2D output, PBR lightingShader, GraphicsDevice graphicsDevice, VertexBuffer fullScreenQuad, RenderTarget2D FragPosMap, RenderTarget2D NormalMap, RenderTarget2D AlbedoMap, RenderTarget2D RoughnessMetallicMap, RenderTarget2D ShadowMap, RenderTarget2D OcclusionMap, SpriteBatch spriteBatch, bool test)
+        public void DrawGame(RenderTarget2D output, PBR lightingShader, Matrix view, Matrix viewInverse, GraphicsDevice graphicsDevice, VertexBuffer fullScreenQuad, RenderTarget2D FragPosMap, RenderTarget2D NormalMap, RenderTarget2D AlbedoMap, RenderTarget2D RoughnessMetallicMap, RenderTarget2D ShadowMap, RenderTarget2D OcclusionMap, SpriteBatch spriteBatch, bool test)
         {
+            lightingShader.setViewInverse(viewInverse);
+            lightingShader.setViewMatrix(view);
+            lightingShader.setOcclusionEnabled(menuStateManager.AMBIENT_OCCLUSION_ENABLED ? 1.0f : 0.0f);
+            lightingShader.setShadowsEnabled(menuStateManager.SHADOWS_ENABLED ? 1.0f : 0.0f);
             graphicsDevice.SetRenderTarget(output);
             graphicsDevice.SetVertexBuffer(fullScreenQuad);
             graphicsDevice.Clear(Color.White);
@@ -441,12 +459,14 @@ namespace src.GameObjects
         }
         public void GeometryPass(Shader geometryShader, Shader shadowShader, Matrix view, Matrix projection, GraphicsDevice graphicsDevice, RenderTarget2D shadowMap, RenderTargetBinding[] targets, SpriteBatch spriteBatch, bool test)
         {
+
+            geometryShader.setViewMatrix(view);
+            // graphicsDevice.RasterizerState = this.shadowRasterizer;
+
+            if(menuStateManager.SHADOWS_ENABLED){
             graphicsDevice.SetRenderTarget(shadowMap);
             graphicsDevice.Clear(Color.Black);
             graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
-
-            // graphicsDevice.RasterizerState = this.shadowRasterizer;
-
             arena.Draw(view, projection, shadowShader, graphicsDevice, true);
             // arenaModel.Hitbox.DebugDraw(GraphicsDevice,view,projection);
             foreach (Market market in markets)
@@ -471,6 +491,7 @@ namespace src.GameObjects
             }
             mob.Draw(view, projection, shadowShader, graphicsDevice, true);
             
+            }
             graphicsDevice.SetRenderTargets(targets);
             graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
              graphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -484,8 +505,9 @@ namespace src.GameObjects
 
             geometryShader.setMetallic(arena.DrawModel.metallic);
             geometryShader.setRoughness(arena.DrawModel.roughness);
-
+            geometryShader.setFinalBoneMatrices(arena.GetFinalBoneMatrices());
             arena.Draw(view, projection, geometryShader, graphicsDevice, false);
+            
             // Matrix[] check = jesterGame.GetFinalBoneMatrices();
             //     geometryShader.setFinalBoneMatrices(jesterGame.GetFinalBoneMatrices());
             //     geometryShader.setRoughness(jesterGame.DrawModel.roughness);
@@ -507,6 +529,11 @@ namespace src.GameObjects
             {
                 geometryShader.setMetallic(projectile.DrawModel.metallic);
                 geometryShader.setRoughness(projectile.DrawModel.roughness);
+                if(projectile.Type == ProjectileType.Banana){
+                Matrix[] check = projectile.GetFinalBoneMatrices();
+                }
+
+                geometryShader.setFinalBoneMatrices(projectile.GetFinalBoneMatrices());
 
                 projectile.Draw(view, projection, geometryShader, graphicsDevice, false);
                 // projectile.Hitbox.DebugDraw(GraphicsDevice,view,projection);
@@ -515,6 +542,7 @@ namespace src.GameObjects
             // Draw all Players
             foreach (Player player in players)
             {
+
                 if (player.IsCrawling())
                 {
                     graphicsDevice.BlendState = BlendState.NonPremultiplied;
@@ -529,7 +557,7 @@ namespace src.GameObjects
 
                 geometryShader.setMetallic(player.DrawModel.metallic);
                 geometryShader.setRoughness(player.DrawModel.roughness);
-
+                geometryShader.setFinalBoneMatrices(player.GetFinalBoneMatrices());
                 player.Draw(view, projection, geometryShader, graphicsDevice, false);
                 //player.Hitbox.DebugDraw(graphicsDevice, view, projection);
             }

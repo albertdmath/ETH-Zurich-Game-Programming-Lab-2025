@@ -14,7 +14,6 @@ namespace src.GameObjects{
     public class MyButton : MyMenuElement{
         private int WIDTH;
         private int HEIGHT;
-        private string TEXT;
         private string ID;
         private int COLUMN;
         private int ROW;
@@ -25,7 +24,6 @@ namespace src.GameObjects{
         public MyButton(int width, int height, string text, string id, int column, int row, Action<object?,EventArgs> Click, Grid grid){
             WIDTH=width;
             HEIGHT=height;
-            TEXT=text;
             ID=id;
             COLUMN=column;
             ROW=row;
@@ -38,7 +36,9 @@ namespace src.GameObjects{
               Content = new Label{
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                Text = TEXT
+                Text = text,
+                TextColor = Color.Black,
+                Scale=new Vector2(2,2),
               }  
             };
             Grid.SetColumn(button,COLUMN);
@@ -64,8 +64,17 @@ namespace src.GameObjects{
         {//does nothing
             return false;
         }
-        public override void ControllerValueChange(int sign)
+        public override void ControllerValueChange(GamePadState p, GamePadState d)
         {//does nothing
+        }
+        public void ChangeText(string t){
+            button.Content = new Label{
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Text = t,
+                TextColor = Color.Black,
+                Scale=new Vector2(2,2),
+            };
         }
     }
 }

@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace src.GameObjects;
@@ -28,12 +29,12 @@ public class Player : GameModel
         Stunned,
         Crawling,
         MjoelnirJump,
-        DroppingThenNormalMovement,
+        UsingSpear,
         FloatingWithChicken
     }
     private PlayerState playerState;
     private float speed = NORMAL_SPEED;
-    private Projectile projectileHeld = null;
+    public Projectile projectileHeld {get; private set;} = null;
     private bool armor = false;
     private float dashTime = 0f,dashSpeed = 12f, flySpeed = 0f;
     private float actionPushedDuration;
@@ -43,15 +44,17 @@ public class Player : GameModel
     private float timeSinceStartOfCatch = 0f;
     private float friction = 9f;
     private Projectile lastThrownProjectile = null; // Store last thrown projectile
-    private readonly DrawModel playerModel;
+    private  List<DrawModel> playerModels;
     private readonly DrawModel playerModelShell;
     private const float CATCH_COOLDOWN = 1.0f;
     private readonly Input input;
     private Vector3 inertia,inertiaUp;
     private Vector3 gravity = new(0,-30f,0);
     private bool outside = false;
+    private float timerSpear = 0;
+    private Vector3 positionSpear;
 
-    private readonly JesterHat jesterHat;
+    //private readonly JesterHat jesterHat;
     private readonly AimIndicator aimIndicator;
     private const float speedOfCharging = 2f;
     private PlayerState playerStateBeforeDashing;
@@ -59,12 +62,11 @@ public class Player : GameModel
 
     private readonly GameStateManager gameStateManager;
 
-    public Player(Vector3 position, Input input, int id, DrawModel model, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel hatModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, DrawModel staminaModel, float scale) : base(model, scale)
+    public Player(Vector3 position, Input input, int id, List<DrawModel> models, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, DrawModel staminaModel, float scale) : base(models[id], scale)
     {
         Position = position;
         Orientation = new Vector3(0, 0, 1f);
         this.input = input;
-        this.jesterHat = new JesterHat(this, hatModel, scale);
         this.Id = id;
         inertia = new Vector3(0, 0, 0);
         gameStateManager = GameStateManager.GetGameStateManager();
@@ -72,7 +74,7 @@ public class Player : GameModel
         inertiaUp = new Vector3(0, 0, 0);
         aimIndicator = new AimIndicator(this, indicatorModel,indicatorArrowModel, 1f);
         playerState = PlayerState.NormalMovement;
-        playerModel = model;
+        playerModels = models;
         this.playerModelShell = playerModelShell;
         this.Stamina = new Stamina(this, staminaModel);
     }
@@ -234,7 +236,7 @@ public class Player : GameModel
             if(armor)
             {
                 armor = false;
-                this.DrawModel = playerModel;
+                this.DrawModel = playerModels[0];
             }
             else
                 Life--;
@@ -296,12 +298,12 @@ public class Player : GameModel
         this.DrawModel = playerModelShell;
         return true;
     }
-    public void UseSpear(float speed)
+    public void UseSpear(float time)
     {
-        dashSpeed = speed;
-        dashTime = actionPushedDuration * speedOfCharging / speed;
-        playerState = PlayerState.Dashing;
-        playerStateBeforeDashing = PlayerState.DroppingThenNormalMovement;
+        timerSpear = time;
+        Vector3 orthogonalHolderOrientation = new(-Orientation.Z, Orientation.Y, Orientation.X);
+        positionSpear = Orientation * 0.2f + orthogonalHolderOrientation * 0.2f + new Vector3(0, 0.2f, 0);
+        playerState = PlayerState.UsingSpear;
     }
     public void JumpAndStrike()
     {
@@ -454,10 +456,13 @@ public class Player : GameModel
                     playerState = PlayerState.NormalMovement;
                 }
                 break;
-            case PlayerState.DroppingThenNormalMovement:
-                Drop();
-                playerState = PlayerState.NormalMovement;
-                goto case PlayerState.NormalMovement;
+            case PlayerState.UsingSpear:
+                timerSpear -= dt;
+                if(timerSpear < 0)
+                    Drop();
+                else
+                    Position = projectileHeld.Position - positionSpear;
+                break;
             case PlayerState.FloatingWithChicken:
                 Move(dt);
                 Chicken chicken = projectileHeld as Chicken;
@@ -476,7 +481,6 @@ public class Player : GameModel
         lastProjectileImmunity -= dt;
 
         Hand.updateWrap(dt);
-        jesterHat.updateWrap(dt);
         Stamina.Update(dt);
     }
 
@@ -494,7 +498,7 @@ public class Player : GameModel
         {
             base.Draw(view, projection, shader, graphicsDevice, shadowDraw);
             Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
-            jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+            //jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
         }
 
         Stamina.Draw(view, shader, graphicsDevice, shadowDraw);

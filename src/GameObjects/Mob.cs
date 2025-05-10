@@ -70,18 +70,23 @@ namespace src.GameObjects
             {
                 float angle = Rng.NextFloat(2 * MathF.PI);
                 active[i] = new Zombie(
-                    new Vector3(startMajorAxis*MathF.Sin(angle), 0, startMinorAxis*MathF.Cos(angle)) * 1.1f, 
+                    new Vector3(startMajorAxis*MathF.Sin(angle), 0, startMinorAxis*MathF.Cos(angle)) * 1.3f, 
                     Ellipse, 
                     models[i%models.Count], 0.7f
                 );
             }
         }
 
-        public void updateWrap (float dt) {
-            CloseRing(dt);
-            MobPhysics();
+        public void updateWrap(float dt, bool MainMenuMode) {
+            if(!MainMenuMode)
+            {
+                MobPlayerInteraction();
+                NewMobProjectile(dt);
+                CloseRing(dt);
+            }
             foreach (Zombie zombie in active) zombie.updateWrap(dt);
-            NewMobProjectile(dt);
+            MobMarketInteraction();
+            MobPhysics();
         }
 
         private void CloseRing(float dt)
@@ -137,6 +142,36 @@ namespace src.GameObjects
             }
         }
 
+        private void MobPlayerInteraction(){
+
+            foreach (Player player in gameStateManager.players)
+            { 
+                if(player.Life>0) continue;
+
+                int i = (int)Math.Round(player.Position.X*0.2f)+11;
+                int j = (int)Math.Round(player.Position.Z*0.2f)+11;
+                int iNeighbour = (player.Position.X*0.2f-i) < 0.5f ? -1 : 1;
+                int jNeighbour = (player.Position.Z*0.2f-j) < 0.5f ? -24 : 24;
+                
+                foreach (Zombie zombie in sortedZombies[i+j*24]) zombie.ForceByPlayer(player);
+                foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour]) zombie.ForceByPlayer(player);
+                foreach (Zombie zombie in sortedZombies[i+j*24+jNeighbour]) zombie.ForceByPlayer(player);
+                foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour+jNeighbour]) zombie.ForceByPlayer(player);
+            }
+        }
+
+        private void MobMarketInteraction(){
+
+            foreach (Zombie zombie in active)
+            { 
+                foreach(Market market in gameStateManager.markets){
+                    if(zombie.Hitbox.Intersects(market.Hitbox))zombie.ForceByMarket(market);
+                }
+            }
+        }
+
+
+
         private float CalculateOpacity(Zombie zombie)
         {
             float closestDist = MAX_DISTANCE_OPACITY;
@@ -184,8 +219,7 @@ namespace src.GameObjects
         }
 
         public void Draw(Matrix view, Matrix projection, Shader shader, GraphicsDevice graphicsDevice, bool shadowDraw) {
-            foreach (Zombie zombie in active) 
-            {
+            foreach (Zombie zombie in active) {
                 if(!shadowDraw)
                 {
                     shader.setRoughness(zombie.DrawModel.roughness);

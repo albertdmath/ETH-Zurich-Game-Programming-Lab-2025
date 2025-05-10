@@ -15,41 +15,55 @@ using System;
 using Myra.Graphics2D.UI.Styles;
 using Myra.Graphics2D;
 using Myra.Graphics2D.Brushes;
+using System.IO;
+using FontStashSharp;
 //CLASS NOT USED
 namespace src.GameObjects{
     public class MyMenu{
         private bool changegrid = false;
         private int controllerselectedbutton;
-        private int CENTER_BUTTON_HEIGHT = 40;
-        private int CENTER_BUTTON_WIDTH = 250;
+        private int oldcontrollerselectedbutton;
+        private int CENTER_BUTTON_HEIGHT = 75;
+        private int CENTER_BUTTON_WIDTH = 262;
         private Desktop desktop;
         private Grid _grid;
         private MyMenuElement[] menuElements;
         private MyMenuElement[] basemenuElements;
         private bool menuopen=true;
-        private bool insubElement=false;
+        private bool controllerlocked = false;
+        private bool insubMenu = false;
+        SubMenu subMenu;
         private GameStateManager gameStateManager;
         private MenuStateManager menuStateManager;
         public MyMenu(GameLabGame game, int DisplayWidth, int DisplayHeight){
+            desktop = new Desktop();
+
+            byte[] ttfData = File.ReadAllBytes("../../../Content/OldLondon.ttf");
+            FontSystem MedievalFont = new FontSystem();
+            MedievalFont.AddFont(ttfData);
+            
             //DEFINE CUSTOM STYLES
             SpinButtonStyle ControllerSpinbuttonStyle = new SpinButtonStyle{
                 Background = new SolidBrush(Color.Black),
                 OverBackground = new SolidBrush(Color.Gray),
                 DisabledBackground = new SolidBrush(Color.DarkGray),
-                Width = CENTER_BUTTON_WIDTH
+                Width = CENTER_BUTTON_WIDTH/2,
+                //Height = CENTER_BUTTON_HEIGHT
             };
             SpinButtonStyle DefaultSpinbuttonStyle = new SpinButtonStyle{
-                Background = new SolidBrush(Color.DarkSlateGray),
-                Width = CENTER_BUTTON_WIDTH,
-                OverBackground = new SolidBrush(Color.Gray),
+                Background = new SolidBrush(Color.DarkRed),
+                Width = CENTER_BUTTON_WIDTH/2,
+                //Height = CENTER_BUTTON_HEIGHT,
+                OverBackground = new SolidBrush(Color.Red),
                 DisabledBackground = new SolidBrush(Color.DarkGray)
             };
             SpinButtonStyle ControllerPressedSpinbuttonStyle = new SpinButtonStyle{
                 Background = new SolidBrush(Color.LightGray),
-                Width = CENTER_BUTTON_WIDTH
+                Width = CENTER_BUTTON_WIDTH/2,
+                //Height = CENTER_BUTTON_HEIGHT
             };
             ButtonStyle ControllerButtonStyle = new ButtonStyle{
-                Background = new SolidBrush(Color.Black),
+                Background = new SolidBrush(Color.BlueViolet),
                 OverBackground = new SolidBrush(Color.Gray),
                 PressedBackground = new SolidBrush(Color.SeaGreen),
                 DisabledBackground = new SolidBrush(Color.Gray),
@@ -60,9 +74,9 @@ namespace src.GameObjects{
                 Width = CENTER_BUTTON_WIDTH
             };
             ButtonStyle DefaultButtonStyle = new ButtonStyle{
-                Background = new SolidBrush(Color.DarkSlateGray),
-                OverBackground = new SolidBrush(Color.DarkSlateBlue),
-                PressedBackground = new SolidBrush(Color.BlueViolet),
+                Background = new SolidBrush(Color.Gold),
+                OverBackground = new SolidBrush(Color.RoyalBlue),
+                PressedBackground = new SolidBrush(Color.DarkBlue),
                 Height = CENTER_BUTTON_HEIGHT,
                 Width = CENTER_BUTTON_WIDTH
             };
@@ -83,7 +97,7 @@ namespace src.GameObjects{
             };
             SliderStyle ControllerSliderStyle = new SliderStyle{
                 Background = new SolidBrush(Color.Red),
-                FocusedBorder = new SolidBrush(Color.Honeydew),
+                FocusedBorder = new SolidBrush(Color.DarkViolet),
                 DisabledBackground = new SolidBrush(Color.Aquamarine),
                 DisabledBorder = new SolidBrush(Color.Beige),
                 Border = new SolidBrush(Color.White),
@@ -97,7 +111,7 @@ namespace src.GameObjects{
                 Width=CENTER_BUTTON_WIDTH,
             };
             SliderStyle ControllerPressedSliderStyle = new SliderStyle{
-                Background = new SolidBrush(Color.White),
+                Background = new SolidBrush(Color.DarkViolet),
                 FocusedBorder = new SolidBrush(Color.Honeydew),
                 DisabledBackground = new SolidBrush(Color.Aquamarine),
                 DisabledBorder = new SolidBrush(Color.Beige),
@@ -127,8 +141,7 @@ namespace src.GameObjects{
             
             controllerselectedbutton=0;
 
-            //WINDOW
-            
+            //MENU-GRID            
             _grid = new Grid
             {
                 RowSpacing = 5,
@@ -137,8 +150,10 @@ namespace src.GameObjects{
                 ShowGridLines=false,
                 //Height=DisplayHeight/2,
                 //Width=DisplayWidth/3
+                //MAYBE LATER
             };
             
+            //START-MENU-GRID
             Grid startgrid = new Grid{
                 RowSpacing = 1,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -147,13 +162,9 @@ namespace src.GameObjects{
             };
 
             _grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-            _grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-            _grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
             _grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
             
             startgrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-            startgrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-            startgrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
             startgrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
             /*MYRA REFERENCE CODE
             var helloworld = new Label{
@@ -172,7 +183,7 @@ namespace src.GameObjects{
 
             grid.Widgets.Add(combo);
             */
-            //STARTMENU/GRID
+            //STARTMENU-GRID============================
             MyButton startexit = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit","StartExitButton",0,4,(s,a)=>{
                 game.Exit();
             },startgrid);
@@ -182,21 +193,21 @@ namespace src.GameObjects{
                 CloseMenu();
             },startgrid);
 
-            MySpinbutton startNumPlayerSpinButton = new MySpinbutton(menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"StartNumPlayerSpinButton",0,3,startgrid,(c,a)=>{
+            MySpinbutton startNumPlayerSpinButton = new MySpinbutton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"StartNumPlayerSpinButton",0,3,startgrid,(c,a)=>{
                 float? nullableFloat = a.NewValue;
                 menuStateManager.NUM_PLAYERS = (int)(nullableFloat ?? 1);
                 gameStateManager.StartNewGame();
             });
 
-            //BASEGRID
+            //BASEGRID===================================
             //CLOSEBUTTON
-            MyButton closebutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit","ExitButton",0,5,(s,a)=>{
+            MyButton closebutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit","ExitButton",0,6,(s,a)=>{
                 game.Exit();//HARDCORE CLOSING
             },_grid);
             
             
             //RELOADBUTTON
-            MyButton reloadbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"New Game","ReloadButton",0,3,(s,a)=>{
+            MyButton reloadbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"New Game","ReloadButton",0,4,(s,a)=>{
                 gameStateManager.StartNewGame();//RELOADING
                 CloseMenu();
             },_grid);
@@ -211,18 +222,30 @@ namespace src.GameObjects{
 
             
             //NUM_PLAYERS
-            MySpinbutton NumPlayerSpinButton = new MySpinbutton(menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"NumPlayerSpinButton",0,2,_grid,(c,a) => {
+            MySpinbutton NumPlayerSpinButton = new MySpinbutton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"NumPlayerSpinButton",0,3,_grid,(c,a) => {
                 float? nullableFloat = a.NewValue;
                 menuStateManager.NUM_PLAYERS = (int)(nullableFloat ?? 1);
                 gameStateManager.StartNewGame();
             });
 
+
+
+
+
+            //SETTINGS-SUBMENU
+            //shadows, ambient occlusion, fxaa
+            SettingsMenu settingsMenu = new SettingsMenu(desktop,_grid,this);
             //SETTINGS
-            /*MyButton settingsButton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settings?","SettingsButton",0,4,(s,a)=>{
+            MyButton settingsButton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Settings?","SettingsButton",0,5,(s,a)=>{
+                menuElements[controllerselectedbutton].UnHighlight();
+                insubMenu = true;
+                subMenu = settingsMenu;
+                menuElements = settingsMenu.Activate(menuElements);
+                oldcontrollerselectedbutton=controllerselectedbutton;
+                controllerselectedbutton=0;
+            },_grid);
 
-            },_grid);*/
-
-            //MUSICSLIDER
+            //MUSIC/SFX-SLIDER
             MyHorizontalSlider Volume = new MyHorizontalSlider(0,100,45,2,2,(s,a)=>{
                 MediaPlayer.Volume = a.NewValue*0.01f;
             },_grid);
@@ -231,53 +254,72 @@ namespace src.GameObjects{
                 MusicAndSoundEffects.VOLUME = (float)(nullableFloat*0.01f ?? 0.5);
                 MusicAndSoundEffects.angrymobInstance.Volume = (float)(nullableFloat*0.001f ?? 0.1f);
             },_grid);
-            /*MyButton VolumePlaceholder = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Volume","VolumePlaceholder",2,1,(s,a)=>{
-                return;
-            },_grid);*/
+            
+
+            //LABELS
             Label VolumeLabel = new Label{
-                Text = "Music",
-                TextColor = Color.Black,
+                Text = "Music:",
+                TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Background = new SolidBrush(Color.Beige),
-                Padding = new Thickness{Top=5,Bottom=5}
+                Background = new SolidBrush(Color.Blue),
+                Padding = new Thickness{Top=8,Bottom=5},
+                Height = CENTER_BUTTON_HEIGHT/2,
+                Width = CENTER_BUTTON_WIDTH/2,
+                Scale=new Vector2(2,2),
+                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center
             };
             Grid.SetColumn(VolumeLabel,2);
             Grid.SetRow(VolumeLabel,1);
             _grid.Widgets.Add(VolumeLabel);
 
             Label SFXVolumeLabel = new Label{
-                Text = "SFX",
-                TextColor = Color.Black,
+                Text = "SFX:",
+                TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Background = new SolidBrush(Color.Beige),
-                Padding = new Thickness{Top=5,Bottom=5}
+                Background = new SolidBrush(Color.Blue),
+                Padding = new Thickness{Top=8,Bottom=5},
+                Height = CENTER_BUTTON_HEIGHT/2,
+                Width = CENTER_BUTTON_WIDTH/2,
+                Scale = new Vector2(2,2),
+                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center
             };
             Grid.SetColumn(SFXVolumeLabel,2);
             Grid.SetRow(SFXVolumeLabel,3);
             _grid.Widgets.Add(SFXVolumeLabel);
 
             Label StartNumPlayerLabel = new Label{
-                Text = "Number of Players:",
-                TextColor = Color.Black,
+                Text = "#Players:",
+                TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Background = new SolidBrush(Color.Beige),
-                Padding = new Thickness{Top=5,Bottom=5}
+                Background = new SolidBrush(Color.Blue),
+                Padding = new Thickness{Top=8,Bottom=5},
+                Height = CENTER_BUTTON_HEIGHT/2,
+                Width = CENTER_BUTTON_WIDTH/2,
+                Scale = new Vector2(2,2),
+                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center
             };
             Grid.SetColumn(StartNumPlayerLabel,0);
             Grid.SetRow(StartNumPlayerLabel,2);
-            startgrid.Widgets.Add(StartNumPlayerLabel);
+            startgrid.Widgets.Add(StartNumPlayerLabel);//STARTGRID
 
             Label NumPlayerLabel = new Label{
-                Text = "Number of Players:",
-                TextColor = Color.Black,
+                Text = "#Players:",
+                TextColor = Color.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Background = new SolidBrush(Color.Beige),
-                Padding = new Thickness{Top=5,Bottom=5}
+                Background = new SolidBrush(Color.Blue),
+                Padding = new Thickness{Top=8,Bottom=5},
+                Height = CENTER_BUTTON_HEIGHT/2,
+                Width = CENTER_BUTTON_WIDTH/2,
+                Scale = new Vector2(2,2),
+                TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center
             };
             Grid.SetColumn(NumPlayerLabel,0);
-            Grid.SetRow(NumPlayerLabel,1);
+            Grid.SetRow(NumPlayerLabel,2);
             _grid.Widgets.Add(NumPlayerLabel);
-            //TEST IN PROGRESS
+            
+            //FONTS
+            NumPlayerLabel.Font = MedievalFont.GetFont(16);
+            //TESTING IN PROGRESS
             /*
             CheckButton checkBox = new CheckButton
                 {
@@ -324,37 +366,52 @@ namespace src.GameObjects{
             };
             Grid.SetColumn(slsfx,3);
             Grid.SetRow(slsfx,3);
-            _grid.Widgets.Add(slsfx);*/
+            _grid.Widgets.Add(slsfx);*///TESTS END
 
             //SET DESKTOP FOR STARTMENU
-            desktop = new Desktop();
             desktop.Root = startgrid;
             //desktop.Root = grid;
+
             //ELEMENTÄRÄIs
             menuElements = new MyMenuElement[]{startstartbutton,startNumPlayerSpinButton,startexit};
-            basemenuElements = new MyMenuElement[]{resumebutton,NumPlayerSpinButton,reloadbutton/*,settingsButton*/,closebutton};
+            basemenuElements = new MyMenuElement[]{resumebutton,NumPlayerSpinButton,reloadbutton,settingsButton,closebutton,Volume,SFXVolume};
         }
         public void Update(GameTime gameTime, KeyboardState keyboardState, KeyboardState previousKeyboardState, GamePadState gamePadState, GamePadState previousGamePadState){
+            //STARTMENU CHANGE
             if(changegrid){
                 desktop.Root = _grid;
                 changegrid=false;
                 menuElements = basemenuElements;
             }
-            if(keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape) || (gamePadState.Buttons.Start == ButtonState.Pressed && previousGamePadState.Buttons.Start == ButtonState.Released)){
+            
+
+            //OPEN AND CLOSE (SUB)MENU
+            if((keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape)) || (gamePadState.Buttons.Start == ButtonState.Pressed && previousGamePadState.Buttons.Start == ButtonState.Released)){
                 if(menuopen){
-                    CloseMenu();
+                    if(keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape) && insubMenu){
+                        CloseSubMenu();
+                    }else{
+                        CloseMenu();
+                    }
                 }else{
                     OpenMenu();
                 }
             }
+
+            //CONTROLLER NAVIGATION
             if(menuopen){
-                if(!insubElement){
-                    //EXTRA EXIT WITH B PER REQUEST
+                if(!controllerlocked){
+                    //EXTRA EXIT WITH B
                     if(gamePadState.Buttons.B == ButtonState.Pressed && previousGamePadState.Buttons.B == ButtonState.Released){
-                        CloseMenu();
+                        if(insubMenu){
+                            CloseSubMenu();
+                            menuElements[controllerselectedbutton].Highlight();
+                        }else{
+                            CloseMenu();
+                        }
                     }
 
-                    //CONTROLLER NAVIGATION
+                    //ACTUAL NAVIGATION
                     if (gamePadState.DPad.Down == ButtonState.Pressed && previousGamePadState.DPad.Down == ButtonState.Released)
                     {
                         menuElements[controllerselectedbutton].UnHighlight();
@@ -367,17 +424,13 @@ namespace src.GameObjects{
                         menuElements[controllerselectedbutton].Highlight();
                     }
                     if(gamePadState.Buttons.A == ButtonState.Pressed && previousGamePadState.Buttons.A == ButtonState.Released){
-                        insubElement = menuElements[controllerselectedbutton].Click();
+                        controllerlocked = menuElements[controllerselectedbutton].Click();
                     }
-                }else{//IN SUBELEMENT LOGIC currently spinbutton only, NEED subelements with own navigation
+                }else{//IN SUBELEMENT NAVIGATION
                     if(gamePadState.Buttons.B == ButtonState.Pressed && previousGamePadState.Buttons.B == ButtonState.Released){
-                        insubElement = !menuElements[controllerselectedbutton].LeaveButton();
-                    }
-                    if (gamePadState.DPad.Down == ButtonState.Pressed && previousGamePadState.DPad.Down == ButtonState.Released){
-                        menuElements[controllerselectedbutton].ControllerValueChange(-1);
-                    }
-                    if (gamePadState.DPad.Up == ButtonState.Pressed && previousGamePadState.DPad.Up == ButtonState.Released){
-                        menuElements[controllerselectedbutton].ControllerValueChange(1);
+                        controllerlocked = !menuElements[controllerselectedbutton].LeaveButton();
+                    }else if (gamePadState.DPad.Down == ButtonState.Pressed || gamePadState.DPad.Up == ButtonState.Pressed || gamePadState.DPad.Left == ButtonState.Pressed || gamePadState.DPad.Right == ButtonState.Pressed){
+                        menuElements[controllerselectedbutton].ControllerValueChange(gamePadState, previousGamePadState);
                     }
                 }
             }
@@ -387,18 +440,40 @@ namespace src.GameObjects{
             return menuopen;
         }
         private void CloseMenu(){
+            //CHANGE CONTROLLERSELECTED BUTTONS TO DEFAULT STYLE
             menuElements[controllerselectedbutton].LeaveButton();
             menuElements[controllerselectedbutton].UnHighlight();
+            //CLOSE ALL SUBMENUS
+            if(insubMenu){
+                CloseSubMenu();
+            }
+            //RESET CONTROLLER-SELECTION
             controllerselectedbutton=0;
+            controllerlocked=false;
             menuopen=false;
-
+            
+            //STARTMENU SHENANIGANS
             if(menuStateManager.START_MENU_IS_OPEN){
                 menuStateManager.START_MENU_IS_OPEN=false;
+                menuStateManager.TRANSITION = true;
                 changegrid = true;
             }
         }
+        public void CloseSubMenu(){
+            //CHANGE CONTROLLERSELECTED BUTTONS TO DEFAULT STYLE
+            menuElements[controllerselectedbutton].LeaveButton();
+            menuElements[controllerselectedbutton].UnHighlight();
+
+            //CHANGE DESKTOP-GRID
+            menuElements = subMenu.DeActivate();
+
+            //REMEMBER OLD CONTROLLER-POSITION
+            controllerselectedbutton=oldcontrollerselectedbutton;
+            controllerlocked=false;
+            insubMenu=false;
+        }
         public void OpenMenu(){
-            //menuElements[controllerselectedbutton].Highlight(); //SHOULD FIRST BUTTON BE HIGHLIGHTED IF WE OPEN THE MENU??? I SAY NO
+            //menuElements[controllerselectedbutton].Highlight(); //SHOULD THE FIRST BUTTON BE HIGHLIGHTED IF WE OPEN THE MENU??? I SAY NO
             menuopen=true;
         }
         public void Draw(){

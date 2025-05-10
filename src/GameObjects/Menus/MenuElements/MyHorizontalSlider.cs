@@ -35,6 +35,7 @@ namespace src.GameObjects{
                 Value=VALUE,
                 
             };
+            this.CHANGE=CHANGE;
             slider.ValueChanged += CHANGE;
             Grid.SetColumn(slider,column);
             Grid.SetRow(slider,row);
@@ -51,9 +52,18 @@ namespace src.GameObjects{
             slider.SetStyle("controllerpressed");
             return true;
         }
-        public override void ControllerValueChange(int sign)
+        public override void ControllerValueChange(GamePadState gamePadState, GamePadState previousGamePadState)
         {
+            int sign=0;
+            if(gamePadState.DPad.Left == ButtonState.Pressed){
+                sign=-1;
+            }else if(gamePadState.DPad.Right == ButtonState.Pressed){
+                sign=1;
+            }else{
+                return;
+            }
             if(sign+slider.Value<=MAXIMUM && sign+slider.Value>=MINIMUM){
+
                 CHANGE.Invoke(slider,new ValueChangedEventArgs<float>(slider.Value,slider.Value+sign));
                 slider.Value+=sign;
             }

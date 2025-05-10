@@ -18,16 +18,112 @@ using Myra.Graphics2D.Brushes;
 
 namespace src.GameObjects{
     public class SettingsMenu : SubMenu{
-        public SettingsMenu(Desktop desktop):base(desktop)
+        private MyButton FXAA;
+        private MyButton SHADOWS;
+        private MyButton AMBIENT_OCCLUSION;
+        private MyButton FULLSCREEN;
+        public SettingsMenu(Desktop desktop, Grid r, MyMenu p):base(desktop,r,p)
         {
+            _grid = new Grid{
+                RowSpacing = 5,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                ShowGridLines = false
+            };
+            _grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+            _grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+            /*
+            MyButton testbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Mjoelnir","sb0",0,0,(s,a)=>{
+                gameStateManager.CreateProjectile(ProjectileType.Mjoelnir);
+            },_grid);
+            MyButton testbutton1 = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Banana","sb1",0,1,(s,a)=>{
+                gameStateManager.CreateProjectile(ProjectileType.Banana);
+            },_grid);
+            MyButton testbutton2 = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Barrel","sb2",0,2,(s,a)=>{
+                gameStateManager.CreateProjectile(ProjectileType.Barrel);
+            },_grid);
+            MyButton testbutton3 = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Chicken","sb3",0,3,(s,a)=>{
+                gameStateManager.CreateProjectile(ProjectileType.Chicken);
+            },_grid);
+            MyButton testbutton4 = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Coconut","sb4",0,4,(s,a)=>{
+                gameStateManager.CreateProjectile(ProjectileType.Coconut);
+            },_grid);
+            MyButton testbutton5 = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Frog","sb5",0,5,(s,a)=>{
+                gameStateManager.CreateProjectile(ProjectileType.Frog);
+            },_grid);
+            MyButton testbutton6 = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Spear","sb6",0,6,(s,a)=>{
+                gameStateManager.CreateProjectile(ProjectileType.Spear);
+            },_grid);
+            MyButton testbutton7 = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Swordfish","sb7",0,7,(s,a)=>{
+                gameStateManager.CreateProjectile(ProjectileType.Swordfish);
+            },_grid);
+            MyButton testbutton8 = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Tomato","sb8",0,8,(s,a)=>{
+                gameStateManager.CreateProjectile(ProjectileType.Tomato);
+            },_grid);
+            MyButton testbutton9 = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Turtle","sb9",0,9,(s,a)=>{
+                gameStateManager.CreateProjectile(ProjectileType.Turtle);
+            },_grid);*/
+
+            FXAA = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"FXAA: ON","sbFXAA",0,/*10*/0,(s,a)=>{
+                if(menuStateManager.FXAA_ENABLED){
+                    menuStateManager.FXAA_ENABLED = false;
+                    FXAA.ChangeText("FXAA: OFF");
+                }else{
+                    menuStateManager.FXAA_ENABLED = true;
+                    FXAA.ChangeText("FXAA: ON");
+                }
+            },_grid);
             
+            SHADOWS = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"SHADOWS: ON","sbSHADOWS",0,/*11*/1,(s,a)=>{
+                if(menuStateManager.SHADOWS_ENABLED){
+                    menuStateManager.SHADOWS_ENABLED = false;
+                    SHADOWS.ChangeText("SHADOWS: OFF");
+                }else{
+                    menuStateManager.SHADOWS_ENABLED = true;
+                    SHADOWS.ChangeText("SHADOWS: ON");
+                }
+            },_grid);
+
+            AMBIENT_OCCLUSION = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"SSAO: ON","sbSSAO",0,/*12*/2,(s,a)=>{
+                if(menuStateManager.AMBIENT_OCCLUSION_ENABLED){
+                    menuStateManager.AMBIENT_OCCLUSION_ENABLED = false;
+                    AMBIENT_OCCLUSION.ChangeText("SSAO: OFF");
+                }else{
+                    menuStateManager.AMBIENT_OCCLUSION_ENABLED = true;
+                    AMBIENT_OCCLUSION.ChangeText("SSAO: ON");
+                }
+            },_grid);
+
+            FULLSCREEN = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"FULLSCREEN","sbFullscreen",0,3,(s,a)=>{
+                if(menuStateManager.FULLSCREEN){
+                    menuStateManager.FULLSCREEN = false;
+                    FULLSCREEN.ChangeText("WINDOW");
+                }else{
+                    menuStateManager.FULLSCREEN = true;
+                    FULLSCREEN.ChangeText("FULLSCREEN");
+                }
+            },_grid);
+
+            MyButton backbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Back","SettingsR",0,/*13*/4,(s,a)=>{
+                ParentMenu.CloseSubMenu();
+            },_grid);
+
+            //menuElements = new MyMenuElement[]{testbutton,testbutton1,testbutton2,testbutton3,testbutton4,testbutton5,testbutton6,testbutton7,testbutton8,testbutton9,FXAA,SHADOWS,AMBIENT_OCCLUSION,FULLSCREEN,backbutton};
+            menuElements = new MyMenuElement[]{FXAA,SHADOWS,AMBIENT_OCCLUSION,FULLSCREEN,backbutton};
         }
-        public override void ControllerNavigate(){
-            return;
-        }
-        public override void Activate()
+        public override MyMenuElement[] Activate(MyMenuElement[] R)
         {
-            throw new NotImplementedException();
+            oldMenuElements = R;
+            desktop.Root = _grid;
+            menuopen=true;
+            return menuElements;
         }
+        public override MyMenuElement[] DeActivate()
+        {
+            desktop.Root = returnGrid;
+            menuopen=false;
+            return oldMenuElements;
+        }
+        
     }
 }

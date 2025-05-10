@@ -18,6 +18,8 @@ float4x4 ViewInverse;
 float4x4 LightViewProjection;
 float4x4 View;
 
+float ShadowsEnabled;
+float OcclusionEnabled;
 
 
 
@@ -106,10 +108,10 @@ float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
 
 float ShadowCalc(float4 FragLightPosSpace){
     
-    float shadow = 20.0f;
+    float shadow = 1.0f;
     float2 projCoords = FragLightPosSpace.xy/FragLightPosSpace.w;
     if (projCoords.x > -1.0 && projCoords.x<1.0 && projCoords.y>-1.0 && projCoords.y < 1.0){
-        
+    shadow = 0.0f;
     projCoords = mad(0.5f, projCoords, float2(0.5f,0.5f)); 
 
     projCoords.y = 1.0 - projCoords.y;
@@ -193,13 +195,19 @@ float4 PS(VertexOutput input) : SV_Target
 
     kD *= 1.0 - metallic; 
 
-    float NdotL = max(dot(Normal, wi), 0.0);        
-    float shadow = ShadowCalc(LightViewPos); 
+    float NdotL = max(dot(Normal, wi), 0.0);     
+    float shadow = 1.0f; 
+    float interShadow = ShadowCalc(LightViewPos); 
+    interShadow = lerp(1.0f - 0.6, 1.0f, interShadow);
+    shadow = lerp(1.0f, interShadow, ShadowsEnabled);
+
+
+
     float3 Lo =  (kD * albedo / PI + specular) * radiance * NdotL * shadow;
     float occlusion = 1.0f;
-    //float occlusionCheck = OcclusionTexture.Sample(OcclusionSampler,input.TexCoord.xy).r;
-
-    //occlusion = occlusionCheck;
+ float occlusionCheck = OcclusionTexture.Sample(OcclusionSampler, input.TexCoord.xy).r;
+    
+    occlusion = lerp(1.0f, occlusionCheck, OcclusionEnabled);
 
 
     float3 ambient = float3(0.2f,0.2f,0.2f) * albedo;

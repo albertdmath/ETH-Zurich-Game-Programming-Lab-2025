@@ -7,13 +7,24 @@ public class Spear : Projectile
     // Constants
     private const float MIN_VELOCITY = 2.0f;
     private const float MAX_VELOCITY = 20f;
-    private const float DASH_VELOCITY = 4f;
+    private const float MIN_DASH_VELOCITY = 4f;
+    private const float MAX_DASH_VELOCITY = 10f;
+    private const float TIMER = 0.8f;
+
     private bool DestroysOtherProjectiles = false;
 
     // Constructor:
-    public Spear(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Target) 
+    public Spear(ProjectileType type, DrawModel model, float scaling, float height) : base(type, model, scaling, height, IndicatorModels.Arrow) 
     {
         this.velocity = MIN_VELOCITY;
+    }
+
+    public override void OnPlayerHit(Player player) 
+    {   
+        if(DestroysOtherProjectiles)
+            player.GetHit(this);
+        else
+            base.OnPlayerHit(player);
     }
 
     public override void OnProjectileHit(Projectile projectile)
@@ -31,22 +42,10 @@ public class Spear : Projectile
             return true;
         }
 
+        velocity = MathHelper.Lerp(MIN_DASH_VELOCITY, MAX_DASH_VELOCITY, chargeUp);
         DestroysOtherProjectiles = true;
-        (Holder as Player).UseSpear(DASH_VELOCITY);
+        (Holder as Player).UseSpear(TIMER);
+        Holder = null;
         return false;
-    }
-
-    public override void Update(float dt)
-    {
-        if (DestroysOtherProjectiles) 
-        {
-            Orientation = Holder.Orientation;
-            Vector3 orthogonalHolderOrientation = new(-Orientation.Z, Orientation.Y, Orientation.X);
-            Position = Holder.Position + Orientation * 0.5f + orthogonalHolderOrientation * 0.2f + new Vector3(0,0.2f,0);
-        }
-        else
-        {
-            base.Update(dt);
-        }
     }
 }
