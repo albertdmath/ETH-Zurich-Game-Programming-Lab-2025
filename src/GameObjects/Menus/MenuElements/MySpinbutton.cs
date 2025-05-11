@@ -190,7 +190,8 @@ namespace src.GameObjects{
                     menuStateManager.NUM_PLAYERS=VALUE;
                                   if(!menuStateManager.MAIN_MENU_IS_OPEN){
                                                             menuStateManager.TRANSITION = true;
-                                                                                MusicAndSoundEffects.LAST_VOLUME = MediaPlayer.Volume;
+                                                            MusicAndSoundEffects.LAST_VOLUME = MediaPlayer.Volume;
+                                                            MusicAndSoundEffects.LASTSFX_VOLUME = MusicAndSoundEffects.VOLUME;
                         menuStateManager.COUNTDOWN = false;
                     }
                     gameStateManager.StartNewGame();
@@ -301,6 +302,7 @@ namespace src.GameObjects{
                     if(!menuStateManager.MAIN_MENU_IS_OPEN){
                                                 menuStateManager.TRANSITION = true;
                                                                 MusicAndSoundEffects.LAST_VOLUME = MediaPlayer.Volume;
+                                                                   MusicAndSoundEffects.LASTSFX_VOLUME = MusicAndSoundEffects.VOLUME;
                         menuStateManager.COUNTDOWN = false;
                     }
                     gameStateManager.StartNewGame();
@@ -371,6 +373,7 @@ namespace src.GameObjects{
                                    if(!menuStateManager.MAIN_MENU_IS_OPEN){
                                                 menuStateManager.TRANSITION = true;
                                                                 MusicAndSoundEffects.LAST_VOLUME = MediaPlayer.Volume;
+                                                                   MusicAndSoundEffects.LASTSFX_VOLUME = MusicAndSoundEffects.VOLUME;
                         menuStateManager.COUNTDOWN = false;
                     }
                     gameStateManager.StartNewGame();
@@ -403,6 +406,7 @@ namespace src.GameObjects{
                     if(!menuStateManager.MAIN_MENU_IS_OPEN){
                         menuStateManager.TRANSITION = true;
                                         MusicAndSoundEffects.LAST_VOLUME = MediaPlayer.Volume;
+                                           MusicAndSoundEffects.LASTSFX_VOLUME = MusicAndSoundEffects.VOLUME;
                         menuStateManager.COUNTDOWN = false;
                     }
                     gameStateManager.StartNewGame();

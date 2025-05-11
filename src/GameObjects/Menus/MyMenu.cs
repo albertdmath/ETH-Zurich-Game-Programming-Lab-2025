@@ -259,6 +259,7 @@ namespace src.GameObjects{
             MyButton reloadbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Restart",0,1,(s,a)=>{
                 menuStateManager.TRANSITION = true;
                 MusicAndSoundEffects.LAST_VOLUME = MediaPlayer.Volume;
+                   MusicAndSoundEffects.LASTSFX_VOLUME = MusicAndSoundEffects.VOLUME;
                 gameStateManager.StartNewGame();//RELOADING
                 CloseMenu();
             },PauseGrid,MedievalFont,TEXTSIZE);
@@ -562,6 +563,7 @@ namespace src.GameObjects{
                 menuStateManager.MAIN_MENU_IS_OPEN=false;
                 menuStateManager.TRANSITION = true;
                 MusicAndSoundEffects.LAST_VOLUME = MediaPlayer.Volume;
+                   MusicAndSoundEffects.LASTSFX_VOLUME = MusicAndSoundEffects.VOLUME;
                 changegrid = true;
             }
         }

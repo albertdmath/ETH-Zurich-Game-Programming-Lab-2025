@@ -7,6 +7,7 @@ public class MusicAndSoundEffects
     public static float VOLUME {get;set;} = 1f;
 
     public static float LAST_VOLUME {get;set;} = 1f;    
+        public static float LASTSFX_VOLUME {get;set;} = 1f;    
     // Sound effects:
     private static SoundEffect bananaSFX;
     private static SoundEffect coconutSFX;
@@ -83,6 +84,17 @@ public class MusicAndSoundEffects
     }
 
 
+    public static void playAngryMobSFX(){
+        if(menuStateManager.SOUND_ENABLED)
+        {
+
+            angrymobInstance.Volume = 0.1f*VOLUME;
+            angrymobInstance.Play();
+        }
+        
+    }
+
+
 
     public static void playMainMenuMusic() {
         if(menuStateManager.SOUND_ENABLED)
@@ -115,16 +127,29 @@ public class MusicAndSoundEffects
             MediaPlayer.Volume = 0.45f;
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(bgMusic);
-            angrymobInstance.Volume = 0.1f;
+            if(!sfxMusicVolumeChanged){
+                angrymobInstance.Volume = 0.1f;
+                
             angrymobInstance.Play();
+            } else {
+                    VOLUME = LASTSFX_VOLUME;
+                    playAngryMobSFX();
+            }
+
             }
             else
             {
             MediaPlayer.Volume = LAST_VOLUME;
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(bgMusic);
+            if(!sfxMusicVolumeChanged){
             angrymobInstance.Volume = 0.1f;
-            angrymobInstance.Play();
+                        angrymobInstance.Play();
+            } else {
+                    VOLUME = LASTSFX_VOLUME;
+                    playAngryMobSFX();
+            }
+
             }
         }
         
