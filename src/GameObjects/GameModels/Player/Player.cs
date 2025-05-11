@@ -498,12 +498,12 @@ public class Player : GameModel
         {
             base.Draw(view, projection, shader, graphicsDevice, shadowDraw);
             Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
-            //jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
         }
 
         Stamina.Draw(view, shader, graphicsDevice, shadowDraw);
 
         if(playerState == PlayerState.Aiming)
             aimIndicator.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+
     }
 }

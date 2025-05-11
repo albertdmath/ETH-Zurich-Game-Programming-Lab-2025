@@ -21,19 +21,17 @@ namespace src.GameObjects
             { ProjectileType.Swordfish, (0.9f, 0f) },
             { ProjectileType.Frog, (0.7f, 0.3f) },
             { ProjectileType.Coconut, (0.3f, 0f) },
-            { ProjectileType.Banana, (1f, 0f) },
+            { ProjectileType.Banana, (1f, 0.1f) },
             { ProjectileType.Turtle, (0.3f, 0.0f) },
             { ProjectileType.Mjoelnir, (1.5f, 0.2f) },
-            { ProjectileType.Spear, (0.9f, 0f) },
+            { ProjectileType.Spear, (0.9f, 0.0f) }, // this should be 0.2f
             { ProjectileType.Chicken, (0.9f, 0f) },
             { ProjectileType.Barrel, (1f, 0f) }
         };
 
 
         // Model references for initializing the instances
-        private DrawModel arenaModel;
         private List<DrawModel> marketModels;
-        private List<DrawModel> playerHatModels;
         private List<DrawModel> playerModels;
         private DrawModel playerModelShell;
         private DrawModel playerHandModel;
@@ -69,7 +67,6 @@ namespace src.GameObjects
         public void Initialize(DrawModel arenaModel, List<DrawModel> marketModels, List<DrawModel> playerModels, DrawModel playerModelShell, DrawModel playerHandModel, List<DrawModel> indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels, DrawModel walkingTurtle, DrawModel barrel2, DrawModel staminaModel)
         {
             this.menuStateManager = MenuStateManager.GetMenuStateManager();
-            this.arenaModel = arenaModel;
             this.marketModels = marketModels;
             //this.playerHatModels = playerHatModels;
             this.playerModels = playerModels;
@@ -82,8 +79,7 @@ namespace src.GameObjects
             this.walkingTurtle = walkingTurtle;
             this.barrel2 = barrel2;
             this.staminaModel = staminaModel;
-
-            arena = new GameModel(arenaModel, ARENA_SCALE);
+            this.arena = new GameModel(arenaModel, ARENA_SCALE);
             // jesterGame = new GameModel(jesterModel,2.0f);
             // jesterGame.SwitchAnimation(0,true);
             // jesterGame.Orientation = Vector3.Normalize(new Vector3(0f, 9, 7));
@@ -117,15 +113,6 @@ namespace src.GameObjects
 
         private void InitializeMarkets()
         {
-            // Market positions (corners)
-            Vector3[] positions = 
-            {
-                new(-7.8f, 0, -3.5f),
-                new(7.8f, 0, -3.5f),
-                new(-5.7f, 0, 3.7f),
-                new(4.7f, 0, 4.2f)
-            };
-
             // Random projectile type selection logic
             //this should check for throwable
             List<ProjectileType> availableTypes = Projectile.ProjectileProbability.Keys
@@ -156,7 +143,7 @@ namespace src.GameObjects
                     break;
                 }
                 // Create market with selected type
-                markets.Add(new Market(positions[i], selectedType, marketModels[i], projectileModels[selectedType], Properties[selectedType].height, 4f));
+                markets.Add(new Market(i, selectedType, marketModels[i], projectileModels[selectedType], Properties[selectedType].height, 4f));
             }
         }
 

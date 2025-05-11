@@ -31,7 +31,7 @@ public class Banana : Projectile
     {
         if(!touching) return;
 
-        Position = new Vector3(Position.X, 0.1f, Position.Z);
+        Position = new Vector3(Position.X, height, Position.Z);
         onGround = true;
     }
 
