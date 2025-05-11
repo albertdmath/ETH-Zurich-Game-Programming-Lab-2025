@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using MLEM.Input;
 using Myra;
 using src.GameObjects;
@@ -336,13 +337,12 @@ namespace GameLab
             GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
             _menu.Update(gameTime, keyboardState, _previousKeyboardState, gamePadState, _previousGamePadState);
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (_menu.menuisopen())
+            if (_menu.menuisopen() || menuStateManager.START_MENU_IS_OPEN || menuStateManager.TRANSITION)
             {
                 _previousKeyboardState = keyboardState;
                 _previousGamePadState = gamePadState;
-                if(menuStateManager.START_MENU_IS_OPEN){
                  gameStateManager.UpdateGame(dt,true);
-                }
+                
 
                 return;
             }
@@ -382,10 +382,15 @@ namespace GameLab
                 cameraPosRadius = Vector3.Lerp(cameraPosRadius,cameraPosition,0.05f);
                 view = Matrix.CreateLookAt(cameraPosRadius, new Vector3(0, 0, 0.7f), Vector3.Up);
                 viewInverse = Matrix.Invert(view);
-                if((cameraPosition - cameraPosRadius).Length() < 0.01f){
+                float musicVolume = MathHelper.Lerp(MediaPlayer.Volume, 0.0f, 0.01f);
+                MusicAndSoundEffects.angrymobInstance.Volume = MathHelper.Lerp( MusicAndSoundEffects.angrymobInstance.Volume,0.1f,0.01f);
+                MediaPlayer.Volume = musicVolume;
+                if((cameraPosition - cameraPosRadius).Length() < 0.01f && MediaPlayer.Volume < 0.05f){
                     view =  Matrix.CreateLookAt(cameraPosition, new Vector3(0, 0, 0.7f), Vector3.Up);
                     viewInverse = Matrix.Invert(view);
                     menuStateManager.TRANSITION = false;
+                     MusicAndSoundEffects.angrymobInstance.Volume = 0.1f;
+                     MusicAndSoundEffects.playBackgroundMusic();
                 }
                 
             }

@@ -21,6 +21,8 @@ public class MusicAndSoundEffects
     public static SoundEffectInstance angrymobInstance;
     // Backing track:
     private static Song bgMusic;
+
+    private static Song mainMenuMusic;
     private static MenuStateManager menuStateManager;
 
     public static void loadSFX(Microsoft.Xna.Framework.Content.ContentManager Content) {
@@ -38,18 +40,19 @@ public class MusicAndSoundEffects
         angrymobSFX = Content.Load<SoundEffect>("Audio/angrymobSFX");
         angrymobInstance = angrymobSFX.CreateInstance();
         angrymobInstance.IsLooped = true;
-        angrymobInstance.Volume = 0.1f;
+        angrymobInstance.Volume = 0.0f;
         hitSFX = Content.Load<SoundEffect>("Audio/hitSFX");
         
         // Loading the background music:
         bgMusic = Content.Load<Song>("Audio/EpicMedievalVibes");
+        mainMenuMusic = Content.Load<Song>("Audio/MainMenuMusic");
 
         menuStateManager = MenuStateManager.GetMenuStateManager();
 
         if(menuStateManager.SOUND_ENABLED) {//SENSE
             MediaPlayer.Volume = 0.45f;
             MediaPlayer.IsRepeating = true;
-            MediaPlayer.Play(bgMusic);
+            MediaPlayer.Play(mainMenuMusic);
             angrymobInstance.Play();
         }
     }
@@ -57,6 +60,26 @@ public class MusicAndSoundEffects
     public static void playHitSFX() {
         if(menuStateManager.SOUND_ENABLED)
             hitSFX.Play(0.1f*VOLUME, 0.0f, 0.0f);
+    }
+
+
+
+    public static void playMainMenuMusic() {
+        if(menuStateManager.SOUND_ENABLED)
+        {
+            MediaPlayer.Volume = 0.45f;
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(mainMenuMusic);
+        }
+    }
+
+    public static void playBackgroundMusic() {
+        if(menuStateManager.SOUND_ENABLED)
+        {
+            MediaPlayer.Volume = 0.45f;
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(bgMusic);
+        }
     }
 
     public static void playProjectileSFX(ProjectileType type) {

@@ -421,6 +421,10 @@ public class Player : GameModel
         this.jesterHat.SwitchAnimation(0, true, blendfactor,0.0f,speed);
     }
 
+    public void playDanceAnimations(float blendfactor, float speed){
+        SwitchAnimation(5, true, blendfactor,0.0f,speed);
+        this.jesterHat.SwitchAnimation(0, true, blendfactor,0.0f,speed);
+    }
 
 
     public void UpdateJesterHatAnimation(float dt){
