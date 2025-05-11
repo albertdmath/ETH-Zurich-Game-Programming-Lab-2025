@@ -102,10 +102,11 @@ namespace src.GameObjects
             SRY BOUT THAT*/
             players.Add(new Player(new(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, playerModels[0], playerModelShell, playerHandModel, indicatorModel[0], indicatorModel[4],  staminaModel, scaling, playerHatModels[0]));
             //players.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, mob.Ellipse, playerModels[1], scaling));
+            players[0].SetAnimation(7,true);
             for (int i = 1; i < menuStateManager.NUM_PLAYERS; ++i)
             {
                 players.Add(new Player(new(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(), i, playerModels[i], playerModelShell, playerHandModel, indicatorModel[i], indicatorModel[i+4], staminaModel, scaling, playerHatModels[i]));
-                players[i].SwitchAnimation(0,true);
+                players[i].SetAnimation(7,true);
             }
 
             foreach (Player player in players)
@@ -303,9 +304,10 @@ namespace src.GameObjects
 
             foreach (Player player in players)
             {
+
+                player.updateWrap(dt);
                 player.UpdateJesterHatAnimation(dt);
                 player.UpdateAnimation(dt);
-                player.updateWrap(dt);
             }
             
             foreach (Market market in markets)

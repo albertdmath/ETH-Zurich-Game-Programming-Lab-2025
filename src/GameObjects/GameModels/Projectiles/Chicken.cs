@@ -48,6 +48,7 @@ public class Chicken : Projectile
 
     private void Fly(float dt)
     {
+
         if (YCoordinate >= targetHeight)
             upwards = false;
         
@@ -58,9 +59,12 @@ public class Chicken : Projectile
 
     protected override void Move(float dt)
     {
-        if((timeToStandStill -= dt) > 0f)
+
+        if((timeToStandStill -= dt) > 0f){
+            SwitchAnimation(1,true,0.5f);
             return;
-    
+        }
+        SwitchAnimation(0,true,0.5f);
         if(Rng.NextBool(0.995f))
         {
             Position += velocity * Orientation * dt;
