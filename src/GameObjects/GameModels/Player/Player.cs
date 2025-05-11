@@ -85,50 +85,47 @@ public class Player : GameModel
     //  Beginning functions for player movement
     // ---------------------
     private void Move(float dt)
-{
-    // 1. Get and validate input
-    Vector3 displacement = input.Direction();
+    {
+        // 1. Get and validate input
+        Vector3 displacement = input.Direction();
 
-    if (displacement.LengthSquared() > 0)
-    {
-        displacement = Vector3.Normalize(displacement);
-        inertia += (9f * dt) * displacement;
-    }
+        if (displacement.LengthSquared() > 0)
+        {
+            displacement = Vector3.Normalize(displacement);
+            inertia += (9f * dt) * displacement;
+        }
 
-    if(inertia.LengthSquared() > float.Epsilon)
-    {
-        Orientation = Vector3.Normalize(inertia);
-        inertia -= (9f * dt) * inertia;
-        if (inertia.LengthSquared() > 1f)
-            inertia = Orientation;
-    }
+        if(inertia.LengthSquared() > float.Epsilon)
+        {
+            Orientation = Vector3.Normalize(inertia);
+            inertia -= (9f * dt) * inertia;
+            if (inertia.LengthSquared() > 1f)
+                inertia = Orientation;
+        }
 
-    
-    // 4. Handle gravity and grounding
-    if (Position.Y <= 0.001f) // Small epsilon for floating point precision
-    {
-        Position = new Vector3(Position.X, 0, Position.Z);
-        inertiaUp = Vector3.Zero;
-    }
-    else
-    {
-        inertiaUp += gravity * dt;
-    }
-    
-    // 6. Apply movement
-    Position += (speed * inertia + inertiaUp) * dt;
+        
+        // 4. Handle gravity and grounding
+        if (Position.Y <= float.Epsilon) // Small epsilon for floating point precision
+        {
+            Position = new Vector3(Position.X, 0, Position.Z);
+            inertiaUp = Vector3.Zero;
+        }
+        else
+        {
+            inertiaUp += gravity * dt;
+        }
+        
+        Position += (speed * inertia + inertiaUp) * dt;
 
-    // 7. Animation control (separate from physics)
-    if (inertia.LengthSquared() < 0.000001f) // 0.001^2
-    {
-        Console.WriteLine("Player is not moving");
-        this.SwitchAnimation(6, true, 0.2f);
+        if (inertia.LengthSquared() < float.Epsilon)
+        {
+            this.SwitchAnimation(6, true, 0.2f);
+        }
+        else
+        {
+            this.SwitchAnimation(8, true, 0.05f, 0.0f, 1.0f);
+        }
     }
-    else
-    {
-        this.SwitchAnimation(8, true, 0.05f, 0.0f, 1.0f);
-    }
-}
 
         private void Slide(float dt)
     {
