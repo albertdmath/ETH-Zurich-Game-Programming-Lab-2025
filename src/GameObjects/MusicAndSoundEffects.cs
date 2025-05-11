@@ -68,12 +68,12 @@ public class MusicAndSoundEffects
 
     public static void playUIHoverSFX() {
         if(menuStateManager.SOUND_ENABLED)
-            uiHoverSFX.Play(0.1f*VOLUME, 0.0f, 0.0f);
+            uiHoverSFX.Play(0.2f*VOLUME, 0.0f, 0.0f);
     }
     
     public static void playUIClickSFX() {
         if(menuStateManager.SOUND_ENABLED)
-            uiClickSFX.Play(0.1f*VOLUME, 0.0f, 0.0f);
+            uiClickSFX.Play(0.2f*VOLUME, 0.0f, 0.0f);
     }
 
 

@@ -15,7 +15,7 @@ namespace src.GameObjects
         public bool SOUND_ENABLED { get ; set; } = true;
         public int NUM_PLAYERS { get ; set; } = 2;
         public int MAX_NUM_PLAYER {get;} = 4;
-        public int MIN_NUM_PLAYER {get;} = 1;
+        public int MIN_NUM_PLAYER {get;} = 2;
 
         public bool PAUSE_MENU_IS_OPEN {get;set;} = false;  
 
