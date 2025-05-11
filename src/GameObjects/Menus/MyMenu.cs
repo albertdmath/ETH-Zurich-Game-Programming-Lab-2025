@@ -454,7 +454,7 @@ namespace src.GameObjects{
             }
 
             
-            if(menuStateManager.TUTORIAL_IS_OPEN && (keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape)) || (gamePadState.Buttons.Start == ButtonState.Pressed && previousGamePadState.Buttons.Start == ButtonState.Released))
+            if(menuStateManager.TUTORIAL_IS_OPEN && ((keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape)) || (gamePadState.Buttons.Start == ButtonState.Pressed && previousGamePadState.Buttons.Start == ButtonState.Released)))
             {
                 menuStateManager.TUTORIAL_IS_OPEN = false;
                 
@@ -479,7 +479,9 @@ namespace src.GameObjects{
                 if(!controllerlocked){
                     //EXTRA EXIT WITH B
                     if(gamePadState.Buttons.B == ButtonState.Pressed && previousGamePadState.Buttons.B == ButtonState.Released){
-                        if(insubMenu){
+                        if(menuStateManager.TUTORIAL_IS_OPEN){
+                            menuStateManager.TUTORIAL_IS_OPEN = false;
+                        }else if(insubMenu){
                             CloseSubMenu();
                             activeElements[controllerselectedbutton].Highlight();
                         }else{
@@ -520,6 +522,7 @@ namespace src.GameObjects{
             return menuopen;
         }
         public void CloseMenu(){
+            //menuStateManager.TUTORIAL_IS_OPEN=false;
             //CHANGE CONTROLLERSELECTED BUTTONS TO DEFAULT STYLE
             activeElements[controllerselectedbutton].LeaveButton();
             activeElements[controllerselectedbutton].UnHighlight();
