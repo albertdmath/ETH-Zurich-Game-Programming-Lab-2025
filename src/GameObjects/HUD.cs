@@ -60,7 +60,7 @@ public class HUD
 
     public void DrawTutorial(SpriteBatch spriteBatch)
     {
-        spriteBatch.Draw(tutorial, new Vector2(0,0), Color.White); 
+        spriteBatch.Draw(tutorial, new Vector2(0,0), null, Color.White, 0f, Vector2.Zero, screenWidth/2560.0f, SpriteEffects.None, 0f);
     }
     public bool DrawBanner(SpriteBatch spriteBatch, GraphicsDevice graphics)
     {
