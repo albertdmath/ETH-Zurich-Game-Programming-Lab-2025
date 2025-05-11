@@ -46,7 +46,7 @@ public class Coconut : Projectile
         
         if (timeSinceBounce > 0 || !player.GetAffected(this)) 
             return;
-    
+
         bounces--;
         timeSinceBounce = TIME_BETWEEN_BOUNCES;
 

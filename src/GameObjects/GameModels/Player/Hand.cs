@@ -42,12 +42,13 @@ namespace src.GameObjects
         public override void Update(float dt)
         {
             if(timeSpentCatching>CATCH_DURATION || player.projectileHeld != null)
-            {
                 StopCatching();
-            }
+            
             if(IsCatching)
                 Move(dt);
-            else OnBody();
+
+            else 
+                OnBody();
         }
         public void StopCatching()
         {

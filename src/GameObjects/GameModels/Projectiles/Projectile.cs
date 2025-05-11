@@ -22,16 +22,16 @@ public class Projectile : GameModel
     // Projectile spawn probabilities (can be adjusted via UI)
     public readonly static Dictionary<ProjectileType, float> ProjectileProbability = new()
     {
-        { ProjectileType.Banana, 0.0f },
-        { ProjectileType.Coconut, 0.0f },
-        { ProjectileType.Frog, 0.0f },
-        { ProjectileType.Mjoelnir, 0.0f },
-        { ProjectileType.Spear, 0.5f },
-        { ProjectileType.Swordfish, 0.2f },
-        { ProjectileType.Tomato, 0.2f },
-        { ProjectileType.Turtle, 0.0f },
-        { ProjectileType.Chicken, 0.2f },
-        { ProjectileType.Barrel, 0.0f }
+        { ProjectileType.Banana, 0.1f },
+        { ProjectileType.Coconut, 0.1f },
+        { ProjectileType.Frog, 0.1f },
+        { ProjectileType.Mjoelnir, 0.1f },
+        { ProjectileType.Spear, 0.1f },
+        { ProjectileType.Swordfish, 0.1f },
+        { ProjectileType.Tomato, 0.1f },
+        { ProjectileType.Turtle, 0.1f },
+        { ProjectileType.Chicken, 0.1f },
+        { ProjectileType.Barrel, 0.1f }
     };
 
     // Projectile properties
@@ -75,9 +75,9 @@ public class Projectile : GameModel
 
     public virtual void Throw(Vector3 target) 
     {
-        Holder = null;
-        Orientation = Vector3.Normalize(new Vector3(target.X, 0f, target.Z) - new Vector3(Position.X, 0f, Position.Z));
+        Orientation = Vector3.Normalize(new Vector3(target.X, 0f, target.Z) - new Vector3(Holder.Position.X, 0f, Holder.Position.Z));
         Position += new Vector3(0f, height, 0f);
+        Holder = null;
     }
  
     public virtual bool Action(float chargeUp, Vector3 aimPoint, bool isOutside) 

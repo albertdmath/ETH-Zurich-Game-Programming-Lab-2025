@@ -51,7 +51,7 @@ public class Player : GameModel
 
     private PlayerState playerWalkingOrIdleBefore;
     private Projectile lastThrownProjectile = null; // Store last thrown projectile
-    private  List<DrawModel> playerModels;
+    private  DrawModel playerModel;
     private readonly DrawModel playerModelShell;
     private const float CATCH_COOLDOWN = 1.0f;
     private readonly Input input;
@@ -69,7 +69,7 @@ public class Player : GameModel
 
     private readonly GameStateManager gameStateManager;
 
-    public Player(Vector3 position, Input input, int id, List<DrawModel> models, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, DrawModel staminaModel, float scale, DrawModel jesterHeadModel) : base(models[id], scale)
+    public Player(Vector3 position, Input input, int id, DrawModel model, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, DrawModel staminaModel, float scale, DrawModel jesterHeadModel) : base(model, scale)
     {
         Position = position;
         Orientation = new Vector3(0, 0, 1f);
@@ -81,8 +81,7 @@ public class Player : GameModel
         inertiaUp = new Vector3(0, 0, 0);
         aimIndicator = new AimIndicator(this, indicatorModel,indicatorArrowModel, 1f);
         playerState = PlayerState.NormalMovement;
-        playerModels = models;
-        this.playerModels.Add(jesterHeadModel);
+        playerModel = model;
         this.jesterHat = new JesterHat(this,jesterHeadModel,0.5f);
         this.playerModelShell = playerModelShell;
         this.Stamina = new Stamina(this, staminaModel);
@@ -284,7 +283,7 @@ public class Player : GameModel
             if(armor)
             {
                 armor = false;
-                this.DrawModel = playerModels[Id];
+                this.DrawModel = playerModel;
             }
             else
                 Life--;
@@ -441,7 +440,11 @@ public class Player : GameModel
     // Method to test for a collision with a projectile and potentially grab it:
     public void Catch(Projectile projectile)
     {
+        if (lastProjectileImmunity > 0 && projectile == lastThrownProjectile)
+            return;
+            
         Hand.StopCatching();
+
         projectileHeld = projectile;
         if(projectile.Holder != null) 
         {
@@ -630,5 +633,6 @@ public class Player : GameModel
 
         if(playerState == PlayerState.Aiming)
             aimIndicator.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+
     }
 }

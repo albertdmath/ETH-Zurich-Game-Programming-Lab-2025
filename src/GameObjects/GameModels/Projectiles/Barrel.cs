@@ -33,7 +33,7 @@ public class Barrel : Projectile
     {
         if(!touching) return;
         
-        Position = new Vector3(Position.X, 0, Position.Z);
+        Position = new Vector3(Position.X, height, Position.Z);
         notMoving = true;
     }
 
