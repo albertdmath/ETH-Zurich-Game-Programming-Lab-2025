@@ -130,16 +130,15 @@ namespace GameLab
             const int size = 4;
             var tex = new Texture2D(device, size, size, false, SurfaceFormat.Color);
             var data = new Color[size * size];
-            var rnd = new Random(12345);  // seed for reproducibility
 
             for (int y = 0; y < size; y++)
             {
                 for (int x = 0; x < size; x++)
                 {
                     // 1) random angle in [0, 2π)
-                    float angle = (float)(rnd.NextDouble() * Math.PI * 2.0);
+                    float angle = Rng.NextFloat(MathF.PI * 2.0f);
                     // 2) random jitter in [0,1]
-                    float jitter = (float)rnd.NextDouble();
+                    float jitter = Rng.NextFloat();
 
                     // encode cos/sin into [0,1]
                     float u = 0.5f + 0.5f * (float)Math.Cos(angle);
