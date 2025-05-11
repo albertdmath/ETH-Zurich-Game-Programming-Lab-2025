@@ -385,6 +385,9 @@ namespace GameLab
             hud.DrawPlayerHud(_spriteBatch);
             if(hud.DrawWin(_spriteBatch, GraphicsDevice)){
                 //_menu.OpenWinMenu();YEAH THIS IS AS RETARDED AS IT LOOKS
+                foreach(Player player in gameStateManager.players) {
+                    player.input.EndVibrate(1f);
+                }
             }
             // Draw menu
             hud.DrawBanner(_spriteBatch, GraphicsDevice);
