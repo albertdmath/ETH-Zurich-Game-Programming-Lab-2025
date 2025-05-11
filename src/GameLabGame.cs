@@ -223,8 +223,8 @@ namespace GameLab
             marketModels.Add(new DrawModel("../../../Content/market_3.dae",0.0f,0.3f, GraphicsDevice));
             marketModels.Add(new DrawModel("../../../Content/market_4.dae",0.0f,0.3f, GraphicsDevice));
 
-            mobModels.Add(new DrawModel("../../../Content/mob1.dae", 0.0f, 0.6f, GraphicsDevice));
-            mobModels.Add(new DrawModel("../../../Content/mob2.dae", 0.0f, 0.6f, GraphicsDevice));
+            mobModels.Add(new DrawModel("../../../Content/mob1_animated.glb", 0.0f, 0.6f, GraphicsDevice));
+            mobModels.Add(new DrawModel("../../../Content/mob2_animated.glb", 0.0f, 0.6f, GraphicsDevice));
             mobModels.Add(new DrawModel("../../../Content/mob3_animated.glb", 0.0f, 0.6f, GraphicsDevice));
 
             // Load animated models:
