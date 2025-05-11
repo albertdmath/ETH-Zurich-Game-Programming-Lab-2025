@@ -362,7 +362,11 @@ public class Player : GameModel
     // Method to test for a collision with a projectile and potentially grab it:
     public void Catch(Projectile projectile)
     {
+        if (lastProjectileImmunity > 0 && projectile == lastThrownProjectile)
+            return;
+            
         Hand.StopCatching();
+
         projectileHeld = projectile;
         if(projectile.Holder != null) 
         {
