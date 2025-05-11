@@ -227,7 +227,6 @@ namespace src.GameObjects{
 
             MyButton MainTutorial = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Tutorial",0,2,(s,a)=>{
                 //TUTORIAL-CALL
-                CloseMenu();
                 menuStateManager.TUTORIAL_IS_OPEN=true;
             },MainMenuGrid,MedievalFont,TEXTSIZE);
 
@@ -455,9 +454,11 @@ namespace src.GameObjects{
             }
 
             
-
-            //OPEN AND CLOSE (SUB)MENU
-            if((keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape)) || (gamePadState.Buttons.Start == ButtonState.Pressed && previousGamePadState.Buttons.Start == ButtonState.Released)){
+            if(menuStateManager.TUTORIAL_IS_OPEN && (keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape)) || (gamePadState.Buttons.Start == ButtonState.Pressed && previousGamePadState.Buttons.Start == ButtonState.Released))
+            {
+                menuStateManager.TUTORIAL_IS_OPEN = false;
+                
+            } else if((keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape)) || (gamePadState.Buttons.Start == ButtonState.Pressed && previousGamePadState.Buttons.Start == ButtonState.Released)){
                 if(menuopen){
                     if(keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape) && insubMenu){
                         CloseSubMenu();

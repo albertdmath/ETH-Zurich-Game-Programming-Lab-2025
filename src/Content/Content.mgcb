@@ -288,6 +288,18 @@
 /processorParam:TextureFormat=Color
 /build:HUD/HUD_background.png
 
+#begin HUD/main_banner.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:HUD/main_banner.png
+
 #begin HUD/pink_heart.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -299,6 +311,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:HUD/pink_heart.png
+
+#begin HUD/tutorial.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:HUD/tutorial.png
 
 #begin HUD/win_message.png
 /importer:TextureImporter

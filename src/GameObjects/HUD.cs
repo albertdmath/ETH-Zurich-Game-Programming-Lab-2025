@@ -17,10 +17,12 @@ public class HUD
     private List<Texture2D> playerHats; // hat models for fashion
     private Texture2D hudBackground; // backdrop, might need to be changed cause idk color theory
     private Texture2D winMessage;
+    private Texture2D mainBanner;
+    private Texture2D tutorial;
     int screenWidth;
     int screenHeight;
     private List<Vector2> offsets = new List<Vector2>(); // we put the 4 corner positions as offsets in here
-    public HUD(List<Texture2D> playerHP, List<Texture2D> playerHats, Texture2D hudBackground, Texture2D winMessage, int screenWidth, int screenHeight) 
+    public HUD(List<Texture2D> playerHP, List<Texture2D> playerHats, Texture2D hudBackground, Texture2D winMessage, Texture2D mainBanner, Texture2D tutorial, int screenWidth, int screenHeight) 
     {
         this.playerHP = playerHP;
         this.playerHats = playerHats;
@@ -28,6 +30,8 @@ public class HUD
         this.winMessage = winMessage;
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
+        this.mainBanner = mainBanner;
+        this.tutorial = tutorial;
         offsets.Add(new Vector2(50,40));
         offsets.Add(new Vector2(screenWidth - 4300*menuStateManager.HUD_SCALE,40));
         offsets.Add(new Vector2(50, screenHeight - 200));
@@ -37,18 +41,51 @@ public class HUD
     // Draws the player HUD depending on the number of players, 
     public void DrawPlayerHud(SpriteBatch spriteBatch)
     {
-        for(int i = 0; i < menuStateManager.NUM_PLAYERS; i++)
+        if(!menuStateManager.MAIN_MENU_IS_OPEN)
         {
-            // Draws backdrop
-            //spriteBatch.Draw(hudBackground, offsets[i], null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE * 2f, SpriteEffects.None, 0f);
-            // Draws player hats
-            spriteBatch.Draw(playerHats[i], offsets[i] - new Vector2(400*menuStateManager.HUD_SCALE, 0) , null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE, SpriteEffects.None, 0f);
-            // Draws player hearts
-            for (int j = 1; j <= gameStateManager.players[i].Life; j++)
+            for(int i = 0; i < menuStateManager.NUM_PLAYERS; i++)
             {
-                spriteBatch.Draw(playerHP[i], offsets[i] + new Vector2(600*menuStateManager.HUD_SCALE*j + 466*menuStateManager.HUD_SCALE, 0), null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE, SpriteEffects.None, 0f);
+                // Draws backdrop
+                //spriteBatch.Draw(hudBackground, offsets[i], null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE * 2f, SpriteEffects.None, 0f);
+                // Draws player hats
+                spriteBatch.Draw(playerHats[i], offsets[i] - new Vector2(400*menuStateManager.HUD_SCALE, 0) , null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE, SpriteEffects.None, 0f);
+                // Draws player hearts
+                for (int j = 1; j <= gameStateManager.players[i].Life; j++)
+                {
+                    spriteBatch.Draw(playerHP[i], offsets[i] + new Vector2(600*menuStateManager.HUD_SCALE*j + 466*menuStateManager.HUD_SCALE, 0), null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE, SpriteEffects.None, 0f);
+                }
             }
         }
+    }
+
+    public void DrawTutorial(SpriteBatch spriteBatch)
+    {
+        spriteBatch.Draw(tutorial, new Vector2(0,0), Color.White); 
+    }
+    public bool DrawBanner(SpriteBatch spriteBatch, GraphicsDevice graphics)
+    {
+
+        if (menuStateManager.MAIN_MENU_IS_OPEN)
+        {
+            // Get a random ass texture so we use it as background for the backdrop
+            Texture2D pixel = new Texture2D(graphics, 1, 1);
+            pixel.SetData(new[] { Color.White });
+
+            Rectangle backgroundRectangle = new Rectangle(
+                0,
+                screenHeight/5,
+                screenWidth,
+                800
+            );
+
+            // Black transparent backdrop
+            //spriteBatch.Draw(pixel, backgroundRectangle, Color.Black * 0.45f);
+            // Winning message, just did a png cause it's easier to design this way
+            spriteBatch.Draw(mainBanner, new Vector2(screenWidth/2 - 800, screenHeight/3 - 500), Color.White); 
+            // Draw player hat of the correct color so people know *who* won
+            return true;
+        }
+        return false;
     }
 
 
