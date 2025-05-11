@@ -35,18 +35,23 @@ namespace src.GameObjects{
             _grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
             MyButton reload = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Restart",0,0,(s,a)=>{
+                menuStateManager.COUNTDOWN = true;
                 gameStateManager.StartNewGame();//RELOADING
                 p.CloseEndMenu();
                 p.CloseMenu();
             },_grid,fontSystem,TEXTSIZE);
 
             MyButton backtomain = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Main Menu",0,1,(s,a)=>{
-                
+                menuStateManager.MAIN_MENU_IS_OPEN=true;           
+                menuStateManager.COUNTDOWN = false;
+                menuStateManager.TRANSITION = false;
+                menuStateManager.PAUSE_MENU_IS_OPEN = false;
+                MusicAndSoundEffects.playMainMenuMusic();
                 returnGrid = p.ToMainMenu();
                 //p.setMenuElements(oldMenuElements);
                 p.CloseEndMenu();
                 gameStateManager.StartNewGame();
-                menuStateManager.MAIN_MENU_IS_OPEN=true;
+
             },_grid,fontSystem,TEXTSIZE);
             
 
@@ -71,6 +76,7 @@ namespace src.GameObjects{
             return menuopen;
         }
         public void Close(){
+            MusicAndSoundEffects.playMainMenuMusic(); 
             menuStateManager.MAIN_MENU_IS_OPEN=true;
                 returnGrid = ParentMenu.ToMainMenu();
                 ParentMenu.setMenuElements(oldMenuElements);

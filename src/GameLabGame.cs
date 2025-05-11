@@ -349,7 +349,14 @@ namespace GameLab
             GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
             _menu.Update(gameTime, keyboardState, _previousKeyboardState, gamePadState, _previousGamePadState);
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (_menu.menuisopen() || menuStateManager.START_MENU_IS_OPEN || menuStateManager.TRANSITION || menuStateManager.COUNTDOWN)
+    
+
+            if(menuStateManager.PAUSE_MENU_IS_OPEN){
+                _previousKeyboardState = keyboardState;
+                _previousGamePadState = gamePadState;
+                return;
+            }
+            if (_menu.menuisopen() || menuStateManager.MAIN_MENU_IS_OPEN || menuStateManager.TRANSITION || menuStateManager.COUNTDOWN)
             {
                 _previousKeyboardState = keyboardState;
                 _previousGamePadState = gamePadState;
@@ -359,7 +366,11 @@ namespace GameLab
                 return;
             }
 
-            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if(gameStateManager.GameIsOver() && !menuStateManager.ONWIN){
+                menuStateManager.ONWIN = true;
+                _menu.OpenWinMenu();
+            }
+
 
             gameStateManager.UpdateGame(dt,false);
 
@@ -382,7 +393,7 @@ namespace GameLab
                 _graphics.IsFullScreen = menuStateManager.FULLSCREEN;
                 _graphics.ApplyChanges();
             }
-            if(menuStateManager.START_MENU_IS_OPEN){
+            if(menuStateManager.MAIN_MENU_IS_OPEN){
                 double camX = Math.Sin(gameTime.TotalGameTime.TotalSeconds/2) * this.cameraRadius;
                 double camZ = Math.Cos(gameTime.TotalGameTime.TotalSeconds/2) * this.cameraRadius;
                 cameraPosRadius = new Vector3((float)camX*1.1f*1.2f, 5.5f*1.3f, (float)camZ*1.1f*1.2f);
@@ -425,16 +436,19 @@ namespace GameLab
         
             _spriteBatch.Begin(samplerState: SamplerState.AnisotropicClamp);
             GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-            if(menuStateManager.COUNTDOWN){
+            if(menuStateManager.COUNTDOWN && !menuStateManager.PAUSE_MENU_IS_OPEN){
                 if(hud.DrawCountdown(_spriteBatch, GraphicsDevice, (float)gameTime.ElapsedGameTime.TotalSeconds)){
                     menuStateManager.COUNTDOWN = false;
                     MusicAndSoundEffects.playBackgroundMusic();
                 }
             }
-            if(!menuStateManager.COUNTDOWN && !menuStateManager.TRANSITION && !menuStateManager.START_MENU_IS_OPEN){
+            if(menuStateManager.PAUSE_MENU_IS_OPEN){
+                hud.resetCountdown();
+            }
+            if(!menuStateManager.COUNTDOWN && !menuStateManager.TRANSITION && !menuStateManager.MAIN_MENU_IS_OPEN){
                         hud.DrawPlayerHud(_spriteBatch);
             if(hud.DrawWin(_spriteBatch, GraphicsDevice)){
-                _menu.OpenMenu();
+                //_menu.OpenMenu();
                 //_menu.OpenWinMenu();YEAH THIS IS AS RETARDED AS IT LOOKS
                 foreach(Player player in gameStateManager.players) {
                     player.input.EndVibrate(1f);

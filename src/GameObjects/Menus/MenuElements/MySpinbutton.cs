@@ -187,6 +187,10 @@ namespace src.GameObjects{
                     Label.Text = $" Players: {VALUE}";
                     shadowLabel.Text = $" Players: {VALUE}";
                     menuStateManager.NUM_PLAYERS=VALUE;
+                                  if(!menuStateManager.MAIN_MENU_IS_OPEN){
+                                                            menuStateManager.TRANSITION = true;
+                        menuStateManager.COUNTDOWN = false;
+                    }
                     gameStateManager.StartNewGame();
                 }else{
                     plus.Content = new Label{
@@ -292,6 +296,10 @@ namespace src.GameObjects{
                     Label.Text = $" Players: {VALUE}";
                     shadowLabel.Text = $" Players: {VALUE}";
                     menuStateManager.NUM_PLAYERS=VALUE;
+                    if(!menuStateManager.MAIN_MENU_IS_OPEN){
+                                                menuStateManager.TRANSITION = true;
+                        menuStateManager.COUNTDOWN = false;
+                    }
                     gameStateManager.StartNewGame();
                 }else{
                     minus.Content = new Label{
@@ -357,6 +365,10 @@ namespace src.GameObjects{
                     Label.Text = $" Players: {VALUE}";
                     shadowLabel.Text = $" Players: {VALUE}";
                     menuStateManager.NUM_PLAYERS=VALUE;
+                                   if(!menuStateManager.MAIN_MENU_IS_OPEN){
+                                                menuStateManager.TRANSITION = true;
+                        menuStateManager.COUNTDOWN = false;
+                    }
                     gameStateManager.StartNewGame();
                 }else{
                     minus.Content = new Label{
@@ -384,6 +396,10 @@ namespace src.GameObjects{
                     Label.Text = $" Players: {VALUE}";
                     shadowLabel.Text = $" Players: {VALUE}";
                     menuStateManager.NUM_PLAYERS=VALUE;
+                    if(!menuStateManager.MAIN_MENU_IS_OPEN){
+                        menuStateManager.TRANSITION = true;
+                        menuStateManager.COUNTDOWN = false;
+                    }
                     gameStateManager.StartNewGame();
                 }else{
                     plus.Content = new Label{

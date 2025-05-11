@@ -63,6 +63,11 @@ List<Texture2D> countdown = new List<Texture2D>();
             }
         }
     }
+    
+        public void resetCountdown(){
+            this.timePassed = 0;
+        }
+
 
     public void DrawTutorial(SpriteBatch spriteBatch)
     {
@@ -134,6 +139,7 @@ List<Texture2D> countdown = new List<Texture2D>();
             spriteBatch.Draw(countdown[3], new Vector2(screenWidth/2 - 600, screenHeight/3 - 400), Color.White); 
                 return false;
             }    else {
+                timePassed = 0;
                 return true;
             }
           
@@ -141,52 +147,6 @@ List<Texture2D> countdown = new List<Texture2D>();
 
     }
 
-    public bool DrawCountdown(SpriteBatch spriteBatch, GraphicsDevice graphics, float dt){
-        
-            // Get a random ass texture so we use it as background for the backdrop
-            Texture2D pixel = new Texture2D(graphics, 1, 1);
-            pixel.SetData(new[] { Color.White });
-
-            Rectangle backgroundRectangle = new Rectangle(
-                0,
-                screenHeight/3-250,
-                screenWidth,
-                400
-            );
-            timePassed += dt;
-            
-            if(timePassed < 1){
-                       // Black transparent backdrop
-            spriteBatch.Draw(pixel, backgroundRectangle, Color.Transparent);
-            spriteBatch.Draw(countdown[0], new Vector2(screenWidth/2 - 600, screenHeight/3 - 400), Color.White); 
-            // Draw player hat of the correct color so people know *who* won
-            return false;
-            } else if( timePassed >= 1 && timePassed <2){
-            // Black transparent backdrop
-            spriteBatch.Draw(pixel, backgroundRectangle, Color.Transparent);
-
-            spriteBatch.Draw(countdown[1], new Vector2(screenWidth/2 - 600, screenHeight/3 - 400), Color.White); 
-            // Draw player hat of the correct color so people know *who* won
-
-            return false;
-            } else if (timePassed >= 2 && timePassed <3){
-            // Black transparent backdrop
-            spriteBatch.Draw(pixel, backgroundRectangle, Color.Transparent);
-
-            spriteBatch.Draw(countdown[2], new Vector2(screenWidth/2 - 600, screenHeight/3 - 400), Color.White); 
-            return false;
-            } else  if (timePassed >= 3 && timePassed <4){
-                  spriteBatch.Draw(pixel, backgroundRectangle, Color.Transparent);
-
-            spriteBatch.Draw(countdown[3], new Vector2(screenWidth/2 - 600, screenHeight/3 - 400), Color.White); 
-                return false;
-            }    else {
-                return true;
-            }
-          
-
-
-    }
 
 
     // Draws the winning screen, can be improved in design for sure and also it doesn't scale with screensize but I dont feel like it rn

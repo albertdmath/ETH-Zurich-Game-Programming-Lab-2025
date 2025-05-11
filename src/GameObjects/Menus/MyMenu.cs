@@ -247,12 +247,17 @@ namespace src.GameObjects{
                 activeElements = mainElements;
 
                 desktop.Root = MainMenuGrid;
+                menuStateManager.PAUSE_MENU_IS_OPEN = false;
+                menuStateManager.TRANSITION = false;
+                menuStateManager.COUNTDOWN = false;
+                MusicAndSoundEffects.playMainMenuMusic();
                 gameStateManager.StartNewGame();
             },PauseGrid,MedievalFont,TEXTSIZE);
             
             
             //RELOADBUTTON
             MyButton reloadbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Restart",0,1,(s,a)=>{
+                menuStateManager.TRANSITION = true;
                 gameStateManager.StartNewGame();//RELOADING
                 CloseMenu();
             },PauseGrid,MedievalFont,TEXTSIZE);
@@ -260,6 +265,7 @@ namespace src.GameObjects{
             //RESUMEBUTTON
             MyButton resumebutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Resume",0,0,(s,a) => {
                 if(gameStateManager.GameIsOver()){
+                    menuStateManager.COUNTDOWN = false;
                     gameStateManager.StartNewGame();
                 }
                 CloseMenu();
@@ -447,10 +453,16 @@ namespace src.GameObjects{
         }
         public void Update(GameTime gameTime, KeyboardState keyboardState, KeyboardState previousKeyboardState, GamePadState gamePadState, GamePadState previousGamePadState){
             //STARTMENU CHANGE
+
             if(changegrid){
                 desktop.Root = PauseGrid;
                 changegrid=false;
                 activeElements = pauseElements;
+            }
+
+            if((Grid) desktop.Root == PauseGrid && menuopen){
+                menuStateManager.MAIN_MENU_IS_OPEN = false;
+                menuStateManager.PAUSE_MENU_IS_OPEN = true;
             }
 
             
@@ -463,9 +475,13 @@ namespace src.GameObjects{
                     if(keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape) && insubMenu){
                         CloseSubMenu();
                     }else{
+                        if(menuStateManager.MAIN_MENU_IS_OPEN){
+                            return;
+                        }
                         if(endMenu.Isopen()){
                             endMenu.Close();
                         }else{
+
                             CloseMenu();
                         }
                     }
@@ -526,6 +542,10 @@ namespace src.GameObjects{
             //CHANGE CONTROLLERSELECTED BUTTONS TO DEFAULT STYLE
             activeElements[controllerselectedbutton].LeaveButton();
             activeElements[controllerselectedbutton].UnHighlight();
+
+            if(menuStateManager.PAUSE_MENU_IS_OPEN){
+                menuStateManager.PAUSE_MENU_IS_OPEN = false;
+            }
             //CLOSE ALL SUBMENUS
             if(insubMenu){
                 CloseSubMenu();
@@ -537,8 +557,8 @@ namespace src.GameObjects{
             menuopen=false;
             
             //STARTMENU SHENANIGANS
-            if(menuStateManager.START_MENU_IS_OPEN){
-                menuStateManager.START_MENU_IS_OPEN=false;
+            if(menuStateManager.MAIN_MENU_IS_OPEN){
+                menuStateManager.MAIN_MENU_IS_OPEN=false;
                 menuStateManager.TRANSITION = true;
                 changegrid = true;
             }
@@ -577,7 +597,7 @@ namespace src.GameObjects{
                 activeElements = endMenu.Activate(activeElements);
                 controllerselectedbutton=0;
                 oldcontrollerselectedbutton=controllerselectedbutton;
-                activeElements[controllerselectedbutton].Highlight();
+                activeElements[controllerselectedbutton].UnHighlight();
         }
         public void Draw(){
             if(menuopen){

@@ -56,13 +56,8 @@ public class MusicAndSoundEffects
         mainMenuMusic = Content.Load<Song>("Audio/MainMenuMusic");
 
         menuStateManager = MenuStateManager.GetMenuStateManager();
-
-        if(menuStateManager.SOUND_ENABLED) {//SENSE
-            MediaPlayer.Volume = 0.45f;
-            MediaPlayer.IsRepeating = true;
-            MediaPlayer.Play(bgMusic);
-            angrymobInstance.Play();
-        }
+        
+        playMainMenuMusic();
     }
 
     public static void playHitSFX() {
@@ -71,8 +66,15 @@ public class MusicAndSoundEffects
     }
 
 
-
+    public static void playUIHoverSFX() {
+        if(menuStateManager.SOUND_ENABLED)
+            uiHoverSFX.Play(0.1f*VOLUME, 0.0f, 0.0f);
+    }
     
+    public static void playUIClickSFX() {
+        if(menuStateManager.SOUND_ENABLED)
+            uiClickSFX.Play(0.1f*VOLUME, 0.0f, 0.0f);
+    }
 
 
 
@@ -82,6 +84,8 @@ public class MusicAndSoundEffects
             MediaPlayer.Volume = 0.45f;
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(mainMenuMusic);
+            angrymobInstance.Volume = 0.0f;
+            angrymobInstance.Play();
         }
     }
 
@@ -91,6 +95,8 @@ public class MusicAndSoundEffects
             MediaPlayer.Volume = 0.45f;
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(bgMusic);
+            angrymobInstance.Volume = 0.1f;
+            angrymobInstance.Play();
         }
     }
 

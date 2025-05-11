@@ -55,7 +55,7 @@ public class Player : GameModel
     private readonly DrawModel playerModelShell;
 
     private const float CATCH_COOLDOWN = 1.5f;
-    private readonly Input input;
+    public readonly Input input;
     private Vector3 inertia,inertiaUp;
     private Vector3 gravity = new(0,-30f,0);
     private bool outside = false;
