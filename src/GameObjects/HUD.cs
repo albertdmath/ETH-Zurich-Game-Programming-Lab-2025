@@ -70,12 +70,12 @@ public class HUD
             );
 
             // Black transparent backdrop
-            spriteBatch.Draw(pixel, backgroundRectangle, Color.Black * 0.5f);
+            spriteBatch.Draw(pixel, backgroundRectangle, Color.Black * 0.45f);
             // Winning message, just did a png cause it's easier to design this way
-            spriteBatch.Draw(winMessage, new Vector2(screenWidth/2 - 750, screenHeight/5), Color.White); 
+            spriteBatch.Draw(winMessage, new Vector2(screenWidth/2 - 800, screenHeight/3 - 300), Color.White); 
             // Draw player hat of the correct color so people know *who* won
-            spriteBatch.Draw(playerHats[gameStateManager.livingPlayers[0].Id],  new Vector2(screenWidth/2 + 150, screenHeight/4 - 265), null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE*3, SpriteEffects.None, 0f);
-            spriteBatch.Draw(playerHats[gameStateManager.livingPlayers[0].Id],  new Vector2(screenWidth/2 - 1050, screenHeight/4 - 265), null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE*3, SpriteEffects.None, 0f);
+            spriteBatch.Draw(playerHats[gameStateManager.livingPlayers[0].Id],  new Vector2(screenWidth/2 + 200, screenHeight/3-100), null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE*4, SpriteEffects.None, 0f);
+            spriteBatch.Draw(playerHats[gameStateManager.livingPlayers[0].Id],  new Vector2(screenWidth/2 - 1450, screenHeight/3-100), null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE*4, SpriteEffects.None, 0f);
             return true;
         }
         return false;

@@ -64,17 +64,17 @@ public class MusicAndSoundEffects
 
     public static void playUIClickSFX() {
         if(menuStateManager.SOUND_ENABLED)
-            uiClickSFX.Play(0.6f*VOLUME, 0.0f, 0.0f);
+            uiClickSFX.Play(1.0f*VOLUME, 0.0f, 0.0f);
     }
 
     public static void playUIHoverSFX() {
         if(menuStateManager.SOUND_ENABLED)
-            uiHoverSFX.Play(0.1f*VOLUME, 0.0f, 0.0f);
+            uiHoverSFX.Play(0.4f*VOLUME, 0.0f, 0.0f);
     }
 
     public static void playDJScratchSFX() {
         if(menuStateManager.SOUND_ENABLED)
-            djscratchSFX.Play(0.1f*VOLUME, 0.0f, 0.0f);
+            djscratchSFX.Play(0.5f*VOLUME, 0.0f, 0.0f);
     }
 
     public static void playHitSFX() {
