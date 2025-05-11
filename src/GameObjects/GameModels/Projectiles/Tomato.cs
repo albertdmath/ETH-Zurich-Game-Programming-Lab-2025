@@ -57,6 +57,14 @@ public class Tomato : Projectile
             Explode();
     }
 
+    public override bool Catch(GameModel player)
+    {
+        if (currStatus == status.exploded)
+            return false;
+
+        return base.Catch(player);
+    }
+
     public override void Throw(Vector3 target)
     {
         base.Throw(target);

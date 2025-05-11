@@ -52,6 +52,14 @@ public class Mjoelnir : Projectile
             projectile.ToBeDeleted = true;
     }
 
+    public override bool Catch(GameModel player)
+    {
+        if (explodeTime > 0)
+            return false;
+
+        return base.Catch(player);
+    }
+
     public override bool Action(float chargeUp, Vector3 aimPoint, bool isOutside)
     {
         if (isOutside)

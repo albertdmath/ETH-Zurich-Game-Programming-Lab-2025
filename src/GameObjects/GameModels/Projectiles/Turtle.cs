@@ -59,10 +59,10 @@ public class Turtle : Projectile
         }
     }
 
-    public override void Catch(GameModel player)
+    public override bool Catch(GameModel player)
     {
-        base.Catch(player);
         DrawModel = shellModel;
+        return base.Catch(player);
     }
 
     public override bool Action(float chargeUp, Vector3 aimPoint, bool isOutside)

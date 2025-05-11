@@ -235,7 +235,6 @@ public class Player : GameModel
     {
         if (input.Action())
         {
-
             Hand.IsCatching = true;
             playerState = PlayerState.Catching;
             timeSinceStartOfCatch = 0f;  
@@ -411,7 +410,7 @@ public class Player : GameModel
         this.jesterHat.SwitchAnimation(2, true, blendfactor,0.0f,speed);
     }
 
- private void playIdleAnimations(float blendfactor,float speed){
+    private void playIdleAnimations(float blendfactor,float speed){
         SwitchAnimation(7, true, blendfactor,0.0f,speed);
         this.jesterHat.SwitchAnimation(1, true, blendfactor,0.0f,speed);
     }
@@ -442,23 +441,27 @@ public class Player : GameModel
     {
         if (lastProjectileImmunity > 0 && projectile == lastThrownProjectile)
             return;
+        
+        GameModel prevHolder = projectile.Holder;
+        if(!projectile.Catch(this))
+            return;
             
         Hand.StopCatching();
 
         projectileHeld = projectile;
-        if(projectile.Holder != null) 
+        if(prevHolder != null) 
         {
-            if(projectile.Holder is Player)
+            if(prevHolder is Player)
             {
-                (projectile.Holder as Player).projectileHeld = null;
-                (projectile.Holder as Player).playerState = PlayerState.NormalMovement;
+                (prevHolder as Player).projectileHeld = null;
+                (prevHolder as Player).playerState = PlayerState.NormalMovement;
             }
-            else if(projectile.Holder is Zombie)
+            else if(prevHolder is Zombie)
             {
-                (projectile.Holder as Zombie).projectileHeld = null;
+                (prevHolder as Zombie).projectileHeld = null;
             }
         }
-        projectile.Catch(this);
+
         MusicAndSoundEffects.playProjectileSFX(projectile.Type);
         playerState = PlayerState.HoldingProjectile;
     }
