@@ -22,7 +22,7 @@ namespace GameLab
         private DrawModel arenaModel;
         private List<DrawModel> marketModels = new List<DrawModel>();
         private List<DrawModel> playerModels = new List<DrawModel>();
-        private DrawModel playerModelShell;
+        private List<DrawModel> playerModelShells;
         private DrawModel walkingTurtle;
         private DrawModel barrel2;
 
@@ -193,8 +193,11 @@ namespace GameLab
             playerModels.Add(new DrawModel("../../../Content/Player/player2_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
             playerModels.Add(new DrawModel("../../../Content/Player/player3_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
             playerModels.Add(new DrawModel("../../../Content/Player/player4_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
-        
-            playerModelShell = new DrawModel("../../../Content/Player/player_body_shell.dae", 0.0f, 0.3f, GraphicsDevice);
+            playerModelShells = new List<DrawModel>();
+            playerModelShells.Add(new DrawModel("../../../Content/Player/player1_shell_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
+            playerModelShells.Add(new DrawModel("../../../Content/Player/player2_shell_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
+            playerModelShells.Add(new DrawModel("../../../Content/Player/player3_shell_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
+            playerModelShells.Add(new DrawModel("../../../Content/Player/player4_shell_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
             //jesterAnimated = new DrawModel("../../../Content/Player/chicken_animated.glb", 0.0f, 0.3f, GraphicsDevice);
             playerHandModel = new DrawModel("../../../Content/Player/hand.dae", 0.0f, 0.3f, GraphicsDevice);
             staminaModel = new DrawModel("../../../Content/Player/dash_semicircle.dae", 0.0f, 0.3f, GraphicsDevice);
@@ -316,7 +319,7 @@ namespace GameLab
             geometryShader.setOpacityValue(1.0f);
 
             // Initialize gamestate here:
-            gameStateManager.Initialize(arenaModel, marketModels, playerModels, playerModelShell, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels, walkingTurtle, barrel2, staminaModel, playerHatModels);
+            gameStateManager.Initialize(arenaModel, marketModels, playerModels, playerModelShells, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels, walkingTurtle, barrel2, staminaModel, playerHatModels);
             gameStateManager.StartNewGame();
 
             _menu = new MyMenu(this, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);

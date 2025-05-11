@@ -35,7 +35,7 @@ namespace src.GameObjects
         private List<DrawModel> playerModels;
 
         private List<DrawModel> playerHatModels;
-        private DrawModel playerModelShell;
+        private List<DrawModel> playerModelsShell;
         private DrawModel playerHandModel;
         private List<DrawModel> indicatorModel;
 
@@ -66,7 +66,7 @@ namespace src.GameObjects
             return instance;
         }
 
-        public void Initialize(DrawModel arenaModel, List<DrawModel> marketModels, List<DrawModel> playerModels, DrawModel playerModelShell, DrawModel playerHandModel, List<DrawModel> indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels, DrawModel walkingTurtle, DrawModel barrel2, DrawModel staminaModel, List<DrawModel> playerHatModels)
+        public void Initialize(DrawModel arenaModel, List<DrawModel> marketModels, List<DrawModel> playerModels, List<DrawModel> playerModelShell, DrawModel playerHandModel, List<DrawModel> indicatorModel,  List<DrawModel> mobModels, List<DrawModel> areaDamageModels, Dictionary<ProjectileType, DrawModel> projectileModels, DrawModel walkingTurtle, DrawModel barrel2, DrawModel staminaModel, List<DrawModel> playerHatModels)
         {
             this.menuStateManager = MenuStateManager.GetMenuStateManager();
             this.marketModels = marketModels;
@@ -77,7 +77,7 @@ namespace src.GameObjects
             this.areaDamageModels = areaDamageModels;
             this.projectileModels = projectileModels;
             this.indicatorModel = indicatorModel;
-            this.playerModelShell = playerModelShell;
+            this.playerModelsShell = playerModelShell;
             this.walkingTurtle = walkingTurtle;
             this.barrel2 = barrel2;
             this.staminaModel = staminaModel;
@@ -100,12 +100,12 @@ namespace src.GameObjects
             for(int i = 0; i<MenuStateManager.GetMenuStateManager().NUM_PLAYERS; ++i)
                 players.Add(new Player(new Vector3(playerStartPositions[i], 0, 0), inputs[i], 0, mob.Ellipse, playerModels[i], scaling));
             SRY BOUT THAT*/
-            players.Add(new Player(new(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, playerModels[0], playerModelShell, playerHandModel, indicatorModel[0], indicatorModel[4],  staminaModel, scaling, playerHatModels[0]));
+            players.Add(new Player(new(playerStartPositions[0], 0, 0), new InputControllerKeyboard(0), 0, playerModels[0], playerModelsShell[0], playerHandModel, indicatorModel[0], indicatorModel[4],  staminaModel, scaling, playerHatModels[0]));
             //players.Add(new Player(new Vector3(playerStartPositions[1], 0, 0), new InputKeyboard(), 1, mob.Ellipse, playerModels[1], scaling));
             players[0].SetAnimation(7,true);
             for (int i = 1; i < menuStateManager.NUM_PLAYERS; ++i)
             {
-                players.Add(new Player(new(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(), i, playerModels[i], playerModelShell, playerHandModel, indicatorModel[i], indicatorModel[i+4], staminaModel, scaling, playerHatModels[i]));
+                players.Add(new Player(new(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(), i, playerModels[i], playerModelsShell[i], playerHandModel, indicatorModel[i], indicatorModel[i+4], staminaModel, scaling, playerHatModels[i]));
                 players[i].SetAnimation(7,true);
             }
 

@@ -29,8 +29,8 @@ public class Projectile : GameModel
         { ProjectileType.Spear, 0.1f },
         { ProjectileType.Swordfish, 0.1f },
         { ProjectileType.Tomato, 0.1f },
-        { ProjectileType.Turtle, 0.1f },
-        { ProjectileType.Chicken, 0.7f },
+        { ProjectileType.Turtle, 0.7f },
+        { ProjectileType.Chicken, 0.1f },
         { ProjectileType.Barrel, 0.1f }
     };
 
