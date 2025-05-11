@@ -13,7 +13,7 @@ namespace src.GameObjects
         private Player player;
         private const float CATCH_DURATION = 0.25f; 
         private const float CATCH_RADIUS = 0.6f;
-        private const float HAND_RADIUS = 0.3f; // Radius of the hand
+        private const float HAND_RADIUS = 0.5f; // Radius of the hand
         public Hand(Player player, DrawModel model, float scale) : base(model,scale, HAND_RADIUS)
         {
             this.player=player;

@@ -542,7 +542,7 @@ public class Player : GameModel
         {
             shader.setFinalBoneMatrices(this.GetFinalBoneMatrices());
             base.Draw(view, projection, shader, graphicsDevice, shadowDraw);
-            Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+           // Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
             shader.setFinalBoneMatrices(jesterHat.GetFinalBoneMatrices());
             jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
         }
