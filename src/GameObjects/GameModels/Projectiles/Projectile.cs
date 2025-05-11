@@ -25,7 +25,7 @@ public class Projectile : GameModel
         { ProjectileType.Banana, 0.1f },
         { ProjectileType.Coconut, 0.1f },
         { ProjectileType.Frog, 0.1f },
-        { ProjectileType.Mjoelnir, 0.1f },
+        { ProjectileType.Mjoelnir, 0.7f },
         { ProjectileType.Spear, 0.1f },
         { ProjectileType.Swordfish, 0.1f },
         { ProjectileType.Tomato, 0.1f },

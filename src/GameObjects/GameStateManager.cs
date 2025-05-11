@@ -282,7 +282,7 @@ namespace src.GameObjects
                     // PROJECTILE
                     foreach (Projectile projectile in projectiles)
                     {
-                        if (hand.Hitbox.Intersects(projectile.Hitbox))
+                        if (hand.Hitbox.Intersects(projectile.Hitbox) && hand.IsCatching)
                             player.Catch(projectile);
                     }
 

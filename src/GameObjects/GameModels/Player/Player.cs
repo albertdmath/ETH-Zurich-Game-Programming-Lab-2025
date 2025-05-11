@@ -560,6 +560,7 @@ public class Player : GameModel
                 break;
             case PlayerState.MjoelnirJump:
                 InAir(dt);
+                this.SwitchAnimation(6,false, 0.2f,0.5f,2.0f);
                 if(Position.Y<=0)
                 {
                     inertiaUp = new(0, 0, 0);
@@ -568,6 +569,7 @@ public class Player : GameModel
                     lastProjectileImmunity = 1f;
                     lastThrownProjectile = projectileHeld;
                     projectileHeld = null;
+                    this.animator.cancelBreak();
                     playerState = PlayerState.NormalMovement;
                 }
                 break;
@@ -617,7 +619,7 @@ public class Player : GameModel
             shader.setFinalBoneMatrices(this.GetFinalBoneMatrices());
             base.Draw(view, projection, shader, graphicsDevice, shadowDraw);
 
-           Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+           //Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
             shader.setFinalBoneMatrices(jesterHat.GetFinalBoneMatrices());
             if(Life >0){
                 jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
