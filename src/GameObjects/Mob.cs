@@ -84,7 +84,12 @@ namespace src.GameObjects
                 NewMobProjectile(dt);
                 CloseRing(dt);
             }
-            foreach (Zombie zombie in active) zombie.updateWrap(dt);
+            foreach (Zombie zombie in active) 
+            {
+                            zombie.updateWrap(dt);
+                            zombie.UpdateAnimation(dt);
+            }
+
             MobMarketInteraction();
             MobPhysics();
         }
@@ -220,8 +225,10 @@ namespace src.GameObjects
 
         public void Draw(Matrix view, Matrix projection, Shader shader, GraphicsDevice graphicsDevice, bool shadowDraw) {
             foreach (Zombie zombie in active) {
+                shader.setFinalBoneMatrices(zombie.GetFinalBoneMatrices());
                 if(!shadowDraw)
                 {
+                 
                     shader.setRoughness(zombie.DrawModel.roughness);
                     shader.setMetallic(zombie.DrawModel.metallic);
                     shader.setOpacityValue(CalculateOpacity(zombie));
