@@ -105,7 +105,12 @@ namespace src.GameObjects
             players[0].SetAnimation(7,true);
             for (int i = 1; i < menuStateManager.NUM_PLAYERS; ++i)
             {
-                players.Add(new Player(new(playerStartPositions[i], 0, 0), (GamePad.GetState(i).IsConnected) ? new InputController((PlayerIndex)i) : new InputKeyboard(), i, playerModels[i], playerModelsShell[i], playerHandModel, indicatorModel[i], indicatorModel[i+4], staminaModel, scaling, playerHatModels[i]));
+                if(i==1 && !(GamePad.GetState(i).IsConnected)){
+                    players.Add(new Player(new(playerStartPositions[i], 0, 0), new InputKeyboard(), i, playerModels[i], playerModelsShell[i], playerHandModel, indicatorModel[i], indicatorModel[i+4], staminaModel, scaling, playerHatModels[i]));
+                } else{
+                    players.Add(new Player(new(playerStartPositions[i], 0, 0), new InputController((PlayerIndex)i), i, playerModels[i], playerModelsShell[i], playerHandModel, indicatorModel[i], indicatorModel[i+4], staminaModel, scaling, playerHatModels[i]));
+                }
+                
                 players[i].SetAnimation(7,true);
             }
 
