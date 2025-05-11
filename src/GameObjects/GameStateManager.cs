@@ -19,12 +19,12 @@ namespace src.GameObjects
         {
             { ProjectileType.Tomato, (1f, 0f) },
             { ProjectileType.Swordfish, (0.9f, 0f) },
-            { ProjectileType.Frog, (0.7f, 0.3f) },
+            { ProjectileType.Frog, (0.7f, 0.1f) },
             { ProjectileType.Coconut, (0.3f, 0f) },
             { ProjectileType.Banana, (1f, 0.1f) },
             { ProjectileType.Turtle, (0.3f, 0.0f) },
-            { ProjectileType.Mjoelnir, (1.5f, 0.0f) },
-            { ProjectileType.Spear, (0.9f, 0.0f) }, // this should be 0.2f
+            { ProjectileType.Mjoelnir, (1.5f, 0.2f) },
+            { ProjectileType.Spear, (0.9f, 0.2f) }, // this should be 0.2f
             { ProjectileType.Chicken, (0.9f, 0f) },
             { ProjectileType.Barrel, (1f, 0f) }
         };

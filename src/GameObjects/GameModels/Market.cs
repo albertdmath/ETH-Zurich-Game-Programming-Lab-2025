@@ -46,14 +46,12 @@ namespace src.GameObjects
             this.Orientation = Vector3.Normalize(-Position);
             this.Type = type;
             this.projectileModel = projectile;
-            float Y =  height + 0.3f;
-            if(i != 2)
-                Y += 0.2f;
-            if(type == ProjectileType.Spear || type == ProjectileType.Mjoelnir)
-                Y += 0.2f;
+            
+            if(i == 2)
+                height -= 0.2f;
                 
             this.fishTransform = Matrix.CreateScale(projectileScaling[type])
-                                * Matrix.CreateTranslation(new(0, Y, 0.15f))
+                                * Matrix.CreateTranslation(new(0, height+0.5f, 0.15f))
                                 * Matrix.CreateRotationY(MathF.Atan2(-Orientation.X, -Orientation.Z))
                                 * Matrix.CreateRotationY(MathHelper.ToRadians(90))
                                 * Matrix.CreateTranslation(Position);
