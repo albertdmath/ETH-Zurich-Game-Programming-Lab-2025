@@ -11,6 +11,8 @@ public class GameModel
     public Vector3 Position { get; set; }
     public Vector3 Orientation { get; set; }
     public DrawModel DrawModel { get; set; }
+
+    public bool flipped { get; set; } = false;
     public Hitbox Hitbox { get; set; }
     public Matrix Transform { get; set; }
     public Matrix Scaling { get; set; }
@@ -43,6 +45,9 @@ public class GameModel
         }
     }
 
+    public void flipModel(){
+        flipped = !flipped;
+    }
     public void UpdateAnimation(float dt){
         if(this.animator != null){
             this.animator.UpdateAnimation(dt);
@@ -71,7 +76,14 @@ public class GameModel
 
     protected void CalculateTransform()
     {
-        Transform = Scaling * Matrix.CreateRotationY(MathF.Atan2(-Orientation.X, -Orientation.Z)) * Matrix.CreateTranslation(Position);
+        Matrix flatten = flipped
+        ? Matrix.CreateRotationX(-MathF.PI * 0.5f)   // –90° about X
+        : Matrix.Identity;
+
+        float height = flipped ? Position.Y + 0.1f : Position.Y;
+        Vector3 NewPos = new Vector3(Position.X,height,Position.Z); // Adjust Y position to avoid clipping with the ground
+        Transform = Scaling * flatten * Matrix.CreateRotationY(MathF.Atan2(-Orientation.X, -Orientation.Z)) *   Matrix.CreateTranslation(NewPos);
+    
     }
 
     public virtual void updateWrap(float dt)

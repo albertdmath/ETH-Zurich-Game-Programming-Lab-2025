@@ -17,6 +17,8 @@ public class Animator
     bool _nextLoop;
     bool _ended;
 
+    bool _nextEnded;
+
     bool _stopped;
 
     bool _breakPoint = false;
@@ -91,10 +93,13 @@ public class Animator
         this.breakTime = nextBreakTime;
         nextBreakTime = 0.0f;
         _nextStopped = false;
+        _ended = _nextEnded;
         this._loop = _nextLoop;
         this.speed = nextSpeed;
         this.nextSpeed = 1.0f;
         _nextLoop = false;
+        _nextEnded = false;
+
 
     }
 
@@ -103,7 +108,7 @@ public class Animator
         deltaTime = dt * speed;
         if (animation != null)
         {
-            if(!_stopped){
+            if(!_stopped || !_ended){
                 currentTime += animation.GetTicksPerSecond() * deltaTime;
 
                 if(breakTime > 0.0f){
@@ -132,6 +137,9 @@ public class Animator
                 currentTime = MathHelper.Min((float)currentTime, ((float)animation.GetDuration()) - 0.01f);
                 if(this.nextAnimation != null && !_nextLoop){
                 this.currentTimeNextAnim = MathHelper.Min((float)this.currentTimeNextAnim, ((float)nextAnimation.GetDuration()) - 0.01f);
+                    if(this.currentTimeNextAnim == nextAnimation.GetDuration() - 0.01f){
+                        _nextEnded = true;
+                    }
                 }
                 if (currentTime == animation.GetDuration() - 0.01f )
                 {

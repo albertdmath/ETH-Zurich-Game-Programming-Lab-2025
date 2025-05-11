@@ -37,6 +37,9 @@ public class Player : GameModel
     private float speed = NORMAL_SPEED;
     public Projectile projectileHeld {get; private set;} = null;
     private bool armor = false;
+
+    private bool crawling = false;
+    private bool currentlyCatching = false;
     private float dashTime = 0f,dashSpeed = 12f, flySpeed = 0f;
     private float actionPushedDuration;
     private float stunDuration = 0f;
@@ -186,6 +189,7 @@ public class Player : GameModel
 
     public bool IsCrawling()
     {
+
         return playerState == PlayerState.Crawling;
     }
     // ---------------------
@@ -259,6 +263,10 @@ public class Player : GameModel
 
                 // For now the player is moved down to indacet crawling. Later done with an animation
                 speed = 1f;
+                        if(!crawling){
+            crawling = true;
+            this.flipModel();
+        }
                 gameStateManager.livingPlayers.Remove(this);
                 playerState = PlayerState.Crawling;
             }
@@ -346,6 +354,8 @@ public class Player : GameModel
         {
             if(playerState == PlayerState.Crawling)
             {
+                crawling = false;
+                this.flipModel();
                 speed = NORMAL_SPEED;
                 outside = true;
                 playerState = PlayerState.NormalMovement;
@@ -409,14 +419,15 @@ public class Player : GameModel
 
     //ANIMATIONS
     //0: Grabbing
-    //1: Overhead Grab
-    //2: Crawling
-    //3: Twitching
-    //4: ChaCha real smooth
-    //5: Dash
-    //6: Idle
-    //7: Throw
-    //8: Walking
+    //1: Grabbing while walking
+    //2: Overhead Grab
+    //3: Crawling
+    //4: Twitching
+    //5: ChaCha real smooth
+    //6: Dash
+    //7: Idle
+    //8: Throw
+    //9: Walking
     // Update function called each update
     public override void Update(float dt)
     {
@@ -426,38 +437,46 @@ public class Player : GameModel
         switch (playerState)
         {
             case PlayerState.Idle: 
-                this.SwitchAnimation(6, true, 0.2f);
+                this.SwitchAnimation(7, true, 0.2f);
                 CanCatch();
                 CanDash();
                 break;
             case PlayerState.NormalMovement:
                 Move(dt);
-                this.SwitchAnimation(8, true, 0.05f,0.0f,1.0f);
+                this.SwitchAnimation(9, true, 0.03f,0.0f,1.0f);
                 CanCatch();
                 CanDash();
                 break;
             case PlayerState.Catching:
-                this.SwitchAnimation(0, false, 0.2f);
+            if(!currentlyCatching){
+                currentlyCatching = true;
+                this.SwitchAnimation(1, false, 0.4f);
+                this.SwitchAnimation(9, true, 0.1f,0.0f,1.0f);
+            }
+
                 timeSinceStartOfCatch += dt;
                 Move(dt);
-                if (timeSinceStartOfCatch > CATCH_COOLDOWN)
+                if (timeSinceStartOfCatch > CATCH_COOLDOWN){
                     playerState = PlayerState.NormalMovement;
+                    currentlyCatching = false;
+                }
+
                 break;
             case PlayerState.HoldingProjectile:
                 Move(dt);
-                this.SwitchAnimation(8, true, 0.05f);
+                this.SwitchAnimation(9, true, 0.05f);
                 if (input.Action() && actionPushedDuration == 0f)
                     playerState = PlayerState.Aiming;
                 else
                     CanDash();
                 break;
             case PlayerState.Dashing:
-                this.SwitchAnimation(8, true, 0.2f,4.0f);
+                this.SwitchAnimation(9, true, 0.2f,4.0f);
                 Dash(dt);
                 break;
             case PlayerState.Aiming:
                 Aim(dt);
-                this.SwitchAnimation(6,true,0.2f);
+                this.SwitchAnimation(7,true,0.2f);
                 if (input.Action())
                 {
                     actionPushedDuration = actionPushedDuration >= 2f ? 2f : actionPushedDuration;
@@ -466,9 +485,9 @@ public class Player : GameModel
                 else
                 {
                     if(this.projectileHeld.Type == ProjectileType.Spear){
-                        SwitchAnimation(8,true,0.2f,0.0f,4.0f);
+                        SwitchAnimation(9,true,0.2f,0.0f,4.0f);
                     } else {
-                        SwitchAnimation(7,false,0.2f);
+                        SwitchAnimation(8,false,0.2f);
                     }
 
                     DoActionWithProjectile();
@@ -482,6 +501,7 @@ public class Player : GameModel
                     playerState = (projectileHeld == null) ? PlayerState.NormalMovement : PlayerState.HoldingProjectile;
                 break;
             case PlayerState.Crawling:
+                this.SwitchAnimation(3, true, 0.05f);
                 Move(dt);
                 break;
             case PlayerState.MjoelnirJump:
@@ -506,7 +526,7 @@ public class Player : GameModel
                 break;
             case PlayerState.FloatingWithChicken:
                 Move(dt);
-                this.SwitchAnimation(1, true, 0.3f, 0.7f, 2.0f);
+                this.SwitchAnimation(2, true, 0.3f, 0.7f, 2.0f);
                 Chicken chicken = projectileHeld as Chicken;
                 Position = new(Position.X, chicken.YCoordinate, Position.Z);
                 if(chicken.YCoordinate <= 0)
@@ -542,9 +562,13 @@ public class Player : GameModel
         {
             shader.setFinalBoneMatrices(this.GetFinalBoneMatrices());
             base.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+
            // Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
             shader.setFinalBoneMatrices(jesterHat.GetFinalBoneMatrices());
-            jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+            if(Life >0){
+                jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+            }
+
         }
 
         Stamina.Draw(view, shader, graphicsDevice, shadowDraw);
