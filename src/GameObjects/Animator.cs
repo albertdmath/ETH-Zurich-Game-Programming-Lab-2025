@@ -222,6 +222,9 @@ public class Animator
 
     public void SwitchAnimation(GameAnimation animation, bool loop,  float blendSpeed = 0.0001f, float breakPoint = 0.0f, float speed = 1.0f)
     {
+        if(this.speed != speed){
+            this.speed = speed;
+        }
         if(this.nextAnimation == null && animation.name != this.animation.name){
         this.nextAnimation = animation;
         this.totalTimeNextAnim = this.nextAnimation.GetDuration();

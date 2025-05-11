@@ -277,7 +277,7 @@ public class Player : GameModel
         if (!GetAffected(projectile))
             return false;
 
-        SwitchAnimation(3,false,0.3f,0.0f,4.0f);
+        SwitchAnimation(3,false,0.3f,0.0f,2.0f);
         LoseLife();
         return true;
     }
@@ -404,7 +404,7 @@ public class Player : GameModel
     //ANIMATIONS
     //0: Grabbing
     //1: Overhead Grab
-    //2: Falling
+    //2: Crawling
     //3: Twitching
     //4: ChaCha real smooth
     //5: Dash
@@ -426,7 +426,7 @@ public class Player : GameModel
                 break;
             case PlayerState.NormalMovement:
                 Move(dt);
-                this.SwitchAnimation(8, true, 0.05f);
+                this.SwitchAnimation(8, true, 0.05f,0.0f,1.0f);
                 CanCatch();
                 CanDash();
                 break;
@@ -447,9 +447,8 @@ public class Player : GameModel
                     CanDash();
                 break;
             case PlayerState.Dashing:
-                this.SwitchAnimation(5, true, 0.2f);
+                this.SwitchAnimation(8, true, 0.2f,4.0f);
                 Dash(dt);
-                this.SwitchAnimation(5, true, 0.05f);
                 break;
             case PlayerState.Aiming:
                 Aim(dt);
@@ -462,7 +461,7 @@ public class Player : GameModel
                 else
                 {
                     if(this.projectileHeld.Type == ProjectileType.Spear){
-                        SwitchAnimation(5,false,0.2f,0.0f,0.5f);
+                        SwitchAnimation(8,true,0.2f,0.0f,4.0f);
                     } else {
                         SwitchAnimation(7,false,0.2f);
                     }
@@ -502,7 +501,7 @@ public class Player : GameModel
                 break;
             case PlayerState.FloatingWithChicken:
                 Move(dt);
-                this.SwitchAnimation(1, true, 0.3f, 0.5f, 4.0f);
+                this.SwitchAnimation(1, true, 0.3f, 0.7f, 2.0f);
                 Chicken chicken = projectileHeld as Chicken;
                 Position = new(Position.X, chicken.YCoordinate, Position.Z);
                 if(chicken.YCoordinate <= 0)
