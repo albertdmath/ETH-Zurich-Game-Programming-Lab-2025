@@ -46,7 +46,7 @@ public class Player : GameModel
     private float stunDuration = 0f;
     private float immunity = 0f;
     private float lastProjectileImmunity = 0f;
-    private float timeSinceStartOfCatch = 0f;
+    private float timeSinceStartOfCatch = 0.0f;
     private float friction = 9f;
 
     private PlayerState playerWalkingOrIdleBefore;
