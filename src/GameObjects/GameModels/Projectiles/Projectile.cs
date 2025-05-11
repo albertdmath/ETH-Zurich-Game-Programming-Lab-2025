@@ -68,9 +68,10 @@ public class Projectile : GameModel
     public virtual void OnProjectileHit(Projectile projectile) {}
 
     // Catching and throwing the projectile
-    public virtual void Catch(GameModel player) 
+    public virtual bool Catch(GameModel player) 
     { 
-        Holder = player; 
+        Holder = player;
+        return true; 
     }
 
     public virtual void Throw(Vector3 target) 
