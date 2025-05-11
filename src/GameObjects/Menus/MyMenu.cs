@@ -454,7 +454,7 @@ namespace src.GameObjects{
             }
 
             
-            if(menuStateManager.TUTORIAL_IS_OPEN && (keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape)) || (gamePadState.Buttons.Start == ButtonState.Pressed && previousGamePadState.Buttons.Start == ButtonState.Released))
+            if(menuStateManager.TUTORIAL_IS_OPEN && ((keyboardState.IsKeyDown(Keys.Escape) && previousKeyboardState.IsKeyUp(Keys.Escape)) || (gamePadState.Buttons.Start == ButtonState.Pressed && previousGamePadState.Buttons.Start == ButtonState.Released)))
             {
                 menuStateManager.TUTORIAL_IS_OPEN = false;
                 
