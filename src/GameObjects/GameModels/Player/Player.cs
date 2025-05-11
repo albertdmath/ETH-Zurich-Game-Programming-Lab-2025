@@ -21,6 +21,7 @@ public class Player : GameModel
     // Variables
     private enum PlayerState
     {
+        Idle,
         NormalMovement,
         Catching,
         HoldingProjectile,
@@ -38,6 +39,7 @@ public class Player : GameModel
     private bool armor = false;
 
     private bool crawling = false;
+    
     private bool currentlyCatching = false;
     private float dashTime = 0f,dashSpeed = 12f, flySpeed = 0f;
     private float actionPushedDuration;
@@ -46,6 +48,8 @@ public class Player : GameModel
     private float lastProjectileImmunity = 0f;
     private float timeSinceStartOfCatch = 0f;
     private float friction = 9f;
+
+    private PlayerState playerWalkingOrIdleBefore;
     private Projectile lastThrownProjectile = null; // Store last thrown projectile
     private  List<DrawModel> playerModels;
     private readonly DrawModel playerModelShell;
@@ -120,14 +124,33 @@ public class Player : GameModel
         
         Position += (speed * inertia + inertiaUp) * dt;
 
-        if (inertia.LengthSquared() < float.Epsilon)
+    if(!crawling && !(playerState == PlayerState.FloatingWithChicken)){
+        if (inertia.LengthSquared() < 0.1)
         {
-            this.SwitchAnimation(6, true, 0.2f);
+            this.playerWalkingOrIdleBefore = PlayerState.Idle;
+            if(!this.currentlyCatching){
+                        
+                this.SwitchAnimation(7, true, 0.1f);
+            } else {
+                this.SwitchAnimation(7, true, 0.07f);
+            }
+
+
         }
         else
         {
-            this.SwitchAnimation(8, true, 0.05f, 0.0f, 1.0f);
+            this.playerWalkingOrIdleBefore = PlayerState.NormalMovement;
+
+                if(!this.currentlyCatching){
+                        
+                            this.SwitchAnimation(9, true, 0.1f, 0.0f, 1.0f);
+            } else {
+                           this.SwitchAnimation(9, true, 0.07f, 0.0f, 1.0f);
+            }
+
+
         }
+    }
     }
 
         private void Slide(float dt)
@@ -298,7 +321,7 @@ public class Player : GameModel
         if (!GetAffected(projectile))
             return false;
 
-        SwitchAnimation(3,false,0.3f,0.0f,2.0f);
+        SwitchAnimation(4,false,0.3f,0.0f,2.0f);
         LoseLife();
         return true;
     }
@@ -447,6 +470,7 @@ public class Player : GameModel
         //this cannot overflow
         input.EndVibrate(dt);
 
+
         switch (playerState)
         {
             case PlayerState.NormalMovement:
@@ -457,13 +481,20 @@ public class Player : GameModel
             case PlayerState.Catching:
             if(!currentlyCatching){
                 currentlyCatching = true;
-                this.SwitchAnimation(1, false, 0.4f);
-                this.SwitchAnimation(9, true, 0.1f,0.0f,1.0f);
+                if(this.playerWalkingOrIdleBefore == PlayerState.NormalMovement){
+                    this.SwitchAnimation(1, false, 0.4f);
+            } else{
+                    this.SwitchAnimation(0, false, 0.4f);
+            }
+               
             }
 
                 timeSinceStartOfCatch += dt;
                 Move(dt);
                 if (timeSinceStartOfCatch > CATCH_COOLDOWN){
+                    if(this.animator.checkEnded()){
+
+                    }
                     playerState = PlayerState.NormalMovement;
                     currentlyCatching = false;
                 }
@@ -471,7 +502,6 @@ public class Player : GameModel
                 break;
             case PlayerState.HoldingProjectile:
                 Move(dt);
-                this.SwitchAnimation(9, true, 0.05f);
                 if (input.Action() && actionPushedDuration == 0f)
                     playerState = PlayerState.Aiming;
                 else
@@ -501,14 +531,14 @@ public class Player : GameModel
                 }
                 break;
             case PlayerState.Stunned:
-                this.SwitchAnimation(3, true, 0.2f);
+                this.SwitchAnimation(4, true, 0.2f);
                 Slide(dt);
                 stunDuration -= dt;
                 if (stunDuration < 0f)
                     playerState = (projectileHeld == null) ? PlayerState.NormalMovement : PlayerState.HoldingProjectile;
                 break;
             case PlayerState.Crawling:
-                this.SwitchAnimation(3, true, 0.05f);
+                this.SwitchAnimation(3, true, 0.5f,0.0f, 2.0f);
                 Move(dt);
                 break;
             case PlayerState.MjoelnirJump:
@@ -533,7 +563,7 @@ public class Player : GameModel
                 break;
             case PlayerState.FloatingWithChicken:
                 Move(dt);
-                this.SwitchAnimation(2, true, 0.3f, 0.7f, 2.0f);
+                this.SwitchAnimation(2, false, 0.3f, 0.7f, 2.0f);
                 Chicken chicken = projectileHeld as Chicken;
                 Position = new(Position.X, chicken.YCoordinate, Position.Z);
                 if(chicken.YCoordinate <= 0)

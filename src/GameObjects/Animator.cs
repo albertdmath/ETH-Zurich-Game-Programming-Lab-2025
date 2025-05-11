@@ -108,7 +108,7 @@ public class Animator
         deltaTime = dt * speed;
         if (animation != null)
         {
-            if(!_stopped || !_ended){
+            if(!_stopped && !_ended){
                 currentTime += animation.GetTicksPerSecond() * deltaTime;
 
                 if(breakTime > 0.0f){
