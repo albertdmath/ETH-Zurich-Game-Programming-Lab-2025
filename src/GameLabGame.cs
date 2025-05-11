@@ -39,7 +39,8 @@ namespace GameLab
         private List<Texture2D> playerHats = new List<Texture2D>();
         private Texture2D hudBackground;
         private Texture2D winMessage;
-
+        private Texture2D mainBanner;
+        private Texture2D tutorial;
         private RenderTarget2D depthMap;
 
 
@@ -255,6 +256,10 @@ namespace GameLab
 
             hudBackground = Content.Load<Texture2D>("HUD/HUD_background");
             winMessage = Content.Load<Texture2D>("HUD/win_message");
+            mainBanner = Content.Load<Texture2D>("HUD/main_banner");
+            tutorial = Content.Load<Texture2D>("HUD/tutorial");
+
+
             viewInverse = Matrix.Invert(view);
             // Shader setup
             //lightingShader = new PhongShading(Content.Load<Effect>("lightingWithShadow"));
@@ -315,7 +320,7 @@ namespace GameLab
             gameStateManager.StartNewGame();
 
             _menu = new MyMenu(this, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
-            hud = new HUD(playerHP, playerHats, hudBackground, winMessage, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
+            hud = new HUD(playerHP, playerHats, hudBackground, winMessage, mainBanner, tutorial, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
 
             // Load Sounds:
             MusicAndSoundEffects.loadSFX(Content);
@@ -378,10 +383,13 @@ namespace GameLab
                 _menu.OpenWinMenu();
             }
             // Draw menu
-            
+            hud.DrawBanner(_spriteBatch, GraphicsDevice);
+            if(menuStateManager.TUTORIAL_IS_OPEN)
+                hud.DrawTutorial(_spriteBatch);
 
             _spriteBatch.End();
-            _menu.Draw();
+            if(!menuStateManager.TUTORIAL_IS_OPEN)
+                _menu.Draw();
 
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
