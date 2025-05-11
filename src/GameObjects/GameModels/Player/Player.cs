@@ -130,9 +130,9 @@ public class Player : GameModel
             this.playerWalkingOrIdleBefore = PlayerState.Idle;
             if(!this.currentlyCatching){
                         
-                this.SwitchAnimation(7, true, 0.1f);
+                playIdleAnimations(0.1f,1.0f);
             } else {
-                this.SwitchAnimation(7, true, 0.07f);
+                playIdleAnimations(0.07f,1.0f);
             }
 
 
@@ -143,9 +143,9 @@ public class Player : GameModel
 
                 if(!this.currentlyCatching){
                         
-                            this.SwitchAnimation(9, true, 0.1f, 0.0f, 1.0f);
+                           playWalkingAnimations(0.1f,1.0f);
             } else {
-                           this.SwitchAnimation(9, true, 0.07f, 0.0f, 1.0f);
+                playWalkingAnimations(0.07f,1.0f);
             }
 
 
@@ -321,7 +321,7 @@ public class Player : GameModel
         if (!GetAffected(projectile))
             return false;
 
-        SwitchAnimation(4,false,0.3f,0.0f,2.0f);
+        playDamageAnimations(0.7f,0.5f);
         LoseLife();
         return true;
     }
@@ -406,6 +406,24 @@ public class Player : GameModel
             }
         } 
     }
+
+    private void playWalkingAnimations(float blendfactor,float speed){
+        SwitchAnimation(9, true, blendfactor,0.0f,speed);
+        this.jesterHat.SwitchAnimation(2, true, blendfactor,0.0f,speed);
+    }
+
+ private void playIdleAnimations(float blendfactor,float speed){
+        SwitchAnimation(7, true, blendfactor,0.0f,speed);
+        this.jesterHat.SwitchAnimation(1, true, blendfactor,0.0f,speed);
+    }
+
+
+    private void playDamageAnimations(float blendfactor,float speed){
+        SwitchAnimation(4, true, blendfactor,0.0f,speed);
+        this.jesterHat.SwitchAnimation(0, true, blendfactor,0.0f,speed);
+    }
+
+
 
     public void UpdateJesterHatAnimation(float dt){
         if(jesterHat != null){
@@ -508,12 +526,12 @@ public class Player : GameModel
                     CanDash();
                 break;
             case PlayerState.Dashing:
-                this.SwitchAnimation(9, true, 0.2f,4.0f);
+                playWalkingAnimations(0.2f,4.0f);
                 Dash(dt);
                 break;
             case PlayerState.Aiming:
                 Aim(dt);
-                this.SwitchAnimation(7,true,0.2f);
+                playIdleAnimations(0.2f,1.0f);
                 if (input.Action())
                 {
                     actionPushedDuration = actionPushedDuration >= 2f ? 2f : actionPushedDuration;
@@ -522,7 +540,7 @@ public class Player : GameModel
                 else
                 {
                     if(this.projectileHeld.Type == ProjectileType.Spear){
-                        SwitchAnimation(9,true,0.2f,0.0f,4.0f);
+                        playWalkingAnimations(0.2f,4.0f);
                     } else {
                         SwitchAnimation(8,false,0.2f);
                     }
@@ -531,7 +549,7 @@ public class Player : GameModel
                 }
                 break;
             case PlayerState.Stunned:
-                this.SwitchAnimation(4, true, 0.2f);
+                playDamageAnimations(0.2f,1.0f);
                 Slide(dt);
                 stunDuration -= dt;
                 if (stunDuration < 0f)
