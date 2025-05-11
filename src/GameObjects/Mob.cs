@@ -13,6 +13,10 @@ namespace src.GameObjects
         public static Zombie[] active = new Zombie[N_ZOMBIES];
         private List<Zombie>[] sortedZombies = new List<Zombie>[24 * 24];
 
+        private const float MIN_DISTANCE_OPACITY = 1f;      // distance for min opacity
+        private const float MAX_DISTANCE_OPACITY = 5f;     // distance for full opacity
+        private const float MIN_OPACITY = 0.3f;     // minimum opacity
+
         // Ellipse properties
         private float timeAlive;
         private const float TIME_BETWEEN_CLOSING = 10f;
@@ -45,7 +49,7 @@ namespace src.GameObjects
             gameStateManager = GameStateManager.GetGameStateManager();
         }
 
-        public Vector3 GetRandomPointInside()
+        private Vector3 GetRandomPointInside()
         {
             // Generate a random angle between 0 and 2π
             float angle = Rng.NextFloat(2 * MathF.PI);
@@ -73,13 +77,21 @@ namespace src.GameObjects
             }
         }
 
-        public void Update (float dt) {
-            CloseRing(dt);
-            MobPhysics();
-            MobPlayerInteraction();
+        public void updateWrap(float dt, bool MainMenuMode) {
+            if(!MainMenuMode)
+            {
+                MobPlayerInteraction();
+                NewMobProjectile(dt);
+                CloseRing(dt);
+            }
+            foreach (Zombie zombie in active) 
+            {
+                            zombie.updateWrap(dt);
+                            zombie.UpdateAnimation(dt);
+            }
+
             MobMarketInteraction();
-            foreach (Zombie zombie in active) zombie.updateWrap(dt);
-            NewMobProjectile(dt);
+            MobPhysics();
         }
 
         private void CloseRing(float dt)
@@ -134,36 +146,25 @@ namespace src.GameObjects
                 }
             }
         }
+
         private void MobPlayerInteraction(){
 
             foreach (Player player in gameStateManager.players)
             { 
+                if(player.Life>0) continue;
+
                 int i = (int)Math.Round(player.Position.X*0.2f)+11;
                 int j = (int)Math.Round(player.Position.Z*0.2f)+11;
                 int iNeighbour = (player.Position.X*0.2f-i) < 0.5f ? -1 : 1;
                 int jNeighbour = (player.Position.Z*0.2f-j) < 0.5f ? -24 : 24;
-                if(player.Life<=0)
-                {
-                    foreach (Zombie zombie in sortedZombies[i+j*24]) zombie.ForceByPlayer(player);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour]) zombie.ForceByPlayer(player);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+jNeighbour]) zombie.ForceByPlayer(player);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour+jNeighbour]) zombie.ForceByPlayer(player);
-                }else{
-                    foreach (Zombie zombie in sortedZombies[i+j*24]) 
-                        if((player.Position-endCenter).LengthSquared()<(zombie.Position-endCenter).LengthSquared())
-                            player.MobCollision(zombie);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour]) 
-                        if((player.Position-endCenter).LengthSquared()<(zombie.Position-endCenter).LengthSquared())
-                            player.MobCollision(zombie);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+jNeighbour])  
-                        if((player.Position-endCenter).LengthSquared()<(zombie.Position-endCenter).LengthSquared())
-                            player.MobCollision(zombie);
-                    foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour+jNeighbour])  
-                        if((player.Position-endCenter).LengthSquared()<(zombie.Position-endCenter).LengthSquared())
-                            player.MobCollision(zombie);
-                }
+                
+                foreach (Zombie zombie in sortedZombies[i+j*24]) zombie.ForceByPlayer(player);
+                foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour]) zombie.ForceByPlayer(player);
+                foreach (Zombie zombie in sortedZombies[i+j*24+jNeighbour]) zombie.ForceByPlayer(player);
+                foreach (Zombie zombie in sortedZombies[i+j*24+iNeighbour+jNeighbour]) zombie.ForceByPlayer(player);
             }
         }
+
         private void MobMarketInteraction(){
 
             foreach (Zombie zombie in active)
@@ -173,6 +174,33 @@ namespace src.GameObjects
                 }
             }
         }
+
+
+
+        private float CalculateOpacity(Zombie zombie)
+        {
+            float closestDist = MAX_DISTANCE_OPACITY;
+
+            foreach (Player player in gameStateManager.players)
+            {
+                if (player.Life == 0)
+                    closestDist = Math.Min(closestDist, Vector3.DistanceSquared(zombie.Position, player.Position));
+            }
+
+            if (closestDist <= MIN_DISTANCE_OPACITY)
+                return MIN_OPACITY;
+
+            if (closestDist < MAX_DISTANCE_OPACITY)
+            {
+                float t = (closestDist -MIN_DISTANCE_OPACITY) / (MAX_DISTANCE_OPACITY - MIN_DISTANCE_OPACITY);
+                return MathHelper.Lerp(MIN_OPACITY, 1f, MathHelper.Clamp(t, 0f, 1f));
+            }
+
+            return 1f;
+        }
+
+
+
 
         private void NewMobProjectile(float dt)
         {
@@ -195,24 +223,19 @@ namespace src.GameObjects
             timeUntilNextProjectile = 0f;
         }
 
-        
-        // public void Draw(Matrix view, Matrix projection, PBR shader, bool shadowDraw) {
-        //     foreach (Zombie zombie in active){
-        //         shader.setRoughness(zombie.DrawModel.roughness);
-        //         shader.setMetallic(zombie.DrawModel.metallic);
-        //         zombie.Draw(view, projection, shader, shadowDraw);
-        //     }
-        // }
-        
         public void Draw(Matrix view, Matrix projection, Shader shader, GraphicsDevice graphicsDevice, bool shadowDraw) {
             foreach (Zombie zombie in active) {
-                if(!shadowDraw){
-                shader.setRoughness(zombie.DrawModel.roughness);
-                shader.setMetallic(zombie.DrawModel.metallic);
                 shader.setFinalBoneMatrices(zombie.GetFinalBoneMatrices());
+                if(!shadowDraw)
+                {
+                 
+                    shader.setRoughness(zombie.DrawModel.roughness);
+                    shader.setMetallic(zombie.DrawModel.metallic);
+                    shader.setOpacityValue(CalculateOpacity(zombie));
                 }
+
                 zombie.Draw(view, projection, shader, graphicsDevice, shadowDraw);
-        }
+            }
         }
     }
     

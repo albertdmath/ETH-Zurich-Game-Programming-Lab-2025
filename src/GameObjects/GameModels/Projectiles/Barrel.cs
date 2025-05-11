@@ -1,4 +1,5 @@
 using System;
+using System.Reflection.Metadata;
 using Microsoft.Xna.Framework;
 
 namespace src.GameObjects;
@@ -18,28 +19,34 @@ public class Barrel : Projectile
     // Constructor:
     public Barrel(ProjectileType type, DrawModel model1, DrawModel model2, float scaling, float height) : base(type, model1, scaling, height, IndicatorModels.Target) 
     { 
-        this.DrawModel = Rng.NextBool() ? model1 : model2;
+        if(Rng.NextBool())
+            DrawModel = model2;
+        else
+        {
+            DrawModel = model1;
+            Scaling = Matrix.CreateScale(0.75f);
+        }
+
     }
 
-    public override void OnGroundHit()
+    public override void OnGroundHit(bool touching)
     {
-        Position = new Vector3(Position.X, 0, Position.Z);
+        if(!touching) return;
+        
+        Position = new Vector3(Position.X, height, Position.Z);
         notMoving = true;
     }
 
     public override void OnProjectileHit(Projectile projectile)
     {
-        if(projectile.Holder == null)
-        {
-            projectile.ToBeDeleted = true;
-            ToBeDeleted = true;
-        }
+        projectile.ToBeDeleted = true;
+        ToBeDeleted = true;
     }
 
     public override void OnPlayerHit(Player player)
     {
         if (notMoving)
-            player.ObjectCollision(this);
+            player.OnObjectHit(this);
         else
             base.OnPlayerHit(player);
     }

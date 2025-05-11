@@ -26,6 +26,7 @@ public class MusicAndSoundEffects
 
     // Backing track:
     private static Song bgMusic;
+
     private static Song mainMenuMusic;
     private static MenuStateManager menuStateManager;
 
@@ -44,7 +45,7 @@ public class MusicAndSoundEffects
         angrymobSFX = Content.Load<SoundEffect>("Audio/angrymobSFX");
         angrymobInstance = angrymobSFX.CreateInstance();
         angrymobInstance.IsLooped = true;
-        angrymobInstance.Volume = 0.1f;
+        angrymobInstance.Volume = 0.0f;
         hitSFX = Content.Load<SoundEffect>("Audio/hitSFX");
         uiClickSFX = Content.Load<SoundEffect>("Audio/uiClickSFX");
         uiHoverSFX = Content.Load<SoundEffect>("Audio/uiHoverSFX");        
@@ -53,38 +54,9 @@ public class MusicAndSoundEffects
         // Loading the background music:
         bgMusic = Content.Load<Song>("Audio/EpicMedievalVibes");
         mainMenuMusic = Content.Load<Song>("Audio/MainMenuMusic");
-        // Loading the main menu music
 
         menuStateManager = MenuStateManager.GetMenuStateManager();
 
-        if(menuStateManager.SOUND_ENABLED) {//SENSE
-            MediaPlayer.Volume = 0.45f;
-            MediaPlayer.IsRepeating = true;
-            MediaPlayer.Play(mainMenuMusic);
-        }
-    }
-
-    public static void playUIClickSFX() {
-        if(menuStateManager.SOUND_ENABLED)
-            uiClickSFX.Play(1.0f*VOLUME, 0.0f, 0.0f);
-    }
-
-    public static void playUIHoverSFX() {
-        if(menuStateManager.SOUND_ENABLED)
-            uiHoverSFX.Play(0.4f*VOLUME, 0.0f, 0.0f);
-    }
-
-    public static void playDJScratchSFX() {
-        if(menuStateManager.SOUND_ENABLED)
-            djscratchSFX.Play(0.5f*VOLUME, 0.0f, 0.0f);
-    }
-
-    public static void playHitSFX() {
-        if(menuStateManager.SOUND_ENABLED)
-            hitSFX.Play(0.1f*VOLUME, 0.0f, 0.0f);
-    }
-
-    public static void playBackGroundMusic() {
         if(menuStateManager.SOUND_ENABLED) {//SENSE
             MediaPlayer.Volume = 0.45f;
             MediaPlayer.IsRepeating = true;
@@ -93,18 +65,37 @@ public class MusicAndSoundEffects
         }
     }
 
-      public static void playMainMenuMusic() {
+    public static void playHitSFX() {
+        if(menuStateManager.SOUND_ENABLED)
+            hitSFX.Play(0.1f*VOLUME, 0.0f, 0.0f);
+    }
+
+
+
+    
+
+
+
+    public static void playMainMenuMusic() {
         if(menuStateManager.SOUND_ENABLED)
         {
-            angrymobInstance.Stop();
-            MediaPlayer.Stop();
             MediaPlayer.Volume = 0.45f;
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(mainMenuMusic);
         }
     }
 
-    
+    public static void playBackgroundMusic() {
+        if(menuStateManager.SOUND_ENABLED)
+        {
+            MediaPlayer.Volume = 0.45f;
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(bgMusic);
+        }
+    }
+
+
+
 
     public static void playProjectileSFX(ProjectileType type) {
         // For anyone reading, "Play" function takes 3 parameters: volume, pitch, pan.

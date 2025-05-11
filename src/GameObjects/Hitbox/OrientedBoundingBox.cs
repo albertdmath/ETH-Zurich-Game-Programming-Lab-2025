@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 using Matrix = Microsoft.Xna.Framework.Matrix;
 using Accord.Math.Decompositions;
+using Microsoft.Xna.Framework;
 public class OrientedBoundingBox
 {
 
@@ -218,6 +219,26 @@ public class OrientedBoundingBox
 
         // No separating axis found, boxes must intersect
         return true;
+    }
+
+    public bool Intersects(Sphere other)
+    {
+        // Step 1: Transform the sphere's center into the OBB's local space
+        Vector3 sphereCenterLocal = other.Center - this.Center;
+        sphereCenterLocal = Vector3.Transform(sphereCenterLocal, Matrix.Transpose(this.Orientation)); // Inverse of rotation matrix is its transpose
+
+        // Step 2: Clamp the sphere's center to the OBB's extents
+        Vector3 clampedCenter = new Vector3(
+            MathHelper.Clamp(sphereCenterLocal.X, -this.Extents.X, this.Extents.X),
+            MathHelper.Clamp(sphereCenterLocal.Y, -this.Extents.Y, this.Extents.Y),
+            MathHelper.Clamp(sphereCenterLocal.Z, -this.Extents.Z, this.Extents.Z)
+        );
+
+        // Step 3: Calculate the squared distance between the sphere's center and the clamped point
+        float distanceSquared = Vector3.DistanceSquared(sphereCenterLocal, clampedCenter);
+
+        // Step 4: Check intersection
+        return distanceSquared <= other.Radius * other.Radius;
     }
 
     

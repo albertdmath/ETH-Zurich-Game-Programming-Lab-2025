@@ -34,6 +34,13 @@ public struct AssimpNodeData
     public List<AssimpNodeData> children;
 };
 
+public struct AnimationTransform {
+    public Vector3 translation;
+    public Quaternion rotation;
+
+    public Vector3 scaling;
+}
+
 public class Bone {
      
        private List<KeyPosition> positions;
@@ -90,11 +97,20 @@ public class Bone {
 
       }
 
-      public void Update(float animationTime){
-        Matrix translation = InterpolatePosition(animationTime);
-        Matrix rotation = InterpolateRotation(animationTime);
-        Matrix scaling = InterpolateScaling(animationTime);
-        this.localTransform = scaling  * rotation * translation;
+      public AnimationTransform Update(float animationTime){
+        Vector3 translation = InterpolatePosition(animationTime);
+        Quaternion rotation = InterpolateRotation(animationTime);
+        Vector3 scaling = InterpolateScaling(animationTime);
+
+        Matrix transMatrix = Matrix.CreateTranslation(translation);
+        Matrix rotationMatrix = Matrix.CreateFromQuaternion(rotation);
+        Matrix scaleMatrix = Matrix.CreateScale(scaling);
+        this.localTransform = scaleMatrix  * rotationMatrix * transMatrix;
+        AnimationTransform transformInfo;
+        transformInfo.rotation = rotation;
+        transformInfo.scaling = scaling;
+        transformInfo.translation = translation;
+        return transformInfo;
       }
 
 
@@ -150,37 +166,37 @@ public class Bone {
     }
 
 
-  private  Matrix InterpolatePosition(float animationTime){
+  private  Vector3 InterpolatePosition(float animationTime){
         if(NumPositions == 1){
-            return Matrix.CreateTranslation(positions[0].position);
+            return positions[0].position;
         }
         int index = GetPositionIndex(animationTime);
         int nextIndex = index + 1; 
         float scaleFactor = GetScaleFactor(positions[index].timeStamp, positions[nextIndex].timeStamp, animationTime);
         Vector3 finalPosition = Vector3.Lerp(positions[index].position, positions[nextIndex].position, scaleFactor);
-        return Matrix.CreateTranslation(finalPosition); 
+        return finalPosition; 
     }
 
-   private Matrix InterpolateRotation(float animationTime){
+   private Quaternion InterpolateRotation(float animationTime){
         if(NumRotations == 1){
-            return Matrix.CreateFromQuaternion(rotations[0].orientation);
+            return rotations[0].orientation;
         }
         int index = GetRotationIndex(animationTime);
         int nextIndex = index + 1; 
         float scaleFactor = GetScaleFactor(rotations[index].timeStamp, rotations[nextIndex].timeStamp, animationTime);
         Quaternion finalOrientation = Quaternion.Slerp(rotations[index].orientation, rotations[nextIndex].orientation, scaleFactor);
-        return Matrix.CreateFromQuaternion(finalOrientation); 
+        return finalOrientation; 
     }
 
-  private  Matrix InterpolateScaling(float animationTime){
+  private  Vector3 InterpolateScaling(float animationTime){
         if(NumScales == 1){
-            return Matrix.CreateScale(scales[0].scale);
+            return scales[0].scale;
         }
         int index = GetScaleIndex(animationTime);
         int nextIndex = index + 1; 
         float scaleFactor = GetScaleFactor(scales[index].timeStamp, scales[nextIndex].timeStamp, animationTime);
         Vector3 finalScale = Vector3.Lerp(scales[index].scale, scales[nextIndex].scale, scaleFactor);
-        return Matrix.CreateScale(finalScale); 
+        return finalScale; 
     }
 }
 
@@ -189,7 +205,7 @@ public class GameAnimation {
     private int numBones;
     private double duration;
     private double ticksPerSecond;
-    private string name; 
+    public string name {get; set;}
     private Matrix globalInverseTransform; 
     private AssimpNodeData rootNode; 
 

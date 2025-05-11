@@ -17,11 +17,11 @@ public class Player : GameModel
     // Private fields:
     // Consts
     private const float NORMAL_SPEED = 3f;
-    private const float STAMINA_REGEN = 3f;
 
     // Variables
     private enum PlayerState
     {
+        Idle,
         NormalMovement,
         Catching,
         HoldingProjectile,
@@ -29,46 +29,52 @@ public class Player : GameModel
         Aiming,
         Stunned,
         Crawling,
-        JumpingWithTheMightyHammerOfTheThousandThunders,
-        DroppingThenNormalMovement,
+        MjoelnirJump,
+        UsingSpear,
         FloatingWithChicken
     }
     private PlayerState playerState;
     private float speed = NORMAL_SPEED;
-    private float stamina = STAMINA_REGEN;
-    private Projectile projectileHeld = null;
+    public Projectile projectileHeld {get; private set;} = null;
     private bool armor = false;
+
+    private bool crawling = false;
+    
+    private bool currentlyCatching = false;
     private float dashTime = 0f,dashSpeed = 12f, flySpeed = 0f;
     private float actionPushedDuration;
     private float stunDuration = 0f;
     private float immunity = 0f;
     private float lastProjectileImmunity = 0f;
-    private float timeSinceStartOfCatch = 0f;
+    private float timeSinceStartOfCatch = 0.0f;
     private float friction = 9f;
+
+    private PlayerState playerWalkingOrIdleBefore;
     private Projectile lastThrownProjectile = null; // Store last thrown projectile
-    private  List<DrawModel> playerModels;
+    private  DrawModel playerModel;
     private readonly DrawModel playerModelShell;
-    private const float CATCH_COOLDOWN = 1.0f;
-    public Input input;
-    private readonly Ellipse ellipse;
+
+    private const float CATCH_COOLDOWN = 1.5f;
+    private readonly Input input;
     private Vector3 inertia,inertiaUp;
     private Vector3 gravity = new(0,-30f,0);
     private bool outside = false;
+    private float timerSpear = 0;
+    private Vector3 positionSpear;
 
-    //private readonly JesterHat jesterHat;
+    private readonly JesterHat jesterHat;
     private readonly AimIndicator aimIndicator;
     private const float speedOfCharging = 2f;
     private PlayerState playerStateBeforeDashing;
+    private readonly Stamina Stamina;
 
     private readonly GameStateManager gameStateManager;
 
-    public Player(Vector3 position, Input input, int id, Ellipse ellipse, List<DrawModel> models, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, float scale) : base(models[id], scale)
+    public Player(Vector3 position, Input input, int id, DrawModel model, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, DrawModel staminaModel, float scale, DrawModel jesterHeadModel) : base(model, scale)
     {
         Position = position;
         Orientation = new Vector3(0, 0, 1f);
         this.input = input;
-        this.ellipse = ellipse;
-        //this.jesterHat = new JesterHat(this, hatModel, scale);
         this.Id = id;
         inertia = new Vector3(0, 0, 0);
         gameStateManager = GameStateManager.GetGameStateManager();
@@ -76,8 +82,10 @@ public class Player : GameModel
         inertiaUp = new Vector3(0, 0, 0);
         aimIndicator = new AimIndicator(this, indicatorModel,indicatorArrowModel, 1f);
         playerState = PlayerState.NormalMovement;
-        playerModels = models;
+        playerModel = model;
+        this.jesterHat = new JesterHat(this,jesterHeadModel,0.5f);
         this.playerModelShell = playerModelShell;
+        this.Stamina = new Stamina(this, staminaModel);
     }
 
     // ---------------------
@@ -85,45 +93,92 @@ public class Player : GameModel
     // ---------------------
     private void Move(float dt)
     {
-        Vector3 dir = input.Direction();
-        //inertia to keep some movement from last update;
-        inertia -= (9f * dt) * inertia;
-        inertiaUp += gravity*dt;
-        if (dir.Length() > 0)
+        // 1. Get and validate input
+        Vector3 displacement = input.Direction();
+
+        if (displacement.LengthSquared() > 0)
         {
-            dir = Vector3.Normalize(dir);
-            inertia += (9f * dt) * dir;
-            // Limit inertia to a vector of length 1
-            if (inertia.Length() > 1f)
-                inertia = Vector3.Normalize(inertia);
+            displacement = Vector3.Normalize(displacement);
+            inertia += (9f * dt) * displacement;
         }
-        // Only update orientation if inertia is not 0
-        if (inertia.Length() > 0)
+
+        if(inertia.LengthSquared() > float.Epsilon)
         {
             Orientation = Vector3.Normalize(inertia);
+            inertia -= (9f * dt) * inertia;
+            if (inertia.LengthSquared() > 1f)
+                inertia = Orientation;
         }
-        // Updating the position of the player
-        Position += speed * inertia * dt + inertiaUp * dt;
-        if(Position.Y<=0)
+
+        
+        // 4. Handle gravity and grounding
+        if (Position.Y <= float.Epsilon) // Small epsilon for floating point precision
         {
-            inertiaUp = new Vector3(0, 0, 0);
             Position = new Vector3(Position.X, 0, Position.Z);
+            inertiaUp = Vector3.Zero;
         }
-        if (outside)
+        else
         {
-            while (ellipse.Inside(Position.X, Position.Z))
-                    Position += ellipse.Normal(Position.X, Position.Z) * dt * -0.1f;
+            inertiaUp += gravity * dt;
+        }
+        
+        Position += (speed * inertia + inertiaUp) * dt;
+
+    if(!crawling && !(playerState == PlayerState.FloatingWithChicken)){
+        if (inertia.LengthSquared() < 0.1)
+        {
+            this.playerWalkingOrIdleBefore = PlayerState.Idle;
+            if(!this.Hand.IsCatching){
+                        
+                playIdleAnimations(0.1f,1.0f);
+            } else {
+                playIdleAnimations(0.07f,1.0f);
+            }
+
+
+        }
+        else
+        {
+            this.playerWalkingOrIdleBefore = PlayerState.NormalMovement;
+
+                if(!this.Hand.IsCatching){
+                        
+                           playWalkingAnimations(0.1f,1.0f);
+            } else {
+                playWalkingAnimations(0.07f,1.0f);
+            }
+
+
         }
     }
+    }
 
-    private void Slide(float dt)
+        private void Slide(float dt)
     {
-        // Inertia to keep some movement from last update;
+        // Apply friction to horizontal movement
         inertia -= (friction * dt) * inertia;
 
-        // Updating the position of the player
-        Position += speed * inertia * dt;
+        // If airborne, apply gravity
+        if (Position.Y > 0)
+        {
+            inertiaUp += gravity * dt;
+            // Update position with both horizontal slide and vertical gravity
+            Position += speed * inertia * dt + inertiaUp * dt;
+            
+            // Ground collision check
+            if (Position.Y <= 0)
+            {
+                Position = new Vector3(Position.X, 0, Position.Z);
+                inertiaUp = Vector3.Zero;
+            }
+        }
+        else
+        {
+            // Standard ground sliding
+            Position += speed * inertia * dt;
+        }
     }
+    
     private void InAir(float dt)
     {
         // Inertia to keep some movement from last update;
@@ -157,6 +212,7 @@ public class Player : GameModel
     {
         if (dashTime > 0f)
         {
+            this.SwitchAnimation(5, false, 0.05f);
             Position += dashSpeed * Orientation * dt;
             dashTime -= dt;
             //Console.WriteLine("Dashing in dash with projectile for: " + dashTime + " and speed: " + dashSpeed);
@@ -169,11 +225,12 @@ public class Player : GameModel
 
     public bool IsCrawling()
     {
+
         return playerState == PlayerState.Crawling;
     }
     // ---------------------
     // End of functions for player movement
-    // Start of private functions to change state of player
+    // Start of private functions to change state of playeraaaw
     // ---------------------
     private void CanCatch()
     {
@@ -186,12 +243,12 @@ public class Player : GameModel
     }
     private void CanDash()
     {
-        if (input.Dash() && stamina >= STAMINA_REGEN)
+        if (input.Dash() && Stamina.Dash())
         {
+
             playerStateBeforeDashing = playerState;
             playerState = PlayerState.Dashing;
             dashTime = 0.1f;
-            stamina = 0f;
             dashSpeed = 12f;
         }
     }
@@ -207,6 +264,7 @@ public class Player : GameModel
     {
         
         float speedUp = 1 + 2 * actionPushedDuration * actionPushedDuration;
+
         //Console.WriteLine("Throwing projectile with orientation: " + Orientation + "and origin:" + this.Position + "and target: " + aimIndicator.Target + " and speedup: " + speedUp);
         //9 is the current maximum of the speedUp
         if (projectileHeld.Action(speedUp/9, aimIndicator.Target, outside))
@@ -218,14 +276,14 @@ public class Player : GameModel
     // Start of public functions to change state of player. Meant to be called by projectile, after a collision
     // ---------------------
     public void LoseLife(){
-        if (gameStateManager.livingPlayers.Count != 1 && immunity <= 0)
+        if (gameStateManager.livingPlayers.Count != 1 && immunity <= 0 && Life > 0)
         {
             input.Vibrate();
             MusicAndSoundEffects.playHitSFX();
             if(armor)
             {
                 armor = false;
-                this.DrawModel = playerModels[0];
+                this.DrawModel = playerModel;
             }
             else
                 Life--;
@@ -239,8 +297,11 @@ public class Player : GameModel
                 }
 
                 // For now the player is moved down to indacet crawling. Later done with an animation
-                Position = Position - new Vector3(0, 0.2f, 0);
                 speed = 1f;
+                        if(!crawling){
+            crawling = true;
+            this.flipModel();
+        }
                 gameStateManager.livingPlayers.Remove(this);
                 playerState = PlayerState.Crawling;
             }
@@ -259,6 +320,7 @@ public class Player : GameModel
         if (!GetAffected(projectile))
             return false;
 
+        playDamageAnimations(0.7f,0.5f);
         LoseLife();
         return true;
     }
@@ -272,6 +334,7 @@ public class Player : GameModel
         // check for general immunity
         return true;
     }
+
     public void StunAndSlip(float stunDuration, float friction) // advised value for normal behaviour is friction = 9f
     {
         Drop();
@@ -287,20 +350,18 @@ public class Player : GameModel
         this.DrawModel = playerModelShell;
         return true;
     }
-    public void StartDashingWithProjectileInHand(float speed)
+    public void UseSpear(float time)
     {
-        dashSpeed = speed;
-        dashTime = actionPushedDuration * speedOfCharging / speed;
-        Console.WriteLine("Dashing with projectile for: " + dashTime + " and speed: " + speed);
-        playerState = PlayerState.Dashing;
-        playerStateBeforeDashing = PlayerState.DroppingThenNormalMovement;
-
+        timerSpear = time;
+        Vector3 orthogonalHolderOrientation = new(-Orientation.Z, Orientation.Y, Orientation.X);
+        positionSpear = Orientation * 0.2f + orthogonalHolderOrientation * 0.2f + new Vector3(0, 0.2f, 0);
+        playerState = PlayerState.UsingSpear;
     }
     public void JumpAndStrike()
     {
         flySpeed = actionPushedDuration * speedOfCharging;
         inertiaUp += new Vector3(0f,15f,0f);
-        playerState = PlayerState.JumpingWithTheMightyHammerOfTheThousandThunders;
+        playerState = PlayerState.MjoelnirJump;
         
     }
     public void FlyWithChicken()
@@ -309,74 +370,105 @@ public class Player : GameModel
         speed = 1.5f;
     }
 
-    public void CatchDrunkMan(DrunkMan drunkMan)
-    {
-        Orientation = Vector3.Normalize(new Vector3(drunkMan.Position.X, 0f, drunkMan.Position.Z) - new Vector3(Position.X, 0f, Position.Z));
-        Drop();
-        playerState = PlayerState.Stunned;
-    }
-
     // ---------------------
     // End of public functions to change state of player. Meant to be called by projectile, after a collision
     // Start of public functions to change state of player. Meant to be called by GameStateManager. Handles mainly collisions
     // ---------------------
-    public void PlayerCollision(Player player)
+    public void OnMobHit(Ellipse ellipse)
     {
-        Vector3 dir = 0.02f * Vector3.Normalize(new Vector3(Position.X - player.Position.X, 0f, Position.Z - player.Position.Z));
-        while (Hitbox.Intersects(player.Hitbox))
+        bool isOutside = ellipse.Outside(Position.X, Position.Z);
+
+        // from outside to inside
+        if(outside && !isOutside)
         {
-            Position += dir;
-            player.Position -= dir;
-            updateHitbox();
-            player.updateHitbox();
+            while (ellipse.Inside(Position.X, Position.Z))
+                    Position += ellipse.Normal(Position.X, Position.Z) * -0.1f;
         }
-    }
-    public void MobCollision(Zombie zombie)
-    {
-        Vector3 dir = 0.02f * Vector3.Normalize(new Vector3(Position.X - zombie.Position.X, 0f, Position.Z - zombie.Position.Z));
-        if (Hitbox.Intersects(zombie.Hitbox))
+        // from inside to outside
+        else if(isOutside && !outside)
         {
-            while (Hitbox.Intersects(zombie.Hitbox))
+            if(playerState == PlayerState.Crawling)
             {
-                Position += dir;
-                updateHitbox();
+                crawling = false;
+                this.flipModel();
+                speed = NORMAL_SPEED;
+                outside = true;
+                playerState = PlayerState.NormalMovement;
             }
-            Orientation = ellipse.Normal(Position.X, Position.Z);
-            inertia = 1.6f * Orientation;
-            StunAndSlip(1f, 9f);
+            else
+            { 
+                if(Position.Y > 0)
+                    speed = NORMAL_SPEED;
+                
+                inertia = 3f * ellipse.Normal(Position.X, Position.Z);
+                StunAndSlip(1f, 9f);
+            }
+        } 
+    }
+
+    public void playWalkingAnimations(float blendfactor,float speed){
+        SwitchAnimation(9, true, blendfactor,0.0f,speed);
+        this.jesterHat.SwitchAnimation(2, true, blendfactor,0.0f,speed);
+    }
+
+    public void playIdleAnimations(float blendfactor,float speed){
+        SwitchAnimation(7, true, blendfactor,0.0f,speed);
+        this.jesterHat.SwitchAnimation(1, true, blendfactor,0.0f,speed);
+    }
+
+
+    private void playDamageAnimations(float blendfactor,float speed){
+        SwitchAnimation(4, true, blendfactor,0.0f,speed);
+        this.jesterHat.SwitchAnimation(0, true, blendfactor,0.0f,speed);
+    }
+
+    public void playDanceAnimations(float blendfactor, float speed){
+        SwitchAnimation(5, true, blendfactor,0.0f,speed);
+        this.jesterHat.SwitchAnimation(0, true, blendfactor,0.0f,speed);
+    }
+
+
+    public void UpdateJesterHatAnimation(float dt){
+        if(jesterHat != null){
+            jesterHat.UpdateAnimation(dt);
         }
     }
 
-    public void ObjectCollision(GameModel obj)
+    public void OnObjectHit(GameModel obj)
     {
         Vector3 dir = 0.02f * Vector3.Normalize(new Vector3(Position.X - obj.Position.X, 0f, Position.Z - obj.Position.Z));
-        while (Hitbox.Intersects(obj.Hitbox))
-        {
-            Position += dir;
-            updateHitbox();
-        }
+        Position += dir;
+        updateHitbox();
     }
+
     // Method to test for a collision with a projectile and potentially grab it:
     public void Catch(Projectile projectile)
     {
+        if (lastProjectileImmunity > 0 && projectile == lastThrownProjectile)
+            return;
+        
+        GameModel prevHolder = projectile.Holder;
+        if(!projectile.Catch(this))
+            return;
+            
         Hand.StopCatching();
+
         projectileHeld = projectile;
-        if(projectile.Holder != null) 
+        if(prevHolder != null) 
         {
-            if(projectile.Holder is Player)
+            if(prevHolder is Player)
             {
-                (projectile.Holder as Player).projectileHeld = null;
-                (projectile.Holder as Player).playerState = PlayerState.NormalMovement;
+                (prevHolder as Player).projectileHeld = null;
+                (prevHolder as Player).playerState = PlayerState.NormalMovement;
             }
-            else if(projectile.Holder is Zombie)
+            else if(prevHolder is Zombie)
             {
-                (projectile.Holder as Zombie).projectileHeld = null;
+                (prevHolder as Zombie).projectileHeld = null;
             }
         }
-        projectile.Catch(this);
+
         MusicAndSoundEffects.playProjectileSFX(projectile.Type);
         playerState = PlayerState.HoldingProjectile;
-        Console.WriteLine("Grabbing " + projectile.Type);
     }
     // Method to tdrop the current projectile
     public void Drop()
@@ -384,19 +476,29 @@ public class Player : GameModel
         if(projectileHeld != null)
         {
             projectileHeld.ToBeDeleted = true;
-            Console.WriteLine("Dropping " + projectileHeld.Type);
+            projectileHeld = null;
         }
-        projectileHeld = null;
+        
         playerState = PlayerState.NormalMovement;
     }
 
-
+    //ANIMATIONS
+    //0: Grabbing
+    //1: Grabbing while walking
+    //2: Overhead Grab
+    //3: Crawling
+    //4: Twitching
+    //5: ChaCha real smooth
+    //6: Dash
+    //7: Idle
+    //8: Throw
+    //9: Walking
     // Update function called each update
     public override void Update(float dt)
     {
         //this cannot overflow
-        stamina += dt;
         input.EndVibrate(dt);
+
 
         switch (playerState)
         {
@@ -406,10 +508,22 @@ public class Player : GameModel
                 CanDash();
                 break;
             case PlayerState.Catching:
+            if(Hand.IsCatching){
+                if(this.playerWalkingOrIdleBefore == PlayerState.NormalMovement){
+                    this.SwitchAnimation(1, false, 0.4f);
+            } else{
+                    this.SwitchAnimation(0, false, 0.4f);
+            }
+               
+            }
+
                 timeSinceStartOfCatch += dt;
                 Move(dt);
-                if (timeSinceStartOfCatch > CATCH_COOLDOWN)
+                if (timeSinceStartOfCatch > CATCH_COOLDOWN){
+
                     playerState = PlayerState.NormalMovement;
+                }
+
                 break;
             case PlayerState.HoldingProjectile:
                 Move(dt);
@@ -419,10 +533,12 @@ public class Player : GameModel
                     CanDash();
                 break;
             case PlayerState.Dashing:
+                playWalkingAnimations(0.2f,4.0f);
                 Dash(dt);
                 break;
             case PlayerState.Aiming:
                 Aim(dt);
+                playIdleAnimations(0.2f,1.0f);
                 if (input.Action())
                 {
                     actionPushedDuration = actionPushedDuration >= 2f ? 2f : actionPushedDuration;
@@ -430,52 +546,57 @@ public class Player : GameModel
                 }
                 else
                 {
+                    if(this.projectileHeld.Type == ProjectileType.Spear){
+                        playWalkingAnimations(0.2f,4.0f);
+                    } else {
+                        SwitchAnimation(8,false,0.2f);
+                    }
+
                     DoActionWithProjectile();
                 }
                 break;
             case PlayerState.Stunned:
+                playDamageAnimations(0.2f,1.0f);
                 Slide(dt);
                 stunDuration -= dt;
                 if (stunDuration < 0f)
                     playerState = (projectileHeld == null) ? PlayerState.NormalMovement : PlayerState.HoldingProjectile;
                 break;
             case PlayerState.Crawling:
+                this.SwitchAnimation(3, true, 0.5f,0.0f, 2.0f);
                 Move(dt);
-                if (ellipse.Outside(Position.X, Position.Z))
-                {
-                    Position = Position + new Vector3(0, 0.2f, 0);
-                    speed = NORMAL_SPEED;
-                    outside = true;
-                    playerState = PlayerState.NormalMovement;
-                }
                 break;
-            case PlayerState.JumpingWithTheMightyHammerOfTheThousandThunders:
+            case PlayerState.MjoelnirJump:
                 InAir(dt);
+                this.SwitchAnimation(6,false, 0.2f,0.5f,2.0f);
                 if(Position.Y<=0)
                 {
-                    inertiaUp = new Vector3(0, 0, 0);
-                    Position = new Vector3(Position.X, 0, Position.Z);
-                    gameStateManager.CreateAreaDamage(projectileHeld.Position,3f,this,ProjectileType.Mjoelnir);
-                    Drop();
+                    inertiaUp = new(0, 0, 0);
+                    Position = new(Position.X, 0, Position.Z);
+                    (projectileHeld as Mjoelnir).Explode();
+                    lastProjectileImmunity = 1f;
+                    lastThrownProjectile = projectileHeld;
+                    projectileHeld = null;
+                    this.animator.cancelBreak();
                     playerState = PlayerState.NormalMovement;
                 }
                 break;
-            case PlayerState.DroppingThenNormalMovement:
-                Drop();
-                playerState = PlayerState.NormalMovement;
-                goto case PlayerState.NormalMovement;
+            case PlayerState.UsingSpear:
+                timerSpear -= dt;
+                if(timerSpear < 0)
+                    Drop();
+                else
+                    Position = projectileHeld.Position - positionSpear;
+                break;
             case PlayerState.FloatingWithChicken:
                 Move(dt);
+                this.SwitchAnimation(2, false, 0.3f, 0.7f, 2.0f);
                 Chicken chicken = projectileHeld as Chicken;
                 Position = new(Position.X, chicken.YCoordinate, Position.Z);
-                if(ellipse.Outside(Position.X, Position.Z))
+                if(chicken.YCoordinate <= 0)
                 {
-                    speed = NORMAL_SPEED;
-                    Drop();
-                }
-                else if(chicken.YCoordinate <= 0)
-                {
-                    Position = new Vector3(Position.X, 0, Position.Z);
+                    this.animator.cancelBreak();
+                    Position = new(Position.X, 0, Position.Z);
                     speed = NORMAL_SPEED;
                     Drop();
                 } 
@@ -485,8 +606,10 @@ public class Player : GameModel
         actionPushedDuration = input.Action() ? actionPushedDuration + dt : 0f;
         immunity -= dt;
         lastProjectileImmunity -= dt;
+
         Hand.updateWrap(dt);
-        //jesterHat.updateWrap(dt);
+        jesterHat.updateWrap(dt);
+        Stamina.Update(dt);
     }
 
     public override void Draw(Matrix view, Matrix projection, Shader shader, GraphicsDevice graphicsDevice, bool shadowDraw)
@@ -501,11 +624,21 @@ public class Player : GameModel
 
         if (shouldDraw) 
         {
+            shader.setFinalBoneMatrices(this.GetFinalBoneMatrices());
             base.Draw(view, projection, shader, graphicsDevice, shadowDraw);
-            Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
-            //jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+
+           //Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+            shader.setFinalBoneMatrices(jesterHat.GetFinalBoneMatrices());
+            if(Life >0){
+                jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+            }
+
         }
+
+        Stamina.Draw(view, shader, graphicsDevice, shadowDraw);
+
         if(playerState == PlayerState.Aiming)
             aimIndicator.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+
     }
 }

@@ -13,7 +13,8 @@ namespace src.GameObjects
         private Player player;
         private const float CATCH_DURATION = 0.25f; 
         private const float CATCH_RADIUS = 0.6f;
-        public Hand(Player player, DrawModel model,float scale) : base(model,scale)
+        private const float HAND_RADIUS = 0.5f; // Radius of the hand
+        public Hand(Player player, DrawModel model, float scale) : base(model,scale, HAND_RADIUS)
         {
             this.player=player;
             OnBody();
@@ -40,13 +41,14 @@ namespace src.GameObjects
         //this needs to be stilla adjusted for hitting yourself
         public override void Update(float dt)
         {
-            if(timeSpentCatching>CATCH_DURATION)
-            {
+            if(timeSpentCatching>CATCH_DURATION || player.projectileHeld != null)
                 StopCatching();
-            }
+            
             if(IsCatching)
                 Move(dt);
-            else OnBody();
+
+            else 
+                OnBody();
         }
         public void StopCatching()
         {

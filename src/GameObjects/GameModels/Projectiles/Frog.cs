@@ -51,12 +51,13 @@ public class Frog : Projectile
             ThrownMove();
         else
             HopMove(dt);
-        
     }
 
     private void ThrownMove()
     {
+        SwitchAnimation(0, true, 0.1f);
         // Calculate horizontal and vertical motion
+
         Vector3 horizontalMotion = Orientation * velocity * MathF.Cos(THROW_ANGLE);
         Vector3 verticalMotion = new Vector3(0, velocity * MathF.Sin(THROW_ANGLE) - HALF_GRAVITY * timeAlive, 0);
 
@@ -66,6 +67,7 @@ public class Frog : Projectile
         // Check if the frog has landed
         if (Position.Y < 0)
         {
+
             beingThrown = false;
             timeAlive = 0f;
             velocity = WALKING_VELOCITY;
@@ -87,6 +89,7 @@ public class Frog : Projectile
 
     private void TurnToPlayer(float dt)
     {
+        SwitchAnimation(0, true, 0.1f);
         Player nearestPlayer = gameStateManager.livingPlayers
             .OrderBy(player => Vector3.DistanceSquared(Position, player.Position))
             .First();
@@ -101,6 +104,7 @@ public class Frog : Projectile
 
     private void Hop(float dt)
     {
+        SwitchAnimation(1, false, 1.0f, 0.0f, 1.5f);
         float jumpProgress = (timeAlive - HOP_TIME) / HOP_TIME;
         float position_y = MathF.Max(0, MathF.Sin(jumpProgress * MathF.PI));
 

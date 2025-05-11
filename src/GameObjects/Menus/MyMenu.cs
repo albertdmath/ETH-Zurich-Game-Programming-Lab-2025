@@ -537,8 +537,9 @@ namespace src.GameObjects{
             menuopen=false;
             
             //STARTMENU SHENANIGANS
-            if(menuStateManager.MAIN_MENU_IS_OPEN){
-                menuStateManager.MAIN_MENU_IS_OPEN=false;
+            if(menuStateManager.START_MENU_IS_OPEN){
+                menuStateManager.START_MENU_IS_OPEN=false;
+                menuStateManager.TRANSITION = true;
                 changegrid = true;
             }
         }

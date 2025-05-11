@@ -21,7 +21,7 @@ namespace src.GameObjects
         // Places hat on head
         private void OnBody()
         {
-            Position = player.Position;
+            Position = player.Position + new Vector3(0f,-0.02f,0f);
             Orientation = player.Orientation;
         }
        

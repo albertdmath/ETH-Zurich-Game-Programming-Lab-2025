@@ -222,6 +222,18 @@
 /processorParam:TextureFormat=Color
 /build:HUD/blue_heart.png
 
+#begin HUD/BOO.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:HUD/BOO.png
+
 #begin HUD/green_heart.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -306,6 +318,18 @@
 /processorParam:TextureFormat=Color
 /build:HUD/main_banner.png
 
+#begin HUD/one.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:HUD/one.png
+
 #begin HUD/pink_heart.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -329,6 +353,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:HUD/tutorial.png
+
+#begin HUD/three.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:HUD/three.png
+
+#begin HUD/two.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:HUD/two.png
 
 #begin HUD/win_message.png
 /importer:TextureImporter

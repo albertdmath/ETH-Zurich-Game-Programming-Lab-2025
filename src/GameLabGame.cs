@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using MLEM.Input;
 using Myra;
 using src.GameObjects;
@@ -22,11 +23,12 @@ namespace GameLab
         private DrawModel arenaModel;
         private List<DrawModel> marketModels = new List<DrawModel>();
         private List<DrawModel> playerModels = new List<DrawModel>();
-        private DrawModel playerModelShell;
+        private List<DrawModel> playerModelShells;
         private DrawModel walkingTurtle;
         private DrawModel barrel2;
 
         private DrawModel playerHandModel;
+        private DrawModel staminaModel;
         private List<DrawModel> indicatorModel = new List<DrawModel>();
 
         private DrawModel jesterAnimated;
@@ -90,6 +92,9 @@ namespace GameLab
 
         // Camera settings
         private Vector3 cameraPosition = new Vector3(0f, 9, 7);
+        private Vector3 cameraPosRadius =  new Vector3(0f, 9, 7);
+        private Vector3 cameraTarget = new Vector3(0, 0, 0.7f);
+        private float cameraRadius;
         private Matrix view = Matrix.CreateLookAt(new Vector3(0f, 9, 7), new Vector3(0, 0, 0.7f), Vector3.Up);
         private Matrix projection = Matrix.CreatePerspectiveFieldOfView(
             MathHelper.ToRadians(45f), // Field of view in radians (e.g., 45 degrees)
@@ -126,16 +131,15 @@ namespace GameLab
             const int size = 4;
             var tex = new Texture2D(device, size, size, false, SurfaceFormat.Color);
             var data = new Color[size * size];
-            var rnd = new Random(12345);  // seed for reproducibility
 
             for (int y = 0; y < size; y++)
             {
                 for (int x = 0; x < size; x++)
                 {
                     // 1) random angle in [0, 2π)
-                    float angle = (float)(rnd.NextDouble() * Math.PI * 2.0);
+                    float angle = Rng.NextFloat(MathF.PI * 2.0f);
                     // 2) random jitter in [0,1]
-                    float jitter = (float)rnd.NextDouble();
+                    float jitter = Rng.NextFloat();
 
                     // encode cos/sin into [0,1]
                     float u = 0.5f + 0.5f * (float)Math.Cos(angle);
@@ -182,7 +186,8 @@ namespace GameLab
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            Vector3 offset = cameraPosition - cameraTarget;
+            cameraRadius = new Vector2(offset.X, offset.Z).Length();
             generateFullScreenVertexBuffer();
             // Load all of the models
             arenaModel = new DrawModel("../../../Content/marketplace.dae", 0.0f, 1.0f, GraphicsDevice);
@@ -190,10 +195,14 @@ namespace GameLab
             playerModels.Add(new DrawModel("../../../Content/Player/player2_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
             playerModels.Add(new DrawModel("../../../Content/Player/player3_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
             playerModels.Add(new DrawModel("../../../Content/Player/player4_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
-        
-            playerModelShell = new DrawModel("../../../Content/Player/player_body_shell.dae", 0.0f, 0.3f, GraphicsDevice);
+            playerModelShells = new List<DrawModel>();
+            playerModelShells.Add(new DrawModel("../../../Content/Player/player1_shell_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
+            playerModelShells.Add(new DrawModel("../../../Content/Player/player2_shell_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
+            playerModelShells.Add(new DrawModel("../../../Content/Player/player3_shell_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
+            playerModelShells.Add(new DrawModel("../../../Content/Player/player4_shell_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
             //jesterAnimated = new DrawModel("../../../Content/Player/chicken_animated.glb", 0.0f, 0.3f, GraphicsDevice);
             playerHandModel = new DrawModel("../../../Content/Player/hand.dae", 0.0f, 0.3f, GraphicsDevice);
+            staminaModel = new DrawModel("../../../Content/Player/dash_semicircle.dae", 0.0f, 0.3f, GraphicsDevice);
 
             indicatorModel.Add(new DrawModel("../../../Content/Player/aim_indicator_player1.dae", 0.0f, 0.3f, GraphicsDevice));
             indicatorModel.Add(new DrawModel("../../../Content/Player/aim_indicator_player2.dae", 0.0f, 0.3f, GraphicsDevice));
@@ -204,10 +213,10 @@ namespace GameLab
             indicatorModel.Add(new DrawModel("../../../Content/Player/aim_arrow_player3.dae", 0.0f, 0.3f, GraphicsDevice));
             indicatorModel.Add(new DrawModel("../../../Content/Player/aim_arrow_player4.dae", 0.0f, 0.3f, GraphicsDevice));
 
-            // playerHatModels.Add(new DrawModel("../../../Content/Player/player1_hat.dae", 0.0f, 0.3f, GraphicsDevice));
-            // playerHatModels.Add(new DrawModel("../../../Content/Player/player2_hat.dae", 0.0f, 0.3f, GraphicsDevice));
-            // playerHatModels.Add(new DrawModel("../../../Content/Player/player3_hat.dae", 0.0f, 0.3f, GraphicsDevice));
-            // playerHatModels.Add(new DrawModel("../../../Content/Player/player4_hat.dae", 0.0f, 0.3f, GraphicsDevice));
+            playerHatModels.Add(new DrawModel("../../../Content/Player/player1hat_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
+            playerHatModels.Add(new DrawModel("../../../Content/Player/player2hat_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
+            playerHatModels.Add(new DrawModel("../../../Content/Player/player3hat_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
+            playerHatModels.Add(new DrawModel("../../../Content/Player/player4hat_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
 
             marketModels.Add(new DrawModel("../../../Content/market_1.dae",0.0f,0.3f, GraphicsDevice));
             marketModels.Add(new DrawModel("../../../Content/market_2.dae",0.0f,0.3f, GraphicsDevice));
@@ -216,7 +225,7 @@ namespace GameLab
 
             mobModels.Add(new DrawModel("../../../Content/mob1.dae", 0.0f, 0.6f, GraphicsDevice));
             mobModels.Add(new DrawModel("../../../Content/mob2.dae", 0.0f, 0.6f, GraphicsDevice));
-            mobModels.Add(new DrawModel("../../../Content/mob3.dae", 0.0f, 0.6f, GraphicsDevice));
+            mobModels.Add(new DrawModel("../../../Content/mob3_animated.glb", 0.0f, 0.6f, GraphicsDevice));
 
             // Load animated models:
             projectileModels.Add(ProjectileType.Banana, new DrawModel("../../../Content/bananapeel_animated_idle.glb", 0.0f, 0.9f, GraphicsDevice));
@@ -253,6 +262,13 @@ namespace GameLab
             playerHats.Add(Content.Load<Texture2D>("HUD/hat2"));
             playerHats.Add(Content.Load<Texture2D>("HUD/hat3"));
             playerHats.Add(Content.Load<Texture2D>("HUD/hat4"));
+
+            List<Texture2D> countdown = new List<Texture2D>();
+            countdown.Add(Content.Load<Texture2D>("HUD/three"));
+            countdown.Add(Content.Load<Texture2D>("HUD/two"));
+            countdown.Add(Content.Load<Texture2D>("HUD/one"));
+            countdown.Add(Content.Load<Texture2D>("HUD/BOO"));
+
 
             hudBackground = Content.Load<Texture2D>("HUD/HUD_background");
             winMessage = Content.Load<Texture2D>("HUD/win_message");
@@ -316,11 +332,11 @@ namespace GameLab
             geometryShader.setOpacityValue(1.0f);
 
             // Initialize gamestate here:
-            gameStateManager.Initialize(arenaModel, marketModels, playerModels, playerModelShell, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels, walkingTurtle, barrel2);
+            gameStateManager.Initialize(arenaModel, marketModels, playerModels, playerModelShells, playerHandModel, indicatorModel, mobModels, areaDamageModels, projectileModels, walkingTurtle, barrel2, staminaModel, playerHatModels);
             gameStateManager.StartNewGame();
 
             _menu = new MyMenu(this, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
-            hud = new HUD(playerHP, playerHats, hudBackground, winMessage, mainBanner, tutorial, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
+            hud = new HUD(playerHP, playerHats, hudBackground, winMessage, countdown, mainBanner, tutorial, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
 
             // Load Sounds:
             MusicAndSoundEffects.loadSFX(Content);
@@ -332,21 +348,20 @@ namespace GameLab
             KeyboardState keyboardState = Keyboard.GetState();
             GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
             _menu.Update(gameTime, keyboardState, _previousKeyboardState, gamePadState, _previousGamePadState);
-            if (_menu.menuisopen())
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (_menu.menuisopen() || menuStateManager.START_MENU_IS_OPEN || menuStateManager.TRANSITION || menuStateManager.COUNTDOWN)
             {
                 _previousKeyboardState = keyboardState;
                 _previousGamePadState = gamePadState;
-                base.Update(gameTime);
+                 gameStateManager.UpdateGame(dt,true);
+                
+
                 return;
-            }
-            if(gameStateManager.GameIsOver() && !menuStateManager.ONWIN){
-                menuStateManager.ONWIN=true;
-                _menu.OpenWinMenu();
             }
 
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            gameStateManager.UpdateGame(dt);
+            gameStateManager.UpdateGame(dt,false);
 
             _previousKeyboardState = keyboardState;
             _previousGamePadState = gamePadState;
@@ -367,6 +382,34 @@ namespace GameLab
                 _graphics.IsFullScreen = menuStateManager.FULLSCREEN;
                 _graphics.ApplyChanges();
             }
+            if(menuStateManager.START_MENU_IS_OPEN){
+                double camX = Math.Sin(gameTime.TotalGameTime.TotalSeconds/2) * this.cameraRadius;
+                double camZ = Math.Cos(gameTime.TotalGameTime.TotalSeconds/2) * this.cameraRadius;
+                cameraPosRadius = new Vector3((float)camX*1.1f*1.2f, 5.5f*1.3f, (float)camZ*1.1f*1.2f);
+                view = Matrix.CreateLookAt(cameraPosRadius, new Vector3(0, 0, 0.7f), Vector3.Up);
+                viewInverse = Matrix.Invert(view);
+            }
+
+            if(menuStateManager.TRANSITION){
+                cameraPosRadius = Vector3.Lerp(cameraPosRadius,cameraPosition,0.05f);
+                view = Matrix.CreateLookAt(cameraPosRadius, new Vector3(0, 0, 0.7f), Vector3.Up);
+                viewInverse = Matrix.Invert(view);
+                float musicVolume = MathHelper.Lerp(MediaPlayer.Volume, 0.0f, 0.01f);
+                MusicAndSoundEffects.angrymobInstance.Volume = MathHelper.Lerp( MusicAndSoundEffects.angrymobInstance.Volume,0.1f,0.01f);
+                MediaPlayer.Volume = musicVolume;
+                if((cameraPosition - cameraPosRadius).Length() < 0.01f){
+                    view =  Matrix.CreateLookAt(cameraPosition, new Vector3(0, 0, 0.7f), Vector3.Up);
+                    viewInverse = Matrix.Invert(view);
+                    menuStateManager.TRANSITION = false;
+                    menuStateManager.COUNTDOWN = true;
+                     MusicAndSoundEffects.angrymobInstance.Volume = 0.1f;
+                     MediaPlayer.Volume = 0.0f;
+
+                }
+                
+            }
+
+            
             //gameStateManager.DepthMapPass(depthMapShader, view, projection, GraphicsDevice, depthMap, _spriteBatch, true);
             gameStateManager.GeometryPass(geometryShader, shadowShader, view, projection, GraphicsDevice, shadowMap, targets, _spriteBatch, false);
             if(menuStateManager.AMBIENT_OCCLUSION_ENABLED){
@@ -374,20 +417,30 @@ namespace GameLab
             gameStateManager.FilterPass(HBAOFilter, HBAOmap, normalMap, posMap, HBAOBlurredMap, GraphicsDevice, fullscreenVertexBuffer, _spriteBatch, false);
             }
             if(menuStateManager.FXAA_ENABLED){
-                gameStateManager.DrawGame(FinalImage,lightingShader, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
+                gameStateManager.DrawGame(FinalImage,lightingShader, view, viewInverse, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
                 gameStateManager.FilterPass(FXAAShader,FinalImage,null,null,null,GraphicsDevice,fullscreenVertexBuffer,_spriteBatch,false);
             } else{
-               gameStateManager.DrawGame(null,lightingShader, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
+               gameStateManager.DrawGame(null,lightingShader, view,viewInverse, GraphicsDevice, fullscreenVertexBuffer, posMap, normalMap, albedoMap, roughnessMetallicMap, shadowMap, HBAOBlurredMap, _spriteBatch, false);
             }
         
-            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            _spriteBatch.Begin(samplerState: SamplerState.AnisotropicClamp);
             GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-            hud.DrawPlayerHud(_spriteBatch);
+            if(menuStateManager.COUNTDOWN){
+                if(hud.DrawCountdown(_spriteBatch, GraphicsDevice, (float)gameTime.ElapsedGameTime.TotalSeconds)){
+                    menuStateManager.COUNTDOWN = false;
+                    MusicAndSoundEffects.playBackgroundMusic();
+                }
+            }
+            if(!menuStateManager.COUNTDOWN && !menuStateManager.TRANSITION && !menuStateManager.START_MENU_IS_OPEN){
+                        hud.DrawPlayerHud(_spriteBatch);
             if(hud.DrawWin(_spriteBatch, GraphicsDevice)){
+                _menu.OpenMenu();
                 //_menu.OpenWinMenu();YEAH THIS IS AS RETARDED AS IT LOOKS
                 foreach(Player player in gameStateManager.players) {
                     player.input.EndVibrate(1f);
                 }
+            }
+            
             }
             // Draw menu
             hud.DrawBanner(_spriteBatch, GraphicsDevice);
@@ -401,7 +454,7 @@ namespace GameLab
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap; // or whatever your 3D renderer expects
+            GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp; // or whatever your 3D renderer expects
             GraphicsDevice.SetRenderTarget(null); // go back to backbuffer
 
             base.Draw(gameTime);

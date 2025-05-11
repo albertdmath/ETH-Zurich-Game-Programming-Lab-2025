@@ -29,23 +29,23 @@ public class Projectile : GameModel
         { ProjectileType.Spear, 0.1f },
         { ProjectileType.Swordfish, 0.1f },
         { ProjectileType.Tomato, 0.1f },
-        { ProjectileType.Turtle, 0.1f },
+        { ProjectileType.Turtle, 0.7f },
         { ProjectileType.Chicken, 0.1f },
         { ProjectileType.Barrel, 0.1f }
     };
 
     // Projectile properties
     public ProjectileType Type { get; private set; }
-    public GameModel Holder { get; private set; } = null;
+    public GameModel Holder { get; protected set; } = null;
     public bool ToBeDeleted { get; set; } = false;
     public IndicatorModels IndicatorModel { get; private set; }
 
     protected static readonly GameStateManager gameStateManager = GameStateManager.GetGameStateManager();
     protected float velocity;
 
-    private readonly float height;
+    protected readonly float height;
 
-    public Projectile(ProjectileType type, DrawModel model, float scaling, float height, IndicatorModels indicatorModel) : base(model, scaling) 
+    public Projectile(ProjectileType type, DrawModel model, float scaling, float height, IndicatorModels indicatorModel, float radius = -1) : base(model, scaling, radius) 
     {
         this.height = height;
         this.Type = type;
@@ -55,29 +55,30 @@ public class Projectile : GameModel
     // Hit detection for the projectile
     public virtual void OnPlayerHit(Player player) 
     {             
-        ToBeDeleted = ToBeDeleted || player.GetHit(this);  
+        ToBeDeleted = player.GetHit(this);  
     }
 
-    public virtual void OnGroundHit()
+    public virtual void OnGroundHit(bool touching)
     {
-        ToBeDeleted = true;
+        ToBeDeleted = touching;
     }
 
-    public virtual void OnMobHit() {}
+    public virtual void OnMobHit(Ellipse ellipse) {}
 
     public virtual void OnProjectileHit(Projectile projectile) {}
 
     // Catching and throwing the projectile
-    public virtual void Catch(GameModel player) 
+    public virtual bool Catch(GameModel player) 
     { 
-        Holder = player; 
+        Holder = player;
+        return true; 
     }
 
     public virtual void Throw(Vector3 target) 
     {
-        Holder = null;
-        Orientation = Vector3.Normalize(new Vector3(target.X, 0f, target.Z) - new Vector3(Position.X, 0f, Position.Z));
+        Orientation = Vector3.Normalize(new Vector3(target.X, 0f, target.Z) - new Vector3(Holder.Position.X, 0f, Holder.Position.Z));
         Position += new Vector3(0f, height, 0f);
+        Holder = null;
     }
  
     public virtual bool Action(float chargeUp, Vector3 aimPoint, bool isOutside) 
@@ -101,9 +102,9 @@ public class Projectile : GameModel
         else 
         {
             // Ensures projectile is held in right hand for a more realistic look:
-            Vector3 orthogonalHolderOrientation = new(-Holder.Orientation.Z, Holder.Orientation.Y, Holder.Orientation.X);
-            Position = Holder.Position + orthogonalHolderOrientation * 0.2f + new Vector3(0,0.2f,0);
             Orientation = Holder.Orientation;
+            Vector3 orthogonalHolderOrientation = new(-Orientation.Z, Orientation.Y, Orientation.X);
+            Position = Holder.Position + orthogonalHolderOrientation * 0.2f + new Vector3(0,0.2f,0);
         }
     }
 }

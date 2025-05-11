@@ -11,23 +11,26 @@ public class GameModel
     public Vector3 Position { get; set; }
     public Vector3 Orientation { get; set; }
     public DrawModel DrawModel { get; set; }
+
+    public bool flipped { get; set; } = false;
     public Hitbox Hitbox { get; set; }
     public Matrix Transform { get; set; }
+    public Matrix Scaling { get; set; }
 
     public bool hasAnimation {get; set;} = false;
 
     public Animator animator {get; set;} = null;
     public List<GameAnimation> animations {get; set;}
-    protected Matrix Scaling;
 
     private Matrix[] boneMatrices = new Matrix[100];
 
-    public GameModel(DrawModel model, float scale)
+    public GameModel(DrawModel model, float scale, float radius = -1)
     {
         DrawModel = model;
         Scaling = Matrix.CreateScale(scale);
         CalculateTransform();
-        Hitbox = new Hitbox(this.DrawModel, Transform);
+        Hitbox = (radius == -1) ? new OBB(this.DrawModel, Transform) : new Sphere(Position, radius);
+        
         this.animations = new List<GameAnimation>();
          for (int i = 0; i < 100; i++){
             this.boneMatrices[i] = Matrix.Identity;
@@ -35,18 +38,16 @@ public class GameModel
         if(model.hasAnimations){
             hasAnimation = true; 
             for(int i = 0; i < model.scene.AnimationCount; i++){
-                GameAnimation anim = new GameAnimation("Animation " +i, model.scene.Animations[i], model.scene, model);
+                GameAnimation anim = new("Animation " +i, model.scene.Animations[i], model.scene, model);
                 animations.Add(anim);
             }
             this.animator = new Animator(animations[0], true);
         }
-
-
-    }
-    public void UpdateScale(float scale){
-        Scaling = Matrix.CreateScale(scale,1f,scale);
     }
 
+    public void flipModel(){
+        flipped = !flipped;
+    }
     public void UpdateAnimation(float dt){
         if(this.animator != null){
             this.animator.UpdateAnimation(dt);
@@ -61,27 +62,49 @@ public class GameModel
     
     }
 
+    public void SetAnimation(int index, bool loop = false){
+          if(this.animator != null && index < animations.Count){
+            this.animator.SetAnimation(animations[index], loop);
+        } 
+    }
 
-    public void SwitchAnimation(int index, bool loop = false){
+    public void SwitchAnimation(int index, bool loop = false,  float blendSpeed = 0.0001f, float breakPoint = 0.0f, float speed = 1.0f){
         if(this.animator != null && index < animations.Count){
-            this.animator.PlayAnimation(animations[index], loop);
+            this.animator.SwitchAnimation(animations[index], loop,blendSpeed, breakPoint,speed);
         } 
     }
 
     protected void CalculateTransform()
     {
-        Transform = Scaling * Matrix.CreateRotationY(MathF.Atan2(-1f * Orientation.X, -1f * Orientation.Z)) * Matrix.CreateTranslation(Position);
+        Matrix flatten = flipped
+        ? Matrix.CreateRotationX(-MathF.PI * 0.5f)   // –90° about X
+        : Matrix.Identity;
+
+        float height = flipped ? Position.Y + 0.1f : Position.Y;
+        Vector3 NewPos = new Vector3(Position.X,height,Position.Z); // Adjust Y position to avoid clipping with the ground
+        Transform = Scaling * flatten * Matrix.CreateRotationY(MathF.Atan2(-Orientation.X, -Orientation.Z)) *   Matrix.CreateTranslation(NewPos);
+    
     }
-    public void updateWrap(float dt)
+
+    public virtual void updateWrap(float dt)
     {
         Update(dt);
         updateHitbox();
     }
+    
     public void updateHitbox()
     {
-        CalculateTransform();
-        Hitbox.Transform(Transform);
+        if (Hitbox is OBB obb)
+        {
+            CalculateTransform();
+            obb.Transform(Transform);
+        }
+        else if (Hitbox is Sphere sphere)
+        {
+            sphere.Transform(Position);
+        }
     }
+    
     public virtual void Update(float dt) { }
 
     public virtual void Draw(Matrix view, Matrix projection, Shader shader, GraphicsDevice graphicsDevice, bool shadowDraw)
@@ -109,30 +132,9 @@ public class GameModel
                     baseVertex: 0,
                     startIndex: 0,
                     primitiveCount: mesh.indices.Count / 3
-                );
-
-               
+                ); 
             }
         }
     }
-
-    
-    // public virtual void Draw(Matrix view, Matrix projection, Shader shader, GraphicsDevice graphicsDevice, bool shadowDraw){
-    //     CalculateTransform();
-    //     int i = 0; 
-    //     foreach (ModelMesh mesh in DrawModel.model.Meshes)
-    //     {
-    //         foreach(ModelMeshPart part in mesh.MeshParts){
-    //             part.Effect = shader.effect; 
-    //            shader.setWorldMatrix(Transform);
-
-    //             if(!shadowDraw){
-    //             shader.setTexture(this.DrawModel.textures[i]);
-    //             }
-    //         }
-    //         i++;
-    //         mesh.Draw();
-    //     }
-    // }
 }
 
