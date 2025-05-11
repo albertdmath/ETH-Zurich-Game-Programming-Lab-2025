@@ -26,11 +26,14 @@ namespace src.GameObjects{
         private Element UiRoot => this.UiSystem.Get("Demo").Element;
         private SpriteBatch SpriteBatch;
         public InputHandler InputHandler;
-        public Menu(GameLabGame game, SpriteBatch _spriteBatch, InputHandler InputHandler, GraphicsDevice graphicsDevice){
+
+        private MusicAndSoundEffects musicAndSoundEffects;
+        public Menu(GameLabGame game, SpriteBatch _spriteBatch, InputHandler InputHandler, GraphicsDevice graphicsDevice, MusicAndSoundEffects musicAndSoundEffects){
             this.game = game;
             this.SpriteBatch = _spriteBatch;
             this.InputHandler = InputHandler;
             this.GraphicsDevice = graphicsDevice;
+            this.musicAndSoundEffects = musicAndSoundEffects;
         }
 
         public void LoadContent() {

@@ -26,6 +26,7 @@ public class MusicAndSoundEffects
 
     // Backing track:
     private static Song bgMusic;
+    private static Song mainMenuMusic;
     private static MenuStateManager menuStateManager;
 
     public static void loadSFX(Microsoft.Xna.Framework.Content.ContentManager Content) {
@@ -51,14 +52,15 @@ public class MusicAndSoundEffects
         
         // Loading the background music:
         bgMusic = Content.Load<Song>("Audio/EpicMedievalVibes");
+        mainMenuMusic = Content.Load<Song>("Audio/MainMenuMusic");
+        // Loading the main menu music
 
         menuStateManager = MenuStateManager.GetMenuStateManager();
 
         if(menuStateManager.SOUND_ENABLED) {//SENSE
             MediaPlayer.Volume = 0.45f;
             MediaPlayer.IsRepeating = true;
-            MediaPlayer.Play(bgMusic);
-            angrymobInstance.Play();
+            MediaPlayer.Play(mainMenuMusic);
         }
     }
 
@@ -81,6 +83,28 @@ public class MusicAndSoundEffects
         if(menuStateManager.SOUND_ENABLED)
             hitSFX.Play(0.1f*VOLUME, 0.0f, 0.0f);
     }
+
+    public static void playBackGroundMusic() {
+        if(menuStateManager.SOUND_ENABLED) {//SENSE
+            MediaPlayer.Volume = 0.45f;
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(bgMusic);
+            angrymobInstance.Play();
+        }
+    }
+
+      public static void playMainMenuMusic() {
+        if(menuStateManager.SOUND_ENABLED)
+        {
+            angrymobInstance.Stop();
+            MediaPlayer.Stop();
+            MediaPlayer.Volume = 0.45f;
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(mainMenuMusic);
+        }
+    }
+
+    
 
     public static void playProjectileSFX(ProjectileType type) {
         // For anyone reading, "Play" function takes 3 parameters: volume, pitch, pan.
