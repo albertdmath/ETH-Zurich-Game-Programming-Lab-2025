@@ -13,6 +13,7 @@ using System.Reflection.Metadata;
 using Myra.Graphics2D.Brushes;
 using FontStashSharp;
 using System.Linq.Expressions;
+using Microsoft.Xna.Framework.Media;
 
 namespace src.GameObjects{
     public class MySpinbutton : MyMenuElement{
@@ -189,6 +190,7 @@ namespace src.GameObjects{
                     menuStateManager.NUM_PLAYERS=VALUE;
                                   if(!menuStateManager.MAIN_MENU_IS_OPEN){
                                                             menuStateManager.TRANSITION = true;
+                                                                                MusicAndSoundEffects.LAST_VOLUME = MediaPlayer.Volume;
                         menuStateManager.COUNTDOWN = false;
                     }
                     gameStateManager.StartNewGame();
@@ -298,6 +300,7 @@ namespace src.GameObjects{
                     menuStateManager.NUM_PLAYERS=VALUE;
                     if(!menuStateManager.MAIN_MENU_IS_OPEN){
                                                 menuStateManager.TRANSITION = true;
+                                                                MusicAndSoundEffects.LAST_VOLUME = MediaPlayer.Volume;
                         menuStateManager.COUNTDOWN = false;
                     }
                     gameStateManager.StartNewGame();
@@ -367,6 +370,7 @@ namespace src.GameObjects{
                     menuStateManager.NUM_PLAYERS=VALUE;
                                    if(!menuStateManager.MAIN_MENU_IS_OPEN){
                                                 menuStateManager.TRANSITION = true;
+                                                                MusicAndSoundEffects.LAST_VOLUME = MediaPlayer.Volume;
                         menuStateManager.COUNTDOWN = false;
                     }
                     gameStateManager.StartNewGame();
@@ -398,6 +402,7 @@ namespace src.GameObjects{
                     menuStateManager.NUM_PLAYERS=VALUE;
                     if(!menuStateManager.MAIN_MENU_IS_OPEN){
                         menuStateManager.TRANSITION = true;
+                                        MusicAndSoundEffects.LAST_VOLUME = MediaPlayer.Volume;
                         menuStateManager.COUNTDOWN = false;
                     }
                     gameStateManager.StartNewGame();
