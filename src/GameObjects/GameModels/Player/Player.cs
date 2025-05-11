@@ -437,9 +437,8 @@ public class Player : GameModel
                 CanDash();
                 break;
             case PlayerState.Catching:
-                this.SwitchAnimation(0, true, 0.2f);
+                this.SwitchAnimation(0, false, 0.2f);
                 timeSinceStartOfCatch += dt;
-                this.SwitchAnimation(0,false,0.3f);
                 Move(dt);
                 if (timeSinceStartOfCatch > CATCH_COOLDOWN)
                     playerState = PlayerState.NormalMovement;
@@ -543,7 +542,7 @@ public class Player : GameModel
         {
             shader.setFinalBoneMatrices(this.GetFinalBoneMatrices());
             base.Draw(view, projection, shader, graphicsDevice, shadowDraw);
-            //Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+            Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
             shader.setFinalBoneMatrices(jesterHat.GetFinalBoneMatrices());
             jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
         }
