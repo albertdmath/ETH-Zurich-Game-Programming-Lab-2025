@@ -196,7 +196,13 @@ namespace src.GameObjects
             if(MainMenuMode)
             {
                 foreach(Player player in players){
-                player.playDanceAnimations(1.0f,1.0f);
+                    if(!menuStateManager.COUNTDOWN ){
+                        player.playDanceAnimations(1.0f,1.0f);
+
+                    } else {
+                        player.playIdleAnimations(0.1f,1.0f);
+                    }
+
                 player.UpdateJesterHatAnimation(dt);
                 player.UpdateAnimation(dt);
                 }

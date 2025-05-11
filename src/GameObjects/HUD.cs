@@ -17,10 +17,15 @@ public class HUD
     private List<Texture2D> playerHats; // hat models for fashion
     private Texture2D hudBackground; // backdrop, might need to be changed cause idk color theory
     private Texture2D winMessage;
-    int screenWidth;
+
+List<Texture2D> countdown = new List<Texture2D>();
+
+    private float timePassed = 0;
+
+        int screenWidth;
     int screenHeight;
     private List<Vector2> offsets = new List<Vector2>(); // we put the 4 corner positions as offsets in here
-    public HUD(List<Texture2D> playerHP, List<Texture2D> playerHats, Texture2D hudBackground, Texture2D winMessage, int screenWidth, int screenHeight) 
+    public HUD(List<Texture2D> playerHP, List<Texture2D> playerHats, Texture2D hudBackground, Texture2D winMessage,  List<Texture2D> countdown, int screenWidth, int screenHeight) 
     {
         this.playerHP = playerHP;
         this.playerHats = playerHats;
@@ -32,6 +37,7 @@ public class HUD
         offsets.Add(new Vector2(screenWidth - 4300*menuStateManager.HUD_SCALE,40));
         offsets.Add(new Vector2(50, screenHeight - 200));
         offsets.Add(new Vector2(screenWidth - 4300*menuStateManager.HUD_SCALE, screenHeight-200));
+        this.countdown = countdown;
     }
 
     // Draws the player HUD depending on the number of players, 
@@ -49,6 +55,53 @@ public class HUD
                 spriteBatch.Draw(playerHP[i], offsets[i] + new Vector2(600*menuStateManager.HUD_SCALE*j + 466*menuStateManager.HUD_SCALE, 0), null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE, SpriteEffects.None, 0f);
             }
         }
+    }
+
+    public bool DrawCountdown(SpriteBatch spriteBatch, GraphicsDevice graphics, float dt){
+        
+            // Get a random ass texture so we use it as background for the backdrop
+            Texture2D pixel = new Texture2D(graphics, 1, 1);
+            pixel.SetData(new[] { Color.White });
+
+            Rectangle backgroundRectangle = new Rectangle(
+                0,
+                screenHeight/3-250,
+                screenWidth,
+                400
+            );
+            timePassed += dt;
+            
+            if(timePassed < 1){
+                       // Black transparent backdrop
+            spriteBatch.Draw(pixel, backgroundRectangle, Color.Transparent);
+            spriteBatch.Draw(countdown[0], new Vector2(screenWidth/2 - 600, screenHeight/3 - 400), Color.White); 
+            // Draw player hat of the correct color so people know *who* won
+            return false;
+            } else if( timePassed >= 1 && timePassed <2){
+            // Black transparent backdrop
+            spriteBatch.Draw(pixel, backgroundRectangle, Color.Transparent);
+
+            spriteBatch.Draw(countdown[1], new Vector2(screenWidth/2 - 600, screenHeight/3 - 400), Color.White); 
+            // Draw player hat of the correct color so people know *who* won
+
+            return false;
+            } else if (timePassed >= 2 && timePassed <3){
+            // Black transparent backdrop
+            spriteBatch.Draw(pixel, backgroundRectangle, Color.Transparent);
+
+            spriteBatch.Draw(countdown[2], new Vector2(screenWidth/2 - 600, screenHeight/3 - 400), Color.White); 
+            return false;
+            } else  if (timePassed >= 3 && timePassed <4){
+                  spriteBatch.Draw(pixel, backgroundRectangle, Color.Transparent);
+
+            spriteBatch.Draw(countdown[3], new Vector2(screenWidth/2 - 600, screenHeight/3 - 400), Color.White); 
+                return false;
+            }    else {
+                return true;
+            }
+          
+
+
     }
 
 

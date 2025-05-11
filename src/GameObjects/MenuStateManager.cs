@@ -12,6 +12,8 @@ namespace src.GameObjects
         public int NUM_PLAYERS { get ; set; } = 2;
         public int MAX_NUM_PLAYER {get;} = 4;
         public int MIN_NUM_PLAYER {get;} = 1;
+
+        public bool COUNTDOWN {get; set;} = false;
         //GRAPHX SETTINGS
         public bool SHADOWS_ENABLED { get ; set; } = true;
         public bool AMBIENT_OCCLUSION_ENABLED{get;set;}= true;

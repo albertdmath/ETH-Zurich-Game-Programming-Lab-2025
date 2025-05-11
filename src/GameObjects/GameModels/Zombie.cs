@@ -47,7 +47,7 @@ namespace src.GameObjects
                 Position += ellipse.Normal(Position.X,Position.Z) * dt * -0.1f;
             }
 
-            if(Vector3.Distance(oldPosition, Position) < 0.005f)
+            if(Vector3.Distance(oldPosition, Position) < 0.00175f)
             {
                 SwitchAnimation(0,true,0.1f);
             } else {

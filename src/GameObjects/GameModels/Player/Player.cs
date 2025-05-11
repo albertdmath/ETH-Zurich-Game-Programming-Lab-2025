@@ -405,12 +405,12 @@ public class Player : GameModel
         } 
     }
 
-    private void playWalkingAnimations(float blendfactor,float speed){
+    public void playWalkingAnimations(float blendfactor,float speed){
         SwitchAnimation(9, true, blendfactor,0.0f,speed);
         this.jesterHat.SwitchAnimation(2, true, blendfactor,0.0f,speed);
     }
 
-    private void playIdleAnimations(float blendfactor,float speed){
+    public void playIdleAnimations(float blendfactor,float speed){
         SwitchAnimation(7, true, blendfactor,0.0f,speed);
         this.jesterHat.SwitchAnimation(1, true, blendfactor,0.0f,speed);
     }

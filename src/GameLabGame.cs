@@ -262,6 +262,13 @@ namespace GameLab
             playerHats.Add(Content.Load<Texture2D>("HUD/hat3"));
             playerHats.Add(Content.Load<Texture2D>("HUD/hat4"));
 
+            List<Texture2D> countdown = new List<Texture2D>();
+            countdown.Add(Content.Load<Texture2D>("HUD/three"));
+            countdown.Add(Content.Load<Texture2D>("HUD/two"));
+            countdown.Add(Content.Load<Texture2D>("HUD/one"));
+            countdown.Add(Content.Load<Texture2D>("HUD/BOO"));
+
+
             hudBackground = Content.Load<Texture2D>("HUD/HUD_background");
             winMessage = Content.Load<Texture2D>("HUD/win_message");
             viewInverse = Matrix.Invert(view);
@@ -324,7 +331,7 @@ namespace GameLab
             gameStateManager.StartNewGame();
 
             _menu = new MyMenu(this, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
-            hud = new HUD(playerHP, playerHats, hudBackground, winMessage, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
+            hud = new HUD(playerHP, playerHats, hudBackground, winMessage, countdown, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
 
             // Load Sounds:
             MusicAndSoundEffects.loadSFX(Content);
@@ -337,7 +344,7 @@ namespace GameLab
             GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
             _menu.Update(gameTime, keyboardState, _previousKeyboardState, gamePadState, _previousGamePadState);
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (_menu.menuisopen() || menuStateManager.START_MENU_IS_OPEN || menuStateManager.TRANSITION)
+            if (_menu.menuisopen() || menuStateManager.START_MENU_IS_OPEN || menuStateManager.TRANSITION || menuStateManager.COUNTDOWN)
             {
                 _previousKeyboardState = keyboardState;
                 _previousGamePadState = gamePadState;
@@ -389,12 +396,15 @@ namespace GameLab
                     view =  Matrix.CreateLookAt(cameraPosition, new Vector3(0, 0, 0.7f), Vector3.Up);
                     viewInverse = Matrix.Invert(view);
                     menuStateManager.TRANSITION = false;
+                    menuStateManager.COUNTDOWN = true;
                      MusicAndSoundEffects.angrymobInstance.Volume = 0.1f;
                      MediaPlayer.Volume = 0.0f;
-                     MusicAndSoundEffects.playBackgroundMusic();
+
                 }
                 
             }
+
+            
             //gameStateManager.DepthMapPass(depthMapShader, view, projection, GraphicsDevice, depthMap, _spriteBatch, true);
             gameStateManager.GeometryPass(geometryShader, shadowShader, view, projection, GraphicsDevice, shadowMap, targets, _spriteBatch, false);
             if(menuStateManager.AMBIENT_OCCLUSION_ENABLED){
@@ -410,10 +420,20 @@ namespace GameLab
         
             _spriteBatch.Begin(samplerState: SamplerState.AnisotropicClamp);
             GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-            hud.DrawPlayerHud(_spriteBatch);
+            if(menuStateManager.COUNTDOWN){
+                if(hud.DrawCountdown(_spriteBatch, GraphicsDevice, (float)gameTime.ElapsedGameTime.TotalSeconds)){
+                    menuStateManager.COUNTDOWN = false;
+                    MusicAndSoundEffects.playBackgroundMusic();
+                }
+            }
+            if(!menuStateManager.COUNTDOWN && !menuStateManager.TRANSITION && !menuStateManager.START_MENU_IS_OPEN){
+                        hud.DrawPlayerHud(_spriteBatch);
             if(hud.DrawWin(_spriteBatch, GraphicsDevice)){
                 _menu.OpenMenu();
             }
+            
+            }
+
             // Draw menu
             
 
