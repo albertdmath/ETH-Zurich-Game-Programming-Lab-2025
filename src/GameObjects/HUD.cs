@@ -82,12 +82,6 @@ List<Texture2D> countdown = new List<Texture2D>();
             Texture2D pixel = new Texture2D(graphics, 1, 1);
             pixel.SetData(new[] { Color.White });
 
-            Rectangle backgroundRectangle = new Rectangle(
-                0,
-                screenHeight/5,
-                screenWidth,
-                800
-            );
 
             // Black transparent backdrop
             //spriteBatch.Draw(pixel, backgroundRectangle, Color.Black * 0.45f);
@@ -163,7 +157,7 @@ List<Texture2D> countdown = new List<Texture2D>();
                 0,
                 screenHeight/5,
                 screenWidth,
-                800
+                (int) (800 * (screenWidth/2560.0f))
             );
 
             // Black transparent backdrop
@@ -171,8 +165,8 @@ List<Texture2D> countdown = new List<Texture2D>();
             // Winning message, just did a png cause it's easier to design this way
             spriteBatch.Draw(winMessage, new Vector2(screenWidth/2 - 800, screenHeight/3 - 300), Color.White); 
             // Draw player hat of the correct color so people know *who* won
-            spriteBatch.Draw(playerHats[gameStateManager.livingPlayers[0].Id],  new Vector2(screenWidth/2 + 200, screenHeight/3-100), null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE*4, SpriteEffects.None, 0f);
-            spriteBatch.Draw(playerHats[gameStateManager.livingPlayers[0].Id],  new Vector2(screenWidth/2 - 1450, screenHeight/3-100), null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE*4, SpriteEffects.None, 0f);
+            spriteBatch.Draw(playerHats[gameStateManager.livingPlayers[0].Id],  new Vector2(screenWidth/2 + (250* (screenWidth/2560.0f)), screenHeight/3-100), null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE*4 * (screenWidth/2560.0f), SpriteEffects.None, 0f);
+            spriteBatch.Draw(playerHats[gameStateManager.livingPlayers[0].Id],  new Vector2(screenWidth/2 - (1450* (screenWidth/2560.0f)), screenHeight/3-100), null, Color.White, 0f, Vector2.Zero, menuStateManager.HUD_SCALE*4* (screenWidth/2560.0f), SpriteEffects.None, 0f);
             return true;
         }
         return false;
