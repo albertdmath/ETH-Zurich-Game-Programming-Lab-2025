@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using Accord.Math.Distances;
 using Microsoft.Xna.Framework;
 
@@ -16,9 +17,21 @@ public class Animator
     bool _nextLoop;
     bool _ended;
 
+    bool _stopped;
+
     bool _breakPoint = false;
     float breakTime;
     float deltaTime;
+
+
+    bool _nextStopped;
+
+    float nextBreakTime;
+
+
+
+    float speed; 
+    float nextSpeed;
 
     private GameAnimation animation;
 
@@ -44,7 +57,14 @@ public class Animator
         this._breakPoint = false;
         this.breakTime = 0.0f;
         this.blendFactor = 1.0f;
+        this._stopped = false;
         this.blendSpeed = 0.0f;
+
+        this.speed = 1.0f;
+        this.nextSpeed = 1.0f;
+
+        this._nextStopped = false;
+        this.nextBreakTime = 0.0f;
         for (int i = 0; i < 100; i++)
         {
             finalBoneMatrices[i] = Matrix.Identity;
@@ -67,21 +87,35 @@ public class Animator
         this.currentTimeNextAnim = 0.0f;
         this.blendFactor = 1.0f; 
         this.blendSpeed = 0.0f;
+        _stopped = _nextStopped;
+        this.breakTime = nextBreakTime;
+        nextBreakTime = 0.0f;
+        _nextStopped = false;
         this._loop = _nextLoop;
+        this.speed = nextSpeed;
+        this.nextSpeed = 1.0f;
+        _nextLoop = false;
+
     }
 
     public void UpdateAnimation(float dt)
     {
-        deltaTime = dt;
+        deltaTime = dt * speed;
         if (animation != null)
         {
-            if(_breakPoint && currentTime > animation.GetDuration()*breakTime){
-                return;
-            }
-            currentTime += animation.GetTicksPerSecond() * dt;
+            if(!_stopped){
+                currentTime += animation.GetTicksPerSecond() * deltaTime;
+
+                if(breakTime > 0.0f){
+                    var s = 0;
+                }
+                if(breakTime > 0.0f && currentTime > animation.GetDuration() * breakTime){
+                    _stopped = true;    
+                }
+
             if (this.nextAnimation != null)
             {
-                this.currentTimeNextAnim += nextAnimation.GetTicksPerSecond() * dt;
+                this.currentTimeNextAnim += nextAnimation.GetTicksPerSecond() * deltaTime;
 
                 if (_nextLoop)
                 {
@@ -96,7 +130,9 @@ public class Animator
             else
             {
                 currentTime = MathHelper.Min((float)currentTime, ((float)animation.GetDuration()) - 0.01f);
+                if(this.nextAnimation != null && !_nextLoop){
                 this.currentTimeNextAnim = MathHelper.Min((float)this.currentTimeNextAnim, ((float)nextAnimation.GetDuration()) - 0.01f);
+                }
                 if (currentTime == animation.GetDuration() - 0.01f )
                 {
                     if (this.nextAnimation != null)
@@ -120,12 +156,15 @@ public class Animator
             {
                 finalizeAnimationSwitch();
             }
+            }
+         
         }
     }
 
+
     public void cancelBreak(){
-        if(_breakPoint){
-            _breakPoint = false; 
+        if(_stopped){
+            _stopped = false; 
             breakTime = 0.0f;
         }
     }
@@ -181,38 +220,29 @@ public class Animator
         return finalBoneMatrices;
     }
 
-    public void SwitchAnimation(GameAnimation animation, bool loop,  float blendSpeed = 0.0001f,float breakPoint = 0.0f)
+    public void SwitchAnimation(GameAnimation animation, bool loop,  float blendSpeed = 0.0001f, float breakPoint = 0.0f, float speed = 1.0f)
     {
         if(this.nextAnimation == null && animation.name != this.animation.name){
         this.nextAnimation = animation;
         this.totalTimeNextAnim = this.nextAnimation.GetDuration();
-        if(breakPoint > 0.0f){
-            this._breakPoint = true; 
-            breakTime = breakPoint;
-        } else {
-            this._breakPoint = false;
-            breakTime = 0.0f;
-        }
         this.currentTimeNextAnim = 0.0f;
+        this.nextSpeed = speed;
         blendFactor = 1.0f;
+        if(breakPoint > 0.0f){
+            nextBreakTime = breakPoint;
+        }
         _ended = false;
         _nextLoop = loop;
         this.blendSpeed = blendSpeed;
         }
     }
 
-    public void SetAnimation(GameAnimation animation, bool loop, float breakPoint = 0.0f)
+    public void SetAnimation(GameAnimation animation, bool loop)
     {
         this.animation = animation;
         currentTime = 0.0f;
         _ended = false;
-        if(breakPoint > 0.0f){
-            this._breakPoint = true; 
-            breakTime =breakPoint;
-        } else {
-            this._breakPoint = false;
-            breakTime = 0.0f;
-        }
+
         for (int i = 0; i < 100; i++)
         {
             finalBoneMatrices[i] = Matrix.Identity;

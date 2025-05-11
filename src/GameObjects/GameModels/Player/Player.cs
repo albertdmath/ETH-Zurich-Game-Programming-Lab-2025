@@ -74,7 +74,7 @@ public class Player : GameModel
         Hand = new Hand(this, playerHandModel, 0.6f);
         inertiaUp = new Vector3(0, 0, 0);
         aimIndicator = new AimIndicator(this, indicatorModel,indicatorArrowModel, 1f);
-        playerState = PlayerState.Idle;
+        playerState = PlayerState.NormalMovement;
         playerModels = models;
         this.playerModels.Add(jesterHeadModel);
         this.jesterHat = new JesterHat(this,jesterHeadModel,0.5f);
@@ -196,7 +196,7 @@ public class Player : GameModel
     {
         if (input.Action())
         {
-            this.SwitchAnimation(0, false, 0.05f);
+
             Hand.IsCatching = true;
             playerState = PlayerState.Catching;
             timeSinceStartOfCatch = 0f;  
@@ -225,6 +225,7 @@ public class Player : GameModel
     {
         
         float speedUp = 1 + 2 * actionPushedDuration * actionPushedDuration;
+
         //Console.WriteLine("Throwing projectile with orientation: " + Orientation + "and origin:" + this.Position + "and target: " + aimIndicator.Target + " and speedup: " + speedUp);
         //9 is the current maximum of the speedUp
         if (projectileHeld.Action(speedUp/9, aimIndicator.Target, outside))
@@ -276,6 +277,7 @@ public class Player : GameModel
         if (!GetAffected(projectile))
             return false;
 
+        SwitchAnimation(3,false,0.3f,0.0f,4.0f);
         LoseLife();
         return true;
     }
@@ -376,7 +378,7 @@ public class Player : GameModel
             if(projectile.Holder is Player)
             {
                 (projectile.Holder as Player).projectileHeld = null;
-                (projectile.Holder as Player).playerState = PlayerState.Idle;
+                (projectile.Holder as Player).playerState = PlayerState.NormalMovement;
             }
             else if(projectile.Holder is Zombie)
             {
@@ -399,17 +401,21 @@ public class Player : GameModel
         playerState = PlayerState.NormalMovement;
     }
 
-
+    //ANIMATIONS
+    //0: Grabbing
+    //1: Overhead Grab
+    //2: Falling
+    //3: Twitching
+    //4: ChaCha real smooth
+    //5: Dash
+    //6: Idle
+    //7: Throw
+    //8: Walking
     // Update function called each update
     public override void Update(float dt)
     {
         //this cannot overflow
         input.EndVibrate(dt);
-        if(input.Direction().Length() > 0){
-            this.playerState = PlayerState.NormalMovement;
-        } else {
-            this.playerState = PlayerState.Idle;
-        }
 
         switch (playerState)
         {
@@ -426,13 +432,14 @@ public class Player : GameModel
                 break;
             case PlayerState.Catching:
                 timeSinceStartOfCatch += dt;
-
+                this.SwitchAnimation(0,false,0.3f);
                 Move(dt);
                 if (timeSinceStartOfCatch > CATCH_COOLDOWN)
                     playerState = PlayerState.NormalMovement;
                 break;
             case PlayerState.HoldingProjectile:
                 Move(dt);
+                this.SwitchAnimation(8, true, 0.05f);
                 if (input.Action() && actionPushedDuration == 0f)
                     playerState = PlayerState.Aiming;
                 else
@@ -440,9 +447,11 @@ public class Player : GameModel
                 break;
             case PlayerState.Dashing:
                 Dash(dt);
+                this.SwitchAnimation(5, true, 0.05f);
                 break;
             case PlayerState.Aiming:
                 Aim(dt);
+                this.SwitchAnimation(6,true,0.2f);
                 if (input.Action())
                 {
                     actionPushedDuration = actionPushedDuration >= 2f ? 2f : actionPushedDuration;
@@ -450,6 +459,12 @@ public class Player : GameModel
                 }
                 else
                 {
+                    if(this.projectileHeld.Type == ProjectileType.Spear){
+                        SwitchAnimation(5,false,0.2f,0.0f,0.5f);
+                    } else {
+                        SwitchAnimation(7,false,0.2f);
+                    }
+
                     DoActionWithProjectile();
                 }
                 break;
@@ -484,11 +499,12 @@ public class Player : GameModel
                 break;
             case PlayerState.FloatingWithChicken:
                 Move(dt);
-                this.SwitchAnimation(6, false, 0.2f, 0.5f);
+                this.SwitchAnimation(1, true, 0.3f, 0.5f, 4.0f);
                 Chicken chicken = projectileHeld as Chicken;
                 Position = new(Position.X, chicken.YCoordinate, Position.Z);
                 if(chicken.YCoordinate <= 0)
                 {
+                    this.animator.cancelBreak();
                     Position = new(Position.X, 0, Position.Z);
                     speed = NORMAL_SPEED;
                     Drop();
@@ -518,7 +534,7 @@ public class Player : GameModel
         if (shouldDraw) 
         {
             base.Draw(view, projection, shader, graphicsDevice, shadowDraw);
-            Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+            //Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
             jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
         }
 
