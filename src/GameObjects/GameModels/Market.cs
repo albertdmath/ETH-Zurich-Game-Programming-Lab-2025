@@ -49,7 +49,7 @@ namespace src.GameObjects
             float Y =  height + 0.3f;
             if(i != 2)
                 Y += 0.2f;
-            if(type == ProjectileType.Spear)
+            if(type == ProjectileType.Spear || type == ProjectileType.Mjoelnir)
                 Y += 0.2f;
                 
             this.fishTransform = Matrix.CreateScale(projectileScaling[type])

@@ -62,7 +62,7 @@ public class Player : GameModel
 
     private readonly GameStateManager gameStateManager;
 
-    public Player(Vector3 position, Input input, int id, DrawModel HitboxModel, DrawModel model, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, DrawModel staminaModel, float scale) : base(model, scale)
+    public Player(Vector3 position, Input input, int id, DrawModel model, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, DrawModel staminaModel, float scale) : base(model, scale)
     {
         Position = position;
         Orientation = new Vector3(0, 0, 1f);
@@ -77,7 +77,6 @@ public class Player : GameModel
         playerModel = model;
         this.playerModelShell = playerModelShell;
         this.Stamina = new Stamina(this, staminaModel);
-        this.Hitbox = new OBB(HitboxModel, Transform);
     }
 
     // ---------------------
