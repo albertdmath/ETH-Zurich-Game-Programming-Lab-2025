@@ -72,6 +72,7 @@ public class GameModel
         Update(dt);
         updateHitbox();
     }
+    
     public void updateHitbox()
     {
         if (Hitbox is OBB obb)

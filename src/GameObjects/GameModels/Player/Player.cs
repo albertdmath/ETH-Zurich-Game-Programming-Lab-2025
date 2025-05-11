@@ -44,7 +44,7 @@ public class Player : GameModel
     private float timeSinceStartOfCatch = 0f;
     private float friction = 9f;
     private Projectile lastThrownProjectile = null; // Store last thrown projectile
-    private  List<DrawModel> playerModels;
+    private  DrawModel playerModel;
     private readonly DrawModel playerModelShell;
     private const float CATCH_COOLDOWN = 1.0f;
     private readonly Input input;
@@ -62,7 +62,7 @@ public class Player : GameModel
 
     private readonly GameStateManager gameStateManager;
 
-    public Player(Vector3 position, Input input, int id, List<DrawModel> models, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, DrawModel staminaModel, float scale) : base(models[id], scale)
+    public Player(Vector3 position, Input input, int id, DrawModel HitboxModel, DrawModel model, DrawModel playerModelShell, DrawModel playerHandModel, DrawModel indicatorModel, DrawModel indicatorArrowModel, DrawModel staminaModel, float scale) : base(model, scale)
     {
         Position = position;
         Orientation = new Vector3(0, 0, 1f);
@@ -74,9 +74,10 @@ public class Player : GameModel
         inertiaUp = new Vector3(0, 0, 0);
         aimIndicator = new AimIndicator(this, indicatorModel,indicatorArrowModel, 1f);
         playerState = PlayerState.NormalMovement;
-        playerModels = models;
+        playerModel = model;
         this.playerModelShell = playerModelShell;
         this.Stamina = new Stamina(this, staminaModel);
+        this.Hitbox = new OBB(HitboxModel, Transform);
     }
 
     // ---------------------
@@ -236,7 +237,7 @@ public class Player : GameModel
             if(armor)
             {
                 armor = false;
-                this.DrawModel = playerModels[0];
+                this.DrawModel = playerModel;
             }
             else
                 Life--;
