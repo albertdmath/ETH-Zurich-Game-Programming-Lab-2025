@@ -130,6 +130,7 @@ namespace src.GameObjects{
                 Height = CENTER_BUTTON_HEIGHT,
                 Width = CENTER_BUTTON_WIDTH,
                 TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center,
+                
                 Font = fontSystem.GetFont(TEXTSIZE)
             };
             Grid.SetColumn(VolumeLabel,2);
@@ -185,9 +186,15 @@ namespace src.GameObjects{
 
             //MUSIC/SFX-SLIDER
             MyHorizontalSlider Volume = new MyHorizontalSlider(0,100,45,2,2,(s,a)=>{
+                if(!MusicAndSoundEffects.musicVolumeChanged){
+                    MusicAndSoundEffects.musicVolumeChanged = true;
+                }
                 MediaPlayer.Volume = a.NewValue*0.01f;
             },_grid);
             MyHorizontalSlider SFXVolume = new MyHorizontalSlider(0,100,100,2,4,(s,a)=>{
+                if(!MusicAndSoundEffects.sfxMusicVolumeChanged){
+                    MusicAndSoundEffects.sfxMusicVolumeChanged = true;
+                }
                 float? nullableFloat = a.NewValue;
                 MusicAndSoundEffects.VOLUME = (float)(nullableFloat*0.01f ?? 0.5);
                 MusicAndSoundEffects.angrymobInstance.Volume = (float)(nullableFloat*0.001f ?? 0.1f);

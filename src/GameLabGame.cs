@@ -223,8 +223,8 @@ namespace GameLab
             marketModels.Add(new DrawModel("../../../Content/market_3.dae",0.0f,0.3f, GraphicsDevice));
             marketModels.Add(new DrawModel("../../../Content/market_4.dae",0.0f,0.3f, GraphicsDevice));
 
-            mobModels.Add(new DrawModel("../../../Content/mob1.dae", 0.0f, 0.6f, GraphicsDevice));
-            mobModels.Add(new DrawModel("../../../Content/mob2.dae", 0.0f, 0.6f, GraphicsDevice));
+            mobModels.Add(new DrawModel("../../../Content/mob1_animated.glb", 0.0f, 0.6f, GraphicsDevice));
+            mobModels.Add(new DrawModel("../../../Content/mob2_animated.glb", 0.0f, 0.6f, GraphicsDevice));
             mobModels.Add(new DrawModel("../../../Content/mob3_animated.glb", 0.0f, 0.6f, GraphicsDevice));
 
             // Load animated models:
@@ -406,14 +406,14 @@ namespace GameLab
                 view = Matrix.CreateLookAt(cameraPosRadius, new Vector3(0, 0, 0.7f), Vector3.Up);
                 viewInverse = Matrix.Invert(view);
                 float musicVolume = MathHelper.Lerp(MediaPlayer.Volume, 0.0f, 0.01f);
-                MusicAndSoundEffects.angrymobInstance.Volume = MathHelper.Lerp( MusicAndSoundEffects.angrymobInstance.Volume,0.1f,0.01f);
+                MusicAndSoundEffects.angrymobInstance.Volume = MathHelper.Lerp( MusicAndSoundEffects.angrymobInstance.Volume,0.1f*MusicAndSoundEffects.VOLUME,0.01f);
                 MediaPlayer.Volume = musicVolume;
                 if((cameraPosition - cameraPosRadius).Length() < 0.01f){
                     view =  Matrix.CreateLookAt(cameraPosition, new Vector3(0, 0, 0.7f), Vector3.Up);
                     viewInverse = Matrix.Invert(view);
                     menuStateManager.TRANSITION = false;
                     menuStateManager.COUNTDOWN = true;
-                     MusicAndSoundEffects.angrymobInstance.Volume = 0.1f;
+                     MusicAndSoundEffects.playAngryMobSFX();
                      MediaPlayer.Volume = 0.0f;
 
                 }
