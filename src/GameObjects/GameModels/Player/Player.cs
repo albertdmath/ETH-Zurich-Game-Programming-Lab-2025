@@ -361,6 +361,12 @@ public class Player : GameModel
         } 
     }
 
+    public void UpdateJesterHatAnimation(float dt){
+        if(jesterHat != null){
+            jesterHat.UpdateAnimation(dt);
+        }
+    }
+
     public void OnObjectHit(GameModel obj)
     {
         Vector3 dir = 0.02f * Vector3.Normalize(new Vector3(Position.X - obj.Position.X, 0f, Position.Z - obj.Position.Z));
@@ -535,8 +541,10 @@ public class Player : GameModel
 
         if (shouldDraw) 
         {
+            shader.setFinalBoneMatrices(this.GetFinalBoneMatrices());
             base.Draw(view, projection, shader, graphicsDevice, shadowDraw);
             //Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+            shader.setFinalBoneMatrices(jesterHat.GetFinalBoneMatrices());
             jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
         }
 

@@ -44,7 +44,9 @@ public class GameModel
     }
 
     public void UpdateAnimation(float dt){
-        this.animator?.UpdateAnimation(dt);
+        if(this.animator != null){
+            this.animator.UpdateAnimation(dt);
+        }
     }
 
     public Matrix[] GetFinalBoneMatrices(){

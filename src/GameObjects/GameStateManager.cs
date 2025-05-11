@@ -315,6 +315,7 @@ namespace src.GameObjects
 
             foreach (Player player in players)
             {
+                player.UpdateJesterHatAnimation(dt);
                 player.UpdateAnimation(dt);
                 player.updateWrap(dt);
             }
@@ -492,7 +493,6 @@ namespace src.GameObjects
             // Draw all players
             foreach (Player player in players)
             {
-                shadowShader.setFinalBoneMatrices(player.GetFinalBoneMatrices());
                 player.Draw(view, projection, shadowShader, graphicsDevice, true);
                 //player.Hitbox.DebugDraw(graphicsDevice, view, projection);
             }
