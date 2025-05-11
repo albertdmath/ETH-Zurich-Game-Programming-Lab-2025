@@ -33,6 +33,8 @@ namespace src.GameObjects
         // Model references for initializing the instances
         private List<DrawModel> marketModels;
         private List<DrawModel> playerModels;
+
+        private List<DrawModel> playerHatModels;
         private DrawModel playerModelShell;
         private DrawModel playerHandModel;
         private List<DrawModel> indicatorModel;

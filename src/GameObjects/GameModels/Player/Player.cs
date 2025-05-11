@@ -53,7 +53,7 @@ public class Player : GameModel
     private Projectile lastThrownProjectile = null; // Store last thrown projectile
     private  DrawModel playerModel;
     private readonly DrawModel playerModelShell;
-    private const float CATCH_COOLDOWN = 1.0f;
+    private const float CATCH_COOLDOWN = 1.5f;
     private readonly Input input;
     private Vector3 inertia,inertiaUp;
     private Vector3 gravity = new(0,-30f,0);
@@ -127,7 +127,7 @@ public class Player : GameModel
         if (inertia.LengthSquared() < 0.1)
         {
             this.playerWalkingOrIdleBefore = PlayerState.Idle;
-            if(!this.currentlyCatching){
+            if(!this.Hand.IsCatching){
                         
                 playIdleAnimations(0.1f,1.0f);
             } else {
@@ -140,7 +140,7 @@ public class Player : GameModel
         {
             this.playerWalkingOrIdleBefore = PlayerState.NormalMovement;
 
-                if(!this.currentlyCatching){
+                if(!this.Hand.IsCatching){
                         
                            playWalkingAnimations(0.1f,1.0f);
             } else {
@@ -500,8 +500,7 @@ public class Player : GameModel
                 CanDash();
                 break;
             case PlayerState.Catching:
-            if(!currentlyCatching){
-                currentlyCatching = true;
+            if(Hand.IsCatching){
                 if(this.playerWalkingOrIdleBefore == PlayerState.NormalMovement){
                     this.SwitchAnimation(1, false, 0.4f);
             } else{
@@ -513,11 +512,8 @@ public class Player : GameModel
                 timeSinceStartOfCatch += dt;
                 Move(dt);
                 if (timeSinceStartOfCatch > CATCH_COOLDOWN){
-                    if(this.animator.checkEnded()){
 
-                    }
                     playerState = PlayerState.NormalMovement;
-                    currentlyCatching = false;
                 }
 
                 break;
@@ -621,7 +617,7 @@ public class Player : GameModel
             shader.setFinalBoneMatrices(this.GetFinalBoneMatrices());
             base.Draw(view, projection, shader, graphicsDevice, shadowDraw);
 
-           // Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
+           Hand.Draw(view, projection, shader, graphicsDevice, shadowDraw);
             shader.setFinalBoneMatrices(jesterHat.GetFinalBoneMatrices());
             if(Life >0){
                 jesterHat.Draw(view, projection, shader, graphicsDevice, shadowDraw);
