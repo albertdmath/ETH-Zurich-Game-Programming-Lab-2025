@@ -38,6 +38,10 @@ namespace src.GameObjects{
                 menuStateManager.COUNTDOWN = true;
                 gameStateManager.StartNewGame();//RELOADING
                 p.CloseEndMenu();
+                menuStateManager.MAIN_MENU_IS_OPEN=true;           
+                menuStateManager.COUNTDOWN = false;
+                menuStateManager.TRANSITION = false;
+                menuStateManager.PAUSE_MENU_IS_OPEN = false;
                 p.CloseMenu();
             },_grid,fontSystem,TEXTSIZE);
 
