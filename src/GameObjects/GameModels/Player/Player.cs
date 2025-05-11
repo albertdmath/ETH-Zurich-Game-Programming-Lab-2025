@@ -21,7 +21,6 @@ public class Player : GameModel
     // Variables
     private enum PlayerState
     {
-        Idle,
         NormalMovement,
         Catching,
         HoldingProjectile,
@@ -90,30 +89,44 @@ public class Player : GameModel
     // ---------------------
     private void Move(float dt)
     {
+        // 1. Get and validate input
+        Vector3 displacement = input.Direction();
 
-        Vector3 dir = input.Direction();
-        //inertia to keep some movement from last update;
-        inertia -= (9f * dt) * inertia;
-        inertiaUp += gravity*dt;
-        if (dir.Length() > 0)
+        if (displacement.LengthSquared() > 0)
         {
-            dir = Vector3.Normalize(dir);
-            inertia += (9f * dt) * dir;
-            // Limit inertia to a vector of length 1
-            if (inertia.Length() > 1f)
-                inertia = Vector3.Normalize(inertia);
+            displacement = Vector3.Normalize(displacement);
+            inertia += (9f * dt) * displacement;
         }
-        // Only update orientation if inertia is not 0
-        if (inertia.Length() > 0)
+
+        if(inertia.LengthSquared() > float.Epsilon)
         {
             Orientation = Vector3.Normalize(inertia);
+            inertia -= (9f * dt) * inertia;
+            if (inertia.LengthSquared() > 1f)
+                inertia = Orientation;
         }
-        // Updating the position of the player
-        Position += speed * inertia * dt + inertiaUp * dt;
-        if(Position.Y<=0)
+
+        
+        // 4. Handle gravity and grounding
+        if (Position.Y <= float.Epsilon) // Small epsilon for floating point precision
         {
-            inertiaUp = new Vector3(0, 0, 0);
             Position = new Vector3(Position.X, 0, Position.Z);
+            inertiaUp = Vector3.Zero;
+        }
+        else
+        {
+            inertiaUp += gravity * dt;
+        }
+        
+        Position += (speed * inertia + inertiaUp) * dt;
+
+        if (inertia.LengthSquared() < float.Epsilon)
+        {
+            this.SwitchAnimation(6, true, 0.2f);
+        }
+        else
+        {
+            this.SwitchAnimation(8, true, 0.05f, 0.0f, 1.0f);
         }
     }
 
@@ -436,14 +449,8 @@ public class Player : GameModel
 
         switch (playerState)
         {
-            case PlayerState.Idle: 
-                this.SwitchAnimation(7, true, 0.2f);
-                CanCatch();
-                CanDash();
-                break;
             case PlayerState.NormalMovement:
                 Move(dt);
-                this.SwitchAnimation(9, true, 0.03f,0.0f,1.0f);
                 CanCatch();
                 CanDash();
                 break;
