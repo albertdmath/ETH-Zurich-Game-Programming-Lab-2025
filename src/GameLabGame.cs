@@ -224,7 +224,7 @@ namespace GameLab
 
             mobModels.Add(new DrawModel("../../../Content/mob1.dae", 0.0f, 0.6f, GraphicsDevice));
             mobModels.Add(new DrawModel("../../../Content/mob2.dae", 0.0f, 0.6f, GraphicsDevice));
-            mobModels.Add(new DrawModel("../../../Content/mob3.dae", 0.0f, 0.6f, GraphicsDevice));
+            mobModels.Add(new DrawModel("../../../Content/mob3_animated.glb", 0.0f, 0.6f, GraphicsDevice));
 
             // Load animated models:
             projectileModels.Add(ProjectileType.Banana, new DrawModel("../../../Content/bananapeel_animated_idle.glb", 0.0f, 0.9f, GraphicsDevice));
