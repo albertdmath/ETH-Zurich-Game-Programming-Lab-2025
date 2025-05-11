@@ -108,7 +108,7 @@ namespace src.GameObjects{
                     Font = fontSystem.GetFont(TEXTSIZE/2)
                 },
                 Height = 40,
-                Width = 40,
+                Width = 80,
                 VerticalAlignment=VerticalAlignment.Top,
                 Border = new SolidBrush(Color.Transparent),
                 BorderThickness = new Myra.Graphics2D.Thickness{
@@ -132,7 +132,7 @@ namespace src.GameObjects{
                     Top = plus.Top+2,
                 },
                 Height = 40,
-                Width = 40,
+                Width = 80,
                 VerticalAlignment=VerticalAlignment.Top,
                 Border = new SolidBrush(Color.Transparent),
                 BorderThickness = new Myra.Graphics2D.Thickness{
@@ -212,7 +212,7 @@ namespace src.GameObjects{
                     Font = fontSystem.GetFont(TEXTSIZE/2)
                 },
                 Height = 40,
-                Width = 40,
+                Width = 80,
                 VerticalAlignment=VerticalAlignment.Top,
                 Border = new SolidBrush(Color.Transparent),
                 BorderThickness = new Myra.Graphics2D.Thickness{
@@ -236,7 +236,7 @@ namespace src.GameObjects{
                     Left = minus.Left+2
                 },
                 Height = 40,
-                Width = 40,
+                Width = 80,
                 VerticalAlignment=VerticalAlignment.Top,
                 Border = new SolidBrush(Color.Transparent),
                 BorderThickness = new Myra.Graphics2D.Thickness{
