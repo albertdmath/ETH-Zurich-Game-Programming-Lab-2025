@@ -210,9 +210,9 @@ namespace GameLab
             indicatorModel.Add(new DrawModel("../../../Content/Player/aim_arrow_player4.dae", 0.0f, 0.3f, GraphicsDevice));
 
             playerHatModels.Add(new DrawModel("../../../Content/Player/player1hat_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
-            playerHatModels.Add(new DrawModel("../../../Content/Player/player2_hat.dae", 0.0f, 0.3f, GraphicsDevice));
-            playerHatModels.Add(new DrawModel("../../../Content/Player/player3_hat.dae", 0.0f, 0.3f, GraphicsDevice));
-            playerHatModels.Add(new DrawModel("../../../Content/Player/player4_hat.dae", 0.0f, 0.3f, GraphicsDevice));
+            playerHatModels.Add(new DrawModel("../../../Content/Player/player2hat_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
+            playerHatModels.Add(new DrawModel("../../../Content/Player/player3hat_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
+            playerHatModels.Add(new DrawModel("../../../Content/Player/player4hat_animated_everything.glb", 0.0f, 0.3f, GraphicsDevice));
 
             marketModels.Add(new DrawModel("../../../Content/market_1.dae",0.0f,0.3f, GraphicsDevice));
             marketModels.Add(new DrawModel("../../../Content/market_2.dae",0.0f,0.3f, GraphicsDevice));
