@@ -35,8 +35,9 @@ namespace src.GameObjects{
         private bool menuopen=true;
         private bool controllerlocked = false;
         private bool insubMenu = false;
-        SubMenu subMenu;
-        EndMenu endMenu;
+        private SubMenu subMenu;
+        private EndMenu endMenu;
+        private ProjectileMenu projectileMenu;
         private GameStateManager gameStateManager;
         private MenuStateManager menuStateManager;
         public MyMenu(GameLabGame game, int DisplayWidth, int DisplayHeight){
@@ -205,9 +206,10 @@ namespace src.GameObjects{
             MainMenuGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
             
-            
+            this.projectileMenu = new ProjectileMenu(desktop,MainMenuGrid,this,MedievalFont,TEXTSIZE);
+
             //MainMenu-GRID-CONTENT============================
-            MyButton MainMenuExit = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit",0,3,(s,a)=>{
+            MyButton MainMenuExit = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Exit",0,4,(s,a)=>{
                 game.Exit();
             },MainMenuGrid,MedievalFont,TEXTSIZE);
 
@@ -228,6 +230,14 @@ namespace src.GameObjects{
             MyButton MainTutorial = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Tutorial",0,2,(s,a)=>{
                 //TUTORIAL-CALL
                 menuStateManager.TUTORIAL_IS_OPEN=true;
+            },MainMenuGrid,MedievalFont,TEXTSIZE);
+            MyButton projectileMenuButton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Projectiles",0,3,(s,a)=>{
+                activeElements[controllerselectedbutton].UnHighlight();
+                insubMenu = true;
+                subMenu = projectileMenu;
+                activeElements = subMenu.Activate(activeElements);
+                oldcontrollerselectedbutton=controllerselectedbutton;
+                controllerselectedbutton=0;
             },MainMenuGrid,MedievalFont,TEXTSIZE);
 
             //BASEGRID-CONTENT===================================
