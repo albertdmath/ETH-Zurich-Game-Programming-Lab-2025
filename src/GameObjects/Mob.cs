@@ -19,9 +19,9 @@ namespace src.GameObjects
 
         // Ellipse properties
         private float timeAlive;
-        private const float TIME_BETWEEN_CLOSING = 10f;
+        private const float TIME_BETWEEN_CLOSING = 15f;
         private const float CLOSING_TIME = 5f;
-        private const int N_CLOSINGS = 4;
+        private const int N_CLOSINGS = 5;
         public Ellipse Ellipse { get; private set; }
         private float startMajorAxis, startMinorAxis;
         private float endMajorAxis, endMinorAxis = 3f;

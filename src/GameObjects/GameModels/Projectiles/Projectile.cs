@@ -22,16 +22,16 @@ public class Projectile : GameModel
     // Projectile spawn probabilities (can be adjusted via UI)
     public readonly static Dictionary<ProjectileType, float> ProjectileProbability = new()
     {
-        { ProjectileType.Banana, 0.1f },
-        { ProjectileType.Coconut, 0.1f },
+        { ProjectileType.Banana, 0.08f },
+        { ProjectileType.Coconut, 0.15f },
         { ProjectileType.Frog, 0.1f },
         { ProjectileType.Mjoelnir, 0.1f },
         { ProjectileType.Spear, 0.1f },
-        { ProjectileType.Swordfish, 0.1f },
-        { ProjectileType.Tomato, 0.1f },
-        { ProjectileType.Turtle, 0.7f },
-        { ProjectileType.Chicken, 0.1f },
-        { ProjectileType.Barrel, 0.1f }
+        { ProjectileType.Swordfish, 0.3f },
+        { ProjectileType.Tomato, 0.2f },
+        { ProjectileType.Turtle, 0.08f },
+        { ProjectileType.Chicken, 0.05f },
+        { ProjectileType.Barrel, 0.03f }
     };
 
     // Projectile properties

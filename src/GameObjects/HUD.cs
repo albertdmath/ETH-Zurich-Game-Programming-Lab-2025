@@ -43,8 +43,8 @@ List<Texture2D> countdown = new List<Texture2D>();
         this.tutorial = tutorial;
         offsets.Add(new Vector2(50,40));
         offsets.Add(new Vector2(screenWidth - 4300*menuStateManager.HUD_SCALE,40));
-        offsets.Add(new Vector2(50, screenHeight - 200));
-        offsets.Add(new Vector2(screenWidth - 4300*menuStateManager.HUD_SCALE, screenHeight-200));
+        offsets.Add(new Vector2(50, screenHeight - 300));
+        offsets.Add(new Vector2(screenWidth - 4300*menuStateManager.HUD_SCALE, screenHeight-300));
         this.countdown = countdown;
     }
 

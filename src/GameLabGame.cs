@@ -166,7 +166,7 @@ namespace GameLab
         protected override void Initialize()
         {
             _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width * 9/16;
             _graphics.IsFullScreen = false; // Enable full screen
             // _graphics.PreferMultiSampling = true; // Enable MSAA
             // _graphics.GraphicsProfile = GraphicsProfile.HiDef; // Needed for MSAA > 0

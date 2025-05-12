@@ -4,7 +4,7 @@ namespace src.GameObjects;
 public class Rng
 {
     // Private fields:
-    private static readonly Random random = new(42);
+    private static readonly Random random = new();
     
     // Public methods:
     public static float NextFloat() => (float)random.NextDouble();
