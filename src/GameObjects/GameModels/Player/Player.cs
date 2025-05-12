@@ -547,7 +547,7 @@ public class Player : GameModel
                 else
                 {
                     if(this.projectileHeld.Type == ProjectileType.Spear){
-                        playWalkingAnimations(0.2f,4.0f);
+                        playWalkingAnimations(0.5f,4.0f);
                     } else {
                         SwitchAnimation(8,false,0.2f);
                     }
