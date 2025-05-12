@@ -24,7 +24,7 @@ namespace src.GameObjects
         public bool SHADOWS_ENABLED { get ; set; } = true;
         public bool AMBIENT_OCCLUSION_ENABLED{get;set;}= true;
         public bool FXAA_ENABLED {get;set;} = true;
-        public bool FULLSCREEN {get;set;} = false;
+        public bool FULLSCREEN {get;set;} = true;
 
         public float HUD_SCALE { get; set; } = 0.15f;
 
