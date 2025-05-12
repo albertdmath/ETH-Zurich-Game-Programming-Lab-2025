@@ -157,7 +157,7 @@ List<Texture2D> countdown = new List<Texture2D>();
 
                 return false;
             }    else {
-                timePassed = 0;
+                resetCountdown();
                 return true;
             }
           
