@@ -56,7 +56,7 @@ public class Player : GameModel
 
     private const float CATCH_COOLDOWN = 1.2f;
     public readonly Input input;
-    private Vector3 inertia,inertiaUp;
+    private Vector3 inertia, inertiaUp;
     private Vector3 gravity = new(0,-30f,0);
     private bool outside = false;
     private float timerSpear = 0;
@@ -64,7 +64,7 @@ public class Player : GameModel
 
     private readonly JesterHat jesterHat;
     private readonly AimIndicator aimIndicator;
-    private const float speedOfCharging = 2f;
+    private const float speedOfCharging = 3f;
     private PlayerState playerStateBeforeDashing;
     private readonly Stamina Stamina;
 
