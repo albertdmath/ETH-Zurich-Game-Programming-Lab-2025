@@ -109,7 +109,7 @@ namespace src.GameObjects{
                 }
             },_grid,fontSystem,TEXTSIZE);
 
-            MySpinbutton NumPlayerSpinButton = new MySpinbutton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,2,true,"whatever",0,4,_grid,fontSystem,textsize);
+            MySpinbutton NumPlayerSpinButton = new MySpinbutton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,menuStateManager.MIN_NUM_PLAYER,menuStateManager.MAX_NUM_PLAYER,false,menuStateManager.NUM_PLAYERS,true,"whatever",0,4,_grid,fontSystem,textsize);
 
             MyButton backbutton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Back",0,/*13*/5,(s,a)=>{
                 ParentMenu.CloseSubMenu();
