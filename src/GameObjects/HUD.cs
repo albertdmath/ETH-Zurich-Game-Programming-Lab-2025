@@ -20,6 +20,10 @@ public class HUD
     private Texture2D mainBanner;
     private Texture2D tutorial;
 
+    private bool boo = false;
+
+    private int boomCounter = 0;
+
 List<Texture2D> countdown = new List<Texture2D>();
 
     private float timePassed = 0;
@@ -66,6 +70,8 @@ List<Texture2D> countdown = new List<Texture2D>();
     
         public void resetCountdown(){
             this.timePassed = 0;
+            this.boo = false;
+            this.boomCounter = 0;
         }
 
 
@@ -112,12 +118,21 @@ List<Texture2D> countdown = new List<Texture2D>();
             spriteBatch.Draw(pixel, backgroundRectangle, Color.Transparent);
             spriteBatch.Draw(countdown[0], new Vector2(screenWidth/2 - 600, screenHeight/3 - 400), Color.White); 
             // Draw player hat of the correct color so people know *who* won
+                        if(boomCounter == 0){
+                MusicAndSoundEffects.playBoomSFX();
+                boomCounter++;
+            }
             return false;
             } else if( timePassed >= 1 && timePassed <2){
             // Black transparent backdrop
             spriteBatch.Draw(pixel, backgroundRectangle, Color.Transparent);
 
             spriteBatch.Draw(countdown[1], new Vector2(screenWidth/2 - 600, screenHeight/3 - 400), Color.White); 
+
+                if(boomCounter == 1){
+                MusicAndSoundEffects.playBoomSFX();
+                boomCounter++;
+            }
             // Draw player hat of the correct color so people know *who* won
 
             return false;
@@ -126,11 +141,20 @@ List<Texture2D> countdown = new List<Texture2D>();
             spriteBatch.Draw(pixel, backgroundRectangle, Color.Transparent);
 
             spriteBatch.Draw(countdown[2], new Vector2(screenWidth/2 - 600, screenHeight/3 - 400), Color.White); 
+                        if(boomCounter == 2){
+                MusicAndSoundEffects.playBoomSFX();
+                boomCounter++;
+            }
             return false;
-            } else  if (timePassed >= 3 && timePassed <4){
+            } else  if (timePassed >= 3 && timePassed <5){
                   spriteBatch.Draw(pixel, backgroundRectangle, Color.Transparent);
-
+            // Black transparent backdro
             spriteBatch.Draw(countdown[3], new Vector2(screenWidth/2 - 600, screenHeight/3 - 400), Color.White); 
+            if(!boo){
+                MusicAndSoundEffects.playBooSFX();
+                boo = true;
+            }
+
                 return false;
             }    else {
                 timePassed = 0;

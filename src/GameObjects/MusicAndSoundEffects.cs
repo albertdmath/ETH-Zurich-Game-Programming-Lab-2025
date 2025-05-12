@@ -29,7 +29,8 @@ public class MusicAndSoundEffects
     public static SoundEffect uiClickSFX;
     public static SoundEffect uiHoverSFX;
     public static SoundEffect djscratchSFX;
-
+        public static SoundEffect booSFX;
+  public static SoundEffect boomSFX;
 
     // Backing track:
     private static Song bgMusic;
@@ -47,6 +48,8 @@ public class MusicAndSoundEffects
         swordfishSFX = Content.Load<SoundEffect>("Audio/swordfishSFX");
         tomatoSFX = Content.Load<SoundEffect>("Audio/tomatoSFX");
         turtleSFX = Content.Load<SoundEffect>("Audio/turtleSFX");
+        booSFX = Content.Load<SoundEffect>("Audio/booSFX");
+        boomSFX = Content.Load<SoundEffect>("Audio/boomSFX");
 
         // Other sound effects:
         angrymobSFX = Content.Load<SoundEffect>("Audio/angrymobSFX");
@@ -81,6 +84,16 @@ public class MusicAndSoundEffects
     public static void playUIClickSFX() {
         if(menuStateManager.SOUND_ENABLED)
             uiClickSFX.Play(0.2f*VOLUME, 0.0f, 0.0f);
+    }
+    
+        public static void playBooSFX() {
+        if(menuStateManager.SOUND_ENABLED)
+            booSFX.Play(0.2f*VOLUME, 0.0f, 0.0f);
+    }
+
+    public static void playBoomSFX() {
+        if(menuStateManager.SOUND_ENABLED)
+            boomSFX.Play(0.1f*VOLUME, 0.0f, 0.0f);
     }
 
 
