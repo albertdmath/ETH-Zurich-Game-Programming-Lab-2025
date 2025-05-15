@@ -472,7 +472,7 @@ namespace src.GameObjects{
                 activeElements = pauseElements;
             }
 
-            if((Grid) desktop.Root == PauseGrid && menuopen){
+            if((desktop.Root is Grid) && desktop.Root == PauseGrid && menuopen){
                 menuStateManager.MAIN_MENU_IS_OPEN = false;
                 menuStateManager.PAUSE_MENU_IS_OPEN = true;
             }
