@@ -294,26 +294,38 @@ namespace src.GameObjects
                 
                 // CATCHING
                 Hand hand = player.Hand;
-                if(hand.IsCatching)
-                {
-                    // PROJECTILE
-                    foreach (Projectile projectile in projectiles)
-                    {
-                        if (hand.Hitbox.Intersects(projectile.Hitbox))
-                            if (player.Catch(projectile))
-                                break;
-                    }
+                if (hand.IsCatching)
+{
+    bool caughtProjectile = false;
 
-                    // MARKET
-                    foreach (Market market in markets)
-                    {
-                        if (hand.Hitbox.Intersects(market.Hitbox) && market.GrabProjectile())
-                        {
-                            Projectile projectile = CreateProjectile(market.Type);
-                            player.Catch(projectile);
-                        }
-                    }
-                }
+    // PROJECTILE
+    foreach (Projectile projectile in projectiles)
+    {
+        if (hand.Hitbox.Intersects(projectile.Hitbox))
+        {
+            if (player.Catch(projectile))
+            {
+                caughtProjectile = true;
+                break;
+            }
+        }
+    }
+
+    // MARKET
+    if (!caughtProjectile)
+    {
+        foreach (Market market in markets)
+        {
+            if (hand.Hitbox.Intersects(market.Hitbox) && market.GrabProjectile())
+            {
+                Projectile projectile = CreateProjectile(market.Type);
+                player.Catch(projectile);
+                break; // optional: if you want to only grab from the first market
+            }
+        }
+    }
+}
+
             }
 
             // UPDATES
@@ -611,7 +623,6 @@ namespace src.GameObjects
                 spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
                 spriteBatch.Draw((RenderTarget2D)targets[3].RenderTarget, new Rectangle(800, 0, 400, 400), Color.White);
                 spriteBatch.End();
-
             }
 
 
@@ -672,9 +683,6 @@ public void FilterPass(Filter filterShader, RenderTarget2D inputTexture, RenderT
                 return true;
             }
             return false;
-        }
-        public void Tutorial(){
-            
         }
     }
 }
