@@ -79,7 +79,7 @@ namespace src.GameObjects;
         {
             returnGrid = (Grid)desktop.Root;
             oldMenuElements = R;
-            desktop.Root = scrollContainer; // Use the scrollViewer instead of grid directly
+            desktop.Root = _grid; // Use the scrollViewer instead of grid directly
             menuopen = true;
             return menuElements;
         }

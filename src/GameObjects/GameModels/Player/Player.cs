@@ -429,9 +429,7 @@ public class Player : GameModel
 
 
     public void UpdateJesterHatAnimation(float dt){
-        if(jesterHat != null){
-            jesterHat.UpdateAnimation(dt);
-        }
+        jesterHat?.UpdateAnimation(dt);
     }
 
     public void OnObjectHit(GameModel obj)
@@ -442,26 +440,26 @@ public class Player : GameModel
     }
 
     // Method to test for a collision with a projectile and potentially grab it:
-    public void Catch(Projectile projectile)
+    public bool Catch(Projectile projectile)
     {
         if (lastProjectileImmunity > 0 && projectile == lastThrownProjectile)
-            return;
-        
+            return false;
+
         GameModel prevHolder = projectile.Holder;
-        if(!projectile.Catch(this))
-            return;
-            
+        if (!projectile.Catch(this))
+            return false;
+
         Hand.StopCatching();
 
         projectileHeld = projectile;
-        if(prevHolder != null) 
+        if (prevHolder != null)
         {
-            if(prevHolder is Player)
+            if (prevHolder is Player)
             {
                 (prevHolder as Player).projectileHeld = null;
                 (prevHolder as Player).playerState = PlayerState.NormalMovement;
             }
-            else if(prevHolder is Zombie)
+            else if (prevHolder is Zombie)
             {
                 (prevHolder as Zombie).projectileHeld = null;
             }
@@ -469,6 +467,8 @@ public class Player : GameModel
 
         MusicAndSoundEffects.playProjectileSFX(projectile.Type);
         playerState = PlayerState.HoldingProjectile;
+
+        return true;
     }
     // Method to tdrop the current projectile
     public void Drop()

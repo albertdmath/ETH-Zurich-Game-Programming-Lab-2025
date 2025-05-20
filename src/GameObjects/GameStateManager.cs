@@ -252,7 +252,7 @@ namespace src.GameObjects
                 // PLAYER
                 foreach (Player player in players)
                 {
-                    if(projectile.Hitbox.Intersects(player.Hitbox))
+                    if(!player.IsCrawling() && projectile.Hitbox.Intersects(player.Hitbox))
                     {
                         projectile.OnPlayerHit(player);
                     }
@@ -299,8 +299,9 @@ namespace src.GameObjects
                     // PROJECTILE
                     foreach (Projectile projectile in projectiles)
                     {
-                        if (hand.Hitbox.Intersects(projectile.Hitbox) && hand.IsCatching)
-                            player.Catch(projectile);
+                        if (hand.Hitbox.Intersects(projectile.Hitbox))
+                            if (player.Catch(projectile))
+                                break;
                     }
 
                     // MARKET
@@ -320,7 +321,6 @@ namespace src.GameObjects
 
             foreach (Player player in players)
             {
-
                 player.updateWrap(dt);
                 player.UpdateJesterHatAnimation(dt);
                 player.UpdateAnimation(dt);
@@ -662,8 +662,16 @@ public void FilterPass(Filter filterShader, RenderTarget2D inputTexture, RenderT
             InitializePlayers();
         }
 
-        public bool GameIsOver(){
-            return (livingPlayers.Count() == 1 && !(menuStateManager.NUM_PLAYERS==1));
+        public bool GameIsOver()
+        {
+            if (livingPlayers.Count == 1)
+            {
+                for (int i = 0; i < players.Count; i++)
+                    GamePad.SetVibration(i, 0, 0);
+                
+                return true;
+            }
+            return false;
         }
         public void Tutorial(){
             

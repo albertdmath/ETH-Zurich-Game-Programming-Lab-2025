@@ -37,6 +37,7 @@ namespace src.GameObjects{
         private bool insubMenu = false;
         private SubMenu subMenu;
         private EndMenu endMenu;
+        private SettingsMenu settingsMenu;
         private ProjectileMenu projectileMenu;
         private GameStateManager gameStateManager;
         private MenuStateManager menuStateManager;
@@ -188,7 +189,7 @@ namespace src.GameObjects{
 
             //SETTINGS-SUBMENU
             //shadows, ambient occlusion, fxaa
-            SettingsMenu settingsMenu = new SettingsMenu(desktop,PauseGrid,this,MedievalFont,TEXTSIZE);
+            settingsMenu = new SettingsMenu(desktop,PauseGrid,this,MedievalFont,TEXTSIZE);
             
             
             //MAIN-MENU-GRID
@@ -231,11 +232,12 @@ namespace src.GameObjects{
                 //TUTORIAL-CALL
                 menuStateManager.TUTORIAL_IS_OPEN=true;
             },MainMenuGrid,MedievalFont,TEXTSIZE);
+
             MyButton projectileMenuButton = new MyButton(CENTER_BUTTON_WIDTH,CENTER_BUTTON_HEIGHT,"Projectiles",0,3,(s,a)=>{
                 activeElements[controllerselectedbutton].UnHighlight();
                 insubMenu = true;
                 subMenu = projectileMenu;
-                activeElements = subMenu.Activate(activeElements);
+                activeElements = projectileMenu.Activate(activeElements);
                 oldcontrollerselectedbutton=controllerselectedbutton;
                 controllerselectedbutton=0;
             },MainMenuGrid,MedievalFont,TEXTSIZE);
@@ -552,8 +554,8 @@ namespace src.GameObjects{
         public void CloseMenu(){
             //menuStateManager.TUTORIAL_IS_OPEN=false;
             //CHANGE CONTROLLERSELECTED BUTTONS TO DEFAULT STYLE
-            activeElements[controllerselectedbutton].LeaveButton();
-            activeElements[controllerselectedbutton].UnHighlight();
+            //activeElements[controllerselectedbutton].LeaveButton();
+            //activeElements[controllerselectedbutton].UnHighlight();
 
             if(menuStateManager.PAUSE_MENU_IS_OPEN){
                 menuStateManager.PAUSE_MENU_IS_OPEN = false;
@@ -589,8 +591,8 @@ namespace src.GameObjects{
         }
         public void CloseSubMenu(){
             //CHANGE CONTROLLERSELECTED BUTTONS TO DEFAULT STYLE
-            activeElements[controllerselectedbutton].LeaveButton();
-            activeElements[controllerselectedbutton].UnHighlight();
+            //activeElements[controllerselectedbutton].LeaveButton();
+            //activeElements[controllerselectedbutton].UnHighlight();
 
             //CHANGE DESKTOP-GRID
             activeElements = subMenu.DeActivate();
