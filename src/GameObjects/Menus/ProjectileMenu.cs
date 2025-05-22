@@ -28,14 +28,21 @@ namespace src.GameObjects;
 
             var list = Projectile.ProjectileProbability.ToList();
             int n = list.Count;
-            menuElements = new MyHorizontalSlider[n];
+            menuElements = new MyMenuElement[n+1];
 
             for (int i = 0; i < n; i++)
             {
+                int j=0;
+            int I = i;
+            if (i > n / 2)
+            {
+                j = 2;
+                I = i - n / 2;
+            }
                 var (key, value) = list[i];
                 
                 Label label = new Label{
-                    Text =  $"{key}:",
+                    Text =  $"{key}",
                     TextColor = Color.White,
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center,
@@ -47,15 +54,40 @@ namespace src.GameObjects;
                     Font = fontSystem.GetFont(TEXTSIZE)
                 };
 
-                Grid.SetColumn(label,0);
-                Grid.SetRow(label, i);
+                Grid.SetColumn(label,j);
+                Grid.SetRow(label, I);
 
-                _grid.Widgets.Add(label);
+                
 
-                menuElements[i] = new MyHorizontalSlider(0,1000,(int)(value*1000),1,i,(s,a)=>{
-                    Projectile.ProjectileProbability[key] = a.NewValue*0.001f;
+                Label shadowLabel = new Label
+                {
+                    Text = $"{key}",
+                    Font = fontSystem.GetFont(TEXTSIZE),
+                    TextColor = Color.Black,
+                    Left = label.Left + 2,
+                    Top = label.Top + 2, //THESE ARE HIGHLY EXPERIMENTAL
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                Padding = new Thickness{Top=8,Bottom=5},
+                    Height = CENTER_BUTTON_HEIGHT,
+                    Width = CENTER_BUTTON_WIDTH,
+                    TextAlign = FontStashSharp.RichText.TextHorizontalAlignment.Center,
+                    
+            };
+            Grid.SetColumn(shadowLabel,j);
+            Grid.SetRow(shadowLabel,I);
+            _grid.Widgets.Add(shadowLabel);
+            _grid.Widgets.Add(label);
+            
+                menuElements[i] = new MyHorizontalSlider(0,100,(int)(value*100),j+1,I,(s,a)=>{
+                    Projectile.ProjectileProbability[key] = a.NewValue*0.01f;
                 },_grid);
             }
+
+        menuElements[n] = new MyButton(CENTER_BUTTON_WIDTH, CENTER_BUTTON_HEIGHT, "Back", 3, n - n / 2, (s, a) =>
+        {
+            ParentMenu.CloseSubMenu();
+        }, _grid, fontSystem, textsize);
 
             ScrollViewer scrollViewer = new ScrollViewer
             {
