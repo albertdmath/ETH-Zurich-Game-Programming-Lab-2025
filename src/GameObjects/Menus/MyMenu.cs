@@ -460,7 +460,7 @@ namespace src.GameObjects{
             //desktop.Root = grid;
 
             //ELEMENTÄRÄIs
-            mainElements = new MyMenuElement[]{MainMenuStart,MainSettings,MainTutorial,MainMenuExit};
+            mainElements = new MyMenuElement[]{MainMenuStart,MainSettings,MainTutorial,projectileMenuButton,MainMenuExit};
             pauseElements = new MyMenuElement[]{resumebutton,reloadbutton,settingsButton,BacktoMainMenu,closebutton};
             activeElements = mainElements;
             endMenu = new EndMenu(desktop,MainMenuGrid,this,MedievalFont,TEXTSIZE,mainElements);
@@ -554,8 +554,8 @@ namespace src.GameObjects{
         public void CloseMenu(){
             //menuStateManager.TUTORIAL_IS_OPEN=false;
             //CHANGE CONTROLLERSELECTED BUTTONS TO DEFAULT STYLE
-            //activeElements[controllerselectedbutton].LeaveButton();
-            //activeElements[controllerselectedbutton].UnHighlight();
+            activeElements[controllerselectedbutton].LeaveButton();
+            activeElements[controllerselectedbutton].UnHighlight();
 
             if(menuStateManager.PAUSE_MENU_IS_OPEN){
                 menuStateManager.PAUSE_MENU_IS_OPEN = false;
@@ -591,8 +591,8 @@ namespace src.GameObjects{
         }
         public void CloseSubMenu(){
             //CHANGE CONTROLLERSELECTED BUTTONS TO DEFAULT STYLE
-            //activeElements[controllerselectedbutton].LeaveButton();
-            //activeElements[controllerselectedbutton].UnHighlight();
+            activeElements[controllerselectedbutton].LeaveButton();
+            activeElements[controllerselectedbutton].UnHighlight();
 
             //CHANGE DESKTOP-GRID
             activeElements = subMenu.DeActivate();

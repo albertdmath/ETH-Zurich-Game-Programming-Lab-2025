@@ -28,7 +28,7 @@ namespace src.GameObjects;
 
             var list = Projectile.ProjectileProbability.ToList();
             int n = list.Count;
-            MyMenuElement[] menuElements = new MyHorizontalSlider[n];
+            menuElements = new MyHorizontalSlider[n];
 
             for (int i = 0; i < n; i++)
             {
